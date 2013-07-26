@@ -1,0 +1,287 @@
+<?php
+
+/**
+ * Plugin Dependency
+ *
+ * The purpose of the following hooks is to mimic the behavior of something
+ * called 'plugin dependency' which enables a plugin to have plugins of their
+ * own in a safe and reliable way.
+ *
+ * We do this in Fiscaat by mirroring existing WordPress hooks in many places
+ * allowing dependant plugins to hook into the Fiscaat specific ones, thus
+ * guaranteeing proper code execution only when Fiscaat is active.
+ *
+ * The following functions are wrappers for hooks, allowing them to be
+ * manually called and/or piggy-backed on top of other hooks if needed.
+ *
+ * @todo use anonymous functions when PHP minimun requirement allows (5.3)
+ */
+
+/** Activation Actions ********************************************************/
+
+/**
+ * Runs on Fiscaat activation
+ *
+ * @uses register_uninstall_hook() To register our own uninstall hook
+ * @uses do_action() Calls 'fiscaat_activation' hook
+ */
+function fiscaat_activation() {
+	do_action( 'fiscaat_activation' );
+}
+
+/**
+ * Runs on Fiscaat deactivation
+ *
+ * @uses do_action() Calls 'fiscaat_deactivation' hook
+ */
+function fiscaat_deactivation() {
+	do_action( 'fiscaat_deactivation' );
+}
+
+/**
+ * Runs when uninstalling Fiscaat
+ *
+ * @uses do_action() Calls 'fiscaat_uninstall' hook
+ */
+function fiscaat_uninstall() {
+	do_action( 'fiscaat_uninstall' );
+}
+
+/** Main Actions **************************************************************/
+
+/**
+ * Main action responsible for constants, globals, and includes
+ *
+ * @uses do_action() Calls 'fiscaat_loaded'
+ */
+function fiscaat_loaded() {
+	do_action( 'fiscaat_loaded' );
+}
+
+/**
+ * Setup constants
+ *
+ * @uses do_action() Calls 'fiscaat_constants'
+ */
+function fiscaat_constants() {
+	do_action( 'fiscaat_constants' );
+}
+
+/**
+ * Setup globals BEFORE includes
+ *
+ * @uses do_action() Calls 'fiscaat_boot_strap_globals'
+ */
+function fiscaat_boot_strap_globals() {
+	do_action( 'fiscaat_boot_strap_globals' );
+}
+
+/**
+ * Include files
+ *
+ * @uses do_action() Calls 'fiscaat_includes'
+ */
+function fiscaat_includes() {
+	do_action( 'fiscaat_includes' );
+}
+
+/**
+ * Setup globals AFTER includes
+ *
+ * @uses do_action() Calls 'fiscaat_setup_globals'
+ */
+function fiscaat_setup_globals() {
+	do_action( 'fiscaat_setup_globals' );
+}
+
+/**
+ * Register any objects before anything is initialized
+ *
+ * @uses do_action() Calls 'fiscaat_register'
+ */
+function fiscaat_register() {
+	do_action( 'fiscaat_register' );
+}
+
+/**
+ * Initialize any code after everything has been loaded
+ *
+ * @uses do_action() Calls 'fiscaat_init'
+ */
+function fiscaat_init() {
+	do_action( 'fiscaat_init' );
+}
+
+/**
+ * Initialize widgets
+ *
+ * @uses do_action() Calls 'fiscaat_widgets_init'
+ */
+function fiscaat_widgets_init() {
+	do_action( 'fiscaat_widgets_init' );
+}
+
+/**
+ * Setup the currently logged-in user
+ *
+ * @uses do_action() Calls 'fiscaat_setup_current_user'
+ */
+function fiscaat_setup_current_user() {
+	do_action( 'fiscaat_setup_current_user' );
+}
+
+/** Supplemental Actions ******************************************************/
+
+/**
+ * Load translations for current language
+ *
+ * @uses do_action() Calls 'fiscaat_load_textdomain'
+ */
+function fiscaat_load_textdomain() {
+	do_action( 'fiscaat_load_textdomain' );
+}
+
+/**
+ * Setup the post types
+ *
+ * @uses do_action() Calls 'fiscaat_register_post_type'
+ */
+function fiscaat_register_post_types() {
+	do_action( 'fiscaat_register_post_types' );
+}
+
+/**
+ * Setup the post statuses
+ *
+ * @uses do_action() Calls 'fiscaat_register_post_statuses'
+ */
+function fiscaat_register_post_statuses() {
+	do_action( 'fiscaat_register_post_statuses' );
+}
+
+/**
+ * Register the default Fiscaat shortcodes
+ *
+ * @uses do_action() Calls 'fiscaat_register_shortcodes'
+ */
+function fiscaat_register_shortcodes() {
+	do_action( 'fiscaat_register_shortcodes' );
+}
+
+/**
+ * Enqueue Fiscaat specific CSS and JS
+ *
+ * @uses do_action() Calls 'fiscaat_enqueue_scripts'
+ */
+function fiscaat_enqueue_scripts() {
+	do_action( 'fiscaat_enqueue_scripts' );
+}
+
+/**
+ * Add the bbPress-specific rewrite tags
+ *
+ * @uses do_action() Calls 'fiscaat_add_rewrite_tags'
+ */
+function fiscaat_add_rewrite_tags() {
+	do_action( 'fiscaat_add_rewrite_tags' );
+}
+
+/** User Actions **************************************************************/
+
+/**
+ * The main action for hooking into when a user account is updated
+ *
+ * @param int $user_id ID of user being edited
+ * @param array $old_user_data The old, unmodified user data
+ * @uses do_action() Calls 'fiscaat_profile_update'
+ */
+function fiscaat_profile_update( $user_id = 0, $old_user_data = array() ) {
+	do_action( 'fiscaat_profile_update', $user_id, $old_user_data );
+}
+
+/** Final Action **************************************************************/
+
+/**
+ * Fiscaat has loaded and initialized everything, and is okay to go
+ *
+ * @uses do_action() Calls 'fiscaat_ready'
+ */
+function fiscaat_ready() {
+	do_action( 'fiscaat_ready' );
+}
+
+/** Theme Permissions *********************************************************/
+
+/**
+ * The main action used for redirecting Fiscaat theme actions that are not
+ * permitted by the current_user
+ *
+ * @uses do_action()
+ */
+function fiscaat_template_redirect() {
+	do_action( 'fiscaat_template_redirect' );
+}
+
+/** Theme Helpers *************************************************************/
+
+/**
+ * The main action used for executing code before the theme has been setup
+ *
+ * @uses do_action()
+ */
+function fiscaat_setup_theme() {
+	do_action( 'fiscaat_setup_theme' );
+}
+
+/**
+ * The main action used for executing code after the theme has been setup
+ *
+ * @uses do_action()
+ */
+function fiscaat_after_setup_theme() {
+	do_action( 'fiscaat_after_setup_theme' );
+}
+
+/**
+ * Filter the plugin locale and domain.
+ *
+ * @param string $locale
+ * @param string $domain
+ */
+function fiscaat_plugin_locale( $locale = '', $domain = '' ) {
+	return apply_filters( 'fiscaat_plugin_locale', $locale, $domain );
+}
+
+/** Filters *******************************************************************/
+
+/**
+ * Piggy back filter for WordPress's 'request' filter
+ *
+ * @param array $query_vars
+ * @return array
+ */
+function fiscaat_request( $query_vars = array() ) {
+	return apply_filters( 'fiscaat_request', $query_vars );
+}
+
+/**
+ * Generate bbPress-specific rewrite rules
+ *
+ * @param WP_Rewrite $wp_rewrite
+ * @uses do_action() Calls 'fiscaat_generate_rewrite_rules' with {@link WP_Rewrite}
+ */
+function fiscaat_generate_rewrite_rules( $wp_rewrite ) {
+	do_action_ref_array( 'fiscaat_generate_rewrite_rules', array( &$wp_rewrite ) );
+}
+
+/**
+ * Maps record/account/year caps to built in WordPress caps
+ *
+ * @param array $caps Capabilities for meta capability
+ * @param string $cap Capability name
+ * @param int $user_id User id
+ * @param mixed $args Arguments
+ */
+function fiscaat_map_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
+	return apply_filters( 'fiscaat_map_meta_caps', $caps, $cap, $user_id, $args );
+}
