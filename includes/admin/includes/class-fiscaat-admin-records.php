@@ -62,13 +62,13 @@ class Fiscaat_Admin_Records {
 	private function class_actions() {
 
 		// Insert admin page
-		add_action( 'fiscaat_admin_menu', array( $this, 'admin_menu' ) );
+		add_action( 'fct_admin_menu', array( $this, 'admin_menu' ) );
 
 		// Page load hooks
 		add_action( $this->args->hook_prefix .'_load',   array( $this, 'load_list_table'  )        );
 		add_action( $this->args->hook_prefix .'_load',   array( $this, 'help'             )        );
 		add_action( $this->args->hook_prefix .'_load',   array( $this, 'remove_add_rows'  )        );
-		add_filter( 'fiscaat_records_list_table_action', array( $this, 'submit_action'    )        );
+		add_filter( 'fct_records_list_table_action', array( $this, 'submit_action'    )        );
 		add_filter( $this->args->hook_prefix .'_action', array( $this, 'submit_do_action' ), 10, 2 );
 
 		// Page head hooks
@@ -79,7 +79,7 @@ class Fiscaat_Admin_Records {
 		remove_filter( 'the_posts', array( 'Fiscaat_Records_Admin', 'records_add_rows' ), 99 );
 
 		// Table hooks
-		add_action( 'fiscaat_records_list_table_pagination', array( $this, 'submit_button' ), 1 );
+		add_action( 'fct_records_list_table_pagination', array( $this, 'submit_button' ), 1 );
 	}
 
 	/**
@@ -90,7 +90,7 @@ class Fiscaat_Admin_Records {
 	private function setup_globals( $args = array() ) {
 		global $post_type_object;
 
-		$this->post_type = fiscaat_get_record_post_type();
+		$this->post_type = fct_get_record_post_type();
 
 		if ( empty( $post_type_object ) )
 			$post_type_object = get_post_type_object( $this->post_type );
@@ -107,7 +107,7 @@ class Fiscaat_Admin_Records {
 		if ( empty( $args['page'] ) )
 			wp_die( sprintf( __( 'Missing paramater <em>%s</em> for class Fiscaat_Admin_Records.', 'fiscaat'), 'page' ) );
 
-		$args['hook_prefix'] = 'fiscaat_admin_records_'. $args['page'];
+		$args['hook_prefix'] = 'fct_admin_records_'. $args['page'];
 		$this->args = (object) $args;
 	}
 
@@ -195,7 +195,7 @@ class Fiscaat_Admin_Records {
 			/* Communicate between account id and ledger id dropdowns per each record row */
 			jQuery(document).ready(function($) {
 				var rows      = $( '#the-list .record' ),
-				    dropdowns = [ 'select.fiscaat_new_record_account_id', 'select.fiscaat_new_record_ledger_id' ];
+				    dropdowns = [ 'select.fct_new_record_account_id', 'select.fct_new_record_ledger_id' ];
 
 				$.each( [ rows.find(dropdowns[0]), rows.find(dropdowns[1]) ], function( i ){
 					var other = ( i == 1 ) ? 0 : 1;
@@ -215,26 +215,26 @@ class Fiscaat_Admin_Records {
 				padding-top: 4px;
 			}
 
-			.column-fiscaat_record_created input,
-			.column-fiscaat_record_description textarea,
-			.column-fiscaat_record_offset_account input {
+			.column-fct_record_created input,
+			.column-fct_record_description textarea,
+			.column-fct_record_offset_account input {
 				width: 100%;
 			}
 
-			.records-<?php echo $this->args->page; ?> .column-fiscaat_record_account_ledger_id {
+			.records-<?php echo $this->args->page; ?> .column-fct_record_account_ledger_id {
 				width: 52px;
 			}
 
-			.records-<?php echo $this->args->page; ?> .column-fiscaat_record_created {
+			.records-<?php echo $this->args->page; ?> .column-fct_record_created {
 				width: 72px !important;
 			}
 
-			.wp-list-table.records-<?php echo $this->args->page; ?> td.column-fiscaat_record_created, 
-			.wp-list-table.records-<?php echo $this->args->page; ?> td.column-fiscaat_record_description, 
-			.wp-list-table.records-<?php echo $this->args->page; ?> td.column-fiscaat_record_account, 
-			.wp-list-table.records-<?php echo $this->args->page; ?> td.column-fiscaat_record_account_ledger_id, 
-			.wp-list-table.records-<?php echo $this->args->page; ?> td.column-fiscaat_record_offset_account,
-			.wp-list-table.records-<?php echo $this->args->page; ?> td.column-fiscaat_record_value {
+			.wp-list-table.records-<?php echo $this->args->page; ?> td.column-fct_record_created, 
+			.wp-list-table.records-<?php echo $this->args->page; ?> td.column-fct_record_description, 
+			.wp-list-table.records-<?php echo $this->args->page; ?> td.column-fct_record_account, 
+			.wp-list-table.records-<?php echo $this->args->page; ?> td.column-fct_record_account_ledger_id, 
+			.wp-list-table.records-<?php echo $this->args->page; ?> td.column-fct_record_offset_account,
+			.wp-list-table.records-<?php echo $this->args->page; ?> td.column-fct_record_value {
 				padding: 4px 7px 1px;
 			}
 
@@ -362,7 +362,7 @@ class Fiscaat_Admin_Records {
 	public function submit_button( $which ) {
 		if ( $this->bail() ) return;
 
-		$name = 'fiscaat_records_submit';
+		$name = 'fct_records_submit';
 		if ( 'top' != $which )
 			$name .= '2';
 
@@ -379,7 +379,7 @@ class Fiscaat_Admin_Records {
 	public function submit_action( $action ) {
 		if ( $this->bail() ) return $action;
 
-		if ( isset( $_REQUEST['fiscaat_records_submit'] ) || isset( $_REQUEST['fiscaat_records_submit2'] ) )
+		if ( isset( $_REQUEST['fct_records_submit'] ) || isset( $_REQUEST['fct_records_submit2'] ) )
 			$action = 'records_'. $this->args->page .'_submit';
 
 		return $action;

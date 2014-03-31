@@ -18,13 +18,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *
  * @return If Fiscaat is not active
  */
-function fiscaat_setup_akismet() {
+function fct_setup_akismet() {
 
 	// Bail if no akismet
 	if ( ! defined( 'AKISMET_VERSION' ) ) return;
 
 	// Bail if Akismet is turned off
-	if ( !fiscaat_is_akismet_active() ) return;
+	if ( !fct_is_akismet_active() ) return;
 
 	// Include the Akismet Component
 	require( fiscaat()->includes_dir . 'extend/akismet.php' );
@@ -35,11 +35,11 @@ function fiscaat_setup_akismet() {
 
 /**
  * Requires and creates the BuddyPress extension, and adds component creation
- * action to bp_init hook. @see fiscaat_setup_buddypress_component()
+ * action to bp_init hook. @see fct_setup_buddypress_component()
  *
  * @return If BuddyPress is not active
  */
-function fiscaat_setup_buddypress() {
+function fct_setup_buddypress() {
 
 	if ( ! function_exists( 'buddypress' ) ) {
 

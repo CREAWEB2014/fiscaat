@@ -20,17 +20,17 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *
  * @param string $number Number to format
  * @param string $decimals Optional. Display decimals
- * @uses apply_filters() Calls 'fiscaat_number_format' with the formatted values,
+ * @uses apply_filters() Calls 'fct_number_format' with the formatted values,
  *                        number and display decimals bool
  * @return string Formatted string
  */
-function fiscaat_number_format( $number = 0, $decimals = false, $dec_point = '.', $thousands_sep = ',' ) {
+function fct_number_format( $number = 0, $decimals = false, $dec_point = '.', $thousands_sep = ',' ) {
 
 	// If empty, set $number to (int) 0
 	if ( ! is_numeric( $number ) )
 		$number = 0;
 
-	return apply_filters( 'fiscaat_number_format', number_format( $number, $decimals, $dec_point, $thousands_sep ), $number, $decimals, $dec_point, $thousands_sep );
+	return apply_filters( 'fct_number_format', number_format( $number, $decimals, $dec_point, $thousands_sep ), $number, $decimals, $dec_point, $thousands_sep );
 }
 
 /**
@@ -38,17 +38,17 @@ function fiscaat_number_format( $number = 0, $decimals = false, $dec_point = '.'
  *
  * @param string $number Number to format
  * @param string $decimals Optional. Display decimals
- * @uses apply_filters() Calls 'fiscaat_number_format' with the formatted values,
+ * @uses apply_filters() Calls 'fct_number_format' with the formatted values,
  *                        number and display decimals bool
  * @return string Formatted string
  */
-function fiscaat_number_format_i18n( $number = 0, $decimals = false ) {
+function fct_number_format_i18n( $number = 0, $decimals = false ) {
 
 	// If empty, set $number to (int) 0
 	if ( ! is_numeric( $number ) )
 		$number = 0;
 
-	return apply_filters( 'fiscaat_number_format_i18n', number_format_i18n( $number, $decimals ), $number, $decimals );
+	return apply_filters( 'fct_number_format_i18n', number_format_i18n( $number, $decimals ), $number, $decimals );
 }
 
 /**
@@ -58,8 +58,8 @@ function fiscaat_number_format_i18n( $number = 0, $decimals = false ) {
  * @param bool $symbol Whether to return with currency symbol
  * @return string Formatted string
  */
-function fiscaat_currency_format( $number = 0, $symbol = false ) {
-	echo fiscaat_get_currency_format( $number, $symbol );
+function fct_currency_format( $number = 0, $symbol = false ) {
+	echo fct_get_currency_format( $number, $symbol );
 }
 	/**
 	 * Return a Fiscaat specific method of formatting values by currency
@@ -68,51 +68,51 @@ function fiscaat_currency_format( $number = 0, $symbol = false ) {
 	 * 
 	 * @param string $value Number to format
 	 * @param bool $symbol Whether to return with currency symbol
-	 * @uses fiscaat_get_currency() To get the currency
-	 * @uses fiscaat_the_currency_format_INR() To handle INR currency format
-	 * @uses fiscaat_the_currency_format() To get the currency format
-	 * @uses apply_filters() Calls 'fiscaat_currency_format_symbol' with whether
+	 * @uses fct_get_currency() To get the currency
+	 * @uses fct_the_currency_format_INR() To handle INR currency format
+	 * @uses fct_the_currency_format() To get the currency format
+	 * @uses apply_filters() Calls 'fct_currency_format_symbol' with whether
 	 *                        to append the symbol
-	 * @uses apply_filters() Calls 'fiscaat_get_currency_format' with the formatted
+	 * @uses apply_filters() Calls 'fct_get_currency_format' with the formatted
 	 *                        value, original number, and whether to add symbol
 	 * @return string Formatted string
 	 */
-	function fiscaat_get_currency_format( $number = 0, $symbol = false ) {
-		$currency = fiscaat_get_currency();
+	function fct_get_currency_format( $number = 0, $symbol = false ) {
+		$currency = fct_get_currency();
 
 		// Treat INR currency differently
 		if ( 'INR' == $currency ) 
-			$retval = fiscaat_the_currency_format_INR( $number );
+			$retval = fct_the_currency_format_INR( $number );
 
 		else {
-			$format = fiscaat_the_currency_format( $currency );
+			$format = fct_the_currency_format( $currency );
 			$retval = number_format( $number, $format['decimals'], $format['dec_point'], $format['thousands_sep'] );
 		}
 
 		// Prepend currency symbol
-		if ( apply_filters( 'fiscaat_currency_format_symbol', $symbol ) )
-			$retval = fiscaat_get_currency( 'symbol' ) .' '. $retval;
+		if ( apply_filters( 'fct_currency_format_symbol', $symbol ) )
+			$retval = fct_get_currency( 'symbol' ) .' '. $retval;
 
-		return apply_filters( 'fiscaat_get_currency_format', $retval, $number, $symbol );
+		return apply_filters( 'fct_get_currency_format', $retval, $number, $symbol );
 	}
 
 /**
  * A Fiscaat specific method of formatting currency values to float
  * 
  * @param string $value Value to format
- * @uses fiscaat_the_currency_format() To get the currency format
- * @uses fiscaat_get_currency() To get the currency detail
- * @uses apply_filters() Calls 'fiscaat_float_format' with the
+ * @uses fct_the_currency_format() To get the currency format
+ * @uses fct_get_currency() To get the currency detail
+ * @uses apply_filters() Calls 'fct_float_format' with the
  *                        floated value and currency format
  * @return float Floated value
  */
-function fiscaat_float_format( $value = '' ) {
+function fct_float_format( $value = '' ) {
 
 	// Get currency format details
-	$format = fiscaat_the_currency_format( fiscaat_get_currency() );
+	$format = fct_the_currency_format( fct_get_currency() );
 
 	// Remove currency symbol if present
-	$value = str_replace( fiscaat_get_currency( 'symbol' ), '', $value );
+	$value = str_replace( fct_get_currency( 'symbol' ), '', $value );
 
 	// Remove thousands separators
 	$value = str_replace( $format['thousands_sep'], '', $value );
@@ -123,7 +123,7 @@ function fiscaat_float_format( $value = '' ) {
 	// Remove whitespace
 	$value = trim( $value );
 
-	return (float) apply_filters( 'fiscaat_float_format', $value, $format );
+	return (float) apply_filters( 'fct_float_format', $value, $format );
 }
 
 /**
@@ -135,14 +135,14 @@ function fiscaat_float_format( $value = '' ) {
  * @param bool $translate Optional. Default is false. Whether to translate the
  *                                   result
  * @uses mysql2date() To convert the format
- * @uses apply_filters() Calls 'fiscaat_convert_date' with the time, date format
+ * @uses apply_filters() Calls 'fct_convert_date' with the time, date format
  *                        and translate bool
  * @return string Returns timestamp
  */
-function fiscaat_convert_date( $time, $d = 'U', $translate = false ) {
+function fct_convert_date( $time, $d = 'U', $translate = false ) {
 	$time = mysql2date( $d, $time, $translate );
 
-	return apply_filters( 'fiscaat_convert_date', $time, $d, $translate );
+	return apply_filters( 'fct_convert_date', $time, $d, $translate );
 }
 
 /**
@@ -151,12 +151,12 @@ function fiscaat_convert_date( $time, $d = 'U', $translate = false ) {
  * @param string $type Optional. Defaults to 'mysql' database format
  * @param boolean $gmt Optional. Whether to return GMT
  * @uses current_time() To get the current time
- * @uses apply_filters() Calls 'fiscaat_get_current_time' with the current time
+ * @uses apply_filters() Calls 'fct_get_current_time' with the current time
  *                        and the format type
  * @return string Current time
  */
-function fiscaat_get_current_time( $type = 'mysql', $gmt = false ){
-	return apply_filters( 'fiscaat_get_current_time', current_time( $type, $gmt ), $type, $gmt );
+function fct_get_current_time( $type = 'mysql', $gmt = false ){
+	return apply_filters( 'fct_get_current_time', current_time( $type, $gmt ), $type, $gmt );
 }
 
 /**
@@ -165,10 +165,10 @@ function fiscaat_get_current_time( $type = 'mysql', $gmt = false ){
  * @param string $older_date Unix timestamp from which the difference begins.
  * @param string $newer_date Optional. Unix timestamp from which the
  *                            difference ends. False for current time.
- * @uses fiscaat_get_time_since() To get the formatted time
+ * @uses fct_get_time_since() To get the formatted time
  */
-function fiscaat_time_since( $older_date, $newer_date = false ) {
-	echo fiscaat_get_time_since( $older_date, $newer_date = false );
+function fct_time_since( $older_date, $newer_date = false ) {
+	echo fct_get_time_since( $older_date, $newer_date = false );
 }
 	/**
 	 * Return formatted time to display human readable time difference.
@@ -178,16 +178,16 @@ function fiscaat_time_since( $older_date, $newer_date = false ) {
 	 *                            difference ends. False for current time.
 	 * @uses current_time() To get the current time in mysql format
 	 * @uses human_time_diff() To get the time differene in since format
-	 * @uses apply_filters() Calls 'fiscaat_get_time_since' with the time
+	 * @uses apply_filters() Calls 'fct_get_time_since' with the time
 	 *                        difference and time
 	 * @return string Formatted time
 	 */
-	function fiscaat_get_time_since( $older_date, $newer_date = false ) {
+	function fct_get_time_since( $older_date, $newer_date = false ) {
 		
 		// Setup the strings
-		$unknown_text   = apply_filters( 'fiscaat_core_time_since_unknown_text',   __( 'sometime',  'fiscaat' ) );
-		$right_now_text = apply_filters( 'fiscaat_core_time_since_right_now_text', __( 'right now', 'fiscaat' ) );
-		$ago_text       = apply_filters( 'fiscaat_core_time_since_ago_text',       __( '%s ago',    'fiscaat' ) );
+		$unknown_text   = apply_filters( 'fct_core_time_since_unknown_text',   __( 'sometime',  'fiscaat' ) );
+		$right_now_text = apply_filters( 'fct_core_time_since_right_now_text', __( 'right now', 'fiscaat' ) );
+		$ago_text       = apply_filters( 'fct_core_time_since_ago_text',       __( '%s ago',    'fiscaat' ) );
 
 		// array of time period chunks
 		$chunks = array(
@@ -268,7 +268,7 @@ function fiscaat_time_since( $older_date, $newer_date = false ) {
 			$output = sprintf( $ago_text, $output );
 		}
 
-		return apply_filters( 'fiscaat_get_time_since', $output, $older_date, $newer_date );
+		return apply_filters( 'fct_get_time_since', $output, $older_date, $newer_date );
 	}
 
 /** Misc **********************************************************************/
@@ -277,21 +277,21 @@ function fiscaat_time_since( $older_date, $newer_date = false ) {
  * Append 'view=all' to query string if it's already there from referer
  *
  * @param string $original_link Original Link to be modified
- * @param bool $force Override fiscaat_get_view_all() check
+ * @param bool $force Override fct_get_view_all() check
  * @uses current_user_can() To check if the current user can moderate
  * @uses add_query_arg() To add args to the url
- * @uses apply_filters() Calls 'fiscaat_add_view_all' with the link and original link
+ * @uses apply_filters() Calls 'fct_add_view_all' with the link and original link
  * @return string The link with 'view=all' appended if necessary
  */
-function fiscaat_add_view_all( $original_link = '', $force = false ) {
+function fct_add_view_all( $original_link = '', $force = false ) {
 
 	// Are we appending the view=all vars?
-	if ( fiscaat_get_view_all() || ! empty( $force ) )
+	if ( fct_get_view_all() || ! empty( $force ) )
 		$link = add_query_arg( array( 'view' => 'all' ), $original_link );
 	else
 		$link = $original_link;
 
-	return apply_filters( 'fiscaat_add_view_all', $link, $original_link );
+	return apply_filters( 'fct_add_view_all', $link, $original_link );
 }
 
 /**
@@ -300,23 +300,23 @@ function fiscaat_add_view_all( $original_link = '', $force = false ) {
  * @param string $original_link Original Link to be modified
  * @uses current_user_can() To check if the current user can moderate
  * @uses add_query_arg() To add args to the url
- * @uses apply_filters() Calls 'fiscaat_add_view_all' with the link and original link
+ * @uses apply_filters() Calls 'fct_add_view_all' with the link and original link
  * @return string The link with 'view=all' appended if necessary
  */
-function fiscaat_remove_view_all( $original_link = '' ) {
-	return apply_filters( 'fiscaat_add_view_all', remove_query_arg( 'view', $original_link ), $original_link );
+function fct_remove_view_all( $original_link = '' ) {
+	return apply_filters( 'fct_add_view_all', remove_query_arg( 'view', $original_link ), $original_link );
 }
 
 /**
  * If current user can and is vewing all records
  *
  * @uses current_user_can() To check if the current user can moderate
- * @uses apply_filters() Calls 'fiscaat_get_view_all' with the link and original link
+ * @uses apply_filters() Calls 'fct_get_view_all' with the link and original link
  * @return bool Whether current user can and is viewing all
  */
-function fiscaat_get_view_all( $cap = 'moderate' ) {
+function fct_get_view_all( $cap = 'moderate' ) {
 	$retval = ( ( ! empty( $_GET['view'] ) && ( 'all' == $_GET['view'] ) && current_user_can( $cap ) ) );
-	return apply_filters( 'fiscaat_get_view_all', (bool) $retval );
+	return apply_filters( 'fct_get_view_all', (bool) $retval );
 }
 
 /**
@@ -325,7 +325,7 @@ function fiscaat_get_view_all( $cap = 'moderate' ) {
  * @uses get_query_var() To get the 'paged' value
  * @return int Current page number
  */
-function fiscaat_get_paged() {
+function fct_get_paged() {
 	global $wp_query;
 
 	// Check the query var
@@ -365,18 +365,18 @@ function fiscaat_get_paged() {
  *  - count_declined_records: Count declined records of the current year?
  *  - count_to_balance: Count to balance value of the current year?
  *  - count_current_comments: Count comments of the current year?
- * @uses fiscaat_count_users() To count the number of registered users
- * @uses fiscaat_get_year_post_type() To get the year post type
- * @uses fiscaat_get_account_post_type() To get the account post type
- * @uses fiscaat_get_record_post_type() To get the record post type
+ * @uses fct_count_users() To count the number of registered users
+ * @uses fct_get_year_post_type() To get the year post type
+ * @uses fct_get_account_post_type() To get the account post type
+ * @uses fct_get_record_post_type() To get the record post type
  * @uses wp_count_posts() To count the number of years, accounts and records
  * @uses wp_count_terms() To count the number of account tags
  * @uses current_user_can() To check if the user is capable of doing things
  * @uses number_format_i18n() To format the number
- * @uses apply_filters() Calls 'fiscaat_get_statistics' with the statistics and args
+ * @uses apply_filters() Calls 'fct_get_statistics' with the statistics and args
  * @return array Fiscaat statistics
  */
-function fiscaat_get_statistics( $args = '' ) {
+function fct_get_statistics( $args = '' ) {
 
 	$defaults = array (
 		'count_users'              => true,
@@ -390,46 +390,46 @@ function fiscaat_get_statistics( $args = '' ) {
 		'count_to_balance'         => true,
 		'count_comments'           => true,
 	);
-	$r = fiscaat_parse_args( $args, $defaults, 'get_statistics' );
+	$r = fct_parse_args( $args, $defaults, 'get_statistics' );
 	extract( $r );
 
 	// Users
 	if ( ! empty( $count_users ) ) {
-		$fiscus_count    = fiscaat_get_total_fisci();
-		$spectator_count = fiscaat_get_total_spectators();	
+		$fiscus_count    = fct_get_total_fisci();
+		$spectator_count = fct_get_total_spectators();	
 	}
 
 	// Years
 	if ( ! empty( $count_years ) ) {
-		$year_count = wp_count_posts( fiscaat_get_year_post_type() );
+		$year_count = wp_count_posts( fct_get_year_post_type() );
 		$year_count = array_sum( (array) $year_count ) - $year_count->{'auto-draft'};
 	}
 
 	// Accounts
 	if ( ! empty( $count_accounts ) ) {
-		$account_count = wp_count_posts( fiscaat_get_account_post_type() );
+		$account_count = wp_count_posts( fct_get_account_post_type() );
 		$account_count = array_sum( (array) $account_count ) - $account_count->{'auto-draft'};
 	}
 
 	// Records
 	if ( ! empty( $count_records ) ) {
-		$record_count = wp_count_posts( fiscaat_get_record_post_type() );
+		$record_count = wp_count_posts( fct_get_record_post_type() );
 		$record_count = array_sum( (array) $record_count ) - $record_count->{'auto-draft'};
 	}
 
 	// Currently in Fiscaat
 	if ( ! empty( $count_current_records ) ) {
 
-		// wp_count_posts has no filtering so use fiscaat_count_posts
-		$current_records = fiscaat_count_posts( array( 'type' => fiscaat_get_record_post_type(), 'year_id' => fiscaat_get_current_year_id() ) );
+		// wp_count_posts has no filtering so use fct_count_posts
+		$current_records = fct_count_posts( array( 'type' => fct_get_record_post_type(), 'year_id' => fct_get_current_year_id() ) );
 
 		// All records published
 		$current_record_count = array_sum( (array) $current_records ) - $current_records->{'auto-draft'};
 
 		// Post statuses
-		$declined = fiscaat_get_declined_status_id();
-		$approved = fiscaat_get_approved_status_id();
-		$closed   = fiscaat_get_closed_status_id();
+		$declined = fct_get_declined_status_id();
+		$approved = fct_get_approved_status_id();
+		$closed   = fct_get_closed_status_id();
 
 		// Approved
 		$current_approved_count = $current_records->{$approved} + $current_records->{$closed};
@@ -443,7 +443,7 @@ function fiscaat_get_statistics( $args = '' ) {
 
 	// To Balance
 	if ( ! empty( $count_to_balance ) ) {
-		$current_to_balance = fiscaat_get_year_to_balance( fiscaat_get_current_year_id() );
+		$current_to_balance = fct_get_year_to_balance( fct_get_current_year_id() );
 	}
 
 	// Comments
@@ -462,7 +462,7 @@ function fiscaat_get_statistics( $args = '' ) {
 	if ( isset( $current_to_balance ) )
 		$statistics['current_to_balance'] = $current_to_balance;
 
-	return apply_filters( 'fiscaat_get_statistics', $statistics, $r );
+	return apply_filters( 'fct_get_statistics', $statistics, $r );
 }
 
 /**
@@ -471,7 +471,7 @@ function fiscaat_get_statistics( $args = '' ) {
  * @param mixed $args Optional. Arguments
  * @return object Number of posts for each status
  */
-function fiscaat_count_posts( $args = '' ) {
+function fct_count_posts( $args = '' ) {
 	global $wpdb;
 
 	$defaults = array(
@@ -479,7 +479,7 @@ function fiscaat_count_posts( $args = '' ) {
 		'perm'   => '',
 		'parent' => false
 		);
-	$r = fiscaat_parse_args( $args, $defaults, 'count_posts' );
+	$r = fct_parse_args( $args, $defaults, 'count_posts' );
 	extract( $r );
 
 	$user = wp_get_current_user();
@@ -502,7 +502,7 @@ function fiscaat_count_posts( $args = '' ) {
 
 	$query .= ' GROUP BY post_status';
 
-	$count = wp_cache_get($cache_key, 'fiscaat_counts');
+	$count = wp_cache_get($cache_key, 'fct_counts');
 	if ( false !== $count )
 		return $count;
 
@@ -516,7 +516,7 @@ function fiscaat_count_posts( $args = '' ) {
 		$stats[$row['post_status']] = $row['num_posts'];
 
 	$stats = (object) $stats;
-	wp_cache_set($cache_key, $stats, 'fiscaat_counts');
+	wp_cache_set($cache_key, $stats, 'fct_counts');
 
 	return $stats;
 }
@@ -536,7 +536,7 @@ function fiscaat_count_posts( $args = '' ) {
  * @param string $filter_key String to key the filters from
  * @return array Merged user defined values with defaults.
  */
-function fiscaat_parse_args( $args, $defaults = '', $filter_key = '' ) {
+function fct_parse_args( $args, $defaults = '', $filter_key = '' ) {
 
 	// Setup a temporary array from $args
 	if ( is_object( $args ) )
@@ -548,7 +548,7 @@ function fiscaat_parse_args( $args, $defaults = '', $filter_key = '' ) {
 
 	// Passively filter the args before the parse
 	if ( ! empty( $filter_key ) )
-		$r = apply_filters( 'fiscaat_before_' . $filter_key . '_parse_args', $r );
+		$r = apply_filters( 'fct_before_' . $filter_key . '_parse_args', $r );
 
 	// Parse
 	if ( is_array( $defaults ) )
@@ -556,7 +556,7 @@ function fiscaat_parse_args( $args, $defaults = '', $filter_key = '' ) {
 
 	// Aggressively filter the args after the parse
 	if ( ! empty( $filter_key ) )
-		$r = apply_filters( 'fiscaat_after_' . $filter_key . '_parse_args', $r );
+		$r = apply_filters( 'fct_after_' . $filter_key . '_parse_args', $r );
 
 	// Return the parsed results
 	return $r;
@@ -567,16 +567,16 @@ function fiscaat_parse_args( $args, $defaults = '', $filter_key = '' ) {
  *
  * @param int $parent_id Parent id
  * @param string $post_type Post type. Defaults to 'post'
- * @uses fiscaat_get_account_post_type() To get the account post type
+ * @uses fct_get_account_post_type() To get the account post type
  * @uses wp_cache_get() To check if there is a cache of the children count
  * @uses wpdb::prepare() To prepare the query
  * @uses wpdb::get_var() To get the result of the query in a variable
  * @uses wp_cache_set() To set the cache for future use
- * @uses apply_filters() Calls 'fiscaat_get_public_child_count' with the child
+ * @uses apply_filters() Calls 'fct_get_public_child_count' with the child
  *                        count, parent id and post type
  * @return int The number of children
  */
-function fiscaat_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
+function fct_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 	global $wpdb;
 
 	// Bail if nothing passed
@@ -584,12 +584,12 @@ function fiscaat_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 		return false;
 
 	// The ID of the cached query
-	$cache_id    = 'fiscaat_parent_' . $parent_id . '_type_' . $post_type . '_child_count';
+	$cache_id    = 'fct_parent_' . $parent_id . '_type_' . $post_type . '_child_count';
 	$post_status = array( 
-		fiscaat_get_public_status_id(),
-		fiscaat_get_declined_status_id(),
-		fiscaat_get_approved_status_id(),
-		fiscaat_get_closed_status_id()
+		fct_get_public_status_id(),
+		fct_get_declined_status_id(),
+		fct_get_approved_status_id(),
+		fct_get_closed_status_id()
 	);
 
 	// Join post statuses together
@@ -603,7 +603,7 @@ function fiscaat_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 	}
 
 	// Filter and return
-	return apply_filters( 'fiscaat_get_public_child_count', (int) $child_count, (int) $parent_id, $post_type );
+	return apply_filters( 'fct_get_public_child_count', (int) $child_count, (int) $parent_id, $post_type );
 }
 
 /**
@@ -611,16 +611,16 @@ function fiscaat_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
  *
  * @param int $parent_id Parent id
  * @param string $post_type Post type. Defaults to 'post'
- * @uses fiscaat_get_account_post_type() To get the account post type
+ * @uses fct_get_account_post_type() To get the account post type
  * @uses wp_cache_get() To check if there is a cache of the children
  * @uses wpdb::prepare() To prepare the query
  * @uses wpdb::get_col() To get the result of the query in an array
  * @uses wp_cache_set() To set the cache for future use
- * @uses apply_filters() Calls 'fiscaat_get_public_child_ids' with the child ids,
+ * @uses apply_filters() Calls 'fct_get_public_child_ids' with the child ids,
  *                        parent id and post type
  * @return array The array of children
  */
-function fiscaat_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
+function fct_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	global $wpdb;
 
 	// Bail if nothing passed
@@ -628,12 +628,12 @@ function fiscaat_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 		return false;
 
 	// The ID of the cached query
-	$cache_id    = 'fiscaat_parent_public_' . $parent_id . '_type_' . $post_type . '_child_ids';
+	$cache_id    = 'fct_parent_public_' . $parent_id . '_type_' . $post_type . '_child_ids';
 	$post_status = array( 
-		fiscaat_get_public_status_id(),
-		fiscaat_get_declined_status_id(),
-		fiscaat_get_approved_status_id(),
-		fiscaat_get_closed_status_id()
+		fct_get_public_status_id(),
+		fct_get_declined_status_id(),
+		fct_get_approved_status_id(),
+		fct_get_closed_status_id()
 	);
 
 	// Join post statuses together
@@ -647,7 +647,7 @@ function fiscaat_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	}
 
 	// Filter and return
-	return apply_filters( 'fiscaat_get_public_child_ids', $child_ids, (int) $parent_id, $post_type );
+	return apply_filters( 'fct_get_public_child_ids', $child_ids, (int) $parent_id, $post_type );
 }
 
 /**
@@ -655,16 +655,16 @@ function fiscaat_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
  *
  * @param int $parent_id Parent id
  * @param string $post_type Post type. Defaults to 'post'
- * @uses fiscaat_get_account_post_type() To get the account post type
+ * @uses fct_get_account_post_type() To get the account post type
  * @uses wp_cache_get() To check if there is a cache of the children
  * @uses wpdb::prepare() To prepare the query
  * @uses wpdb::get_col() To get the result of the query in an array
  * @uses wp_cache_set() To set the cache for future use
- * @uses apply_filters() Calls 'fiscaat_get_public_child_ids' with the child ids,
+ * @uses apply_filters() Calls 'fct_get_public_child_ids' with the child ids,
  *                        parent id and post type
  * @return array The array of children
  */
-function fiscaat_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
+function fct_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	global $wpdb;
 
 	// Bail if nothing passed
@@ -672,26 +672,26 @@ function fiscaat_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 		return false;
 
 	// The ID of the cached query
-	$cache_id    = 'fiscaat_parent_all_' . $parent_id . '_type_' . $post_type . '_child_ids';
-	$post_status = array( fiscaat_get_public_status_id() );
+	$cache_id    = 'fct_parent_all_' . $parent_id . '_type_' . $post_type . '_child_ids';
+	$post_status = array( fct_get_public_status_id() );
 
 	// Extra post statuses based on post type
 	switch ( $post_type ) {
 
 		// Year
-		case fiscaat_get_year_post_type() :
+		case fct_get_year_post_type() :
 			break;
 
 		// Account
-		case fiscaat_get_account_post_type() :
-			$post_status[] = fiscaat_get_closed_status_id();
+		case fct_get_account_post_type() :
+			$post_status[] = fct_get_closed_status_id();
 			break;
 
 		// Record
-		case fiscaat_get_record_post_type() :
-			$post_status[] = fiscaat_get_declined_status_id();
-			$post_status[] = fiscaat_get_approved_status_id();
-			$post_status[] = fiscaat_get_closed_status_id();
+		case fct_get_record_post_type() :
+			$post_status[] = fct_get_declined_status_id();
+			$post_status[] = fct_get_approved_status_id();
+			$post_status[] = fct_get_closed_status_id();
 			break;
 	}
 
@@ -706,27 +706,27 @@ function fiscaat_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	}
 
 	// Filter and return
-	return apply_filters( 'fiscaat_get_all_child_ids', $child_ids, (int) $parent_id, $post_type );
+	return apply_filters( 'fct_get_all_child_ids', $child_ids, (int) $parent_id, $post_type );
 }
 
 /**
  * Add checks for Fiscaat conditions to parse_query action
  *
- * If it's a year edit, WP_Query::fiscaat_is_year_edit is set to true
- * If it's a account edit, WP_Query::fiscaat_is_account_edit is set to true
- * If it's a record edit, WP_Query::fiscaat_is_record_edit is set to true.
+ * If it's a year edit, WP_Query::fct_is_year_edit is set to true
+ * If it's a account edit, WP_Query::fct_is_account_edit is set to true
+ * If it's a record edit, WP_Query::fct_is_record_edit is set to true.
  *
- * If it's a view page, WP_Query::fiscaat_is_view is set to true
+ * If it's a view page, WP_Query::fct_is_view is set to true
  *
  * @param WP_Query $posts_query
  *
  * @uses get_query_var() To get {@link WP_Query} query var
- * @uses fiscaat_get_year_post_type() To get the year post type
- * @uses fiscaat_get_account_post_type() To get the account post type
- * @uses fiscaat_get_record_post_type() To get the record post type
+ * @uses fct_get_year_post_type() To get the year post type
+ * @uses fct_get_account_post_type() To get the account post type
+ * @uses fct_get_record_post_type() To get the record post type
  * @uses remove_action() To remove the auto save post revision action
  */
-function fiscaat_parse_query( $posts_query ) {
+function fct_parse_query( $posts_query ) {
 
 	// Bail if $posts_query is not the main loop
 	if ( ! $posts_query->is_main_query() )
@@ -741,7 +741,7 @@ function fiscaat_parse_query( $posts_query ) {
 		return;
 
 	// Get query variables
-	$is_edit  = $posts_query->get( fiscaat_get_edit_rewrite_id() );
+	$is_edit  = $posts_query->get( fct_get_edit_rewrite_id() );
 
 	// Year/Account/Record Edit Page
 	if ( ! empty( $is_edit ) ) {
@@ -754,21 +754,21 @@ function fiscaat_parse_query( $posts_query ) {
 			switch( $post_type ) {
 
 				// We are editing a year
-				case fiscaat_get_year_post_type() :
-					$posts_query->fiscaat_is_year_edit = true;
-					$posts_query->fiscaat_is_edit      = true;
+				case fct_get_year_post_type() :
+					$posts_query->fct_is_year_edit = true;
+					$posts_query->fct_is_edit      = true;
 					break;
 
 				// We are editing a account
-				case fiscaat_get_account_post_type() :
-					$posts_query->fiscaat_is_account_edit = true;
-					$posts_query->fiscaat_is_edit         = true;
+				case fct_get_account_post_type() :
+					$posts_query->fct_is_account_edit = true;
+					$posts_query->fct_is_edit         = true;
 					break;
 
 				// We are editing a record
-				case fiscaat_get_record_post_type() :
-					$posts_query->fiscaat_is_record_edit = true;
-					$posts_query->fiscaat_is_edit        = true;
+				case fct_get_record_post_type() :
+					$posts_query->fct_is_record_edit = true;
+					$posts_query->fct_is_edit        = true;
 					break;
 			}
 		}
@@ -790,13 +790,13 @@ function fiscaat_parse_query( $posts_query ) {
  * @param string $context How to sanitize - raw|edit|db|display|attribute|js
  * @return string Field value
  */
-function fiscaat_get_global_post_field( $field = 'ID', $context = 'edit' ) {
+function fct_get_global_post_field( $field = 'ID', $context = 'edit' ) {
 	global $post;
 
 	$retval = isset( $post->$field ) ? $post->$field : '';
 	$retval = sanitize_post_field( $field, $retval, $post->ID, $context );
 
-	return apply_filters( 'fiscaat_get_global_post_field', $retval, $post );
+	return apply_filters( 'fct_get_global_post_field', $retval, $post );
 }
 
 /** Templates ******************************************************************/
@@ -810,7 +810,7 @@ function fiscaat_get_global_post_field( $field = 'ID', $context = 'edit' ) {
  * @param string $path
  * @return mixed False if no page, Page object if true
  */
-function fiscaat_get_page_by_path( $path = '' ) {
+function fct_get_page_by_path( $path = '' ) {
 
 	// Default to false
 	$retval = false;
@@ -824,7 +824,7 @@ function fiscaat_get_page_by_path( $path = '' ) {
 		}
 	}
 
-	return apply_filters( 'fiscaat_get_page_by_path', $retval, $path );
+	return apply_filters( 'fct_get_page_by_path', $retval, $path );
 }
 
 /**
@@ -835,7 +835,7 @@ function fiscaat_get_page_by_path( $path = '' ) {
  * @global WP_Query $wp_query
  * @uses WP_Query::set_404()
  */
-function fiscaat_set_404() {
+function fct_set_404() {
 	global $wp_query;
 
 	if ( ! isset( $wp_query ) ) {
@@ -853,9 +853,9 @@ function fiscaat_set_404() {
  * 
  * @see https://github.com/piwik/piwik/blob/master/core/DataFiles/Currencies.php
  *
- * @uses apply_filters() Calls 'fiscaat_get_currencies' with the currencies
+ * @uses apply_filters() Calls 'fct_get_currencies' with the currencies
  */
-function fiscaat_get_currencies(){
+function fct_get_currencies(){
 
 	$currencies = array( 
 		// 'ISO-4217 CODE' => array( 'symbol' => 'currency symbol', 'desc' => 'description'),
@@ -1029,7 +1029,7 @@ function fiscaat_get_currencies(){
 		'ZWL' => array( 'symbol' => '$', 'desc' => 'Zimbabwean dollar'),
 	);
 
-	return apply_filters( 'fiscaat_get_currencies', $currencies );
+	return apply_filters( 'fct_get_currencies', $currencies );
 }
 
 /**
@@ -1038,11 +1038,11 @@ function fiscaat_get_currencies(){
  * @see http://www.joelpeterson.com/blog/2011/03/formatting-over-100-currencies-in-php/
  * 
  * @param string $currency The currency iso code. Defaults to USD
- * @uses apply_filters() Calls 'fiscaat_the_currency_format' with the
+ * @uses apply_filters() Calls 'fct_the_currency_format' with the
  *                        currency format, and currency
  * @return array Currency format
  */
-function fiscaat_the_currency_format( $currency = '' ){
+function fct_the_currency_format( $currency = '' ){
 
 	$formats = array(
 		'ARS' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),

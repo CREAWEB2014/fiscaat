@@ -32,7 +32,7 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 		global $post_type_object;
 
 		if ( empty( $post_type_object ) )
-			$post_type_object = get_post_type_object( fiscaat_get_record_post_type() );
+			$post_type_object = get_post_type_object( fct_get_record_post_type() );
 
 		parent::__construct( array(
 			'page'       => 'new',
@@ -51,12 +51,12 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 	public function setup_actions() {
 
 		// Redirect record post-new.php
-		add_action( 'fiscaat_admin_head', array( $this, 'remove_submenu' )     );
+		add_action( 'fct_admin_head', array( $this, 'remove_submenu' )     );
 		add_action( 'load-post-new.php',  array( $this, 'redirect'       ), -1 );
 
 		// Page load hooks
-		add_filter( 'fiscaat_records_list_table_custom_query', array( $this, 'return_true'    ) );
-		add_filter( 'fiscaat_records_list_table_items',        array( $this, 'prepare_items'  ) );
+		add_filter( 'fct_records_list_table_custom_query', array( $this, 'return_true'    ) );
+		add_filter( 'fct_records_list_table_items',        array( $this, 'prepare_items'  ) );
 		add_filter( $this->args->hook_prefix .'_submit',       array( $this, 'submit_records' ) );
 
 		// Page head hooks
@@ -64,12 +64,12 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 		add_action( $this->args->hook_prefix .'_head', array( $this, 'page_head'            ) );
 
 		// Table hooks
-		add_filter( 'fiscaat_records_list_table_class',        array( $this, 'list_table_class'    ) );
-		add_action( 'fiscaat_records_list_table_tablenav',     array( $this, 'add_num_rows_select' ) );
+		add_filter( 'fct_records_list_table_class',        array( $this, 'list_table_class'    ) );
+		add_action( 'fct_records_list_table_tablenav',     array( $this, 'add_num_rows_select' ) );
 		add_action( $this->args->hook_prefix .'_title_append', array( $this, 'import_button'       ) );
 
 		// Column hooks
-		add_action( 'fiscaat_records_posts_columns', array( $this, 'remove_column_cb' ) );
+		add_action( 'fct_records_posts_columns', array( $this, 'remove_column_cb' ) );
 
 		// Form hooks
 		add_action( $this->args->hook_prefix .'_form_after',   array( $this, 'new_default_row' ) );
@@ -146,18 +146,18 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 		$wp_query->posts = array_fill( 0, $wp_query->post_count, (object) array(
 			'ID'                 => 0,
 			'post_parent'        => 0,
-			'post_status'        => fiscaat_get_public_status_id(),
-			'post_type'          => fiscaat_get_record_post_type(),
+			'post_status'        => fct_get_public_status_id(),
+			'post_type'          => fct_get_record_post_type(),
 			'post_title'         => '',
 			'post_content'       => '',
 			'post_author'        => 0,
-			'post_date'          => fiscaat_get_current_time(),
+			'post_date'          => fct_get_current_time(),
 			'menu_order'         => 0,
 
 			// Record meta
 			'offset_account'     => false,
-			'fiscaat_value'      => false,
-			'fiscaat_value_type' => false,
+			'fct_value'      => false,
+			'fct_value_type' => false,
 		) );
 
 		// Return avail_post_stati
@@ -238,9 +238,9 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 		// Enqueue & localize New Records script
 		wp_register_script( 'fiscaat-records-new', fiscaat()->admin->admin_url . 'scripts/fiscaat-records-new.js', array( 'jquery', 'livequery', 'format-currency' ) );
 		wp_enqueue_script ( 'fiscaat-records-new' );
-		wp_localize_script( 'fiscaat-records-new', 'fiscaat_records_newL10n', array(
-			'currency_format' => fiscaat_the_currency_format( fiscaat_get_currency() ),
-			'currency'        => fiscaat_get_currency( 'symbol' ), // Represents %s
+		wp_localize_script( 'fiscaat-records-new', 'fct_records_newL10n', array(
+			'currency_format' => fct_the_currency_format( fct_get_currency() ),
+			'currency'        => fct_get_currency( 'symbol' ), // Represents %s
 			'positive'        => '%n', // Default is %s%n
 			'negative'        => '&ndash; %n', // Default is (%s%n)
 
@@ -256,7 +256,7 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 		<script type="text/javascript">
 			jQuery(document).ready( function($){
 				// Enable inputs on doc ready
-				$('.record td.fiscaat_record_value').not('#post--3 td.fiscaat_record_value').find('input').removeAttr('disabled');
+				$('.record td.fct_record_value').not('#post--3 td.fct_record_value').find('input').removeAttr('disabled');
 			});
 		</script>
 		<?php
@@ -283,7 +283,7 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 					'meta' => array()  // Other post meta
 					);
 
-				if ( ! fiscaat_insert_record( $record->data, $record->meta ) )
+				if ( ! fct_insert_record( $record->data, $record->meta ) )
 					$error++;
 			}
 			
@@ -303,10 +303,10 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 	public function fetch_records() {
 
 		// Bail if no records submitted
-		if ( ! isset( $_POST['fiscaat_new_record'] ) )
+		if ( ! isset( $_POST['fct_new_record'] ) )
 			return false;
 
-		$fields  = $_POST['fiscaat_new_record'];
+		$fields  = $_POST['fct_new_record'];
 		$records = $error = array();
 		
 		// Setup records
@@ -352,7 +352,7 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 						if ( empty( $v ) && empty( $records[$record][$other] ) )
 							$error[$record][] = $field;
 						elseif ( ! empty( $v ) && is_numeric( $v ) )
-							$v = fiscaat_float_format( $v );
+							$v = fct_float_format( $v );
 						else
 							$v = '';
 						break;
@@ -386,11 +386,11 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 	 * Insert new records on edit page load
 	 *
 	 * @uses self::new_records_required_fields()
-	 * @uses fiscaat_float_format()
-	 * @uses fiscaat_get_debit_record_type()
-	 * @uses fiscaat_get_credit_record_type()
-	 * @uses fiscaat_insert_record()
-	 * @uses fiscaat_get_record_post_type()
+	 * @uses fct_float_format()
+	 * @uses fct_get_debit_record_type()
+	 * @uses fct_get_credit_record_type()
+	 * @uses fct_insert_record()
+	 * @uses fct_get_record_post_type()
 	 * @uses wp_safe_redirect() To redirect the user
 	 */
 	public function new_records_insert_records() {
@@ -400,18 +400,18 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 			return;
 
 		// Bail if not submitted
-		if ( ! isset( $_REQUEST['fiscaat_insert_new_records_submit'] ) ) 
+		if ( ! isset( $_REQUEST['fct_insert_new_records_submit'] ) ) 
 			return;
 
 		// Bail if no records posted
-		if ( ! isset( $_REQUEST['fiscaat_new_record'] ) ) 
+		if ( ! isset( $_REQUEST['fct_new_record'] ) ) 
 			return;
 
 		// Setup records array
 		$_records = array();
 
 		// Rewrite input records as record => fields instead of field => records
-		foreach ( (array) $_REQUEST['fiscaat_new_record'] as $field => $records ) {
+		foreach ( (array) $_REQUEST['fct_new_record'] as $field => $records ) {
 			foreach ( $records as $k => $value ) {
 				$_records[$k][$field] = $value;
 			}
@@ -489,11 +489,11 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 			
 			// Handle types
 			if ( $record['debit'] ) {
-				$value      = fiscaat_float_format( $record['debit'] );
-				$value_type = fiscaat_get_debit_record_type();
+				$value      = fct_float_format( $record['debit'] );
+				$value_type = fct_get_debit_record_type();
 			} elseif ( $record['credit' ] ) {
-				$value      = fiscaat_float_format( $record['credit'] );
-				$value_type = fiscaat_get_credit_record_type();
+				$value      = fct_float_format( $record['credit'] );
+				$value_type = fct_get_credit_record_type();
 			} else {
 				$value      = false;
 				$value_type = false;
@@ -524,7 +524,7 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 			foreach ( $_records as $k => $record ) {
 
 				// Save record
-				$records[] = fiscaat_insert_record( 
+				$records[] = fct_insert_record( 
 					array(
 						'post_parent'    => (int) $record['account_id'],
 						'post_content'   => $record['description']
@@ -556,7 +556,7 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 			}
 
 			// Redirect to clean New Records page
-			wp_safe_redirect( add_query_arg( array( 'post_type' => fiscaat_get_record_post_type(), 'page' => 'new', 'message' => $message, 'failure' => $failure ), admin_url( 'edit.php' ) ) );
+			wp_safe_redirect( add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'page' => 'new', 'message' => $message, 'failure' => $failure ), admin_url( 'edit.php' ) ) );
 
 			// For good measure
 			exit;
@@ -566,6 +566,6 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 	/**
 	 * Return required fields for new records
 	 *
-	 * @uses apply_filters() Calls 'fiscaat_new_records_required_fields'
+	 * @uses apply_filters() Calls 'fct_new_records_required_fields'
 	 *                        with empty array
 	 * @ret

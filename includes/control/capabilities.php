@@ -19,10 +19,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * @param array $args
  * @return Mapped caps
  */
-function fiscaat_control_map_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
+function fct_control_map_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 
 	// For Controllers only
-	if ( ! user_can( $user_id, 'fiscaat_control' ) )
+	if ( ! user_can( $user_id, 'fct_control' ) )
 		return $caps;
 
 	// Which capability is being checked?	
@@ -34,7 +34,7 @@ function fiscaat_control_map_meta_caps( $caps = array(), $cap = '', $user_id = 0
 		case 'read_year'    :
 		case 'read_account' :
 		case 'read_record'  :
-			$caps = array( 'fiscaat_control' );
+			$caps = array( 'fct_control' );
 			break;
 
 		/** Editing ***********************************************************/
@@ -47,19 +47,19 @@ function fiscaat_control_map_meta_caps( $caps = array(), $cap = '', $user_id = 0
 			if ( ! empty( $_post ) ){
 
 				// Record is not closed
-				if ( fiscaat_get_closed_status_id() != $_post->post_status )
-					$caps = array( 'fiscaat_control' );
+				if ( fct_get_closed_status_id() != $_post->post_status )
+					$caps = array( 'fct_control' );
 			}
 
 			break;
 
 		case 'edit_records'        :
 		case 'edit_others_records' :
-			$caps = array( 'fiscaat_control' );
+			$caps = array( 'fct_control' );
 			break;
 	}
 
-	return apply_filters( 'fiscaat_control_map_meta_caps', $caps, $cap, $user_id, $args );
+	return apply_filters( 'fct_control_map_meta_caps', $caps, $cap, $user_id, $args );
 }
 
 /**
@@ -69,17 +69,17 @@ function fiscaat_control_map_meta_caps( $caps = array(), $cap = '', $user_id = 0
  * @param string $role
  * @return array
  */
-function fiscaat_control_get_caps_for_role( $caps, $role ) {
+function fct_control_get_caps_for_role( $caps, $role ) {
 
 	// Controller
-	if ( fiscaat_get_controller_role() == $role ) {
+	if ( fct_get_controller_role() == $role ) {
 		$caps = array(
 
 			// Controllers only
-			'fiscaat_control'        => true,
+			'fct_control'        => true,
 
 			// Primary caps
-			'fiscaat_spectate'       => true,
+			'fct_spectate'       => true,
 
 			// Record caps
 			'publish_records'        => false,
@@ -116,10 +116,10 @@ function fiscaat_control_get_caps_for_role( $caps, $role ) {
  * @param array $roles
  * @return array
  */
-function fiscaat_control_get_dynamic_role( $roles ) {
-	$roles[fiscaat_get_controller_role()] = array(
+function fct_control_get_dynamic_role( $roles ) {
+	$roles[fct_get_controller_role()] = array(
 		'name'         => __( 'Controller', 'fiscaat' ),
-		'capabilities' => fiscaat_get_caps_for_role( fiscaat_get_controller_role() )
+		'capabilities' => fct_get_caps_for_role( fct_get_controller_role() )
 	);
 
 	return $roles;
@@ -131,6 +131,6 @@ function fiscaat_control_get_dynamic_role( $roles ) {
  * @uses apply_filters() Allow override of hardcoded controller role
  * @return string
  */
-function fiscaat_get_controller_role() {
-	return apply_filters( 'fiscaat_get_controller_role', 'fiscaat_controller' );
+function fct_get_controller_role() {
+	return apply_filters( 'fct_get_controller_role', 'fct_controller' );
 }

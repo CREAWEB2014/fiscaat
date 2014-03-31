@@ -16,12 +16,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * @param array $options
  * @return array
  */
-function fiscaat_control_record_statuses( $options ) {
+function fct_control_record_statuses( $options ) {
 
 	// Insert options after 'publish' and before 'close'
 	$options = array_splice( $options, 1, 0, array(
-		fiscaat_get_approved_status_id() => __('Approved', 'fiscaat'),
-		fiscaat_get_declined_status_id() => __('Declined', 'fiscaat'),
+		fct_get_approved_status_id() => __('Approved', 'fiscaat'),
+		fct_get_declined_status_id() => __('Declined', 'fiscaat'),
 	) );
 
 	return $options;
@@ -33,10 +33,10 @@ function fiscaat_control_record_statuses( $options ) {
  * @param boolean $disable
  * @return boolean
  */
-function fiscaat_control_record_status_dropdown_disable( $disable ) {
+function fct_control_record_status_dropdown_disable( $disable ) {
 
 	// User can control
-	if ( fiscaat_is_control_active() && current_user_can( 'fiscaat_control' ) )
+	if ( fct_is_control_active() && current_user_can( 'fct_control' ) )
 		$disable = false;
 
 	return $disable;
@@ -49,21 +49,21 @@ function fiscaat_control_record_status_dropdown_disable( $disable ) {
  * @param string $option
  * @return boolean
  */
-function fiscaat_control_record_status_dropdown_option_disable( $disable, $option ) {
+function fct_control_record_status_dropdown_option_disable( $disable, $option ) {
 
 	// Which options is being checked?
 	switch ( $option ) {
 
 		// Disable 'approved' and 'declined' record post stati for non-Controllers
-		case fiscaat_get_approved_status_id() :
-		case fiscaat_get_declined_status_id() :
-			if ( ! current_user_can( 'fiscaat_control' ) )
+		case fct_get_approved_status_id() :
+		case fct_get_declined_status_id() :
+			if ( ! current_user_can( 'fct_control' ) )
 				$disable = true;
 			break;
 
 		// Disable all other post stati for Controllers
 		default :
-			if ( current_user_can( 'fiscaat_control' ) )
+			if ( current_user_can( 'fct_control' ) )
 				$disable = true;
 			break;
 	}
@@ -75,33 +75,33 @@ function fiscaat_control_record_status_dropdown_option_disable( $disable, $optio
  * Get the total number of controllers on Fiscaat
  *
  * @uses count_users() To execute our query and get the var back
- * @uses apply_filters() Calls 'fiscaat_get_total_controllers' with number of controllers
+ * @uses apply_filters() Calls 'fct_get_total_controllers' with number of controllers
  * @return int Total number of controllers
  */
-function fiscaat_get_total_controllers() {
+function fct_get_total_controllers() {
 	$user_count = count_users();
-	$role       = fiscaat_get_controller_role();
+	$role       = fct_get_controller_role();
 
 	// Check for Controllers
 	if ( ! isset( $user_count['avail_roles'][$role] ) )
 		return 0;
 
-	return apply_filters( 'fiscaat_get_total_controllers', (int) $user_count['avail_roles'][$role] );
+	return apply_filters( 'fct_get_total_controllers', (int) $user_count['avail_roles'][$role] );
 }
 
 /**
  * Add the controller count to fiscaat statistics
  *
- * @uses fiscaat_get_total_controllers()
+ * @uses fct_get_total_controllers()
  * @param array $stats
  * @param array $args
  * @return array Statistics
  */
-function fiscaat_control_get_statistics( $stats, args ) {
+function fct_control_get_statistics( $stats, args ) {
 
 	// Counting users
 	if ( $args['count_users'] ) {
-		$count = fiscaat_get_total_controllers();
+		$count = fct_get_total_controllers();
 		$stats['controller_count'] = number_format_i18n( absint( $count ) )
 	}
 
@@ -111,12 +111,12 @@ function fiscaat_control_get_statistics( $stats, args ) {
 /**
  * Output the dashboard widget right now control content
  *
- * @uses fiscaat_get_total_controllers()
+ * @uses fct_get_total_controllers()
  */
-function fiscaat_control_dashboard_widget_right_now_content() {
+function fct_control_dashboard_widget_right_now_content() {
 
 	// Get controller count
-	$controller_count = fiscaat_get_total_controllers(); ?>
+	$controller_count = fct_get_total_controllers(); ?>
 
 		<tr>
 			<?php
@@ -137,24 +137,24 @@ function fiscaat_control_dashboard_widget_right_now_content() {
  * @param array $menu_items
  * @return array
  */
-function fiscaat_control_admin_bar_menu( $menu_items ) {
+function fct_control_admin_bar_menu( $menu_items ) {
 
 	// Control Unapproved node
-	if ( fiscaat_is_control_active() && current_user_can( 'fiscaat_control' ) ) {	
+	if ( fct_is_control_active() && current_user_can( 'fct_control' ) ) {	
 		$menu_items['fiscaat-control'] = array(
-			'title'  => sprintf( __('Unapproved Records (%d)', 'fiscaat'), fiscaat_get_year_record_count_unapproved( fiscaat_get_current_year_id() ) ),
+			'title'  => sprintf( __('Unapproved Records (%d)', 'fiscaat'), fct_get_year_record_count_unapproved( fct_get_current_year_id() ) ),
 			'parent' => 'fiscaat',
-			'href'   => add_query_arg( array( 'post_type' => fiscaat_get_record_post_type(), 'approval' => 0 ), admin_url( 'edit.php' ) ),
+			'href'   => add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'approval' => 0 ), admin_url( 'edit.php' ) ),
 			'meta'   => array()
 		);
 	}
 
 	// Control Declined node. Only if there are any
-	if ( fiscaat_is_control_active() && ( current_user_can( 'fiscaat' ) || current_user_can( 'fiscaat_control' ) ) && 0 != fiscaat_get_year_record_count_declined( fiscaat_get_current_year_id() ) {
+	if ( fct_is_control_active() && ( current_user_can( 'fiscaat' ) || current_user_can( 'fct_control' ) ) && 0 != fct_get_year_record_count_declined( fct_get_current_year_id() ) {
 		$menu_items['fiscaat-declined'] = array(
-			'title'  => sprintf( __('Declined Records (%d)', 'fiscaat'), fiscaat_get_year_record_count_declined( fiscaat_get_current_year_id() ) ),
+			'title'  => sprintf( __('Declined Records (%d)', 'fiscaat'), fct_get_year_record_count_declined( fct_get_current_year_id() ) ),
 			'parent' => 'fiscaat',
-			'href'   => add_query_arg( array( 'post_type' => fiscaat_get_record_post_type(), 'approval' => 2 ), admin_url( 'edit.php' ) ),
+			'href'   => add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'approval' => 2 ), admin_url( 'edit.php' ) ),
 			'meta'   => array()
 		);
 	}

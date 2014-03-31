@@ -23,28 +23,28 @@
  * Runs on Fiscaat activation
  *
  * @uses register_uninstall_hook() To register our own uninstall hook
- * @uses do_action() Calls 'fiscaat_activation' hook
+ * @uses do_action() Calls 'fct_activation' hook
  */
-function fiscaat_activation() {
-	do_action( 'fiscaat_activation' );
+function fct_activation() {
+	do_action( 'fct_activation' );
 }
 
 /**
  * Runs on Fiscaat deactivation
  *
- * @uses do_action() Calls 'fiscaat_deactivation' hook
+ * @uses do_action() Calls 'fct_deactivation' hook
  */
-function fiscaat_deactivation() {
-	do_action( 'fiscaat_deactivation' );
+function fct_deactivation() {
+	do_action( 'fct_deactivation' );
 }
 
 /**
  * Runs when uninstalling Fiscaat
  *
- * @uses do_action() Calls 'fiscaat_uninstall' hook
+ * @uses do_action() Calls 'fct_uninstall' hook
  */
-function fiscaat_uninstall() {
-	do_action( 'fiscaat_uninstall' );
+function fct_uninstall() {
+	do_action( 'fct_uninstall' );
 }
 
 /** Main Actions **************************************************************/
@@ -52,82 +52,82 @@ function fiscaat_uninstall() {
 /**
  * Main action responsible for constants, globals, and includes
  *
- * @uses do_action() Calls 'fiscaat_loaded'
+ * @uses do_action() Calls 'fct_loaded'
  */
-function fiscaat_loaded() {
-	do_action( 'fiscaat_loaded' );
+function fct_loaded() {
+	do_action( 'fct_loaded' );
 }
 
 /**
  * Setup constants
  *
- * @uses do_action() Calls 'fiscaat_constants'
+ * @uses do_action() Calls 'fct_constants'
  */
-function fiscaat_constants() {
-	do_action( 'fiscaat_constants' );
+function fct_constants() {
+	do_action( 'fct_constants' );
 }
 
 /**
  * Setup globals BEFORE includes
  *
- * @uses do_action() Calls 'fiscaat_boot_strap_globals'
+ * @uses do_action() Calls 'fct_boot_strap_globals'
  */
-function fiscaat_boot_strap_globals() {
-	do_action( 'fiscaat_boot_strap_globals' );
+function fct_boot_strap_globals() {
+	do_action( 'fct_boot_strap_globals' );
 }
 
 /**
  * Include files
  *
- * @uses do_action() Calls 'fiscaat_includes'
+ * @uses do_action() Calls 'fct_includes'
  */
-function fiscaat_includes() {
-	do_action( 'fiscaat_includes' );
+function fct_includes() {
+	do_action( 'fct_includes' );
 }
 
 /**
  * Setup globals AFTER includes
  *
- * @uses do_action() Calls 'fiscaat_setup_globals'
+ * @uses do_action() Calls 'fct_setup_globals'
  */
-function fiscaat_setup_globals() {
-	do_action( 'fiscaat_setup_globals' );
+function fct_setup_globals() {
+	do_action( 'fct_setup_globals' );
 }
 
 /**
  * Register any objects before anything is initialized
  *
- * @uses do_action() Calls 'fiscaat_register'
+ * @uses do_action() Calls 'fct_register'
  */
-function fiscaat_register() {
-	do_action( 'fiscaat_register' );
+function fct_register() {
+	do_action( 'fct_register' );
 }
 
 /**
  * Initialize any code after everything has been loaded
  *
- * @uses do_action() Calls 'fiscaat_init'
+ * @uses do_action() Calls 'fct_init'
  */
-function fiscaat_init() {
-	do_action( 'fiscaat_init' );
+function fct_init() {
+	do_action( 'fct_init' );
 }
 
 /**
  * Initialize widgets
  *
- * @uses do_action() Calls 'fiscaat_widgets_init'
+ * @uses do_action() Calls 'fct_widgets_init'
  */
-function fiscaat_widgets_init() {
-	do_action( 'fiscaat_widgets_init' );
+function fct_widgets_init() {
+	do_action( 'fct_widgets_init' );
 }
 
 /**
  * Setup the currently logged-in user
  *
- * @uses do_action() Calls 'fiscaat_setup_current_user'
+ * @uses do_action() Calls 'fct_setup_current_user'
  */
-function fiscaat_setup_current_user() {
-	do_action( 'fiscaat_setup_current_user' );
+function fct_setup_current_user() {
+	do_action( 'fct_setup_current_user' );
 }
 
 /** Supplemental Actions ******************************************************/
@@ -135,55 +135,55 @@ function fiscaat_setup_current_user() {
 /**
  * Load translations for current language
  *
- * @uses do_action() Calls 'fiscaat_load_textdomain'
+ * @uses do_action() Calls 'fct_load_textdomain'
  */
-function fiscaat_load_textdomain() {
-	do_action( 'fiscaat_load_textdomain' );
+function fct_load_textdomain() {
+	do_action( 'fct_load_textdomain' );
 }
 
 /**
  * Setup the post types
  *
- * @uses do_action() Calls 'fiscaat_register_post_type'
+ * @uses do_action() Calls 'fct_register_post_type'
  */
-function fiscaat_register_post_types() {
-	do_action( 'fiscaat_register_post_types' );
+function fct_register_post_types() {
+	do_action( 'fct_register_post_types' );
 }
 
 /**
  * Setup the post statuses
  *
- * @uses do_action() Calls 'fiscaat_register_post_statuses'
+ * @uses do_action() Calls 'fct_register_post_statuses'
  */
-function fiscaat_register_post_statuses() {
-	do_action( 'fiscaat_register_post_statuses' );
+function fct_register_post_statuses() {
+	do_action( 'fct_register_post_statuses' );
 }
 
 /**
  * Register the default Fiscaat shortcodes
  *
- * @uses do_action() Calls 'fiscaat_register_shortcodes'
+ * @uses do_action() Calls 'fct_register_shortcodes'
  */
-function fiscaat_register_shortcodes() {
-	do_action( 'fiscaat_register_shortcodes' );
+function fct_register_shortcodes() {
+	do_action( 'fct_register_shortcodes' );
 }
 
 /**
  * Enqueue Fiscaat specific CSS and JS
  *
- * @uses do_action() Calls 'fiscaat_enqueue_scripts'
+ * @uses do_action() Calls 'fct_enqueue_scripts'
  */
-function fiscaat_enqueue_scripts() {
-	do_action( 'fiscaat_enqueue_scripts' );
+function fct_enqueue_scripts() {
+	do_action( 'fct_enqueue_scripts' );
 }
 
 /**
  * Add the bbPress-specific rewrite tags
  *
- * @uses do_action() Calls 'fiscaat_add_rewrite_tags'
+ * @uses do_action() Calls 'fct_add_rewrite_tags'
  */
-function fiscaat_add_rewrite_tags() {
-	do_action( 'fiscaat_add_rewrite_tags' );
+function fct_add_rewrite_tags() {
+	do_action( 'fct_add_rewrite_tags' );
 }
 
 /** User Actions **************************************************************/
@@ -193,10 +193,10 @@ function fiscaat_add_rewrite_tags() {
  *
  * @param int $user_id ID of user being edited
  * @param array $old_user_data The old, unmodified user data
- * @uses do_action() Calls 'fiscaat_profile_update'
+ * @uses do_action() Calls 'fct_profile_update'
  */
-function fiscaat_profile_update( $user_id = 0, $old_user_data = array() ) {
-	do_action( 'fiscaat_profile_update', $user_id, $old_user_data );
+function fct_profile_update( $user_id = 0, $old_user_data = array() ) {
+	do_action( 'fct_profile_update', $user_id, $old_user_data );
 }
 
 /** Final Action **************************************************************/
@@ -204,10 +204,10 @@ function fiscaat_profile_update( $user_id = 0, $old_user_data = array() ) {
 /**
  * Fiscaat has loaded and initialized everything, and is okay to go
  *
- * @uses do_action() Calls 'fiscaat_ready'
+ * @uses do_action() Calls 'fct_ready'
  */
-function fiscaat_ready() {
-	do_action( 'fiscaat_ready' );
+function fct_ready() {
+	do_action( 'fct_ready' );
 }
 
 /** Theme Permissions *********************************************************/
@@ -218,8 +218,8 @@ function fiscaat_ready() {
  *
  * @uses do_action()
  */
-function fiscaat_template_redirect() {
-	do_action( 'fiscaat_template_redirect' );
+function fct_template_redirect() {
+	do_action( 'fct_template_redirect' );
 }
 
 /** Theme Helpers *************************************************************/
@@ -229,8 +229,8 @@ function fiscaat_template_redirect() {
  *
  * @uses do_action()
  */
-function fiscaat_setup_theme() {
-	do_action( 'fiscaat_setup_theme' );
+function fct_setup_theme() {
+	do_action( 'fct_setup_theme' );
 }
 
 /**
@@ -238,8 +238,8 @@ function fiscaat_setup_theme() {
  *
  * @uses do_action()
  */
-function fiscaat_after_setup_theme() {
-	do_action( 'fiscaat_after_setup_theme' );
+function fct_after_setup_theme() {
+	do_action( 'fct_after_setup_theme' );
 }
 
 /**
@@ -248,8 +248,8 @@ function fiscaat_after_setup_theme() {
  * @param string $locale
  * @param string $domain
  */
-function fiscaat_plugin_locale( $locale = '', $domain = '' ) {
-	return apply_filters( 'fiscaat_plugin_locale', $locale, $domain );
+function fct_plugin_locale( $locale = '', $domain = '' ) {
+	return apply_filters( 'fct_plugin_locale', $locale, $domain );
 }
 
 /** Filters *******************************************************************/
@@ -260,18 +260,18 @@ function fiscaat_plugin_locale( $locale = '', $domain = '' ) {
  * @param array $query_vars
  * @return array
  */
-function fiscaat_request( $query_vars = array() ) {
-	return apply_filters( 'fiscaat_request', $query_vars );
+function fct_request( $query_vars = array() ) {
+	return apply_filters( 'fct_request', $query_vars );
 }
 
 /**
  * Generate bbPress-specific rewrite rules
  *
  * @param WP_Rewrite $wp_rewrite
- * @uses do_action() Calls 'fiscaat_generate_rewrite_rules' with {@link WP_Rewrite}
+ * @uses do_action() Calls 'fct_generate_rewrite_rules' with {@link WP_Rewrite}
  */
-function fiscaat_generate_rewrite_rules( $wp_rewrite ) {
-	do_action_ref_array( 'fiscaat_generate_rewrite_rules', array( &$wp_rewrite ) );
+function fct_generate_rewrite_rules( $wp_rewrite ) {
+	do_action_ref_array( 'fct_generate_rewrite_rules', array( &$wp_rewrite ) );
 }
 
 /**
@@ -282,6 +282,6 @@ function fiscaat_generate_rewrite_rules( $wp_rewrite ) {
  * @param int $user_id User id
  * @param mixed $args Arguments
  */
-function fiscaat_map_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
-	return apply_filters( 'fiscaat_map_meta_caps', $caps, $cap, $user_id, $args );
+function fct_map_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
+	return apply_filters( 'fct_map_meta_caps', $caps, $cap, $user_id, $args );
 }

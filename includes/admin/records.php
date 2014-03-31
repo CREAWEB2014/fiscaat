@@ -47,14 +47,14 @@ class Fiscaat_Records_Admin {
 	 *
 	 * @uses add_action() To add various actions
 	 * @uses add_filter() To add various filters
-	 * @uses fiscaat_get_year_post_type() To get the year post type
-	 * @uses fiscaat_get_account_post_type() To get the account post type
-	 * @uses fiscaat_get_record_post_type() To get the record post type
+	 * @uses fct_get_year_post_type() To get the year post type
+	 * @uses fct_get_account_post_type() To get the account post type
+	 * @uses fct_get_record_post_type() To get the record post type
 	 */
 	private function setup_actions() {
 
 		// Add some general styling to the admin area
-		add_action( 'fiscaat_admin_head',    array( $this, 'admin_head'       ) );
+		add_action( 'fct_admin_head',    array( $this, 'admin_head'       ) );
 
 		// Messages
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
@@ -71,13 +71,13 @@ class Fiscaat_Records_Admin {
 		add_action( 'add_meta_boxes', array( $this, 'record_attributes_metabox'      ) );
 		add_action( 'save_post',      array( $this, 'record_attributes_metabox_save' ) );
 
-		// Check if there are any fiscaat_toggle_record_* requests on admin_init, also have a message displayed
+		// Check if there are any fct_toggle_record_* requests on admin_init, also have a message displayed
 		add_action( 'load-edit.php',  array( $this, 'toggle_record'        ) );
 		add_action( 'admin_notices',  array( $this, 'toggle_record_notice' ) );
 
 		// Add ability to filter accounts and records per year
 		add_filter( 'restrict_manage_posts', array( $this, 'filter_dropdown'             )        );
-		add_filter( 'fiscaat_request',       array( $this, 'filter_post_rows'            )        );
+		add_filter( 'fct_request',       array( $this, 'filter_post_rows'            )        );
 		add_filter( 'the_posts',             array( $this, 'records_add_item_attributes' ), 99    );
 		add_filter( 'the_posts',             array( $this, 'records_add_rows'            ), 99    );
 		add_filter( 'post_class',            array( $this, 'row_post_class'              ), 10, 3 );
@@ -114,7 +114,7 @@ class Fiscaat_Records_Admin {
 	 * @access private
 	 */
 	private function setup_globals() {
-		$this->post_type = fiscaat_get_record_post_type();
+		$this->post_type = fct_get_record_post_type();
 	}
 
 	/** Contextual Help *******************************************************/
@@ -252,24 +252,24 @@ class Fiscaat_Records_Admin {
 	/**
 	 * Add the record attributes metabox
 	 *
-	 * @uses fiscaat_get_record_post_type() To get the record post type
+	 * @uses fct_get_record_post_type() To get the record post type
 	 * @uses add_meta_box() To add the metabox
-	 * @uses do_action() Calls 'fiscaat_record_attributes_metabox'
+	 * @uses do_action() Calls 'fct_record_attributes_metabox'
 	 */
 	public function record_attributes_metabox() {
 
 		if ( $this->bail() ) return;
 
 		add_meta_box (
-			'fiscaat_record_attributes',
+			'fct_record_attributes',
 			__( 'Record Attributes', 'fiscaat' ),
-			'fiscaat_record_metabox',
+			'fct_record_metabox',
 			$this->post_type,
 			'side',
 			'high'
 		);
 
-		do_action( 'fiscaat_record_attributes_metabox' );
+		do_action( 'fct_record_attributes_metabox' );
 	}
 
 	/**
@@ -278,7 +278,7 @@ class Fiscaat_Records_Admin {
 	 * @param int $record_id Record id
 	 * @uses current_user_can() To check if the current user is capable of
 	 *                           editing the record
-	 * @uses do_action() Calls 'fiscaat_record_attributes_metabox_save' with the
+	 * @uses do_action() Calls 'fct_record_attributes_metabox_save' with the
 	 *                    record id and parent id
 	 * @return int Parent id
 	 */
@@ -299,7 +299,7 @@ class Fiscaat_Records_Admin {
 			return $record_id;
 
 		// Nonce check
-		if ( empty( $_POST['fiscaat_record_metabox'] ) || !wp_verify_nonce( $_POST['fiscaat_record_metabox'], 'fiscaat_record_metabox_save' ) )
+		if ( empty( $_POST['fct_record_metabox'] ) || !wp_verify_nonce( $_POST['fct_record_metabox'], 'fct_record_metabox_save' ) )
 			return $record_id;
 
 		// Current user cannot edit this record
@@ -308,21 +308,21 @@ class Fiscaat_Records_Admin {
 
 		// Get the record meta post values
 		$account_id = ! empty( $_POST['parent_id'] )              ? (int) $_POST['parent_id'] : 0;
-		$year_id    = ! empty( $_POST['fiscaat_record_year_id'] ) ? (int) $_POST['fiscaat_record_year_id'] : fiscaat_get_account_year_id( $account_id );
+		$year_id    = ! empty( $_POST['fct_record_year_id'] ) ? (int) $_POST['fct_record_year_id'] : fct_get_account_year_id( $account_id );
 
 		// Formally update the record
-		fiscaat_update_record( array( 
+		fct_update_record( array( 
 			'record_id'      => $record_id, 
 			'account_id'     => $account_id,
 			'year_id'        => $year_id,
-			'value'          => ! empty( $_POST['fiscaat_record_value'] )          ? $_POST['fiscaat_record_value']          : 0,
-			'value_type'     => ! empty( $_POST['fiscaat_record_value_type'] )     ? $_POST['fiscaat_record_value_type']     : '',
-			'offset_account' => ! empty( $_POST['fiscaat_record_offset_account'] ) ? $_POST['fiscaat_record_offset_account'] : 0,
-			'status'         => ! empty( $_POST['fiscaat_record_status'] )         ? $_POST['fiscaat_record_status']         : '',
+			'value'          => ! empty( $_POST['fct_record_value'] )          ? $_POST['fct_record_value']          : 0,
+			'value_type'     => ! empty( $_POST['fct_record_value_type'] )     ? $_POST['fct_record_value_type']     : '',
+			'offset_account' => ! empty( $_POST['fct_record_offset_account'] ) ? $_POST['fct_record_offset_account'] : 0,
+			'status'         => ! empty( $_POST['fct_record_status'] )         ? $_POST['fct_record_status']         : '',
 		) );
 
 		// Allow other fun things to happen
-		do_action( 'fiscaat_record_attributes_metabox_save', $record_id, $account_id, $year_id );
+		do_action( 'fct_record_attributes_metabox_save', $record_id, $account_id, $year_id );
 
 		return $record_id;
 	}
@@ -330,11 +330,11 @@ class Fiscaat_Records_Admin {
 	/**
 	 * Add some general styling to the admin area
 	 *
-	 * @uses fiscaat_get_year_post_type() To get the year post type
-	 * @uses fiscaat_get_account_post_type() To get the account post type
-	 * @uses fiscaat_get_record_post_type() To get the record post type
+	 * @uses fct_get_year_post_type() To get the year post type
+	 * @uses fct_get_account_post_type() To get the account post type
+	 * @uses fct_get_record_post_type() To get the record post type
 	 * @uses sanitize_html_class() To sanitize the classes
-	 * @uses do_action() Calls 'fiscaat_admin_head'
+	 * @uses do_action() Calls 'fct_admin_head'
 	 */
 	public function admin_head() {
 
@@ -349,51 +349,51 @@ class Fiscaat_Records_Admin {
 			}
 
 			.column-author,
-			.column-fiscaat_record_author,
-			.column-fiscaat_account_author {
+			.column-fct_record_author,
+			.column-fct_account_author {
 				width: 10% !important;
 			}
 
-			.column-fiscaat_record_created,
-			.column-fiscaat_record_offset_account,
-			.column-fiscaat_record_year,
-			.column-fiscaat_record_account {
+			.column-fct_record_created,
+			.column-fct_record_offset_account,
+			.column-fct_record_year,
+			.column-fct_record_account {
 				width: 10% !important;
 			}
 
-			.column-fiscaat_record_account {
+			.column-fct_record_account {
 				width: 193px !important;
 			}
 
-			.wp-list-table td.column-fiscaat_record_created, 
-			.wp-list-table td.column-fiscaat_record_description, 
-			.wp-list-table td.column-fiscaat_record_account, 
-			.wp-list-table td.column-fiscaat_record_account_ledger_id, 
-			.wp-list-table td.column-fiscaat_record_offset_account {
+			.wp-list-table td.column-fct_record_created, 
+			.wp-list-table td.column-fct_record_description, 
+			.wp-list-table td.column-fct_record_account, 
+			.wp-list-table td.column-fct_record_account_ledger_id, 
+			.wp-list-table td.column-fct_record_offset_account {
 				padding: 9px 7px;
 			}
 
-			.column-fiscaat_record_value {
+			.column-fct_record_value {
 				width: 137px;
 			}
 
-			.column-fiscaat_record_value.sortable,
-			.column-fiscaat_record_value.sorted {
+			.column-fct_record_value.sortable,
+			.column-fct_record_value.sorted {
 				width: 151px;
 			}
 
-			.column-fiscaat_record_value .small-text {
+			.column-fct_record_value .small-text {
 				text-align: right;
 				width: 65px;
 			}
 
-			.column-fiscaat_record_status {
+			.column-fct_record_status {
 				width: 45px;
 				text-align: center;
 			}
 
-			.column-fiscaat_record_status.sortable,
-			.column-fiscaat_record_status.sorted {
+			.column-fct_record_status.sortable,
+			.column-fct_record_status.sorted {
 				width: 67px;
 			}
 
@@ -425,11 +425,11 @@ class Fiscaat_Records_Admin {
 				display: none;
 			}
 			
-			#the-list .fiscaat-row-total .column-fiscaat_record_offset_account {
+			#the-list .fiscaat-row-total .column-fct_record_offset_account {
 				text-align: right;
 			}
 
-			.fiscaat_record_status_icon {
+			.fct_record_status_icon {
 				width: 18px;
 				height: 18px;
 				margin: 3px auto 0;
@@ -440,27 +440,27 @@ class Fiscaat_Records_Admin {
 				border-radius:100%;
 			}
 
-				.fiscaat_record_status_icon img {
+				.fct_record_status_icon img {
 					margin-top: 3px;
 				}
 
-				.fiscaat_record_status_icon.status_<?php echo fiscaat_get_public_status_id(); ?> {
+				.fct_record_status_icon.status_<?php echo fct_get_public_status_id(); ?> {
 					background-color: #de9e0c;
 				}
 
-				.fiscaat_record_status_icon.status_<?php echo fiscaat_get_declined_status_id(); ?> {
+				.fct_record_status_icon.status_<?php echo fct_get_declined_status_id(); ?> {
 					background-color: #d54e21;
 				}
 
-				.fiscaat_record_status_icon.status_<?php echo fiscaat_get_approved_status_id(); ?> {
+				.fct_record_status_icon.status_<?php echo fct_get_approved_status_id(); ?> {
 					background-color: #21759b;
 				}
 
-				.fiscaat_record_status_icon.status_<?php echo fiscaat_get_closed_status_id(); ?> {
+				.fct_record_status_icon.status_<?php echo fct_get_closed_status_id(); ?> {
 					background-color: #999;
 				}
 
-			.column-fiscaat_record_account_ledger_id {
+			.column-fct_record_account_ledger_id {
 				width: 35px;
 			}
 
@@ -475,16 +475,16 @@ class Fiscaat_Records_Admin {
 	 *
 	 * Handles the admin-side approving/disapproving of records
 	 *
-	 * @uses fiscaat_get_record() To get the record
+	 * @uses fct_get_record() To get the record
 	 * @uses current_user_can() To check if the user is capable of editing
 	 *                           the record
 	 * @uses wp_die() To die if the user isn't capable or the post wasn't
 	 *                 found
 	 * @uses check_admin_referer() To verify the nonce and check referer
-	 * @uses fiscaat_is_record_approved() To check if the record is marked as approved
-	 * @uses fiscaat_disapprove_record() To unmark the record as declined
-	 * @uses fiscaat_approve_record() To mark the record as approved
-	 * @uses do_action() Calls 'fiscaat_toggle_record_admin' with success, post
+	 * @uses fct_is_record_approved() To check if the record is marked as approved
+	 * @uses fct_disapprove_record() To unmark the record as declined
+	 * @uses fct_approve_record() To mark the record as approved
+	 * @uses do_action() Calls 'fct_toggle_record_admin' with success, post
 	 *                    data, action and message
 	 * @uses add_query_arg() To add custom args to the url
 	 * @uses wp_safe_redirect() Redirect the page to custom url
@@ -494,14 +494,14 @@ class Fiscaat_Records_Admin {
 		if ( $this->bail() ) return;
 
 		// Only proceed if GET is a record toggle action
-		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'fiscaat_toggle_record_spam' ) ) && ! empty( $_GET['record_id'] ) ) {
+		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'fct_toggle_record_spam' ) ) && ! empty( $_GET['record_id'] ) ) {
 			$action    = $_GET['action'];             // What action is taking place?
 			$record_id  = (int) $_GET['record_id'];   // What's the record id?
 			$success   = false;                       // Flag
 			$post_data = array( 'ID' => $record_id ); // Prelim array
 
 			// Get record and die if empty
-			$record = fiscaat_get_record( $record_id );
+			$record = fct_get_record( $record_id );
 			if ( empty( $record ) ) // Which record?
 				wp_die( __( 'The record was not found!', 'fiscaat' ) );
 
@@ -509,24 +509,24 @@ class Fiscaat_Records_Admin {
 				wp_die( __( 'You do not have the permission to do that!', 'fiscaat' ) );
 
 			switch ( $action ) {
-				case 'fiscaat_toggle_record_approval' :
+				case 'fct_toggle_record_approval' :
 					check_admin_referer( 'approval-record_' . $record_id );
 
-					$approve = fiscaat_is_record_approved( $record_id );
+					$approve = fct_is_record_approved( $record_id );
 					$message = $approve ? 'declined' : 'approved';
-					$success = $approve ? fiscaat_disapprove_record( $record_id ) : fiscaat_approve_record( $record_id );
+					$success = $approve ? fct_disapprove_record( $record_id ) : fct_approve_record( $record_id );
 
 					break;
 			}
 
 			$success = wp_update_post( $post_data );
-			$message = array( 'fiscaat_record_toggle_notice' => $message, 'record_id' => $record->ID );
+			$message = array( 'fct_record_toggle_notice' => $message, 'record_id' => $record->ID );
 
 			if ( false == $success || is_wp_error( $success ) )
 				$message['failed'] = '1';
 
 			// Do additional record toggle actions (admin side)
-			do_action( 'fiscaat_toggle_record_admin', $success, $post_data, $action, $message );
+			do_action( 'fct_toggle_record_admin', $success, $post_data, $action, $message );
 
 			// Redirect back to the record
 			$redirect = add_query_arg( $message, remove_query_arg( array( 'action', 'record_id' ) ) );
@@ -545,10 +545,10 @@ class Fiscaat_Records_Admin {
 	 *
 	 * @since Fiscaat (r2740)
 	 *
-	 * @uses fiscaat_get_record() To get the record
-	 * @uses fiscaat_get_record_title() To get the record title of the record
+	 * @uses fct_get_record() To get the record
+	 * @uses fct_get_record_title() To get the record title of the record
 	 * @uses esc_html() To sanitize the record title
-	 * @uses apply_filters() Calls 'fiscaat_toggle_record_notice_admin' with
+	 * @uses apply_filters() Calls 'fct_toggle_record_notice_admin' with
 	 *                        message, record id, notice and is it a failure
 	 */
 	public function toggle_record_notice() {
@@ -556,8 +556,8 @@ class Fiscaat_Records_Admin {
 		if ( $this->bail() ) return;
 
 		// Only proceed if GET is a record toggle action
-		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_GET['fiscaat_record_toggle_notice'] ) && in_array( $_GET['fiscaat_record_toggle_notice'], array( 'spammed', 'unspammed' ) ) && ! empty( $_GET['record_id'] ) ) {
-			$notice     = $_GET['fiscaat_record_toggle_notice'];    // Which notice?
+		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_GET['fct_record_toggle_notice'] ) && in_array( $_GET['fct_record_toggle_notice'], array( 'spammed', 'unspammed' ) ) && ! empty( $_GET['record_id'] ) ) {
+			$notice     = $_GET['fct_record_toggle_notice'];    // Which notice?
 			$record_id  = (int) $_GET['record_id'];                 // What's the record id?
 			$is_failure = ! empty( $_GET['failed'] ) ? true : false; // Was that a failure?
 
@@ -566,11 +566,11 @@ class Fiscaat_Records_Admin {
 				return;
 
 			// Get record and bail if empty
-			$record = fiscaat_get_record( $record_id );
+			$record = fct_get_record( $record_id );
 			if ( empty( $record ) )
 				return;
 
-			$record_title = esc_html( fiscaat_get_record_title( $record->ID ) );
+			$record_title = esc_html( fct_get_record_title( $record->ID ) );
 
 			switch ( $notice ) {
 				case 'approved' :
@@ -583,7 +583,7 @@ class Fiscaat_Records_Admin {
 			}
 
 			// Do additional record toggle notice filters (admin side)
-			$message = apply_filters( 'fiscaat_toggle_record_notice_admin', $message, $record->ID, $notice, $is_failure );
+			$message = apply_filters( 'fct_toggle_record_notice_admin', $message, $record->ID, $notice, $is_failure );
 
 			?>
 
@@ -599,7 +599,7 @@ class Fiscaat_Records_Admin {
 	 * Manage the column headers for the records page
 	 *
 	 * @param array $columns The columns
-	 * @uses apply_filters() Calls 'fiscaat_admin_records_column_headers' with
+	 * @uses apply_filters() Calls 'fct_admin_records_column_headers' with
 	 *                        the columns
 	 * @return array $columns Fiscaat record columns
 	 */
@@ -609,31 +609,31 @@ class Fiscaat_Records_Admin {
 
 		$columns = array(
 			'cb'                               => '<input type="checkbox" />',
-			'fiscaat_record_status'            => __( 'Status',                'fiscaat' ),
-			'fiscaat_record_created'           => __( 'Date',                  'fiscaat' ),
-			'fiscaat_record_account_ledger_id' => _x( 'No.', 'ledger id column name', 'fiscaat' ),
-			'fiscaat_record_account'           => __( 'Account',               'fiscaat' ),
-			'fiscaat_record_description'       => __( 'Description',           'fiscaat' ),
-			'fiscaat_record_offset_account'    => __( 'Offset Account',        'fiscaat' ),
-			'fiscaat_record_value'             => __( 'Debit/Credit',          'fiscaat' ),
+			'fct_record_status'            => __( 'Status',                'fiscaat' ),
+			'fct_record_created'           => __( 'Date',                  'fiscaat' ),
+			'fct_record_account_ledger_id' => _x( 'No.', 'ledger id column name', 'fiscaat' ),
+			'fct_record_account'           => __( 'Account',               'fiscaat' ),
+			'fct_record_description'       => __( 'Description',           'fiscaat' ),
+			'fct_record_offset_account'    => __( 'Offset Account',        'fiscaat' ),
+			'fct_record_value'             => __( 'Debit/Credit',          'fiscaat' ),
 			'comments'                         => __( 'Comments',              'fiscaat' ),
-			// 'fiscaat_record_author'            => __( 'Author',                'fiscaat' ),
-			// 'fiscaat_record_year'              => __( 'Year',                  'fiscaat' ),
+			// 'fct_record_author'            => __( 'Author',                'fiscaat' ),
+			// 'fct_record_year'              => __( 'Year',                  'fiscaat' ),
 		);
 
 		// Control
-		if ( ! fiscaat_is_control_active() )
-			unset( $columns['fiscaat_record_status'] );
+		if ( ! fct_is_control_active() )
+			unset( $columns['fct_record_status'] );
 
 		// Comment section
-		if ( ! fiscaat_is_comments_active() )
+		if ( ! fct_is_comments_active() )
 			unset( $columns['comments'] );
 
 		// Account records page doesn't need account rows
-		if ( isset( $_GET['fiscaat_account_id'] ) && ! empty( $_GET['fiscaat_account_id'] ) )
-			unset( $columns['fiscaat_record_account_ledger_id'], $columns['fiscaat_record_account'] );
+		if ( isset( $_GET['fct_account_id'] ) && ! empty( $_GET['fct_account_id'] ) )
+			unset( $columns['fct_record_account_ledger_id'], $columns['fct_record_account'] );
 
-		return apply_filters( 'fiscaat_admin_records_column_headers', $columns );
+		return apply_filters( 'fct_admin_records_column_headers', $columns );
 	}
 
 	/**
@@ -647,18 +647,18 @@ class Fiscaat_Records_Admin {
 		if ( $this->bail() ) return $columns;
 
 		// Make status column sortable
-		$columns['fiscaat_record_status'] = 'post_status';
+		$columns['fct_record_status'] = 'post_status';
 
 		// Make date column sortable
-		$columns['fiscaat_record_created'] = 'record_created';
+		$columns['fct_record_created'] = 'record_created';
 
 		// Make offset account column sortable
-		$columns['fiscaat_record_offset_account'] = 'record_offset_account';
+		$columns['fct_record_offset_account'] = 'record_offset_account';
 
 		// Make debit/credit column sortable
-		$columns['fiscaat_record_value'] = 'record_value';
+		$columns['fct_record_value'] = 'record_value';
 
-		return apply_filters( 'fiscaat_records_sortable_columns', $columns );
+		return apply_filters( 'fct_records_sortable_columns', $columns );
 	}
 
 	/**
@@ -666,25 +666,25 @@ class Fiscaat_Records_Admin {
 	 *
 	 * @param string $column Column
 	 * @param int $record_id record id
-	 * @uses fiscaat_get_record_account_id() To get the account id of the record
-	 * @uses fiscaat_account_title() To output the record's account title
+	 * @uses fct_get_record_account_id() To get the account id of the record
+	 * @uses fct_account_title() To output the record's account title
 	 * @uses apply_filters() Calls 'record_account_row_actions' with an array
 	 *                        of record account actions
-	 * @uses fiscaat_get_account_permalink() To get the account permalink
-	 * @uses fiscaat_get_account_year_id() To get the year id of the account of
+	 * @uses fct_get_account_permalink() To get the account permalink
+	 * @uses fct_get_account_year_id() To get the year id of the account of
 	 *                                 the record
-	 * @uses fiscaat_get_year_permalink() To get the year permalink
+	 * @uses fct_get_year_permalink() To get the year permalink
 	 * @uses admin_url() To get the admin url of post.php
 	 * @uses add_query_arg() To add custom args to the url
 	 * @uses apply_filters() Calls 'record_account_year_row_actions' with an
 	 *                        array of record account year actions
-	 * @uses fiscaat_record_author_display_name() To output the record author name
+	 * @uses fct_record_author_display_name() To output the record author name
 	 * @uses get_the_date() Get the record creation date
 	 * @uses get_the_time() Get the record creation time
 	 * @uses esc_attr() To sanitize the record creation time
-	 * @uses fiscaat_get_record_last_active_time() To get the time when the record was
+	 * @uses fct_get_record_last_active_time() To get the time when the record was
 	 *                                    last active
-	 * @uses do_action() Calls 'fiscaat_admin_records_column_data' with the
+	 * @uses do_action() Calls 'fct_admin_records_column_data' with the
 	 *                    column and record id
 	 */
 	public function records_column_data( $column, $record_id ) {
@@ -693,36 +693,36 @@ class Fiscaat_Records_Admin {
 		if ( $this->bail() ) return;
 
 		// Get account ID
-		$account_id = fiscaat_get_record_account_id( $record_id );
+		$account_id = fct_get_record_account_id( $record_id );
 
 		// For normal rows
-		if ( ! isset( $post->fiscaat_row ) || ! $post->fiscaat_row ) :
+		if ( ! isset( $post->fct_row ) || ! $post->fct_row ) :
 
 			// Populate Column Data
 			switch ( $column ) {
 
 				// Freshness
-				case 'fiscaat_record_created':
+				case 'fct_record_created':
 					echo get_the_date();
 					break;
 
 				// Account ledger ID
-				case 'fiscaat_record_account_ledger_id' :
+				case 'fct_record_account_ledger_id' :
 
 					// Output ledger ID
 					if ( ! empty( $account_id ) )
-						fiscaat_account_records_admin_link( $account_id, true );
+						fct_account_records_admin_link( $account_id, true );
 
 					break;
 
 				// Account
-				case 'fiscaat_record_account' :
+				case 'fct_record_account' :
 
 					// Output title name
 					if ( ! empty( $account_id ) ) {
 
 						// Account Title
-						$account_title = fiscaat_get_account_records_admin_link( $account_id );
+						$account_title = fct_get_account_records_admin_link( $account_id );
 						if ( empty( $account_title ) ) {
 							$account_title = __( 'No Account', 'fiscaat' );
 						}
@@ -738,27 +738,27 @@ class Fiscaat_Records_Admin {
 					break;
 
 				// Description
-				case 'fiscaat_record_description' :
-					fiscaat_record_excerpt( $record_id );
+				case 'fct_record_description' :
+					fct_record_excerpt( $record_id );
 					break;
 
 				// Offset account
-				case 'fiscaat_record_offset_account' :
-					fiscaat_record_offset_account( $record_id );
+				case 'fct_record_offset_account' :
+					fct_record_offset_account( $record_id );
 					break;
 
 				// Debit/Credit
-				case 'fiscaat_record_value' :
+				case 'fct_record_value' :
 				?>
 
-					<input id="fiscaat_record_<?php echo $post->ID; ?>_debit_value"  class="fiscaat_record_debit_value small-text"  type="text" value="<?php if ( fiscaat_get_debit_record_type()  == $post->fiscaat_value_type ){ fiscaat_currency_format( $post->fiscaat_value ); } ?>" disabled="disabled" />
-					<input id="fiscaat_record_<?php echo $post->ID; ?>_credit_value" class="fiscaat_record_credit_value small-text" type="text" value="<?php if ( fiscaat_get_credit_record_type() == $post->fiscaat_value_type ){ fiscaat_currency_format( $post->fiscaat_value ); } ?>" disabled="disabled" />
+					<input id="fct_record_<?php echo $post->ID; ?>_debit_value"  class="fct_record_debit_value small-text"  type="text" value="<?php if ( fct_get_debit_record_type()  == $post->fct_value_type ){ fct_currency_format( $post->fct_value ); } ?>" disabled="disabled" />
+					<input id="fct_record_<?php echo $post->ID; ?>_credit_value" class="fct_record_credit_value small-text" type="text" value="<?php if ( fct_get_credit_record_type() == $post->fct_value_type ){ fct_currency_format( $post->fct_value ); } ?>" disabled="disabled" />
 
 				<?php
 					break;
 
-				case 'fiscaat_record_status' :
-					fiscaat_record_status_icon( $record_id );
+				case 'fct_record_status' :
+					fct_record_status_icon( $record_id );
 					break;
 
 				// Comments @todo Fix comment system
@@ -773,22 +773,22 @@ class Fiscaat_Records_Admin {
 					break;
 
 				// Author
-				case 'fiscaat_record_author' :
-					fiscaat_record_author_display_name( $record_id );
+				case 'fct_record_author' :
+					fct_record_author_display_name( $record_id );
 					break;
 
 				// Year
-				case 'fiscaat_record_year' :
+				case 'fct_record_year' :
 
 					// Get Year ID's
-					$record_year_id = fiscaat_get_record_year_id( $record_id );
-					$account_year_id = fiscaat_get_account_year_id( $account_id );
+					$record_year_id = fct_get_record_year_id( $record_id );
+					$account_year_id = fct_get_account_year_id( $account_id );
 
 					// Output year name
 					if ( ! empty( $record_year_id ) ) {
 
 						// Year Title
-						$year_title = fiscaat_get_year_title( $record_year_id );
+						$year_title = fct_get_year_title( $record_year_id );
 						if ( empty( $year_title ) ) {
 							$year_title = __( 'No Year', 'fiscaat' );
 						}
@@ -812,47 +812,47 @@ class Fiscaat_Records_Admin {
 
 				// Do action for anything else
 				default :
-					do_action( 'fiscaat_admin_records_column_data', $column, $record_id );
+					do_action( 'fct_admin_records_column_data', $column, $record_id );
 					break;
 
 			} // switch normal rows
 
 		// 'From Balance' & 'To Balance/Income Statement' row
-		elseif ( ( isset( $post->fiscaat_row_from ) && $post->fiscaat_row_from ) 
-			|| ( isset( $post->fiscaat_row_to ) && $post->fiscaat_row_to ) ) :
+		elseif ( ( isset( $post->fct_row_from ) && $post->fct_row_from ) 
+			|| ( isset( $post->fct_row_to ) && $post->fct_row_to ) ) :
 
 			// Get account id
-			$account_id = (int) $_GET['fiscaat_account_id'];
+			$account_id = (int) $_GET['fct_account_id'];
 
 			// 'To Balance/Income Statement' row?
-			$to_row = isset( $post->fiscaat_row_to ) && $post->fiscaat_row_to;
+			$to_row = isset( $post->fct_row_to ) && $post->fct_row_to;
 
 			switch ( $column ) {
 
 				// Date
-				case 'fiscaat_record_created' :
+				case 'fct_record_created' :
 					if ( ! $to_row ) {
-						$account = fiscaat_get_account( $account_id );
-						echo fiscaat_convert_date( $account->post_date, get_option( 'date_format' ), true );
+						$account = fct_get_account( $account_id );
+						echo fct_convert_date( $account->post_date, get_option( 'date_format' ), true );
 					} else {
-						echo fiscaat_convert_date( fiscaat_get_current_time(), get_option( 'date_format' ), true );
+						echo fct_convert_date( fct_get_current_time(), get_option( 'date_format' ), true );
 					}
 					break;
 
 				// Description
-				case 'fiscaat_record_description' :
-					if ( fiscaat_get_asset_account_type() == fiscaat_get_account_account_type( $account_id ) )
+				case 'fct_record_description' :
+					if ( fct_get_asset_account_type() == fct_get_account_account_type( $account_id ) )
 						echo ! $to_row ? __('From Balance', 'fiscaat') : __('To Balance', 'fiscaat');
 					else
 						echo ! $to_row ? '' : __('To Income Statement', 'fiscaat');
 					break;
 
 				// Result values
-				case 'fiscaat_record_value' :
+				case 'fct_record_value' :
 					$row   = ! $to_row ? 'from' : 'to'; ?>
 
-					<input id="fiscaat_records_<?php echo $row; ?>_value_debit"  class="fiscaat_record_debit_value small-text"  type="text" value="<?php if ( fiscaat_get_debit_record_type()  == $post->fiscaat_value_type ){ fiscaat_currency_format( $post->fiscaat_value ); } ?>" disabled="disabled" />
-					<input id="fiscaat_records_<?php echo $row; ?>_value_credit" class="fiscaat_record_credit_value small-text" type="text" value="<?php if ( fiscaat_get_credit_record_type() == $post->fiscaat_value_type ){ fiscaat_currency_format( $post->fiscaat_value ); } ?>" disabled="disabled" />
+					<input id="fct_records_<?php echo $row; ?>_value_debit"  class="fct_record_debit_value small-text"  type="text" value="<?php if ( fct_get_debit_record_type()  == $post->fct_value_type ){ fct_currency_format( $post->fct_value ); } ?>" disabled="disabled" />
+					<input id="fct_records_<?php echo $row; ?>_value_credit" class="fct_record_credit_value small-text" type="text" value="<?php if ( fct_get_credit_record_type() == $post->fct_value_type ){ fct_currency_format( $post->fct_value ); } ?>" disabled="disabled" />
 
 					<?php
 					break;
@@ -860,37 +860,37 @@ class Fiscaat_Records_Admin {
 				// Default hookable
 				default :
 					if ( ! $to_row )
-						do_action( 'fiscaat_admin_records_column_data_from', $column );
+						do_action( 'fct_admin_records_column_data_from', $column );
 					else
-						do_action( 'fiscaat_admin_records_column_data_to',   $column );
+						do_action( 'fct_admin_records_column_data_to',   $column );
 					break;
 
 			} // switch from/to balance
 
 		// 'Total Sum' row
-		elseif ( isset( $post->fiscaat_row_total ) && $post->fiscaat_row_total ) :
+		elseif ( isset( $post->fct_row_total ) && $post->fct_row_total ) :
 
 			// Check columns
 			switch ( $column ) {
 
 				// Description
-				case 'fiscaat_record_description' :
+				case 'fct_record_description' :
 					_ex('Total', 'Total record sum', 'fiscaat');
 					break;
 
 				// Evaluate values
-				case 'fiscaat_record_value' :
+				case 'fct_record_value' :
 				?>
 
-					<input id="fiscaat_records_debit_total"  class="fiscaat_record_debit_value fiscaat_record_total small-text"  type="text" value="<?php fiscaat_currency_format( $post->fiscaat_debit_total ); ?>" disabled="disabled" />
-					<input id="fiscaat_records_credit_total" class="fiscaat_record_credit_value fiscaat_record_total small-text" type="text" value="<?php fiscaat_currency_format( $post->fiscaat_credit_total ); ?>" disabled="disabled" />
+					<input id="fct_records_debit_total"  class="fct_record_debit_value fct_record_total small-text"  type="text" value="<?php fct_currency_format( $post->fct_debit_total ); ?>" disabled="disabled" />
+					<input id="fct_records_credit_total" class="fct_record_credit_value fct_record_total small-text" type="text" value="<?php fct_currency_format( $post->fct_credit_total ); ?>" disabled="disabled" />
 
 				<?php
 					break;
 
 				// Default hookable
 				default :
-					do_action( 'fiscaat_admin_records_column_data_total', $column );
+					do_action( 'fct_admin_records_column_data_total', $column );
 					break;
 
 			} // switch total sum
@@ -906,13 +906,13 @@ class Fiscaat_Records_Admin {
 	 *
 	 * @param array $actions Actions
 	 * @param array $record Record object
-	 * @uses fiscaat_get_record_post_type() To get the record post type
-	 * @uses fiscaat_record_content() To output record content
-	 * @uses fiscaat_get_record_permalink() To get the record link
-	 * @uses fiscaat_get_record_title() To get the record title
+	 * @uses fct_get_record_post_type() To get the record post type
+	 * @uses fct_record_content() To output record content
+	 * @uses fct_get_record_permalink() To get the record link
+	 * @uses fct_get_record_title() To get the record title
 	 * @uses current_user_can() To check if the current user can edit or
 	 *                           delete the record
-	 * @uses fiscaat_is_record_approved() To check if the record is marked as approved
+	 * @uses fct_is_record_approved() To check if the record is marked as approved
 	 * @uses get_post_type_object() To get the record post type object
 	 * @uses add_query_arg() To add custom args to the url
 	 * @uses remove_query_arg() To remove custom args from the url
@@ -927,19 +927,19 @@ class Fiscaat_Records_Admin {
 		unset( $actions['inline hide-if-no-js'] );
 
 		// Record view links to account
-		$actions['view'] = '<a href="' . fiscaat_get_record_url( $record->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'fiscaat' ), fiscaat_get_record_title( $record->ID ) ) ) . '" rel="permalink">' . __( 'View', 'fiscaat' ) . '</a>';
+		$actions['view'] = '<a href="' . fct_get_record_url( $record->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'fiscaat' ), fct_get_record_title( $record->ID ) ) ) . '" rel="permalink">' . __( 'View', 'fiscaat' ) . '</a>';
 
 		// User cannot view records in trash
-		if ( ( fiscaat_get_trash_status_id() == $record->post_status ) && !current_user_can( 'view_trash' ) )
+		if ( ( fct_get_trash_status_id() == $record->post_status ) && !current_user_can( 'view_trash' ) )
 			unset( $actions['view'] );
 
 		// Only show the actions if the user is capable of viewing them and record is open
 		if ( current_user_can( 'control', $record->ID ) ) {
-			if ( fiscaat_record_is_open( $record->ID ) ) {
-				$approval_uri  = esc_url( wp_nonce_url( add_query_arg( array( 'record_id' => $record->ID, 'action' => 'fiscaat_toggle_record_approval' ), remove_query_arg( array( 'fiscaat_record_toggle_notice', 'record_id', 'failed', 'super' ) ) ), 'approval-record_'  . $record->ID ) );
-				if ( ! fiscaat_is_record_approved( $record->ID ) ) {
+			if ( fct_record_is_open( $record->ID ) ) {
+				$approval_uri  = esc_url( wp_nonce_url( add_query_arg( array( 'record_id' => $record->ID, 'action' => 'fct_toggle_record_approval' ), remove_query_arg( array( 'fct_record_toggle_notice', 'record_id', 'failed', 'super' ) ) ), 'approval-record_'  . $record->ID ) );
+				if ( ! fct_is_record_approved( $record->ID ) ) {
 					$actions['approval'] = '<a href="' . $approval_uri . '" title="' . esc_attr__( 'Mark this record as approved',    'fiscaat' ) . '">' . __( 'Approve',    'fiscaat' ) . '</a>';
-				} elseif( ! fiscaat_is_record_declined( $record->ID ) ) {
+				} elseif( ! fct_is_record_declined( $record->ID ) ) {
 					$actions['approval'] = '<a href="' . $approval_uri . '" title="' . esc_attr__( 'Mark this record as declined', 'fiscaat' ) . '">' . __( 'Disapprove', 'fiscaat' ) . '</a>';
 				}
 			}
@@ -947,16 +947,16 @@ class Fiscaat_Records_Admin {
 
 		// Trash
 		if ( current_user_can( 'delete_record', $record->ID ) ) {
-			if ( fiscaat_get_trash_status_id() == $record->post_status ) {
-				$post_type_object = get_post_type_object( fiscaat_get_record_post_type() );
-				$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fiscaat_get_record_post_type() ), admin_url( 'edit.php' ) ) ), wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $record->ID ) ), 'untrash-' . $record->post_type . '_' . $record->ID ) ) . "'>" . __( 'Restore', 'fiscaat' ) . "</a>";
+			if ( fct_get_trash_status_id() == $record->post_status ) {
+				$post_type_object = get_post_type_object( fct_get_record_post_type() );
+				$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fct_get_record_post_type() ), admin_url( 'edit.php' ) ) ), wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $record->ID ) ), 'untrash-' . $record->post_type . '_' . $record->ID ) ) . "'>" . __( 'Restore', 'fiscaat' ) . "</a>";
 			} elseif ( EMPTY_TRASH_DAYS ) {
-				$actions['trash'] = "<a class='submitdelete' title='" . esc_attr__( 'Move this item to the Trash', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fiscaat_get_record_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $record->ID ) ) . "'>" . __( 'Trash', 'fiscaat' ) . "</a>";
+				$actions['trash'] = "<a class='submitdelete' title='" . esc_attr__( 'Move this item to the Trash', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fct_get_record_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $record->ID ) ) . "'>" . __( 'Trash', 'fiscaat' ) . "</a>";
 			}
 
-			if ( fiscaat_get_trash_status_id() == $record->post_status || !EMPTY_TRASH_DAYS ) {
-				$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fiscaat_get_record_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $record->ID, '', true ) ) . "'>" . __( 'Delete Permanently', 'fiscaat' ) . "</a>";
-			} elseif ( fiscaat_get_spam_status_id() == $record->post_status ) {
+			if ( fct_get_trash_status_id() == $record->post_status || !EMPTY_TRASH_DAYS ) {
+				$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fct_get_record_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $record->ID, '', true ) ) . "'>" . __( 'Delete Permanently', 'fiscaat' ) . "</a>";
+			} elseif ( fct_get_spam_status_id() == $record->post_status ) {
 				unset( $actions['trash'] );
 			}
 		}
@@ -967,9 +967,9 @@ class Fiscaat_Records_Admin {
 	/**
 	 * Add year dropdown to account and record list table filters
 	 *
-	 * @uses fiscaat_get_record_post_type() To get the record post type
-	 * @uses fiscaat_get_account_post_type() To get the account post type
-	 * @uses fiscaat_dropdown() To generate a year dropdown
+	 * @uses fct_get_record_post_type() To get the record post type
+	 * @uses fct_get_account_post_type() To get the account post type
+	 * @uses fct_dropdown() To generate a year dropdown
 	 * @return bool False. If post type is not account or record
 	 */
 	public function filter_dropdown() {
@@ -977,24 +977,24 @@ class Fiscaat_Records_Admin {
 		if ( $this->bail() ) return;
 
 		// Get which year is selected
-		$year_id = ! empty( $_REQUEST['fiscaat_year_id'] ) ? (int) $_REQUEST['fiscaat_year_id'] : fiscaat_get_current_year_id();
+		$year_id = ! empty( $_REQUEST['fct_year_id'] ) ? (int) $_REQUEST['fct_year_id'] : fct_get_current_year_id();
 
 		// Show the years dropdown
-		fiscaat_dropdown( array(
+		fct_dropdown( array(
 			'selected'   => $year_id,
 			'show_none'  => __( 'In current year', 'fiscaat' )
 		) );
 		
 		// Get which account is selected. With account id or ledger id
-		$account_id = ! empty( $_REQUEST['fiscaat_account_id'] )         ? (int) $_REQUEST['fiscaat_account_id']         : 0;
-		$ledger_id  = ! empty( $_REQUEST['fiscaat_ledger_account_id']  ) ? (int) $_REQUEST['fiscaat_ledger_account_id']  : '';
+		$account_id = ! empty( $_REQUEST['fct_account_id'] )         ? (int) $_REQUEST['fct_account_id']         : 0;
+		$ledger_id  = ! empty( $_REQUEST['fct_ledger_account_id']  ) ? (int) $_REQUEST['fct_ledger_account_id']  : '';
 
 		// Ledger id was set, account id not
 		if ( ! empty( $ledger_id ) && empty( $account_id ) )
-			$account_id = fiscaat_get_account_id_by_ledger_id( $ledger_id, $year_id );
+			$account_id = fct_get_account_id_by_ledger_id( $ledger_id, $year_id );
 
 		// Show the ledger dropdown
-		fiscaat_ledger_dropdown( array(
+		fct_ledger_dropdown( array(
 			'selected'   => $account_id,
 			'year_id'    => $year_id,
 			'show_none'  => '&mdash;',
@@ -1002,7 +1002,7 @@ class Fiscaat_Records_Admin {
 		) );
 
 		// Show the accounts dropdown
-		fiscaat_account_dropdown( array(
+		fct_account_dropdown( array(
 			'selected'  => $account_id,
 			'year_id'   => $year_id,
 		) );
@@ -1013,8 +1013,8 @@ class Fiscaat_Records_Admin {
 	 *
 	 * @param array $query_vars Query variables from {@link WP_Query}
 	 * @uses is_admin() To check if it's the admin section
-	 * @uses fiscaat_get_account_post_type() To get the account post type
-	 * @uses fiscaat_get_record_post_type() To get the record post type
+	 * @uses fct_get_account_post_type() To get the account post type
+	 * @uses fct_get_record_post_type() To get the record post type
 	 * @return array Processed Query Vars
 	 */
 	public function filter_post_rows( $query_vars ) {
@@ -1028,40 +1028,40 @@ class Fiscaat_Records_Admin {
 
 		// Set the year id
 		$meta_query[] = array(
-			'key'   => '_fiscaat_year_id',
-			'value' => ! empty( $_REQUEST['fiscaat_year_id'] ) ? (int) $_REQUEST['fiscaat_year_id'] : fiscaat_get_current_year_id()
+			'key'   => '_fct_year_id',
+			'value' => ! empty( $_REQUEST['fct_year_id'] ) ? (int) $_REQUEST['fct_year_id'] : fct_get_current_year_id()
 		);
 		
 		// Set the parent if given
-		if ( ! empty( $_REQUEST['fiscaat_account_id'] ) ) {
-			$query_vars['post_parent'] = (int) $_REQUEST['fiscaat_account_id'];
+		if ( ! empty( $_REQUEST['fct_account_id'] ) ) {
+			$query_vars['post_parent'] = (int) $_REQUEST['fct_account_id'];
 
 		// Set the parent from ledger_id if given
-		} elseif ( ! empty( $_REQUEST['fiscaat_ledger_account_id'] ) ) {
-			$query_vars['post_parent'] = (int) $_REQUEST['fiscaat_ledger_account_id'];
+		} elseif ( ! empty( $_REQUEST['fct_ledger_account_id'] ) ) {
+			$query_vars['post_parent'] = (int) $_REQUEST['fct_ledger_account_id'];
 		}
 
 		/** Approval **********************************************************/
 
 		// Check approval
-		if ( isset( $_REQUEST['approval'] ) && fiscaat_is_control_active() ) {
+		if ( isset( $_REQUEST['approval'] ) && fct_is_control_active() ) {
 
 			// Check approval states
 			switch ( (int) $_REQUEST['approval'] ) {
 
 				// Unapproved
 				case 0 :
-					$query_vars['post_status'] = array( fiscaat_get_public_status_id(), fiscaat_get_declined_status_id() ); // + declined?
+					$query_vars['post_status'] = array( fct_get_public_status_id(), fct_get_declined_status_id() ); // + declined?
 					break;
 
 				// Approved
 				case 1 :
-					$query_vars['post_status'] = array( fiscaat_get_approved_status_id(), fiscaat_get_closed_status_id() ); // + closed?
+					$query_vars['post_status'] = array( fct_get_approved_status_id(), fct_get_closed_status_id() ); // + closed?
 					break;
 
 				// Declined
 				case 2 :
-					$query_vars['post_status'] = fiscaat_get_declined_status_id();
+					$query_vars['post_status'] = fct_get_declined_status_id();
 					break;
 			}
 		}
@@ -1082,13 +1082,13 @@ class Fiscaat_Records_Admin {
 
 				// Record value
 				case 'record_value' :
-					$query_vars['meta_key'] = '_fiscaat_value'; // No meta_query
+					$query_vars['meta_key'] = '_fct_value'; // No meta_query
 					$query_vars['orderby']  = 'meta_value_num';
 					break;
 
 				// Record offset account
 				case 'record_offset_acount' :
-					$query_vars['meta_key'] = '_fiscaat_offset_account'; // No meta_query
+					$query_vars['meta_key'] = '_fct_offset_account'; // No meta_query
 					$query_vars['orderby']  = 'meta_value'; // Account can be string
 					break;
 			}
@@ -1121,13 +1121,13 @@ class Fiscaat_Records_Admin {
 
 			// Set record value and record value type
 			if ( ! empty( $record->ID ) ) {
-				$record->fiscaat_value      = fiscaat_get_record_value( $record->ID );
-				$record->fiscaat_value_type = fiscaat_get_record_value_type( $record->ID );
+				$record->fct_value      = fct_get_record_value( $record->ID );
+				$record->fct_value_type = fct_get_record_value_type( $record->ID );
 
 			// Empty record
 			} else {
-				$record->fiscaat_value      = false;
-				$record->fiscaat_value_type = false;
+				$record->fct_value      = false;
+				$record->fct_value_type = false;
 			}
 
 			// Store new record
@@ -1156,8 +1156,8 @@ class Fiscaat_Records_Admin {
 		$new_row = array(
 			'ID'                 => 0, // To be set per row
 			'post_parent'        => 0,
-			'post_status'        => fiscaat_get_public_status_id(),
-			'post_type'          => fiscaat_get_record_post_type(),
+			'post_status'        => fct_get_public_status_id(),
+			'post_type'          => fct_get_record_post_type(),
 			'post_title'         => '',
 			'post_content'       => '',
 			'post_author'        => 0,
@@ -1165,17 +1165,17 @@ class Fiscaat_Records_Admin {
 			'menu_order'         => 0,
 
 			// Fiscaat arguments
-			'fiscaat_row'        => true,
-			'fiscaat_value'      => 0,
-			'fiscaat_value_type' => '',
+			'fct_row'        => true,
+			'fct_value'      => 0,
+			'fct_value_type' => '',
 		);
 
 		// Account records page
-		if ( isset( $_GET['fiscaat_account_id'] ) && ! empty( $_GET['fiscaat_account_id'] ) ) {
+		if ( isset( $_GET['fct_account_id'] ) && ! empty( $_GET['fct_account_id'] ) ) {
 
 			// Get account id
-			$account_id       = (int) $_GET['fiscaat_account_id'];
-			$is_asset_account = fiscaat_get_asset_account_type() == fiscaat_get_account_account_type( $account_id );
+			$account_id       = (int) $_GET['fct_account_id'];
+			$is_asset_account = fct_get_asset_account_type() == fct_get_account_account_type( $account_id );
 
 			// Set 'From Balance' row if account is of asset type
 			if ( $is_asset_account ) {
@@ -1183,15 +1183,15 @@ class Fiscaat_Records_Admin {
 
 				// Set 'From Balance' row ID. Strings will be converted to (int) 0.
 				$row_from['ID'] = -1;
-				$row_from['fiscaat_row_from'] = true;
+				$row_from['fct_row_from'] = true;
 
 				// Get and set 'From Balance' value
-				$value = fiscaat_get_account_from_value( $account_id );
-				$row_from['fiscaat_value']      = abs( $value );
-				$row_from['fiscaat_value_type'] = $value >= 0 ? fiscaat_get_debit_record_type() : fiscaat_get_credit_record_type();
+				$value = fct_get_account_from_value( $account_id );
+				$row_from['fct_value']      = abs( $value );
+				$row_from['fct_value_type'] = $value >= 0 ? fct_get_debit_record_type() : fct_get_credit_record_type();
 
 				// Prepend 'From Balance' row to items
-				array_unshift( $items, (object) apply_filters( 'fiscaat_records_row_from', $row_from ) );
+				array_unshift( $items, (object) apply_filters( 'fct_records_row_from', $row_from ) );
 
 	 		// Bail if no records found for result type
 			} elseif ( empty( $items ) ) {
@@ -1202,57 +1202,57 @@ class Fiscaat_Records_Admin {
 
 			// Set 'To Balance' row ID. Strings will be converted to (int) 0.
 			$row_to['ID'] = -2;
-			$row_to['fiscaat_row_to'] = true;
+			$row_to['fct_row_to'] = true;
 
 			// Get 'To Balance/Income Statement' value
-			$value = fiscaat_get_account_to_value( $account_id );
+			$value = fct_get_account_to_value( $account_id );
 
 			// Recalculate 'To Balance/Income Statement' value if none found
-			if ( apply_filters( 'fiscaat_force_recalculate_account_to_value', true ) || empty( $value ) ) {
+			if ( apply_filters( 'fct_force_recalculate_account_to_value', true ) || empty( $value ) ) {
 				$value = 0;
 				foreach ( $items as $record ) {
-					$value += empty( $record->fiscaat_value_type ) 
-						? $record->fiscaat_value 
-						: fiscaat_get_debit_record_type() == $record->fiscaat_value_type
-							? $record->fiscaat_value       // Add debit values
-							: $record->fiscaat_value * -1; // Subtract credit values
+					$value += empty( $record->fct_value_type ) 
+						? $record->fct_value 
+						: fct_get_debit_record_type() == $record->fct_value_type
+							? $record->fct_value       // Add debit values
+							: $record->fct_value * -1; // Subtract credit values
 				}
 
 				// Update account to_value
-				fiscaat_update_account_to_value( $account_id, $value );
+				fct_update_account_to_value( $account_id, $value );
 			}
 
 			// Set 'To Balance/Income Statement' value and value type
-			$row_to['fiscaat_value']      = abs( $value );
-			$row_to['fiscaat_value_type'] = $value >= 0 ? fiscaat_get_credit_record_type() : fiscaat_get_debit_record_type();
+			$row_to['fct_value']      = abs( $value );
+			$row_to['fct_value_type'] = $value >= 0 ? fct_get_credit_record_type() : fct_get_debit_record_type();
 
 			// Append 'To Balance' row to items for result and asset type
-			$items[] = (object) apply_filters( 'fiscaat_records_row_to', $row_to );
+			$items[] = (object) apply_filters( 'fct_records_row_to', $row_to );
 		}
 
 		$row_total = $new_row;
 
 		// Set 'Total Sum' row ID. Strings will be converted to (int) 0.
 		$row_total['ID'] = -3;
-		$row_total['fiscaat_row_total'] = true;
+		$row_total['fct_row_total'] = true;
 
 		// Calculate 'Total Sum' values
 		$debit_total = $credit_total = 0;
 		foreach ( $items as $record ) {
-			if ( fiscaat_get_debit_record_type() == $record->fiscaat_value_type )
-				$debit_total  += $record->fiscaat_value;
-			elseif ( fiscaat_get_credit_record_type() == $record->fiscaat_value_type )
-				$credit_total += $record->fiscaat_value;
+			if ( fct_get_debit_record_type() == $record->fct_value_type )
+				$debit_total  += $record->fct_value;
+			elseif ( fct_get_credit_record_type() == $record->fct_value_type )
+				$credit_total += $record->fct_value;
 		}
 
 		// Set total values
-		$row_total['fiscaat_debit_total']  = (float) $debit_total;
-		$row_total['fiscaat_credit_total'] = (float) $credit_total;
+		$row_total['fct_debit_total']  = (float) $debit_total;
+		$row_total['fct_credit_total'] = (float) $credit_total;
 
 		// Always append 'Total Sum' row to items
-		$items[] = (object) apply_filters( 'fiscaat_records_row_total', $row_total );
+		$items[] = (object) apply_filters( 'fct_records_row_total', $row_total );
 
-		return apply_filters( 'fiscaat_records_add_rows', $items );
+		return apply_filters( 'fct_records_add_rows', $items );
 	}
 
 	/**
@@ -1283,13 +1283,13 @@ class Fiscaat_Records_Admin {
 	/**
 	 * Return recount account records views
 	 *
-	 * Only difference is the use of fiscaat_count_posts instead of
+	 * Only difference is the use of fct_count_posts instead of
 	 * wp_count_posts, which doesn't allow for count query filtering.
 	 *
 	 * Modified code from WP_Posts_List_Table::get_views().
 	 * 
 	 * @param array $views Records views
-	 * @uses fiscaat_count_posts() To count the account's records
+	 * @uses fct_count_posts() To count the account's records
 	 * @return array Account records views
 	 */
 	public function filter_views( $views ) {
@@ -1297,15 +1297,15 @@ class Fiscaat_Records_Admin {
 		if ( $this->bail() ) return $views;
 
 		// Bail when not on account records page
-		if ( ! isset( $_GET['fiscaat_account_id'] ) || empty( $_GET['fiscaat_account_id'] ) ) return $views;
+		if ( ! isset( $_GET['fct_account_id'] ) || empty( $_GET['fct_account_id'] ) ) return $views;
 
 		global $post_type_object, $avail_post_stati;
 
 		$post_type  = $post_type_object->name;
-		$account_id = (int) $_GET['fiscaat_account_id'];
+		$account_id = (int) $_GET['fct_account_id'];
 
 		$status_links = array();
-		$num_posts = fiscaat_count_posts( array( 'type' => $post_type, 'perm' => 'readable', 'parent' => $account_id ) );
+		$num_posts = fct_count_posts( array( 'type' => $post_type, 'perm' => 'readable', 'parent' => $account_id ) );
 		$class = '';
 		$allposts = '';
 
@@ -1317,7 +1317,7 @@ class Fiscaat_Records_Admin {
 			$total_posts -= $num_posts->$state;
 
 		$class = empty( $class ) && ( empty( $_REQUEST['post_status'] ) || 'all' == $_REQUEST['post_status'] ) ? ' class="current"' : '';
-		$status_links['all'] = "<a href='edit.php?post_type=$post_type&amp;fiscaat_account_id=$account_id{$allposts}'$class>" . sprintf( _nx( 'All <span class="count">(%s)</span>', 'All <span class="count">(%s)</span>', $total_posts, 'posts' ), number_format_i18n( $total_posts ) ) . '</a>';
+		$status_links['all'] = "<a href='edit.php?post_type=$post_type&amp;fct_account_id=$account_id{$allposts}'$class>" . sprintf( _nx( 'All <span class="count">(%s)</span>', 'All <span class="count">(%s)</span>', $total_posts, 'posts' ), number_format_i18n( $total_posts ) ) . '</a>';
 
 		foreach ( get_post_stati(array('show_in_admin_status_list' => true), 'objects') as $status ) {
 			$class = '';
@@ -1333,7 +1333,7 @@ class Fiscaat_Records_Admin {
 			if ( isset($_REQUEST['post_status']) && $status_name == $_REQUEST['post_status'] )
 				$class = ' class="current"';
 
-			$status_links[$status_name] = "<a href='edit.php?post_status=$status_name&amp;post_type=$post_type&amp;fiscaat_account_id=$account_id'$class>" . sprintf( translate_nooped_plural( $status->label_count, $num_posts->$status_name ), number_format_i18n( $num_posts->$status_name ) ) . '</a>';
+			$status_links[$status_name] = "<a href='edit.php?post_status=$status_name&amp;post_type=$post_type&amp;fct_account_id=$account_id'$class>" . sprintf( translate_nooped_plural( $status->label_count, $num_posts->$status_name ), number_format_i18n( $num_posts->$status_name ) ) . '</a>';
 		}
 
 		return $status_links;
@@ -1342,9 +1342,9 @@ class Fiscaat_Records_Admin {
 	/**
 	 * Redirect user to record edit page with correct message id
 	 *
-	 * @uses fiscaat_has_open_year()
-	 * @uses fiscaat_has_open_account()
-	 * @uses fiscaat_get_record_post_type()
+	 * @uses fct_has_open_year()
+	 * @uses fct_has_open_account()
+	 * @uses fct_get_record_post_type()
 	 * @uses add_query_arg()
 	 * @uses wp_safe_redirect()
 	 */
@@ -1358,17 +1358,17 @@ class Fiscaat_Records_Admin {
 
 		// Check for message
 		if ( isset( $_GET['message'] )
-			&& ( ( 11 == $_GET['message'] && ! fiscaat_has_open_year() )
-				|| ( 12 == $_GET['message'] && ! fiscaat_has_open_account() )
+			&& ( ( 11 == $_GET['message'] && ! fct_has_open_year() )
+				|| ( 12 == $_GET['message'] && ! fct_has_open_account() )
 		) ) {
 			return;
 
 		// Install has no open year
-		} elseif ( ! fiscaat_has_open_year() ) {
+		} elseif ( ! fct_has_open_year() ) {
 			$message = 11;
 
 		// Install has no open account
-		} elseif ( ! fiscaat_has_open_account() ) {
+		} elseif ( ! fct_has_open_account() ) {
 			$message = 12;
 
 		// Everything okay
@@ -1377,14 +1377,14 @@ class Fiscaat_Records_Admin {
 		}
 
 		// Redirect user with message
-		wp_safe_redirect( add_query_arg( array( 'post_type' => fiscaat_get_record_post_type(), 'message' => $message, 'page' => 'new' ), admin_url( 'edit.php' ) ) );
+		wp_safe_redirect( add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'message' => $message, 'page' => 'new' ), admin_url( 'edit.php' ) ) );
 	}
 
 	/**
 	 * Custom user feedback messages for record post type
 	 *
 	 * @global int $post_ID
-	 * @uses fiscaat_get_account_permalink()
+	 * @uses fct_get_account_permalink()
 	 * @uses wp_post_revision_title()
 	 * @uses esc_url()
 	 * @uses add_query_arg()
@@ -1399,10 +1399,10 @@ class Fiscaat_Records_Admin {
 		if ( $this->bail() ) return $messages;
 
 		// URL for the current account
-		$account_url = fiscaat_get_account_permalink( fiscaat_get_record_account_id( $post_ID ) );
+		$account_url = fct_get_account_permalink( fct_get_record_account_id( $post_ID ) );
 
 		// Current record's post_date
-		$post_date = fiscaat_get_global_post_field( 'post_date', 'raw' );
+		$post_date = fct_get_global_post_field( 'post_date', 'raw' );
 
 		// Messages array
 		$messages[$this->post_type] = array(
@@ -1446,13 +1446,13 @@ class Fiscaat_Records_Admin {
 			10 => sprintf( __( 'Record draft updated. <a target="_blank" href="%s">Preview account</a>', 'fiscaat' ), esc_url( add_query_arg( 'preview', 'true', $account_url ) ) ),
 
 			// Require a year
-			11 => sprintf( __('Using Fiscaat requires an open year to register records in. <a href="%s">Create a year first</a>.', 'fiscaat'), esc_url( add_query_arg( 'post_type', fiscaat_get_year_post_type(), admin_url( 'post-new.php' ) ) ) ),
+			11 => sprintf( __('Using Fiscaat requires an open year to register records in. <a href="%s">Create a year first</a>.', 'fiscaat'), esc_url( add_query_arg( 'post_type', fct_get_year_post_type(), admin_url( 'post-new.php' ) ) ) ),
 
 			// Require an account
-			12 => sprintf( __('Using Fiscaat requires the current year to have an account to assign records to. <a href="%s">Create an account first</a>.', 'fiscaat'), esc_url( add_query_arg( 'post_type', fiscaat_get_account_post_type(), admin_url( 'post-new.php' ) ) ) ),
+			12 => sprintf( __('Using Fiscaat requires the current year to have an account to assign records to. <a href="%s">Create an account first</a>.', 'fiscaat'), esc_url( add_query_arg( 'post_type', fct_get_account_post_type(), admin_url( 'post-new.php' ) ) ) ),
 
 			// Can not use post-new.php
-			13 => sprintf( __('Don\'t know how you got here, but records are added otherwise. <a href="%s">Lead me there</a>.', 'fiscaat'), esc_url( add_query_arg( array( 'post_type' => fiscaat_get_account_post_type(), 'page' => 'new' ), admin_url( 'edit.php' ) ) ) ),
+			13 => sprintf( __('Don\'t know how you got here, but records are added otherwise. <a href="%s">Lead me there</a>.', 'fiscaat'), esc_url( add_query_arg( array( 'post_type' => fct_get_account_post_type(), 'page' => 'new' ), admin_url( 'edit.php' ) ) ) ),
 		);
 
 		return $messages;
@@ -1463,10 +1463,10 @@ class Fiscaat_Records_Admin {
 	/**
 	 * Modify the post type name label for record edit page
 	 *
-	 * @uses fiscaat_get_record_post_type()
-	 * @uses fiscaat_get_account_ledger_id()
-	 * @uses fiscaat_get_account_title() To get the account title
-	 * @uses apply_filters() Calls 'fiscaat_records_page_title' with the
+	 * @uses fct_get_record_post_type()
+	 * @uses fct_get_account_ledger_id()
+	 * @uses fct_get_account_title() To get the account title
+	 * @uses apply_filters() Calls 'fct_records_page_title' with the
 	 *                        new label name, and account id
 	 * @return array Modified arguments
 	 */
@@ -1477,35 +1477,35 @@ class Fiscaat_Records_Admin {
 		global $wp_post_types;
 
 		// Get post type labels
-		$labels = $wp_post_types[fiscaat_get_record_post_type()]->labels;
+		$labels = $wp_post_types[fct_get_record_post_type()]->labels;
 
 		// Modify post type name if account is set
-		if ( isset( $_GET['fiscaat_account_id'] ) && ! empty( $_GET['fiscaat_account_id'] ) ) {
+		if ( isset( $_GET['fct_account_id'] ) && ! empty( $_GET['fct_account_id'] ) ) {
 
 			// Fetch account id
-			$account_id = (int) $_GET['fiscaat_account_id'];
+			$account_id = (int) $_GET['fct_account_id'];
 
 			// Create new label = post type - account number. account title
-			$title = $labels->name .' &mdash; '. fiscaat_get_account_ledger_id( $account_id ) .'. '. fiscaat_get_account_title( $account_id );
+			$title = $labels->name .' &mdash; '. fct_get_account_ledger_id( $account_id ) .'. '. fct_get_account_title( $account_id );
 
 			// Modify label
-			$labels->name = apply_filters( 'fiscaat_account_records_page_title', $title, $account_id );
+			$labels->name = apply_filters( 'fct_account_records_page_title', $title, $account_id );
 
 		// Modify post type name if account isn't set
 		} else {
 			
 			// Fetch year id
-			$year_id = isset( $_GET['fiscaat_year_id'] ) ? (int) $_GET['fiscaat_year_id'] : fiscaat_get_current_year_id();
+			$year_id = isset( $_GET['fct_year_id'] ) ? (int) $_GET['fct_year_id'] : fct_get_current_year_id();
 
 			// Create new label = post type - account number. account title
-			$title = $labels->name .' &mdash; '. fiscaat_get_year_title( $year_id );
+			$title = $labels->name .' &mdash; '. fct_get_year_title( $year_id );
 
 			// Modify label
-			$labels->name = apply_filters( 'fiscaat_year_records_page_title', $title, $year_id );
+			$labels->name = apply_filters( 'fct_year_records_page_title', $title, $year_id );
 		}
 
 		// Set post type labels
-		$wp_post_types[fiscaat_get_record_post_type()]->labels = $labels;
+		$wp_post_types[fct_get_record_post_type()]->labels = $labels;
 	}
 
 }
@@ -1520,6 +1520,6 @@ endif; // class_exists check
  *
  * @uses Fiscaat_Records_Admin
  */
-function fiscaat_admin_records() {
+function fct_admin_records() {
 	fiscaat()->admin->records = new Fiscaat_Records_Admin();
 }

@@ -12,11 +12,11 @@
 /**
  * Return record capabilities
  *
- * @uses apply_filters() Calls 'fiscaat_get_record_caps' with the capabilities
+ * @uses apply_filters() Calls 'fct_get_record_caps' with the capabilities
  * @return array Record capabilities
  */
-function fiscaat_get_record_caps() {
-	return apply_filters( 'fiscaat_get_record_caps', array (
+function fct_get_record_caps() {
+	return apply_filters( 'fct_get_record_caps', array (
 		'edit_posts'          => 'edit_records',
 		'edit_others_posts'   => 'edit_others_records',
 		'publish_posts'       => 'publish_records',
@@ -38,7 +38,7 @@ function fiscaat_get_record_caps() {
  * @uses apply_filters() Filter capability map results
  * @return array Actual capabilities for meta capability
  */
-function fiscaat_map_record_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
+function fct_map_record_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 
 	// What capability is being checked?
 	switch ( $cap ) {
@@ -48,14 +48,14 @@ function fiscaat_map_record_meta_caps( $caps = array(), $cap = '', $user_id = 0,
 		case 'read_record' :
 
 			// User cannot read
-			if ( ! user_can( $user_id, 'fiscaat_spectate' ) ) {
+			if ( ! user_can( $user_id, 'fct_spectate' ) ) {
 				$caps = array( 'do_not_allow' );
 
 			// Fisci can always read
 			} elseif ( user_can( $user_id, 'fiscaat' )
-				|| fiscaat_user_can_spectate( $args[0], $user_id )
+				|| fct_user_can_spectate( $args[0], $user_id )
 				) {
-				$caps = array( 'fiscaat_spectate' );
+				$caps = array( 'fct_spectate' );
 			}
 
 			break;
@@ -65,7 +65,7 @@ function fiscaat_map_record_meta_caps( $caps = array(), $cap = '', $user_id = 0,
 		case 'publish_records'  :
 
 			// Bail when there's no open year or account
-			if ( ! fiscaat_has_open_year() || ! fiscaat_has_open_account() ) {
+			if ( ! fct_has_open_year() || ! fct_has_open_account() ) {
 				$caps = array( 'do_not_allow' );
 
 			// Only Fisci can always publish
@@ -84,7 +84,7 @@ function fiscaat_map_record_meta_caps( $caps = array(), $cap = '', $user_id = 0,
 			if ( ! empty( $_post ) ){
 
 				// Record is closed
-				if ( fiscaat_get_closed_status_id() == $_post->post_status ){
+				if ( fct_get_closed_status_id() == $_post->post_status ){
 					$caps = array( 'do_not_allow' );
 
 				// Fisci can always edit
@@ -118,7 +118,7 @@ function fiscaat_map_record_meta_caps( $caps = array(), $cap = '', $user_id = 0,
 		case 'delete_others_records' :
 
 			// Records are only deleted on reset or uninstall
-			if ( ! is_admin() && ( ! fiscaat_is_reset() || ! fiscaat_is_uninstall() ) ){
+			if ( ! is_admin() && ( ! fct_is_reset() || ! fct_is_uninstall() ) ){
 				$caps = array( 'do_not_allow' );
 			}
 
@@ -130,7 +130,7 @@ function fiscaat_map_record_meta_caps( $caps = array(), $cap = '', $user_id = 0,
 			global $wp_query;
 
 			// Fisci can always upload for records
-			if ( fiscaat_get_record_post_type() == $wp_query->get( 'post_type' ) ) {
+			if ( fct_get_record_post_type() == $wp_query->get( 'post_type' ) ) {
 				$caps = array( 'fiscaat' );
 			}
 
@@ -138,10 +138,10 @@ function fiscaat_map_record_meta_caps( $caps = array(), $cap = '', $user_id = 0,
 
 		/** Admin *************************************************************/
 
-		case 'fiscaat_records_admin' :
+		case 'fct_records_admin' :
 			$caps = array( 'fiscaat' );
 			break;
 	}
 
-	return apply_filters( 'fiscaat_map_record_meta_caps', $caps, $cap, $user_id, $args );
+	return apply_filters( 'fct_map_record_meta_caps', $caps, $cap, $user_id, $args );
 }

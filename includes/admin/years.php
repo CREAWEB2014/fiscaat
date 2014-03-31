@@ -47,14 +47,14 @@ class Fiscaat_Years_Admin {
 	 *
 	 * @uses add_action() To add various actions
 	 * @uses add_filter() To add various filters
-	 * @uses fiscaat_get_year_post_type() To get the year post type
-	 * @uses fiscaat_get_account_post_type() To get the account post type
-	 * @uses fiscaat_get_record_post_type() To get the record post type
+	 * @uses fct_get_year_post_type() To get the year post type
+	 * @uses fct_get_account_post_type() To get the account post type
+	 * @uses fct_get_record_post_type() To get the record post type
 	 */
 	private function setup_actions() {
 
 		// Add some general styling to the admin area
-		add_action( 'fiscaat_admin_head',        array( $this, 'admin_head'       ) );
+		add_action( 'fct_admin_head',        array( $this, 'admin_head'       ) );
 
 		// Messages
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
@@ -93,7 +93,7 @@ class Fiscaat_Years_Admin {
 	 * @access private
 	 */
 	private function setup_globals() {
-		$this->post_type = fiscaat_get_year_post_type();
+		$this->post_type = fct_get_year_post_type();
 	}
 
 	/** Contextual Help *******************************************************/
@@ -232,24 +232,24 @@ class Fiscaat_Years_Admin {
 	/**
 	 * Add the year attributes metabox
 	 *
-	 * @uses fiscaat_get_year_post_type() To get the year post type
+	 * @uses fct_get_year_post_type() To get the year post type
 	 * @uses add_meta_box() To add the metabox
-	 * @uses do_action() Calls 'fiscaat_year_attributes_metabox'
+	 * @uses do_action() Calls 'fct_year_attributes_metabox'
 	 */
 	public function attributes_metabox() {
 
 		if ( $this->bail() ) return;
 
 		add_meta_box (
-			'fiscaat_year_attributes',
+			'fct_year_attributes',
 			__( 'Year Attributes', 'fiscaat' ),
-			'fiscaat_year_metabox',
+			'fct_year_metabox',
 			$this->post_type,
 			'side',
 			'high'
 		);
 
-		do_action( 'fiscaat_year_attributes_metabox' );
+		do_action( 'fct_year_attributes_metabox' );
 	}
 
 	/**
@@ -258,7 +258,7 @@ class Fiscaat_Years_Admin {
 	 * @param int $year_id Year id
 	 * @uses current_user_can() To check if the current user is capable of
 	 *                           editing the year
-	 * @uses do_action() Calls 'fiscaat_year_attributes_metabox_save' with the
+	 * @uses do_action() Calls 'fct_year_attributes_metabox_save' with the
 	 *                    year id
 	 * @return int Year id
 	 */
@@ -275,11 +275,11 @@ class Fiscaat_Years_Admin {
 			return $year_id;
 
 		// Nonce check
-		if ( empty( $_POST['fiscaat_year_metabox'] ) || !wp_verify_nonce( $_POST['fiscaat_year_metabox'], 'fiscaat_year_metabox_save' ) )
+		if ( empty( $_POST['fct_year_metabox'] ) || !wp_verify_nonce( $_POST['fct_year_metabox'], 'fct_year_metabox_save' ) )
 			return $year_id;
 
 		// Only save for year post-types
-		if ( ! fiscaat_is_year( $year_id ) )
+		if ( ! fct_is_year( $year_id ) )
 			return $year_id;
 
 		// Bail if current user cannot edit this year
@@ -287,9 +287,9 @@ class Fiscaat_Years_Admin {
 			return $year_id;
 
 		// Update the year meta bidness
-		fiscaat_update_year( array( 'year_id' => $year_id ) );
+		fct_update_year( array( 'year_id' => $year_id ) );
 
-		do_action( 'fiscaat_year_attributes_metabox_save', $year_id );
+		do_action( 'fct_year_attributes_metabox_save', $year_id );
 
 		return $year_id;
 	}
@@ -297,11 +297,11 @@ class Fiscaat_Years_Admin {
 	/**
 	 * Add some general styling to the admin area
 	 *
-	 * @uses fiscaat_get_year_post_type() To get the year post type
-	 * @uses fiscaat_get_account_post_type() To get the account post type
-	 * @uses fiscaat_get_record_post_type() To get the record post type
+	 * @uses fct_get_year_post_type() To get the year post type
+	 * @uses fct_get_account_post_type() To get the account post type
+	 * @uses fct_get_record_post_type() To get the record post type
 	 * @uses sanitize_html_class() To sanitize the classes
-	 * @uses do_action() Calls 'fiscaat_admin_head'
+	 * @uses do_action() Calls 'fct_admin_head'
 	 */
 	public function admin_head() {
 
@@ -322,35 +322,35 @@ class Fiscaat_Years_Admin {
 				width: 60px;
 			}
 
-			#fiscaat_year_attributes hr {
+			#fct_year_attributes hr {
 				border-style: solid;
 				border-width: 1px;
 				border-color: #ccc #fff #fff #ccc;
 			}
 
-			.column-fiscaat_year_account_count,
-			.column-fiscaat_year_record_count,
-			.column-fiscaat_account_record_count,
-			.column-fiscaat_account_record_count_declined,
-			.column-fiscaat_account_record_count_unapproved {
+			.column-fct_year_account_count,
+			.column-fct_year_record_count,
+			.column-fct_account_record_count,
+			.column-fct_account_record_count_declined,
+			.column-fct_account_record_count_unapproved {
 				width: 8% !important;
 			}
 
 			.column-author,
-			.column-fiscaat_record_author,
-			.column-fiscaat_account_author {
+			.column-fct_record_author,
+			.column-fct_account_author {
 				width: 10% !important;
 			}
 
-			.column-fiscaat_account_year,
-			.column-fiscaat_record_year,
-			.column-fiscaat_record_account {
+			.column-fct_account_year,
+			.column-fct_record_year,
+			.column-fct_record_account {
 				width: 10% !important;
 			}
 
-			.column-fiscaat_year_started,
-			.column-fiscaat_year_closed,
-			.column-fiscaat_record_created {
+			.column-fct_year_started,
+			.column-fct_year_closed,
+			.column-fct_record_created {
 				width: 15% !important;
 			}
 
@@ -376,7 +376,7 @@ class Fiscaat_Years_Admin {
 	 * Manage the column headers for the years page
 	 *
 	 * @param array $columns The columns
-	 * @uses apply_filters() Calls 'fiscaat_admin_years_column_headers' with
+	 * @uses apply_filters() Calls 'fct_admin_years_column_headers' with
 	 *                        the columns
 	 * @return array $columns Fiscaat year columns
 	 */
@@ -387,15 +387,15 @@ class Fiscaat_Years_Admin {
 		$columns = array (
 			'cb'                                   => '<input type="checkbox" />',
 			'title'                                => __( 'Title',                   'fiscaat' ),
-			'fiscaat_year_started'                 => _x( 'From', 'Year start date', 'fiscaat' ),
-			'fiscaat_year_closed'                  => _x( 'To',   'Year close date', 'fiscaat' ),
-			'fiscaat_year_account_count'           => __( 'Accounts',                'fiscaat' ),
-			'fiscaat_year_record_count'            => __( 'Records',                 'fiscaat' ),
-			'fiscaat_year_record_count_unapproved' => __( 'Unapproved',              'fiscaat' ),
-			'fiscaat_year_to_balance'              => __( 'To Balance',              'fiscaat' ),
+			'fct_year_started'                 => _x( 'From', 'Year start date', 'fiscaat' ),
+			'fct_year_closed'                  => _x( 'To',   'Year close date', 'fiscaat' ),
+			'fct_year_account_count'           => __( 'Accounts',                'fiscaat' ),
+			'fct_year_record_count'            => __( 'Records',                 'fiscaat' ),
+			'fct_year_record_count_unapproved' => __( 'Unapproved',              'fiscaat' ),
+			'fct_year_to_balance'              => __( 'To Balance',              'fiscaat' ),
 		);
 
-		return apply_filters( 'fiscaat_admin_years_column_headers', $columns );
+		return apply_filters( 'fct_admin_years_column_headers', $columns );
 	}
 
 	/**
@@ -403,9 +403,9 @@ class Fiscaat_Years_Admin {
 	 *
 	 * @param string $column Column
 	 * @param int $year_id Year id
-	 * @uses fiscaat_year_account_count() To output the year account count
-	 * @uses fiscaat_year_record_count() To output the year record count
-	 * @uses do_action() Calls 'fiscaat_admin_years_column_data' with the
+	 * @uses fct_year_account_count() To output the year account count
+	 * @uses fct_year_record_count() To output the year record count
+	 * @uses do_action() Calls 'fct_admin_years_column_data' with the
 	 *                    column and year id
 	 */
 	public function column_data( $column, $year_id ) {
@@ -413,32 +413,32 @@ class Fiscaat_Years_Admin {
 		if ( $this->bail() ) return;
 
 		switch ( $column ) {
-			case 'fiscaat_year_started':
-				fiscaat_year_started( $year_id, false );
+			case 'fct_year_started':
+				fct_year_started( $year_id, false );
 				break;
 
-			case 'fiscaat_year_closed':
-				fiscaat_year_closed( $year_id, false );
+			case 'fct_year_closed':
+				fct_year_closed( $year_id, false );
 				break;
 
-			case 'fiscaat_year_account_count' :
-				fiscaat_year_account_count( $year_id );
+			case 'fct_year_account_count' :
+				fct_year_account_count( $year_id );
 				break;
 
-			case 'fiscaat_year_record_count' :
-				fiscaat_year_record_count( $year_id );
+			case 'fct_year_record_count' :
+				fct_year_record_count( $year_id );
 				break;
 
-			case 'fiscaat_year_record_count_unapproved' :
-				fiscaat_year_record_count_unapproved( $year_id );
+			case 'fct_year_record_count_unapproved' :
+				fct_year_record_count_unapproved( $year_id );
 				break;
 
-			case 'fiscaat_year_to_balance' :
-				fiscaat_currency_format( fiscaat_get_year_to_balance( $year_id ), true );
+			case 'fct_year_to_balance' :
+				fct_currency_format( fct_get_year_to_balance( $year_id ), true );
 				break;
 
 			default:
-				do_action( 'fiscaat_admin_years_column_data', $column, $year_id );
+				do_action( 'fct_admin_years_column_data', $column, $year_id );
 				break;
 		}
 	}
@@ -461,7 +461,7 @@ class Fiscaat_Years_Admin {
 		unset( $actions['inline hide-if-no-js'] );
 
 		// simple hack to show the year description under the title
-		// fiscaat_year_content( $year->ID );
+		// fct_year_content( $year->ID );
 		
 		return $actions;
 	}
@@ -470,7 +470,7 @@ class Fiscaat_Years_Admin {
 	 * Custom user feedback messages for year post type
 	 *
 	 * @global int $post_ID
-	 * @uses fiscaat_get_year_permalink()
+	 * @uses fct_get_year_permalink()
 	 * @uses wp_post_revision_title()
 	 * @uses esc_url()
 	 * @uses add_query_arg()
@@ -485,10 +485,10 @@ class Fiscaat_Years_Admin {
 		if ( $this->bail() ) return $messages;
 
 		// URL for the current year
-		$year_url = fiscaat_get_year_permalink( $post_ID );
+		$year_url = fct_get_year_permalink( $post_ID );
 
 		// Current year's post_date
-		$post_date = fiscaat_get_global_post_field( 'post_date', 'raw' );
+		$post_date = fct_get_global_post_field( 'post_date', 'raw' );
 
 		// Messages array
 		$messages[$this->post_type] = array(
@@ -546,6 +546,6 @@ endif; // class_exists check
  *
  * @uses Fiscaat_Years_Admin
  */
-function fiscaat_admin_years() {
+function fct_admin_years() {
 	fiscaat()->admin->years = new Fiscaat_Years_Admin();
 }

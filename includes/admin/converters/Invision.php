@@ -18,13 +18,13 @@ class Invision extends Fiscaat_Converter_Base
 		// Year id. Stored in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'years', 'from_fieldname' => 'id',
-			'to_type' => 'year', 'to_fieldname' => '_fiscaat_year_id'
+			'to_type' => 'year', 'to_fieldname' => '_fct_year_id'
 		);
 		
 		// Year parent id.  If no parent, than 0. Stored in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'years', 'from_fieldname' => 'parent_id',
-			'to_type' => 'year', 'to_fieldname' => '_fiscaat_parent_id'
+			'to_type' => 'year', 'to_fieldname' => '_fct_parent_id'
 		);
 		
 		// Year title.
@@ -76,13 +76,13 @@ class Invision extends Fiscaat_Converter_Base
 		// Account id. Stored in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'accounts', 'from_fieldname' => 'tid',
-			'to_type' => 'account', 'to_fieldname' => '_fiscaat_account_id'
+			'to_type' => 'account', 'to_fieldname' => '_fct_account_id'
 		);
 		
 		// Year id. Stored in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'accounts', 'from_fieldname' => 'year_id',
-			'to_type' => 'account', 'to_fieldname' => '_fiscaat_year_id',
+			'to_type' => 'account', 'to_fieldname' => '_fct_year_id',
 			'callback_method' => 'callback_yearid'
 		);
 				
@@ -163,27 +163,27 @@ class Invision extends Fiscaat_Converter_Base
 		// Post id. Stores in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'posts', 'from_fieldname' => 'pid', 'from_expression' => 'WHERE posts.new_account = 0',
-			'to_type' => 'record', 'to_fieldname' => '_fiscaat_post_id'
+			'to_type' => 'record', 'to_fieldname' => '_fct_post_id'
 		);
 		
 		// Year id. Stores in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'posts', 'from_fieldname' => 'account_id',
-			'to_type' => 'record', 'to_fieldname' => '_fiscaat_year_id',
+			'to_type' => 'record', 'to_fieldname' => '_fct_year_id',
 			'callback_method' => 'callback_accountid_to_yearid'
 		);
 		
 		// Account id. Stores in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'posts', 'from_fieldname' => 'account_id',
-			'to_type' => 'record', 'to_fieldname' => '_fiscaat_account_id',
+			'to_type' => 'record', 'to_fieldname' => '_fct_account_id',
 			'callback_method' => 'callback_accountid'
 		);
 		
 		// Author ip.
 		$this->field_map[] = array(
 			'from_tablename' => 'posts', 'from_fieldname' => 'ip_address',
-			'to_type' => 'record', 'to_fieldname' => '__fiscaat_author_ip'
+			'to_type' => 'record', 'to_fieldname' => '__fct_author_ip'
 		);	
 			
 		// Post author.
@@ -247,13 +247,13 @@ class Invision extends Fiscaat_Converter_Base
 		// Store old User id. Stores in usermeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'members', 'from_fieldname' => 'member_id',
-			'to_type' => 'user', 'to_fieldname' => '_fiscaat_user_id'
+			'to_type' => 'user', 'to_fieldname' => '_fct_user_id'
 		);
 		
 		// Store old User password. Stores in usermeta serialized with salt.
 		$this->field_map[] = array(
 			'from_tablename' => 'members', 'from_fieldname' => 'members_pass_hash',
-			'to_type' => 'user', 'to_fieldname' => '_fiscaat_password',
+			'to_type' => 'user', 'to_fieldname' => '_fct_password',
 			'callback_method' => 'callback_savepass'
 		);
 
@@ -265,7 +265,7 @@ class Invision extends Fiscaat_Converter_Base
 				
 		// User password verify class. Stores in usermeta for verifying password.
 		$this->field_map[] = array(
-			'to_type' => 'user', 'to_fieldname' => '_fiscaat_class',
+			'to_type' => 'user', 'to_fieldname' => '_fct_class',
 			'default' => 'Invision'
 		);
 		

@@ -29,7 +29,7 @@ class Fiscaat1 extends Fiscaat_Converter_Base {
 			'from_tablename' => 'years',
 			'from_fieldname' => 'year_id',
 			'to_type'        => 'year',
-			'to_fieldname'   => '_fiscaat_year_id'
+			'to_fieldname'   => '_fct_year_id'
 		);
 
 		// Year parent id (If no parent, 0. Stored in postmeta)
@@ -37,7 +37,7 @@ class Fiscaat1 extends Fiscaat_Converter_Base {
 			'from_tablename' => 'years',
 			'from_fieldname' => 'year_parent',
 			'to_type'        => 'year',
-			'to_fieldname'   => '_fiscaat_year_parent_id'
+			'to_fieldname'   => '_fct_year_parent_id'
 		);
 
 		// Year account count (Stored in postmeta)
@@ -45,7 +45,7 @@ class Fiscaat1 extends Fiscaat_Converter_Base {
 			'from_tablename' => 'years',
 			'from_fieldname' => 'accounts',
 			'to_type'        => 'year',
-			'to_fieldname'   => '_fiscaat_account_count'
+			'to_fieldname'   => '_fct_account_count'
 		);
 
 		// Year record count (Stored in postmeta)
@@ -53,7 +53,7 @@ class Fiscaat1 extends Fiscaat_Converter_Base {
 			'from_tablename' => 'years',
 			'from_fieldname' => 'posts',
 			'to_type'        => 'year',
-			'to_fieldname'   => '_fiscaat_record_count'
+			'to_fieldname'   => '_fct_record_count'
 		);
 
 		// Year account count (Stored in postmeta)
@@ -61,7 +61,7 @@ class Fiscaat1 extends Fiscaat_Converter_Base {
 			'from_tablename' => 'years',
 			'from_fieldname' => 'accounts',
 			'to_type'        => 'year',
-			'to_fieldname'   => '_fiscaat_total_account_count'
+			'to_fieldname'   => '_fct_total_account_count'
 		);
 
 		// Year record count (Stored in postmeta)
@@ -69,7 +69,7 @@ class Fiscaat1 extends Fiscaat_Converter_Base {
 			'from_tablename' => 'years',
 			'from_fieldname' => 'posts',
 			'to_type'        => 'year',
-			'to_fieldname'   => '_fiscaat_total_record_count'
+			'to_fieldname'   => '_fct_total_record_count'
 		);
 
 		// Year title.
@@ -135,7 +135,7 @@ class Fiscaat1 extends Fiscaat_Converter_Base {
 			'from_tablename' => 'accounts',
 			'from_fieldname' => 'account_id',
 			'to_type'        => 'account',
-			'to_fieldname'   => '_fiscaat_account_id'
+			'to_fieldname'   => '_fct_account_id'
 		);
 
 		// Record count (Stored in postmeta)
@@ -143,7 +143,7 @@ class Fiscaat1 extends Fiscaat_Converter_Base {
 			'from_tablename'  => 'accounts',
 			'from_fieldname'  => 'account_posts',
 			'to_type'         => 'account',
-			'to_fieldname'    => '_fiscaat_record_count',
+			'to_fieldname'    => '_fct_record_count',
 			'callback_method' => 'callback_account_record_count'
 		);
 
@@ -152,7 +152,7 @@ class Fiscaat1 extends Fiscaat_Converter_Base {
 			'from_tablename'  => 'accounts',
 			'from_fieldname'  => 'year_id',
 			'to_type'         => 'account',
-			'to_fieldname'    => '_fiscaat_year_id',
+			'to_fieldname'    => '_fct_year_id',
 			'callback_method' => 'callback_yearid'
 		);
 
@@ -216,7 +216,7 @@ class Fiscaat1 extends Fiscaat_Converter_Base {
 			'join_type'       => 'INNER',
 			'join_expression' => 'USING (account_id) WHERE posts.post_position IN (0,1)',
 			'to_type'         => 'account',
-			'to_fieldname'    => '_fiscaat_author_ip'
+			'to_fieldname'    => '_fct_author_ip'
 		);
 
 		// Year id (If no parent, 0)
@@ -257,7 +257,7 @@ class Fiscaat1 extends Fiscaat_Converter_Base {
 			'from_tablename' => 'accounts',
 			'from_fieldname' => 'account_time',
 			'to_type'        => 'account',
-			'to_fieldname'   => '_fiscaat_last_active_time'
+			'to_fieldname'   => '_fct_last_active_time'
 		);
 
 		/** Tags Section ******************************************************/
@@ -300,7 +300,7 @@ class Fiscaat1 extends Fiscaat_Converter_Base {
 			'from_tablename'  => 'posts',
 			'from_fieldname'  => 'post_id',
 			'to_type'         => 'record',
-			'to_fieldname'    => '_fiscaat_post_id'
+			'to_fieldname'    => '_fct_post_id'
 		);
 
 		// Account id (Stores in postmeta)
@@ -308,7 +308,7 @@ class Fiscaat1 extends Fiscaat_Converter_Base {
 			'from_tablename'  => 'posts',
 			'from_fieldname'  => 'account_id',
 			'to_type'         => 'record',
-			'to_fieldname'    => '_fiscaat_account_id',
+			'to_fieldname'    => '_fct_account_id',
 			'callback_method' => 'callback_accountid'
 		);
 
@@ -317,7 +317,7 @@ class Fiscaat1 extends Fiscaat_Converter_Base {
 			'from_tablename'  => 'posts',
 			'from_fieldname'  => 'year_id',
 			'to_type'         => 'record',
-			'to_fieldname'    => '_fiscaat_year_id',
+			'to_fieldname'    => '_fct_year_id',
 			'callback_method' => 'callback_yearid'
 		);
 
@@ -338,7 +338,7 @@ class Fiscaat1 extends Fiscaat_Converter_Base {
 			'from_tablename' => 'posts',
 			'from_fieldname' => 'poster_ip',
 			'to_type'        => 'record',
-			'to_fieldname'   => '_fiscaat_author_ip'
+			'to_fieldname'   => '_fct_author_ip'
 		);
 
 		// Record author.
@@ -418,7 +418,7 @@ class Fiscaat1 extends Fiscaat_Converter_Base {
 			'from_tablename' => 'users',
 			'from_fieldname' => 'ID',
 			'to_type'        => 'user',
-			'to_fieldname'   => '_fiscaat_user_id'
+			'to_fieldname'   => '_fct_user_id'
 		);
 
 		// Store old User password. Stores in usermeta.
@@ -426,7 +426,7 @@ class Fiscaat1 extends Fiscaat_Converter_Base {
 			'from_tablename' => 'users',
 			'from_fieldname' => 'user_pass',
 			'to_type'        => 'user',
-			'to_fieldname'   => '_fiscaat_password'
+			'to_fieldname'   => '_fct_password'
 		);
 
 		// User name.
@@ -504,16 +504,16 @@ class Fiscaat1 extends Fiscaat_Converter_Base {
 	public function callback_status( $status = 0 ) {
 		switch ( $status ) {
 			case 2 :
-				$status = 'spam';    // fiscaat_get_spam_status_id()
+				$status = 'spam';    // fct_get_spam_status_id()
 				break;
 
 			case 1 :
-				$status = 'trash';   // fiscaat_get_trash_status_id()
+				$status = 'trash';   // fct_get_trash_status_id()
 				break;
 
 			case 0  :
 			default :
-				$status = 'publish'; // fiscaat_get_public_status_id()
+				$status = 'publish'; // fct_get_public_status_id()
 				break;
 		}
 		return $status;

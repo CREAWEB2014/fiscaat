@@ -38,110 +38,110 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *
  *           v--WordPress Actions       v--Fiscaat Sub-actions
  */
-add_action( 'admin_menu',              'fiscaat_admin_menu'                    );
-add_action( 'admin_init',              'fiscaat_admin_init'                    );
-add_action( 'admin_head',              'fiscaat_admin_head'                    );
-add_action( 'admin_footer',            'fiscaat_admin_footer'                  );
-add_action( 'admin_notices',           'fiscaat_admin_notices'                 );
-add_action( 'custom_menu_order',       'fiscaat_admin_custom_menu_order'       );
-add_action( 'menu_order',              'fiscaat_admin_menu_order'              );
+add_action( 'admin_menu',              'fct_admin_menu'                    );
+add_action( 'admin_init',              'fct_admin_init'                    );
+add_action( 'admin_head',              'fct_admin_head'                    );
+add_action( 'admin_footer',            'fct_admin_footer'                  );
+add_action( 'admin_notices',           'fct_admin_notices'                 );
+add_action( 'custom_menu_order',       'fct_admin_custom_menu_order'       );
+add_action( 'menu_order',              'fct_admin_menu_order'              );
 
 // Hook on to admin_init
-add_action( 'fiscaat_admin_init', 'fiscaat_admin_years'                 );
-add_action( 'fiscaat_admin_init', 'fiscaat_admin_accounts'              );
-add_action( 'fiscaat_admin_init', 'fiscaat_admin_records'               );
-add_action( 'fiscaat_admin_init', 'fiscaat_setup_updater',          999 );
-add_action( 'fiscaat_admin_init', 'fiscaat_register_importers'          );
-add_action( 'fiscaat_admin_init', 'fiscaat_register_admin_settings'     );
+add_action( 'fct_admin_init', 'fct_admin_years'                 );
+add_action( 'fct_admin_init', 'fct_admin_accounts'              );
+add_action( 'fct_admin_init', 'fct_admin_records'               );
+add_action( 'fct_admin_init', 'fct_setup_updater',          999 );
+add_action( 'fct_admin_init', 'fct_register_importers'          );
+add_action( 'fct_admin_init', 'fct_register_admin_settings'     );
 
 // Initialize the admin area
-add_action( 'fiscaat_init', 'fiscaat_admin' );
+add_action( 'fct_init', 'fct_admin' );
 
 // Initalize record edit/new pages
-add_action( 'fiscaat_init', 'fiscaat_admin_records_new'  );
-add_action( 'fiscaat_init', 'fiscaat_admin_records_edit' );
+add_action( 'fct_init', 'fct_admin_records_new'  );
+add_action( 'fct_init', 'fct_admin_records_edit' );
 
 // Reset the menu order
-add_action( 'fiscaat_admin_menu', 'fiscaat_admin_separator' );
+add_action( 'fct_admin_menu', 'fct_admin_separator' );
 
 // Activation
-add_action( 'fiscaat_activation', 'fiscaat_delete_rewrite_rules'   );
+add_action( 'fct_activation', 'fct_delete_rewrite_rules'   );
 
 // Deactivation
-add_action( 'fiscaat_deactivation', 'fiscaat_remove_caps'          );
-add_action( 'fiscaat_deactivation', 'fiscaat_delete_rewrite_rules' );
+add_action( 'fct_deactivation', 'fct_remove_caps'          );
+add_action( 'fct_deactivation', 'fct_delete_rewrite_rules' );
 
 // Contextual Helpers
-add_action( 'load-settings_page_fiscaat', 'fiscaat_admin_settings_help' );
+add_action( 'load-settings_page_fiscaat', 'fct_admin_settings_help' );
 
 // Handle submission of Tools pages
-add_action( 'load-tools_page_fiscaat-repair', 'fiscaat_admin_repair_handler' );
-add_action( 'load-tools_page_fiscaat-reset',  'fiscaat_admin_reset_handler'  );
+add_action( 'load-tools_page_fiscaat-repair', 'fct_admin_repair_handler' );
+add_action( 'load-tools_page_fiscaat-reset',  'fct_admin_reset_handler'  );
 
 // Add sample permalink filter
-add_filter( 'post_type_link', 'fiscaat_filter_sample_permalink', 10, 4 );
+add_filter( 'post_type_link', 'fct_filter_sample_permalink', 10, 4 );
 
 /** Sub-Actions ***************************************************************/
 
 /**
  * Piggy back admin_init action
  *
- * @uses do_action() Calls 'fiscaat_admin_init'
+ * @uses do_action() Calls 'fct_admin_init'
  */
-function fiscaat_admin_init() {
-	do_action( 'fiscaat_admin_init' );
+function fct_admin_init() {
+	do_action( 'fct_admin_init' );
 }
 
 /**
  * Piggy back admin_menu action
  *
- * @uses do_action() Calls 'fiscaat_admin_menu'
+ * @uses do_action() Calls 'fct_admin_menu'
  */
-function fiscaat_admin_menu() {
-	do_action( 'fiscaat_admin_menu' );
+function fct_admin_menu() {
+	do_action( 'fct_admin_menu' );
 }
 
 /**
  * Piggy back admin_head action
  *
- * @uses do_action() Calls 'fiscaat_admin_head'
+ * @uses do_action() Calls 'fct_admin_head'
  */
-function fiscaat_admin_head() {
-	do_action( 'fiscaat_admin_head' );
+function fct_admin_head() {
+	do_action( 'fct_admin_head' );
 }
 
 /**
  * Piggy back admin_footer action
  *
- * @uses do_action() Calls 'fiscaat_admin_footer'
+ * @uses do_action() Calls 'fct_admin_footer'
  */
-function fiscaat_admin_footer() {
-	do_action( 'fiscaat_admin_footer' );
+function fct_admin_footer() {
+	do_action( 'fct_admin_footer' );
 }
 
 /**
  * Piggy back admin_notices action
  *
- * @uses do_action() Calls 'fiscaat_admin_notices'
+ * @uses do_action() Calls 'fct_admin_notices'
  */
-function fiscaat_admin_notices() {
-	do_action( 'fiscaat_admin_notices' );
+function fct_admin_notices() {
+	do_action( 'fct_admin_notices' );
 }
 
 /**
  * Dedicated action to register Fiscaat importers
  *
- * @uses do_action() Calls 'fiscaat_admin_notices'
+ * @uses do_action() Calls 'fct_admin_notices'
  */
-function fiscaat_register_importers() {
-	do_action( 'fiscaat_register_importers' );
+function fct_register_importers() {
+	do_action( 'fct_register_importers' );
 }
 
 /**
  * Dedicated action to register admin settings
  *
- * @uses do_action() Calls 'fiscaat_register_admin_settings'
+ * @uses do_action() Calls 'fct_register_admin_settings'
  */
-function fiscaat_register_admin_settings() {
-	do_action( 'fiscaat_register_admin_settings' );
+function fct_register_admin_settings() {
+	do_action( 'fct_register_admin_settings' );
 }

@@ -27,20 +27,20 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *
  * @return array Capabilities for $role
  */
-function fiscaat_get_caps_for_role( $role = '' ) {
+function fct_get_caps_for_role( $role = '' ) {
 
 	// Which role are we looking for?
 	switch ( $role ) {
 
 		// Fiscus
-		case fiscaat_get_fiscus_role() :
+		case fct_get_fiscus_role() :
 			$caps = array(
 
 				// Fisci only
 				'fiscaat'                => true,
 
 				// Primary caps
-				'fiscaat_spectate'       => true,
+				'fct_spectate'       => true,
 
 				// Record caps
 				'publish_records'        => true,
@@ -71,11 +71,11 @@ function fiscaat_get_caps_for_role( $role = '' ) {
 			break;
 
 		// Controller
-		case fiscaat_get_spectator_role() :
+		case fct_get_spectator_role() :
 			$caps = array(
 
 				// Primary caps
-				'fiscaat_spectate'       => true,
+				'fct_spectate'       => true,
 
 				// Record caps
 				'publish_records'        => false,
@@ -109,7 +109,7 @@ function fiscaat_get_caps_for_role( $role = '' ) {
 			$caps = array(
 
 				// Primary caps
-				'fiscaat_spectate'       => false,
+				'fct_spectate'       => false,
 
 				// Record caps
 				'publish_records'        => false,
@@ -139,37 +139,37 @@ function fiscaat_get_caps_for_role( $role = '' ) {
 			break;
 	}
 
-	return apply_filters( 'fiscaat_get_caps_for_role', $caps, $role );
+	return apply_filters( 'fct_get_caps_for_role', $caps, $role );
 }
 
 /**
  * Adds capabilities to WordPress user roles.
  */
-function fiscaat_add_caps() {
+function fct_add_caps() {
 
 	// Loop through available roles and add caps
-	foreach( fiscaat_get_wp_roles()->role_objects as $role ) {
-		foreach ( fiscaat_get_caps_for_role( $role->name ) as $cap => $value ) {
+	foreach( fct_get_wp_roles()->role_objects as $role ) {
+		foreach ( fct_get_caps_for_role( $role->name ) as $cap => $value ) {
 			$role->add_cap( $cap, $value );
 		}
 	}
 
-	do_action( 'fiscaat_add_caps' );
+	do_action( 'fct_add_caps' );
 }
 
 /**
  * Removes capabilities from WordPress user roles.
  */
-function fiscaat_remove_caps() {
+function fct_remove_caps() {
 
 	// Loop through available roles and remove caps
-	foreach( fiscaat_get_wp_roles()->role_objects as $role ) {
-		foreach ( array_keys( fiscaat_get_caps_for_role( $role->name ) ) as $cap ) {
+	foreach( fct_get_wp_roles()->role_objects as $role ) {
+		foreach ( array_keys( fct_get_caps_for_role( $role->name ) ) as $cap ) {
 			$role->remove_cap( $cap );
 		}
 	}
 
-	do_action( 'fiscaat_remove_caps' );
+	do_action( 'fct_remove_caps' );
 }
 
 /**
@@ -178,7 +178,7 @@ function fiscaat_remove_caps() {
  * @global WP_Roles $wp_roles
  * @return WP_Roles
  */
-function fiscaat_get_wp_roles() {
+function fct_get_wp_roles() {
 	global $wp_roles;
 
 	// Load roles if not set
@@ -195,10 +195,10 @@ function fiscaat_get_wp_roles() {
  *
  * We do this to avoid adding these values to the database.
  */
-function fiscaat_add_roles() {
-	$wp_roles = fiscaat_get_wp_roles();
+function fct_add_roles() {
+	$wp_roles = fct_get_wp_roles();
 
-	foreach( fiscaat_get_dynamic_roles() as $role_id => $details ) {
+	foreach( fct_get_dynamic_roles() as $role_id => $details ) {
 		$wp_roles->roles[$role_id]        = $details;
 		$wp_roles->role_objects[$role_id] = new WP_Role( $details['name'], $details['capabilities'] );
 		$wp_roles->role_names[$role_id]   = $details['name'];
@@ -208,16 +208,16 @@ function fiscaat_add_roles() {
 /**
  * Helper function to add filter to option_wp_user_roles
  *
- * @see _fiscaat_reinit_dynamic_roles()
+ * @see _fct_reinit_dynamic_roles()
  *
  * @global WPDB $wpdb Used to get the database prefix
  */
-function fiscaat_filter_user_roles_option() {
+function fct_filter_user_roles_option() {
 	global $wpdb;
 
 	$role_key = $wpdb->prefix . 'user_roles';
 
-	add_filter( 'option_' . $role_key, '_fiscaat_reinit_dynamic_roles' );
+	add_filter( 'option_' . $role_key, '_fct_reinit_dynamic_roles' );
 }
 
 /**
@@ -238,8 +238,8 @@ function fiscaat_filter_user_roles_option() {
  * @param array $roles
  * @return array Combined array of database roles and dynamic Fiscaat roles
  */
-function _fiscaat_reinit_dynamic_roles( $roles = array() ) {
-	foreach( fiscaat_get_dynamic_roles() as $role_id => $details ) {
+function _fct_reinit_dynamic_roles( $roles = array() ) {
+	foreach( fct_get_dynamic_roles() as $role_id => $details ) {
 		$roles[$role_id] = $details;
 	}
 		return $roles;
@@ -260,19 +260,19 @@ function _fiscaat_reinit_dynamic_roles( $roles = array() ) {
  *
  * @return array
  */
-function fiscaat_get_dynamic_roles() {
-	return (array) apply_filters( 'fiscaat_get_dynamic_roles', array(
+function fct_get_dynamic_roles() {
+	return (array) apply_filters( 'fct_get_dynamic_roles', array(
 
 		// Fiscus
-		fiscaat_get_fiscus_role() => array(
+		fct_get_fiscus_role() => array(
 			'name'         => __( 'Fiscus', 'fiscaat' ),
-			'capabilities' => fiscaat_get_caps_for_role( fiscaat_get_fiscus_role() )
+			'capabilities' => fct_get_caps_for_role( fct_get_fiscus_role() )
 		),
 
 		// Spectator
-		fiscaat_get_spectator_role() => array(
+		fct_get_spectator_role() => array(
 			'name'         => __( 'Spectator', 'fiscaat' ),
-			'capabilities' => fiscaat_get_caps_for_role( fiscaat_get_spectator_role() )
+			'capabilities' => fct_get_caps_for_role( fct_get_spectator_role() )
 		)
 
 	) );
@@ -287,16 +287,16 @@ function fiscaat_get_dynamic_roles() {
  * @param array $all_roles All registered roles
  * @return array 
  */
-function fiscaat_filter_blog_editable_roles( $all_roles = array() ) {
+function fct_filter_blog_editable_roles( $all_roles = array() ) {
 
 	// Loop through Fiscaat roles
-	foreach ( array_keys( fiscaat_get_dynamic_roles() ) as $fiscaat_role ) {
+	foreach ( array_keys( fct_get_dynamic_roles() ) as $fct_role ) {
 
 		// Loop through WordPress roles
 		foreach ( array_keys( $all_roles ) as $wp_role ) {
 
 			// If keys match, unset
-			if ( $wp_role == $fiscaat_role ) {
+			if ( $wp_role == $fct_role ) {
 				unset( $all_roles[$wp_role] );
 			}
 		}

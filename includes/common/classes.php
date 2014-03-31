@@ -80,13 +80,13 @@ class Fiscaat_Component {
 	 * 
 	 * @access private
 	 *
-	 * @uses apply_filters() Calls 'fiscaat_{@link Fiscaat_Component::name}_id'
-	 * @uses apply_filters() Calls 'fiscaat_{@link Fiscaat_Component::name}_slug'
+	 * @uses apply_filters() Calls 'fct_{@link Fiscaat_Component::name}_id'
+	 * @uses apply_filters() Calls 'fct_{@link Fiscaat_Component::name}_slug'
 	 */
 	private function setup_globals( $args = '' ) {
 		$this->name = $args['name'];
-		$this->id   = apply_filters( 'fiscaat_' . $this->name . '_id',   $args['id']   );
-		$this->slug = apply_filters( 'fiscaat_' . $this->name . '_slug', $args['slug'] );
+		$this->id   = apply_filters( 'fct_' . $this->name . '_id',   $args['id']   );
+		$this->slug = apply_filters( 'fct_' . $this->name . '_slug', $args['slug'] );
 	}
 
 	/**
@@ -94,10 +94,10 @@ class Fiscaat_Component {
 	 * 
 	 * @access private
 	 *
-	 * @uses do_action() Calls 'fiscaat_{@link Fiscaat_Component::name}includes'
+	 * @uses do_action() Calls 'fct_{@link Fiscaat_Component::name}includes'
 	 */
 	private function includes() {
-		do_action( 'fiscaat_' . $this->name . 'includes' );
+		do_action( 'fct_' . $this->name . 'includes' );
 	}
 
 	/**
@@ -107,52 +107,52 @@ class Fiscaat_Component {
 	 *
 	 * @uses add_action() To add various actions
 	 * @uses do_action() Calls
-	 *                    'fiscaat_{@link Fiscaat_Component::name}setup_actions'
+	 *                    'fct_{@link Fiscaat_Component::name}setup_actions'
 	 */
 	private function setup_actions() {
-		add_action( 'fiscaat_register_post_types',    array( $this, 'register_post_types'    ), 10, 2 ); // Register post types
-		add_action( 'fiscaat_register_taxonomies',    array( $this, 'register_taxonomies'    ), 10, 2 ); // Register taxonomies
-		add_action( 'fiscaat_add_rewrite_tags',       array( $this, 'add_rewrite_tags'       ), 10, 2 ); // Add the rewrite tags
-		add_action( 'fiscaat_generate_rewrite_rules', array( $this, 'generate_rewrite_rules' ), 10, 2 ); // Generate rewrite rules
+		add_action( 'fct_register_post_types',    array( $this, 'register_post_types'    ), 10, 2 ); // Register post types
+		add_action( 'fct_register_taxonomies',    array( $this, 'register_taxonomies'    ), 10, 2 ); // Register taxonomies
+		add_action( 'fct_add_rewrite_tags',       array( $this, 'add_rewrite_tags'       ), 10, 2 ); // Add the rewrite tags
+		add_action( 'fct_generate_rewrite_rules', array( $this, 'generate_rewrite_rules' ), 10, 2 ); // Generate rewrite rules
 
 		// Additional actions can be attached here
-		do_action( 'fiscaat_' . $this->name . 'setup_actions' );
+		do_action( 'fct_' . $this->name . 'setup_actions' );
 	}
 
 	/**
 	 * Setup the component post types
 	 *
-	 * @uses do_action() Calls 'fiscaat_{@link Fiscaat_Component::name}_register_post_types'
+	 * @uses do_action() Calls 'fct_{@link Fiscaat_Component::name}_register_post_types'
 	 */
 	public function register_post_types() {
-		do_action( 'fiscaat_' . $this->name . '_register_post_types' );
+		do_action( 'fct_' . $this->name . '_register_post_types' );
 	}
 
 	/**
 	 * Register component specific taxonomies
 	 *
-	 * @uses do_action() Calls 'fiscaat_{@link Fiscaat_Component::name}_register_taxonomies'
+	 * @uses do_action() Calls 'fct_{@link Fiscaat_Component::name}_register_taxonomies'
 	 */
 	public function register_taxonomies() {
-		do_action( 'fiscaat_' . $this->name . '_register_taxonomies' );
+		do_action( 'fct_' . $this->name . '_register_taxonomies' );
 	}
 
 	/**
 	 * Add any additional rewrite tags
 	 *
-	 * @uses do_action() Calls 'fiscaat_{@link Fiscaat_Component::name}_add_rewrite_tags'
+	 * @uses do_action() Calls 'fct_{@link Fiscaat_Component::name}_add_rewrite_tags'
 	 */
 	public function add_rewrite_tags() {
-		do_action( 'fiscaat_' . $this->name . '_add_rewrite_tags' );
+		do_action( 'fct_' . $this->name . '_add_rewrite_tags' );
 	}
 
 	/**
 	 * Generate any additional rewrite rules
 	 *
-	 * @uses do_action() Calls 'fiscaat_{@link Fiscaat_Component::name}_generate_rewrite_rules'
+	 * @uses do_action() Calls 'fct_{@link Fiscaat_Component::name}_generate_rewrite_rules'
 	 */
 	public function generate_rewrite_rules( $wp_rewrite ) {
-		do_action_ref_array( 'fiscaat_' . $this->name . '_generate_rewrite_rules', $wp_rewrite );
+		do_action_ref_array( 'fct_' . $this->name . '_generate_rewrite_rules', $wp_rewrite );
 	}
 }
 endif; // Fiscaat_Component
@@ -189,7 +189,7 @@ class Fiscaat_Walker_Dropdown extends Walker {
 	 * Set the tree_type
 	 */
 	public function __construct() {
-		$this->tree_type = fiscaat_get_year_post_type();
+		$this->tree_type = fct_get_year_post_type();
 	}
 
 	/**
@@ -204,8 +204,8 @@ class Fiscaat_Walker_Dropdown extends Walker {
 	 *                     selected HTML attribute for option element.
 	 * @uses current_user_can() To check if the current user can post in
 	 *                           closed years
-	 * @uses fiscaat_is_year_closed() To check if the year is closed
-	 * @uses apply_filters() Calls 'fiscaat_walker_dropdown_post_title' with the
+	 * @uses fct_is_year_closed() To check if the year is closed
+	 * @uses apply_filters() Calls 'fct_walker_dropdown_post_title' with the
 	 *                        title, output, post, depth and args
 	 */
 	public function start_el( &$output, $_post, $depth, $args ) {
@@ -219,8 +219,8 @@ class Fiscaat_Walker_Dropdown extends Walker {
 		// - year is closed
 		if (	( true != $args['disabled'] )
 				&& ( true == $args['disable_closed'] )
-				&& ( fiscaat_get_year_post_type() == $_post->post_type )
-				&& fiscaat_is_year_closed( $_post->ID )
+				&& ( fct_get_year_post_type() == $_post->post_type )
+				&& fct_is_year_closed( $_post->ID )
 			) {
 			$output .= ' disabled="disabled" value=""';
 		} else {
@@ -228,7 +228,7 @@ class Fiscaat_Walker_Dropdown extends Walker {
 		}
 
 		$output .= '>';
-		$title   = apply_filters( 'fiscaat_walker_dropdown_post_title', $_post->post_title, $output, $_post, $depth, $args );
+		$title   = apply_filters( 'fct_walker_dropdown_post_title', $_post->post_title, $output, $_post, $depth, $args );
 		$output .= $pad . esc_html( $title );
 		$output .= "</option>\n";
 	}

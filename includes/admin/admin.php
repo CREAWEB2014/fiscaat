@@ -113,23 +113,23 @@ class Fiscaat_Admin {
 	private function setup_actions() {
 
 		// Bail to prevent interfering with the deactivation process
-		if ( fiscaat_is_deactivation() )
+		if ( fct_is_deactivation() )
 			return;
 
 		/** General Actions ***************************************************/
 
-		add_action( 'fiscaat_admin_menu',              array( $this, 'admin_menus'                ) ); // Add menu item to settings menu
-		add_action( 'fiscaat_admin_head',              array( $this, 'admin_head'                 ) ); // Add some general styling to the admin area
-		add_action( 'fiscaat_admin_notices',           array( $this, 'activation_notice'          ) ); // Add notice if not using a Fiscaat theme
-		add_action( 'fiscaat_register_admin_settings', array( $this, 'register_admin_settings'    ) ); // Add settings
-		add_action( 'fiscaat_activation',              array( $this, 'new_install'                ) ); // Create new content on install
+		add_action( 'fct_admin_menu',              array( $this, 'admin_menus'                ) ); // Add menu item to settings menu
+		add_action( 'fct_admin_head',              array( $this, 'admin_head'                 ) ); // Add some general styling to the admin area
+		add_action( 'fct_admin_notices',           array( $this, 'activation_notice'          ) ); // Add notice if not using a Fiscaat theme
+		add_action( 'fct_register_admin_settings', array( $this, 'register_admin_settings'    ) ); // Add settings
+		add_action( 'fct_activation',              array( $this, 'new_install'                ) ); // Create new content on install
 		add_action( 'admin_enqueue_scripts',           array( $this, 'enqueue_scripts'            ) ); // Add enqueued JS and CSS
 		add_action( 'wp_dashboard_setup',              array( $this, 'dashboard_widget_right_now' ) ); // Years 'Right now' Dashboard widget
 
 		/** Ajax **************************************************************/
 
-		add_action( 'wp_ajax_fiscaat_suggest_account',        array( $this, 'suggest_account' ) );
-		add_action( 'wp_ajax_nopriv_fiscaat_suggest_account', array( $this, 'suggest_account' ) );
+		add_action( 'wp_ajax_fct_suggest_account',        array( $this, 'suggest_account' ) );
+		add_action( 'wp_ajax_nopriv_fct_suggest_account', array( $this, 'suggest_account' ) );
 
 		/** Filters ***********************************************************/
 
@@ -137,12 +137,12 @@ class Fiscaat_Admin {
 		add_filter( 'plugin_action_links', array( $this, 'modify_plugin_action_links' ), 10, 2 );
 
 		// Map settings capabilities
-		add_filter( 'fiscaat_map_meta_caps', array( $this, 'map_settings_meta_caps'   ), 10, 4 );
+		add_filter( 'fct_map_meta_caps', array( $this, 'map_settings_meta_caps'   ), 10, 4 );
 
 		/** Dependencies ******************************************************/
 
 		// Allow plugins to modify these actions
-		do_action_ref_array( 'fiscaat_admin_loaded', array( &$this ) );
+		do_action_ref_array( 'fct_admin_loaded', array( &$this ) );
 	}
 
 	/**
@@ -157,40 +157,40 @@ class Fiscaat_Admin {
 		$hooks = array();
 
 		// These are later removed in admin_head
-		if ( current_user_can( 'fiscaat_tools_page' ) ) {
-			if ( current_user_can( 'fiscaat_tools_repair_page' ) ) {
+		if ( current_user_can( 'fct_tools_page' ) ) {
+			if ( current_user_can( 'fct_tools_repair_page' ) ) {
 				$hooks[] = add_management_page(
 					__( 'Repair Fiscaat', 'fiscaat' ),
 					__( 'Fiscaat Repair', 'fiscaat' ),
 					$this->minimum_capability,
 					'fiscaat-repair',
-					'fiscaat_admin_repair'
+					'fct_admin_repair'
 				);
 			}
 
-			if ( current_user_can( 'fiscaat_tools_import_page' ) ) {
+			if ( current_user_can( 'fct_tools_import_page' ) ) {
 				$hooks[] = add_management_page(
 					__( 'Import Fiscaat', 'fiscaat' ),
 					__( 'Fiscaat Import', 'fiscaat' ),
 					$this->minimum_capability,
 					'fiscaat-converter',
-					'fiscaat_converter_settings'
+					'fct_converter_settings'
 				);
 			}
 
-			if ( current_user_can( 'fiscaat_tools_reset_page' ) ) {
+			if ( current_user_can( 'fct_tools_reset_page' ) ) {
 				$hooks[] = add_management_page(
 					__( 'Reset Fiscaat', 'fiscaat' ),
 					__( 'Fiscaat Reset', 'fiscaat' ),
 					$this->minimum_capability,
 					'fiscaat-reset',
-					'fiscaat_admin_reset'
+					'fct_admin_reset'
 				);
 			}
 
 			// Fudge the highlighted subnav item when on a Fiscaat admin page
 			foreach( $hooks as $hook ) {
-				add_action( "admin_head-$hook", 'fiscaat_tools_modify_menu_highlight' );
+				add_action( "admin_head-$hook", 'fct_tools_modify_menu_highlight' );
 			}
 
 			// Fiscaat Tools Root
@@ -199,18 +199,18 @@ class Fiscaat_Admin {
 				__( 'Fiscaat', 'fiscaat' ),
 				$this->minimum_capability,
 				'fiscaat-repair',
-				'fiscaat_admin_repair'
+				'fct_admin_repair'
 			);
 		}
 
 		// Are settings enabled?
-		if ( current_user_can( 'fiscaat_settings_page' ) ) {
+		if ( current_user_can( 'fct_settings_page' ) ) {
 			add_options_page(
 				__( 'Fiscaat',  'fiscaat' ),
 				__( 'Fiscaat',  'fiscaat' ),
 				$this->minimum_capability,
 				'fiscaat',
-				'fiscaat_admin_settings'
+				'fct_admin_settings'
 			);
 		}
 	}
@@ -218,15 +218,15 @@ class Fiscaat_Admin {
 	/**
 	 * If this is a new installation or no years exist, create some initial year content.
 	 *
-	 * @uses fiscaat_has_open_year() To check if an open year exists
-	 * @uses fiscaat_create_initial_content() To create initial Fiscaat content
+	 * @uses fct_has_open_year() To check if an open year exists
+	 * @uses fct_create_initial_content() To create initial Fiscaat content
 	 * @return type
 	 */
 	public static function new_install() {
-		if ( fiscaat_has_open_year() )
+		if ( fct_has_open_year() )
 			return;
 
-		fiscaat_create_initial_content();
+		fct_create_initial_content();
 	}
 
 	/**
@@ -240,7 +240,7 @@ class Fiscaat_Admin {
 	public static function register_admin_settings() {
 
 		// Bail if no sections available
-		$sections = fiscaat_admin_get_settings_sections();
+		$sections = fct_admin_get_settings_sections();
 		if ( empty( $sections ) )
 			return false;
 
@@ -252,7 +252,7 @@ class Fiscaat_Admin {
 				continue;
 
 			// Only add section and fields if section has fields
-			$fields = fiscaat_admin_get_settings_fields_for_section( $section_id );
+			$fields = fct_admin_get_settings_fields_for_section( $section_id );
 			if ( empty( $fields ) )
 				continue;
 
@@ -280,7 +280,7 @@ class Fiscaat_Admin {
 	 * @param mixed $args Arguments
 	 * @uses get_post() To get the post
 	 * @uses get_post_type_object() To get the post type object
-	 * @uses apply_filters() Calls 'fiscaat_map_meta_caps' with caps, cap, user id and
+	 * @uses apply_filters() Calls 'fct_map_meta_caps' with caps, cap, user id and
 	 *                        args
 	 * @return array Actual capabilities for meta capability
 	 */
@@ -290,7 +290,7 @@ class Fiscaat_Admin {
 		switch ( $cap ) {
 
 			// Fisci & Admins
-			case 'fiscaat_settings_page'          : // Settings Page
+			case 'fct_settings_page'          : // Settings Page
 
 				// Fisci
 				if ( user_can( $user_id, fiscaat()->admin->minimum_capability ) )
@@ -303,31 +303,31 @@ class Fiscaat_Admin {
 				break;
 				
 			// Fisci
-			case 'fiscaat_tools_page'             : // Tools Page
-			case 'fiscaat_tools_repair_page'      : // Tools - Repair Page
-			case 'fiscaat_tools_import_page'      : // Tools - Import Page
-			case 'fiscaat_tools_reset_page'       : // Tools - Reset Page
-			case 'fiscaat_settings_main'          : // Settings - General
-			case 'fiscaat_settings_functionality' : // Settings - Functionality // Really Fisci can unset Control?
-			case 'fiscaat_settings_per_page'      : // Settings - Per page
-			case 'fiscaat_settings_accounts'      : // Settings - Accounts
+			case 'fct_tools_page'             : // Tools Page
+			case 'fct_tools_repair_page'      : // Tools - Repair Page
+			case 'fct_tools_import_page'      : // Tools - Import Page
+			case 'fct_tools_reset_page'       : // Tools - Reset Page
+			case 'fct_settings_main'          : // Settings - General
+			case 'fct_settings_functionality' : // Settings - Functionality // Really Fisci can unset Control?
+			case 'fct_settings_per_page'      : // Settings - Per page
+			case 'fct_settings_accounts'      : // Settings - Accounts
 				$caps = array( fiscaat()->admin->minimum_capability );
 				break;
 
 			// Admins
-			case 'fiscaat_settings_root_slugs'    : // Settings - Root slugs
-			case 'fiscaat_settings_single_slugs'  : // Settings - Single slugs
+			case 'fct_settings_root_slugs'    : // Settings - Root slugs
+			case 'fct_settings_single_slugs'  : // Settings - Single slugs
 				$caps = array( 'manage_options' );
 				break;
 		}
 
-		return apply_filters( 'fiscaat_map_settings_meta_caps', $caps, $cap, $user_id, $args );
+		return apply_filters( 'fct_map_settings_meta_caps', $caps, $cap, $user_id, $args );
 	}
 
 	/**
 	 * Register the importers
 	 *
-	 * @uses apply_filters() Calls 'fiscaat_importer_path' filter to allow plugins
+	 * @uses apply_filters() Calls 'fct_importer_path' filter to allow plugins
 	 *                        to customize the importer script locations.
 	 */
 	public function register_importers() {
@@ -340,13 +340,13 @@ class Fiscaat_Admin {
 		require_once( ABSPATH . 'wp-admin/includes/import.php' );
 
 		// Load our importers
-		$importers = apply_filters( 'fiscaat_importers', array( 'fiscaat' ) );
+		$importers = apply_filters( 'fct_importers', array( 'fiscaat' ) );
 
 		// Loop through included importers
 		foreach ( $importers as $importer ) {
 
 			// Allow custom importer directory
-			$import_dir  = apply_filters( 'fiscaat_importer_path', $this->admin_dir . 'importers', $importer );
+			$import_dir  = apply_filters( 'fct_importer_path', $this->admin_dir . 'importers', $importer );
 
 			// Compile the importer path
 			$import_file = trailingslashit( $import_dir ) . $importer . '.php';
@@ -399,7 +399,7 @@ class Fiscaat_Admin {
 	 * @uses wp_add_dashboard_widget() To add the dashboard widget
 	 */
 	public static function dashboard_widget_right_now() {
-		wp_add_dashboard_widget( 'fiscaat-dashboard-right-now', _x( 'Fiscaat', 'Right now in Fiscaat', 'fiscaat' ), 'fiscaat_dashboard_widget_right_now' );
+		wp_add_dashboard_widget( 'fiscaat-dashboard-right-now', _x( 'Fiscaat', 'Right now in Fiscaat', 'fiscaat' ), 'fct_dashboard_widget_right_now' );
 	}
 
 	/**
@@ -412,9 +412,9 @@ class Fiscaat_Admin {
 	/**
 	 * Add some general styling to the admin area
 	 *
-	 * @uses fiscaat_get_year_post_type() To get the year post type
-	 * @uses fiscaat_get_account_post_type() To get the account post type
-	 * @uses fiscaat_get_record_post_type() To get the record post type
+	 * @uses fct_get_year_post_type() To get the year post type
+	 * @uses fct_get_account_post_type() To get the account post type
+	 * @uses fct_get_record_post_type() To get the record post type
 	 * @uses sanitize_html_class() To sanitize the classes
 	 */
 	public function admin_head() {
@@ -429,7 +429,7 @@ class Fiscaat_Admin {
 		$wp_admin_url     = admin_url( 'images/' );
 
 		// Icons for top level admin menus
-		$version          = fiscaat_get_version();
+		$version          = fct_get_version();
 		$menu_icon_url    = $this->images_url . 'menu.png?ver='       . $version;
 		$icon32_url       = $this->images_url . 'icons32.png?ver='    . $version;
 		$menu_icon_url_2x = $this->images_url . 'menu-2x.png?ver='    . $version;
@@ -443,19 +443,19 @@ class Fiscaat_Admin {
 		}
 
 		// Top level menu classes
-		$year_class    = sanitize_html_class( fiscaat_get_year_post_type() );
-		$account_class = sanitize_html_class( fiscaat_get_account_post_type() );
-		$record_class  = sanitize_html_class( fiscaat_get_record_post_type() ); ?>
+		$year_class    = sanitize_html_class( fct_get_year_post_type() );
+		$account_class = sanitize_html_class( fct_get_account_post_type() );
+		$record_class  = sanitize_html_class( fct_get_record_post_type() ); ?>
 
 		<script type="text/javascript">
 			jQuery(document).ready(function() {
 
-				var fiscaat_account_id = jQuery( '#fiscaat_account_id' );
+				var fct_account_id = jQuery( '#fct_account_id' );
 
-				fiscaat_account_id.suggest( ajaxurl + '?action=fiscaat_suggest_account', {
+				fct_account_id.suggest( ajaxurl + '?action=fct_suggest_account', {
 					onSelect: function() {
 						var value = this.value;
-						fiscaat_account_id.val( value.substr( 0, value.indexOf( ' ' ) ) );
+						fct_account_id.val( value.substr( 0, value.indexOf( ' ' ) ) );
 					}
 				} );
 			});
@@ -463,8 +463,8 @@ class Fiscaat_Admin {
 			/* Communicate between primary account id and ledger id dropdowns */
 			jQuery(document).ready(function($) {
 				var dropdowns = [ 
-					$( 'select#fiscaat_account_id, select#parent_id' ),
-					$( 'select#fiscaat_ledger_account_id, select#fiscaat_record_account_ledger_id' )
+					$( 'select#fct_account_id, select#parent_id' ),
+					$( 'select#fct_ledger_account_id, select#fct_record_account_ledger_id' )
 				];
 
 				$.each( dropdowns, function( i ){
@@ -481,16 +481,16 @@ class Fiscaat_Admin {
 		/*<![CDATA[*/
 
 			/* Kludge for too-wide years dropdown */
-			#poststuff #fiscaat_account_attributes select#parent_id,
-			#poststuff #fiscaat_record_attributes select#fiscaat_year_id {
+			#poststuff #fct_account_attributes select#parent_id,
+			#poststuff #fct_record_attributes select#fct_year_id {
 				max-width: 193px;
 			}
 
 			/* Kludge for too-wide account dropdown */
-			#poststuff #fiscaat_record_attributes select#parent_id,
-			#poststuff #fiscaat_record_attributes select#fiscaat_record_account_ledger_id,
-			.column-fiscaat_record_account select.fiscaat_new_record_account_id,
-			#posts-filter select#fiscaat_account_id {
+			#poststuff #fct_record_attributes select#parent_id,
+			#poststuff #fct_record_attributes select#fct_record_account_ledger_id,
+			.column-fct_record_account select.fct_new_record_account_id,
+			#posts-filter select#fct_account_id {
 				max-width: 193px;
 			}
 
@@ -720,22 +720,22 @@ class Fiscaat_Admin {
 	 * Ajax action for facilitating the account auto-suggest
 	 *
 	 * @uses get_posts()
-	 * @uses fiscaat_get_account_post_type()
-	 * @uses fiscaat_get_account_id()
-	 * @uses fiscaat_get_account_title()
+	 * @uses fct_get_account_post_type()
+	 * @uses fct_get_account_id()
+	 * @uses fct_get_account_title()
 	 */
 	public function suggest_account() {
 
 		// Try to get some accounts
 		$accounts = get_posts( array(
 			's'         => like_escape( $_REQUEST['q'] ),
-			'post_type' => fiscaat_get_account_post_type()
+			'post_type' => fct_get_account_post_type()
 		) );
 
 		// If we found some accounts, loop through and display them
 		if ( ! empty( $accounts ) ) {
 			foreach ( (array) $accounts as $post ) {
-				echo sprintf( __( '%s - %s', 'fiscaat' ), fiscaat_get_account_id( $post->ID ), fiscaat_get_account_title( $post->ID ) ) . "\n";
+				echo sprintf( __( '%s - %s', 'fiscaat' ), fct_get_account_id( $post->ID ), fct_get_account_title( $post->ID ) ) . "\n";
 			}
 		}
 		die();
@@ -749,7 +749,7 @@ endif; // class_exists check
  *
  * @uses Fiscaat_Admin
  */
-function fiscaat_admin() {
+function fct_admin() {
 	fiscaat()->admin = new Fiscaat_Admin();
 
 	fiscaat()->admin->converter = new Fiscaat_Converter();

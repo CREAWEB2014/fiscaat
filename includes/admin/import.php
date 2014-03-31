@@ -43,15 +43,15 @@ class Fiscaat_Records_Importer {
 	private function setup_actions() {
 
 		// Import button
-		add_action( 'fiscaat_before_new_records_list_table', array( $this, 'import_button'   ) );
+		add_action( 'fct_before_new_records_list_table', array( $this, 'import_button'   ) );
 
 		// Import modal
-		add_action( 'fiscaat_admin_head',    array( $this, 'admin_head'      ) );
+		add_action( 'fct_admin_head',    array( $this, 'admin_head'      ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-		add_action( 'fiscaat_admin_footer',  array( $this, 'import_modal'    ) );
+		add_action( 'fct_admin_footer',  array( $this, 'import_modal'    ) );
 
 		// Handle import file
-		add_action( 'wp_ajax_fiscaat_records_import_process', array( $this, 'import_process' ) );
+		add_action( 'wp_ajax_fct_records_import_process', array( $this, 'import_process' ) );
 
 	}
 
@@ -66,14 +66,14 @@ class Fiscaat_Records_Importer {
 		if ( fiscaat()->admin->records->new_records() )
 			$retval = false;
 
-		return apply_filters( 'fiscaat_import_bail', $retval );
+		return apply_filters( 'fct_import_bail', $retval );
 	}
 
 	/**
 	 * Output import button on New Records page
 	 * 
 	 * @uses add_thickbox() To activate thickbox
-	 * @uses fiscaat_import_modal() To output the import modal
+	 * @uses fct_import_modal() To output the import modal
 	 */
 	public function import_button() {
 
@@ -82,7 +82,7 @@ class Fiscaat_Records_Importer {
 
 		// Output import button at bulk actions position and hook thickbox to HTML button element
 		// For some reason <a> element responds as expected to thickbox. <input> or <button> does not.
-		echo '<a id="fiscaat_records_import_button" class="thickbox button button-primary" name="'. __('Import Records', 'fiscaat') .'" href="#TB_inline?height=150&amp;width=300&amp;inlineId=fiscaat_import_modal" tabindex="'. fiscaat_get_tab_index() .'" >'. __('Import', 'fiscaat') .'</a>';
+		echo '<a id="fct_records_import_button" class="thickbox button button-primary" name="'. __('Import Records', 'fiscaat') .'" href="#TB_inline?height=150&amp;width=300&amp;inlineId=fct_import_modal" tabindex="'. fct_get_tab_index() .'" >'. __('Import', 'fiscaat') .'</a>';
 	}
 
 	/**
@@ -95,27 +95,27 @@ class Fiscaat_Records_Importer {
 		<style type="text/css" media="screen">
 			/*<![CDATA[*/
 
-			#fiscaat_import_records > p {
+			#fct_import_records > p {
 				float: left;
 				width: 100%;
 				margin: 2px 0;
 			}
 
-			div#fiscaat_import_message p {
+			div#fct_import_message p {
 				margin: 0.5em 0;
 				padding: 2px;
 				float: left;
 				clear: left;
 			}
 
-			div#fiscaat_import_message p.loading {
+			div#fct_import_message p.loading {
 				padding: 2px 20px 2px 2px;
 				background-image: url('<?php echo admin_url(); ?>images/wpspin_light.gif');
 				background-repeat: no-repeat;
 				background-position: center right;
 			}
 
-			#fiscaat_import_stop {
+			#fct_import_stop {
 				display: none;
 			}
 
@@ -138,7 +138,7 @@ class Fiscaat_Records_Importer {
 		// Import script
 		wp_register_script( 'fiscaat-import', fiscaat()->admin->admin_url . 'scripts/fiscaat-import.js', array( 'jquery', 'jquery-form' ) );
 		wp_enqueue_script( 'fiscaat-import' );
-		wp_localize_script( 'fiscaat-import', 'fiscaat_importL10n', array( 
+		wp_localize_script( 'fiscaat-import', 'fct_importL10n', array( 
 			'uploading' => __('Uploading file', 'fiscaat'),
 			'error'     => __('Import failed. Please try again.', 'fiscaat'),
 			'complete'  => __('Conversion Complete', 'fiscaat'),
@@ -154,19 +154,19 @@ class Fiscaat_Records_Importer {
 		if ( $this->bail() ) return;
 
 	?>
-		<div id="fiscaat_import_modal" style="display: none;">
-			<div id="fiscaat_records_import_wrapper">
+		<div id="fct_import_modal" style="display: none;">
+			<div id="fct_records_import_wrapper">
 
-				<form id="fiscaat_import_records" action="<?php echo admin_url( 'admin-ajax.php' ); ?>" method="post" enctype="multipart/form-data">
-					<?php wp_nonce_field( 'fiscaat_record_importer', 'fiscaat_record_importer_nonce' ); ?>
+				<form id="fct_import_records" action="<?php echo admin_url( 'admin-ajax.php' ); ?>" method="post" enctype="multipart/form-data">
+					<?php wp_nonce_field( 'fct_record_importer', 'fct_record_importer_nonce' ); ?>
 
 					<p class="type">
 						<strong><?php _e('Import file type', 'fiscaat'); ?></strong><br/>
-						<select name="_fiscaat_import_file_type" id="_fiscaat_import_file_type">
+						<select name="_fct_import_file_type" id="_fct_import_file_type">
 
 							<option value="-1"><?php _e('Select file type', 'fiscaat'); ?></option>
 
-						<?php foreach ( fiscaat_records_import_filetypes() as $type => $attrs ) : ?>
+						<?php foreach ( fct_records_import_filetypes() as $type => $attrs ) : ?>
 
 							<option value="<?php echo esc_attr( $type ); ?>"><?php echo $attrs['label']; ?></option>
 
@@ -177,20 +177,20 @@ class Fiscaat_Records_Importer {
 					
 					<p class="file">
 						<strong><?php _e('Select file', 'fiscaat'); ?></strong><br/>
-						<input type="file" name="_fiscaat_import_file" />
+						<input type="file" name="_fct_import_file" />
 					</p>
 
-					<?php do_action( 'fiscaat_import_records_form' ); ?>
+					<?php do_action( 'fct_import_records_form' ); ?>
 					
 					<p class="submit">
-						<?php wp_nonce_field( 'fiscaat_records_import_process', '_ajax_nonce' ); ?>
-						<input type="hidden" name="action" value="fiscaat_records_import_process" />
-						<input type="hidden" name="fiscaat_import_restart" id="fiscaat_import_restart" value="1" />
-						<?php submit_button( __('Start Import', 'fiscaat'), 'secondary', 'fiscaat_import_start', false ); ?>
-						<?php submit_button( __('Stop Import',  'fiscaat'), 'secondary', 'fiscaat_import_stop',  false ); // why? ?>
+						<?php wp_nonce_field( 'fct_records_import_process', '_ajax_nonce' ); ?>
+						<input type="hidden" name="action" value="fct_records_import_process" />
+						<input type="hidden" name="fct_import_restart" id="fct_import_restart" value="1" />
+						<?php submit_button( __('Start Import', 'fiscaat'), 'secondary', 'fct_import_start', false ); ?>
+						<?php submit_button( __('Stop Import',  'fiscaat'), 'secondary', 'fct_import_stop',  false ); // why? ?>
 					</p>
 
-					<div id="fiscaat_import_message"></div>
+					<div id="fct_import_message"></div>
 
 				</form>
 
@@ -223,13 +223,13 @@ class Fiscaat_Records_Importer {
 	public function import_process() {
 
 		// Verify intent
-		check_ajax_referer( 'fiscaat_records_import_process' );
+		check_ajax_referer( 'fct_records_import_process' );
 
 		// Get step from db, else restart at 1
-		$step = ! (bool) $_POST['fiscaat_import_restart'] ? (int) get_option( '_fiscaat_importer_step', 1 ) : 1;
+		$step = ! (bool) $_POST['fct_import_restart'] ? (int) get_option( '_fct_importer_step', 1 ) : 1;
 
 		// Bail if file type is not valid
-		$file_type = fiscaat_records_import_get_filetype( ! empty( $_POST['_fiscaat_import_file_type' ] ) ? $_POST['_fiscaat_import_file_type' ] : '' );
+		$file_type = fct_records_import_get_filetype( ! empty( $_POST['_fct_import_file_type' ] ) ? $_POST['_fct_import_file_type' ] : '' );
 		if ( empty( $file_type ) )
 			return $this->import_output( __('No import file type selected.', 'fiscaat'), 'error' );
 
@@ -238,10 +238,10 @@ class Fiscaat_Records_Importer {
 			// STEP 1. Verify file
 			case 1 :
 				if ( $this->verify_file( $file_type ) ) {
-					update_option( '_fiscaat_importer_step', $step + 1 );
+					update_option( '_fct_importer_step', $step + 1 );
 					$this->import_output( __('Converting records', 'fiscaat') ); // Anticipate next step
 				} else {
-					delete_option( '_fiscaat_importer_step' );
+					delete_option( '_fct_importer_step' );
 				}
 
 				break;
@@ -249,11 +249,11 @@ class Fiscaat_Records_Importer {
 			// STEP 2. Convert records
 			case 2 :
 				if ( $records = $this->convert_records( $file_type ) ) {
-					update_option( '_fiscaat_importer_step', $step + 1 );
-					update_option( '_fiscaat_importer_records', $records );
+					update_option( '_fct_importer_step', $step + 1 );
+					update_option( '_fct_importer_records', $records );
 					$this->import_output( __('Conversion Complete', 'fiscaat') );
 				} else {
-					delete_option( '_fiscaat_importer_step' );
+					delete_option( '_fct_importer_step' );
 					$this->import_output( __('Failed converting records.', 'fiscaat'), 'error' );
 				}
 
@@ -261,25 +261,25 @@ class Fiscaat_Records_Importer {
 
 			// STEP 3. Redirect
 			case 3 :
-				if ( $records = get_option( '_fiscaat_importer_records' ) ) {
-					delete_option( '_fiscaat_importer_step' );
-					delete_option( '_fiscaat_importer_records' );
+				if ( $records = get_option( '_fct_importer_records' ) ) {
+					delete_option( '_fct_importer_step' );
+					delete_option( '_fct_importer_records' );
 
 					// Redirect to New Records page
-					wp_safe_redirect( add_query_arg( array( 'records' => urlencode_deep( $records ), 'fiscaat' => 'create-new', 'post_type' => fiscaat_get_record_post_type() ), admin_url( 'edit.php' ) ) );
+					wp_safe_redirect( add_query_arg( array( 'records' => urlencode_deep( $records ), 'fiscaat' => 'create-new', 'post_type' => fct_get_record_post_type() ), admin_url( 'edit.php' ) ) );
 
 					// Good measure
 					exit;
 				} else {
-					delete_option( '_fiscaat_importer_step' );
+					delete_option( '_fct_importer_step' );
 					$this->import_output( __('Converted records were lost.', 'fiscaat'), 'error' );
 				}
 
 				break;
 
 			default :
-				delete_option( '_fiscaat_importer_step' );
-				delete_option( '_fiscaat_importer_records' );
+				delete_option( '_fct_importer_step' );
+				delete_option( '_fct_importer_records' );
 
 				break;
 		}
@@ -293,13 +293,13 @@ class Fiscaat_Records_Importer {
 	public function verify_file( $file_type = '' ) {
 
 		// Check file upload
-		if ( ! isset( $_FILES['_fiscaat_import_file'] ) ) {
+		if ( ! isset( $_FILES['_fct_import_file'] ) ) {
 			$this->import_output( __('The upload form is corrupted.', 'error'), 'fiscaat' );
 			return false;
 
 		// Setup local vars
 		} else {
-			$_file   = $_FILES['_fiscaat_import_file'];
+			$_file   = $_FILES['_fct_import_file'];
 			$message = '';
 		}
 
@@ -342,33 +342,33 @@ class Fiscaat_Records_Importer {
 		}
 
 		// Hook verification
-		return apply_filters( 'fiscaat_records_import_verify_file', true );
+		return apply_filters( 'fct_records_import_verify_file', true );
 	}
 
 	/**
 	 * Send file to importer to convert records
 	 *
-	 * @uses apply_filters() Calls 'fiscaat_import_records_convert_records' with the
+	 * @uses apply_filters() Calls 'fct_import_records_convert_records' with the
 	 *                        converted records, the file type, and file contents
 	 */
 	public function convert_records( $file_type ) {
 
 		// Get file contents
-		$_file = file_get_contents( $_FILES['_fiscaat_import_file']['tmp_name'] );
+		$_file = file_get_contents( $_FILES['_fct_import_file']['tmp_name'] );
 
 		// Get import converter
-		$importer = fiscaat_records_import_converter( $file_type );
+		$importer = fct_records_import_converter( $file_type );
 
 		// Do file conversion
 		$records = $importer->convert( $_file );
 
-		return apply_filters( 'fiscaat_import_records_convert_records', $records, $file_type, $_file );
+		return apply_filters( 'fct_import_records_convert_records', $records, $file_type, $_file );
 	}
 }
 
 endif; // class_exists check
 
-function fiscaat_records_import_converter( $file_type = '' ) {
+function fct_records_import_converter( $file_type = '' ) {
 	return false;
 }
 
@@ -376,21 +376,21 @@ function fiscaat_records_import_converter( $file_type = '' ) {
  * Return the allowed records import filetype
  * 
  * @param string $type Type name
- * @uses fiscaat_records_import_filetypes()
+ * @uses fct_records_import_filetypes()
  * @return array Filetype
  */
-function fiscaat_records_import_get_filetype( $type = '' ) {
-	$types = fiscaat_records_import_filetypes();
+function fct_records_import_get_filetype( $type = '' ) {
+	$types = fct_records_import_filetypes();
 	return isset( $types[$type] ) ? $types[$type] : array();
 }
 
 /**
  * Return array of record import methods
  *
- * @uses apply_filters() Calls 'fiscaat_records_import_filetypes' with
+ * @uses apply_filters() Calls 'fct_records_import_filetypes' with
  *                        the import methods
  */
-function fiscaat_records_import_filetypes() {
+function fct_records_import_filetypes() {
 
 	// Create types array as extension => attributes
 	$types = array(
@@ -408,7 +408,7 @@ function fiscaat_records_import_filetypes() {
 				'application/vnd.msexcel',
 				'text/anytext',
 				),
-			'callback'  => 'fiscaat_records_import_csv',
+			'callback'  => 'fct_records_import_csv',
 		),
 
 		// MT940
@@ -418,7 +418,7 @@ function fiscaat_records_import_filetypes() {
 			'mimetypes' => array(
 				'application/octet-stream' // Unknown type
 				),
-			'callback'  => 'fiscaat_records_import_940',
+			'callback'  => 'fct_records_import_940',
 		),
 
 		// Incassoos
@@ -428,9 +428,9 @@ function fiscaat_records_import_filetypes() {
 			'mimetypes' => array(
 				'application/octet-stream' // Unknown type
 				),
-			'callback'  => 'fiscaat_records_import_sfc',
+			'callback'  => 'fct_records_import_sfc',
 		),
 	);
 
-	return apply_filters( 'fiscaat_records_import_filetypes', $types );
+	return apply_filters( 'fct_records_import_filetypes', $types );
 }

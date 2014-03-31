@@ -15,10 +15,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /**
  * Add a separator to the WordPress admin menus
  */
-function fiscaat_admin_separator() {
+function fct_admin_separator() {
 
 	// Prevent duplicate separators when no new menu items exist
-	if ( ! current_user_can( 'fiscaat_spectate' ) )
+	if ( ! current_user_can( 'fct_spectate' ) )
 		return;
 
 	// Prevent duplicate separators when no core menu items exist
@@ -36,8 +36,8 @@ function fiscaat_admin_separator() {
  * @param bool $menu_order Menu order
  * @return bool Always true
  */
-function fiscaat_admin_custom_menu_order( $menu_order = false ) {
-	if ( ! current_user_can( 'fiscaat_spectate' ) )
+function fct_admin_custom_menu_order( $menu_order = false ) {
+	if ( ! current_user_can( 'fct_spectate' ) )
 		return $menu_order;
 
 	return true;
@@ -47,25 +47,25 @@ function fiscaat_admin_custom_menu_order( $menu_order = false ) {
  * Move our custom separator above our custom post types
  *
  * @param array $menu_order Menu Order
- * @uses fiscaat_get_year_post_type() To get the year post type
+ * @uses fct_get_year_post_type() To get the year post type
  * @return array Modified menu order
  */
-function fiscaat_admin_menu_order( $menu_order ) {
+function fct_admin_menu_order( $menu_order ) {
 
 	// Bail if user cannot see any top level Fiscaat menus
-	if ( empty( $menu_order ) || ( ! current_user_can( 'fiscaat_spectate' ) ) )
+	if ( empty( $menu_order ) || ( ! current_user_can( 'fct_spectate' ) ) )
 		return $menu_order;
 
 	// Initialize our custom order array
-	$fiscaat_menu_order = array();
+	$fct_menu_order = array();
 
 	// Menu values
 	$second_sep   = 'separator2';
 	$custom_menus = array(
 		'separator-fiscaat',                                     // Separator
-		'edit.php?post_type=' . fiscaat_get_year_post_type(),    // Years
-		'edit.php?post_type=' . fiscaat_get_account_post_type(), // Accounts
-		'edit.php?post_type=' . fiscaat_get_record_post_type()   // Records
+		'edit.php?post_type=' . fct_get_year_post_type(),    // Years
+		'edit.php?post_type=' . fct_get_account_post_type(), // Accounts
+		'edit.php?post_type=' . fct_get_record_post_type()   // Records
 	);
 
 	// Loop through menu order and do some rearranging
@@ -77,21 +77,21 @@ function fiscaat_admin_menu_order( $menu_order ) {
 			// Add our custom menus
 			foreach ( $custom_menus as $custom_menu ) {
 				if ( array_search( $custom_menu, $menu_order ) ) {
-					$fiscaat_menu_order[] = $custom_menu;
+					$fct_menu_order[] = $custom_menu;
 				}
 			}
 
 			// Add the appearance separator
-			$fiscaat_menu_order[] = $second_sep;
+			$fct_menu_order[] = $second_sep;
 
 		// Skip our menu items
 		} elseif ( ! in_array( $item, $custom_menus ) ) {
-			$fiscaat_menu_order[] = $item;
+			$fct_menu_order[] = $item;
 		}
 	}
 
 	// Return our custom order
-	return $fiscaat_menu_order;
+	return $fct_menu_order;
 }
 
 /**
@@ -103,14 +103,14 @@ function fiscaat_admin_menu_order( $menu_order ) {
  * @param bool $sample Optional, defaults to false. Is it a sample permalink.
  *
  * @uses is_admin() To make sure we're on an admin page
- * @uses fiscaat_is_custom_post_type() To get the year post type
+ * @uses fct_is_custom_post_type() To get the year post type
  *
  * @return string The custom post type permalink
  */
-function fiscaat_filter_sample_permalink( $post_link, $_post, $leavename = false, $sample = false ) {
+function fct_filter_sample_permalink( $post_link, $_post, $leavename = false, $sample = false ) {
 
 	// Bail if not on an admin page and not getting a sample permalink
-	if ( ! empty( $sample ) && is_admin() && fiscaat_is_custom_post_type() )
+	if ( ! empty( $sample ) && is_admin() && fct_is_custom_post_type() )
 		return urldecode( $post_link );
 
 	// Return post link
@@ -123,7 +123,7 @@ function fiscaat_filter_sample_permalink( $post_link, $_post, $leavename = false
  * @uses WP_UNINSTALL_PLUGIN
  * @return bool Fiscaat is uninstalling
  */
-function fiscaat_is_uninstall() {
+function fct_is_uninstall() {
 	return defined( 'WP_UNINSTALL_PLUGIN' ) && fiscaat()->basename == WP_UNINSTALL_PLUGIN;
 }
 
@@ -132,13 +132,13 @@ function fiscaat_is_uninstall() {
  *
  * @param type $site_id
  */
-function fiscaat_do_uninstall( $site_id = 0 ) {
+function fct_do_uninstall( $site_id = 0 ) {
 	if ( empty( $site_id ) )
 		$site_id = get_current_blog_id();
 
 	switch_to_blog( $site_id );
-	fiscaat_delete_options();
-	fiscaat_remove_caps();
+	fct_delete_options();
+	fct_remove_caps();
 	flush_rewrite_rules();
 	restore_current_blog();
 }
@@ -153,7 +153,7 @@ function fiscaat_do_uninstall( $site_id = 0 ) {
  * @global string $plugin_page
  * @global array $submenu_file
  */
-function fiscaat_tools_modify_menu_highlight() {
+function fct_tools_modify_menu_highlight() {
 	global $plugin_page, $submenu_file;
 
 	// This tweaks the Tools subnav menu to only show one Fiscaat menu item
@@ -166,8 +166,8 @@ function fiscaat_tools_modify_menu_highlight() {
  *
  * @param string $active_tab Name of the tab that is active
  */
-function fiscaat_tools_admin_tabs( $active_tab = '' ) {
-	echo fiscaat_get_tools_admin_tabs( $active_tab );
+function fct_tools_admin_tabs( $active_tab = '' ) {
+	echo fct_get_tools_admin_tabs( $active_tab );
 }
 
 	/**
@@ -175,7 +175,7 @@ function fiscaat_tools_admin_tabs( $active_tab = '' ) {
 	 *
 	 * @param string $active_tab Name of the tab that is active
 	 */
-	function fiscaat_get_tools_admin_tabs( $active_tab = '' ) {
+	function fct_get_tools_admin_tabs( $active_tab = '' ) {
 
 		// Declare local variables
 		$tabs_html    = '';
@@ -183,7 +183,7 @@ function fiscaat_tools_admin_tabs( $active_tab = '' ) {
 		$active_class = 'nav-tab nav-tab-active';
 
 		// Setup core admin tabs
-		$tabs = apply_filters( 'fiscaat_tools_admin_tabs', array(
+		$tabs = apply_filters( 'fct_tools_admin_tabs', array(
 			'0' => array(
 				'href' => get_admin_url( '', add_query_arg( array( 'page' => 'fiscaat-repair'    ), 'tools.php' ) ),
 				'name' => __( 'Repair Fiscaat', 'fiscaat' )

@@ -57,10 +57,10 @@ class Fiscaat_Converter {
 	private function setup_actions() {
 
 		// Attach to the admin head with our ajax requests cycle and css
-		add_action( 'fiscaat_admin_head',              array( $this, 'admin_head'              ) );
+		add_action( 'fct_admin_head',              array( $this, 'admin_head'              ) );
 
 		// Attach the bbConverter admin settings action to the WordPress admin init action.
-		add_action( 'fiscaat_register_admin_settings', array( $this, 'register_admin_settings' ) );
+		add_action( 'fct_register_admin_settings', array( $this, 'register_admin_settings' ) );
 
 		// Attach to the admin ajax request to process cycles
 		add_action( 'wp_ajax_bbconverter_process', array( $this, 'process_callback'        ) );
@@ -77,58 +77,58 @@ class Fiscaat_Converter {
 	public function register_admin_settings() {
 
 		// Add the main section
-		add_settings_section( 'fiscaat_converter_main',     __( 'Database Settings', 'fiscaat' ),  'fiscaat_converter_setting_callback_main_section', 'fiscaat_converter' );
+		add_settings_section( 'fct_converter_main',     __( 'Database Settings', 'fiscaat' ),  'fct_converter_setting_callback_main_section', 'fct_converter' );
 
 		// System Select
-		add_settings_field( '_fiscaat_converter_platform',      __( 'Select Platform',   'fiscaat' ),  'fiscaat_converter_setting_callback_platform', 'fiscaat_converter', 'fiscaat_converter_main' );
-		register_setting  ( 'fiscaat_converter_main',       '_fiscaat_converter_platform',           'sanitize_title' );
+		add_settings_field( '_fct_converter_platform',      __( 'Select Platform',   'fiscaat' ),  'fct_converter_setting_callback_platform', 'fct_converter', 'fct_converter_main' );
+		register_setting  ( 'fct_converter_main',       '_fct_converter_platform',           'sanitize_title' );
 
 		// Database Server
-		add_settings_field( '_fiscaat_converter_db_server',     __( 'Database Server',   'fiscaat' ),  'fiscaat_converter_setting_callback_dbserver', 'fiscaat_converter', 'fiscaat_converter_main' );
-		register_setting  ( 'fiscaat_converter_main',       '_fiscaat_converter_db_server',          'sanitize_title' );
+		add_settings_field( '_fct_converter_db_server',     __( 'Database Server',   'fiscaat' ),  'fct_converter_setting_callback_dbserver', 'fct_converter', 'fct_converter_main' );
+		register_setting  ( 'fct_converter_main',       '_fct_converter_db_server',          'sanitize_title' );
 
 		// Database Server Port
-		add_settings_field( '_fiscaat_converter_db_port',       __( 'Database Port',     'fiscaat' ),  'fiscaat_converter_setting_callback_dbport', 'fiscaat_converter', 'fiscaat_converter_main' );
-		register_setting  ( 'fiscaat_converter_main',       '_fiscaat_converter_db_port',            'sanitize_title' );
+		add_settings_field( '_fct_converter_db_port',       __( 'Database Port',     'fiscaat' ),  'fct_converter_setting_callback_dbport', 'fct_converter', 'fct_converter_main' );
+		register_setting  ( 'fct_converter_main',       '_fct_converter_db_port',            'sanitize_title' );
 
 		// Database Name
-		add_settings_field( '_fiscaat_converter_db_name',       __( 'Database Name',     'fiscaat' ),  'fiscaat_converter_setting_callback_dbname', 'fiscaat_converter', 'fiscaat_converter_main' );
-		register_setting  ( 'fiscaat_converter_main',       '_fiscaat_converter_db_name',            'sanitize_title' );
+		add_settings_field( '_fct_converter_db_name',       __( 'Database Name',     'fiscaat' ),  'fct_converter_setting_callback_dbname', 'fct_converter', 'fct_converter_main' );
+		register_setting  ( 'fct_converter_main',       '_fct_converter_db_name',            'sanitize_title' );
 
 		// Database User
-		add_settings_field( '_fiscaat_converter_db_user',       __( 'Database User',     'fiscaat' ),  'fiscaat_converter_setting_callback_dbuser', 'fiscaat_converter', 'fiscaat_converter_main' );
-		register_setting  ( 'fiscaat_converter_main',       '_fiscaat_converter_db_user',            'sanitize_title' );
+		add_settings_field( '_fct_converter_db_user',       __( 'Database User',     'fiscaat' ),  'fct_converter_setting_callback_dbuser', 'fct_converter', 'fct_converter_main' );
+		register_setting  ( 'fct_converter_main',       '_fct_converter_db_user',            'sanitize_title' );
 
 		// Database Pass
-		add_settings_field( '_fiscaat_converter_db_pass',       __( 'Database Password', 'fiscaat' ),  'fiscaat_converter_setting_callback_dbpass', 'fiscaat_converter', 'fiscaat_converter_main' );
-		register_setting  ( 'fiscaat_converter_main',       '_fiscaat_converter_db_pass',            'sanitize_title' );
+		add_settings_field( '_fct_converter_db_pass',       __( 'Database Password', 'fiscaat' ),  'fct_converter_setting_callback_dbpass', 'fct_converter', 'fct_converter_main' );
+		register_setting  ( 'fct_converter_main',       '_fct_converter_db_pass',            'sanitize_title' );
 
 		// Database Prefix
-		add_settings_field( '_fiscaat_converter_db_prefix',     __( 'Table Prefix',      'fiscaat' ),  'fiscaat_converter_setting_callback_dbprefix', 'fiscaat_converter', 'fiscaat_converter_main' );
-		register_setting  ( 'fiscaat_converter_main',       '_fiscaat_converter_db_prefix',          'sanitize_title' );
+		add_settings_field( '_fct_converter_db_prefix',     __( 'Table Prefix',      'fiscaat' ),  'fct_converter_setting_callback_dbprefix', 'fct_converter', 'fct_converter_main' );
+		register_setting  ( 'fct_converter_main',       '_fct_converter_db_prefix',          'sanitize_title' );
 
 		// Add the options section
-		add_settings_section( 'fiscaat_converter_opt',      __( 'Options',           'fiscaat' ),  'fiscaat_converter_setting_callback_options_section', 'fiscaat_converter' );
+		add_settings_section( 'fct_converter_opt',      __( 'Options',           'fiscaat' ),  'fct_converter_setting_callback_options_section', 'fct_converter' );
 
 		// Rows Limit
-		add_settings_field( '_fiscaat_converter_rows',          __( 'Rows Limit',        'fiscaat' ),  'fiscaat_converter_setting_callback_rows', 'fiscaat_converter', 'fiscaat_converter_opt' );
-		register_setting  ( 'fiscaat_converter_opt',        '_fiscaat_converter_rows',               'intval' );
+		add_settings_field( '_fct_converter_rows',          __( 'Rows Limit',        'fiscaat' ),  'fct_converter_setting_callback_rows', 'fct_converter', 'fct_converter_opt' );
+		register_setting  ( 'fct_converter_opt',        '_fct_converter_rows',               'intval' );
 
 		// Delay Time
-		add_settings_field( '_fiscaat_converter_delay_time',    __( 'Delay Time',        'fiscaat' ), 'fiscaat_converter_setting_callback_delay_time', 'fiscaat_converter', 'fiscaat_converter_opt' );
-		register_setting  ( 'fiscaat_converter_opt',        '_fiscaat_converter_delay_time',        'intval' );
+		add_settings_field( '_fct_converter_delay_time',    __( 'Delay Time',        'fiscaat' ), 'fct_converter_setting_callback_delay_time', 'fct_converter', 'fct_converter_opt' );
+		register_setting  ( 'fct_converter_opt',        '_fct_converter_delay_time',        'intval' );
 
 		// Convert Users ?
-		add_settings_field( '_fiscaat_converter_convert_users', __( 'Convert Users',     'fiscaat' ), 'fiscaat_converter_setting_callback_convert_users', 'fiscaat_converter', 'fiscaat_converter_opt' );
-		register_setting  ( 'fiscaat_converter_opt',        '_fiscaat_converter_convert_users',     'intval' );
+		add_settings_field( '_fct_converter_convert_users', __( 'Convert Users',     'fiscaat' ), 'fct_converter_setting_callback_convert_users', 'fct_converter', 'fct_converter_opt' );
+		register_setting  ( 'fct_converter_opt',        '_fct_converter_convert_users',     'intval' );
 
 		// Restart
-		add_settings_field( '_fiscaat_converter_restart',       __( 'Start Over',        'fiscaat' ), 'fiscaat_converter_setting_callback_restart', 'fiscaat_converter', 'fiscaat_converter_opt' );
-		register_setting  ( 'fiscaat_converter_opt',        '_fiscaat_converter_restart',           'intval' );
+		add_settings_field( '_fct_converter_restart',       __( 'Start Over',        'fiscaat' ), 'fct_converter_setting_callback_restart', 'fct_converter', 'fct_converter_opt' );
+		register_setting  ( 'fct_converter_opt',        '_fct_converter_restart',           'intval' );
 
 		// Clean
-		add_settings_field( '_fiscaat_converter_clean',         __( 'Purge Previous Import', 'fiscaat' ), 'fiscaat_converter_setting_callback_clean', 'fiscaat_converter', 'fiscaat_converter_opt' );
-		register_setting  ( 'fiscaat_converter_opt',        '_fiscaat_converter_clean',             'intval' );
+		add_settings_field( '_fct_converter_clean',         __( 'Purge Previous Import', 'fiscaat' ), 'fct_converter_setting_callback_clean', 'fct_converter', 'fct_converter_opt' );
+		register_setting  ( 'fct_converter_opt',        '_fct_converter_clean',             'intval' );
 	}
 
 	/**
@@ -196,16 +196,16 @@ class Fiscaat_Converter {
 					values[field.name] = field.value;
 				});
 
-				if( values['_fiscaat_converter_restart'] ) {
-					jQuery('#_fiscaat_converter_restart').removeAttr("checked");
+				if( values['_fct_converter_restart'] ) {
+					jQuery('#_fct_converter_restart').removeAttr("checked");
 				}
 
-				if( values['_fiscaat_converter_delay_time'] ) {
-					bbconverter_delay_time = values['_fiscaat_converter_delay_time'] * 1000;
+				if( values['_fct_converter_delay_time'] ) {
+					bbconverter_delay_time = values['_fct_converter_delay_time'] * 1000;
 				}
 
 				values['action'] = 'bbconverter_process';
-				values['_ajax_nonce'] = '<?php echo  wp_create_nonce( 'fiscaat_converter_process' ); ?>';
+				values['_ajax_nonce'] = '<?php echo  wp_create_nonce( 'fct_converter_process' ); ?>';
 
 				return values;
 			}
@@ -280,7 +280,7 @@ class Fiscaat_Converter {
 		// Get the last query
 		$before = '<p class="loading">';
 		$after  = '</p>';
-		$query  = get_option( '_fiscaat_converter_query' );
+		$query  = get_option( '_fct_converter_query' );
 
 		if ( ! empty( $query ) )
 			$before = '<p class="loading" title="' . esc_attr( $query ) . '">';
@@ -296,7 +296,7 @@ class Fiscaat_Converter {
 	public function process_callback() {
 
 		// Verify intent
-		check_ajax_referer( 'fiscaat_converter_process' );
+		check_ajax_referer( 'fct_converter_process' );
 
 		if ( ! ini_get( 'safe_mode' ) ) {
 			set_time_limit( 0 );
@@ -306,84 +306,84 @@ class Fiscaat_Converter {
 		}
 
 		// Save step and count so that it can be restarted.
-		if ( ! get_option( '_fiscaat_converter_step' ) || ( ! empty( $_POST['_fiscaat_converter_restart'] ) ) ) {
-			update_option( '_fiscaat_converter_step',  1 );
-			update_option( '_fiscaat_converter_start', 0 );
+		if ( ! get_option( '_fct_converter_step' ) || ( ! empty( $_POST['_fct_converter_restart'] ) ) ) {
+			update_option( '_fct_converter_step',  1 );
+			update_option( '_fct_converter_start', 0 );
 		}
 
-		$step  = (int) get_option( '_fiscaat_converter_step',  1 );
-		$min   = (int) get_option( '_fiscaat_converter_start', 0 );
-		$count = (int) ! empty( $_POST['_fiscaat_converter_rows'] ) ? $_POST['_fiscaat_converter_rows'] : 100;
+		$step  = (int) get_option( '_fct_converter_step',  1 );
+		$min   = (int) get_option( '_fct_converter_start', 0 );
+		$count = (int) ! empty( $_POST['_fct_converter_rows'] ) ? $_POST['_fct_converter_rows'] : 100;
 		$max   = ( $min + $count ) - 1;
 		$start = $min;
 
 		// Bail if platform did not get saved
-		$platform = ! empty( $_POST['_fiscaat_converter_platform' ] ) ? $_POST['_fiscaat_converter_platform' ] : get_option( '_fiscaat_converter_platform' );
+		$platform = ! empty( $_POST['_fct_converter_platform' ] ) ? $_POST['_fct_converter_platform' ] : get_option( '_fct_converter_platform' );
 		if ( empty( $platform ) )
 			return;
 
 		// Include the appropriate converter.
-		$converter = fiscaat_new_converter( $platform );
+		$converter = fct_new_converter( $platform );
 
 		switch ( $step ) {
 
 			// STEP 1. Clean all tables.
 			case 1 :
-				if ( ! empty( $_POST['_fiscaat_converter_clean'] ) ) {
+				if ( ! empty( $_POST['_fct_converter_clean'] ) ) {
 					if ( $converter->clean( $start ) ) {
-						update_option( '_fiscaat_converter_step',  $step + 1 );
-						update_option( '_fiscaat_converter_start', 0         );
+						update_option( '_fct_converter_step',  $step + 1 );
+						update_option( '_fct_converter_start', 0         );
 						$this->sync_table( true );
 						if ( empty( $start ) ) {
 							$this->converter_output( __( 'No data to clean', 'fiscaat' ) );
 						}
 					} else {
-						update_option( '_fiscaat_converter_start', $max + 1 );
+						update_option( '_fct_converter_start', $max + 1 );
 						$this->converter_output( sprintf( __( 'Deleting previously converted data (%1$s - %2$s)', 'fiscaat' ), $min, $max ) );
 					}
 				} else {
-					update_option( '_fiscaat_converter_step',  $step + 1 );
-					update_option( '_fiscaat_converter_start', 0         );
+					update_option( '_fct_converter_step',  $step + 1 );
+					update_option( '_fct_converter_start', 0         );
 				}
 
 				break;
 
 			// STEP 2. Convert users.
 			case 2 :
-				if ( ! empty( $_POST['_fiscaat_converter_convert_users'] ) ) {
+				if ( ! empty( $_POST['_fct_converter_convert_users'] ) ) {
 					if ( $converter->convert_users( $start ) ) {
-						update_option( '_fiscaat_converter_step',  $step + 1 );
-						update_option( '_fiscaat_converter_start', 0         );
+						update_option( '_fct_converter_step',  $step + 1 );
+						update_option( '_fct_converter_start', 0         );
 						if ( empty( $start ) ) {
 							$this->converter_output( __( 'No users to convert', 'fiscaat' ) );
 						}
 					} else {
-						update_option( '_fiscaat_converter_start', $max + 1 );
+						update_option( '_fct_converter_start', $max + 1 );
 						$this->converter_output( sprintf(  __( 'Converting users (%1$s - %2$s)', 'fiscaat' ), $min, $max ) );
 					}
 				} else {
-					update_option( '_fiscaat_converter_step',  $step + 1 );
-					update_option( '_fiscaat_converter_start', 0         );
+					update_option( '_fct_converter_step',  $step + 1 );
+					update_option( '_fct_converter_start', 0         );
 				}
 
 				break;
 
 			// STEP 3. Clean passwords.
 			case 3 :
-				if ( ! empty( $_POST['_fiscaat_converter_convert_users'] ) ) {
+				if ( ! empty( $_POST['_fct_converter_convert_users'] ) ) {
 					if ( $converter->clean_passwords( $start ) ) {
-						update_option( '_fiscaat_converter_step',  $step + 1 );
-						update_option( '_fiscaat_converter_start', 0         );
+						update_option( '_fct_converter_step',  $step + 1 );
+						update_option( '_fct_converter_start', 0         );
 						if ( empty( $start ) ) {
 							$this->converter_output( __( 'No passwords to clear', 'fiscaat' ) );
 						}
 					} else {
-						update_option( '_fiscaat_converter_start', $max + 1 );
+						update_option( '_fct_converter_start', $max + 1 );
 						$this->converter_output( sprintf( __( 'Delete users wordpress default passwords (%1$s - %2$s)', 'fiscaat' ), $min, $max ) );
 					}
 				} else {
-					update_option( '_fiscaat_converter_step',  $step + 1 );
-					update_option( '_fiscaat_converter_start', 0         );
+					update_option( '_fct_converter_step',  $step + 1 );
+					update_option( '_fct_converter_start', 0         );
 				}
 
 				break;
@@ -391,13 +391,13 @@ class Fiscaat_Converter {
 			// STEP 4. Convert years.
 			case 4 :
 				if ( $converter->convert_years( $start ) ) {
-					update_option( '_fiscaat_converter_step',  $step + 1 );
-					update_option( '_fiscaat_converter_start', 0         );
+					update_option( '_fct_converter_step',  $step + 1 );
+					update_option( '_fct_converter_start', 0         );
 					if ( empty( $start ) ) {
 						$this->converter_output( __( 'No years to convert', 'fiscaat' ) );
 					}
 				} else {
-					update_option( '_fiscaat_converter_start', $max + 1 );
+					update_option( '_fct_converter_start', $max + 1 );
 					$this->converter_output( sprintf( __( 'Converting years (%1$s - %2$s)', 'fiscaat' ), $min, $max ) );
 				}
 
@@ -406,13 +406,13 @@ class Fiscaat_Converter {
 			// STEP 5. Convert year parents.
 			case 5 :
 				if ( $converter->convert_year_parents( $start ) ) {
-					update_option( '_fiscaat_converter_step',  $step + 1 );
-					update_option( '_fiscaat_converter_start', 0         );
+					update_option( '_fct_converter_step',  $step + 1 );
+					update_option( '_fct_converter_start', 0         );
 					if ( empty( $start ) ) {
 						$this->converter_output( __( 'No year parents to convert', 'fiscaat' ) );
 					}
 				} else {
-					update_option( '_fiscaat_converter_start', $max + 1 );
+					update_option( '_fct_converter_start', $max + 1 );
 					$this->converter_output( sprintf( __( 'Calculating year hierarchy (%1$s - %2$s)', 'fiscaat' ), $min, $max ) );
 				}
 
@@ -421,13 +421,13 @@ class Fiscaat_Converter {
 			// STEP 6. Convert accounts.
 			case 6 :
 				if ( $converter->convert_accounts( $start ) ) {
-					update_option( '_fiscaat_converter_step',  $step + 1 );
-					update_option( '_fiscaat_converter_start', 0         );
+					update_option( '_fct_converter_step',  $step + 1 );
+					update_option( '_fct_converter_start', 0         );
 					if ( empty( $start ) ) {
 						$this->converter_output( __( 'No accounts to convert', 'fiscaat' ) );
 					}
 				} else {
-					update_option( '_fiscaat_converter_start', $max + 1 );
+					update_option( '_fct_converter_start', $max + 1 );
 					$this->converter_output( sprintf( __( 'Converting accounts (%1$s - %2$s)', 'fiscaat' ), $min, $max ) );
 				}
 
@@ -436,13 +436,13 @@ class Fiscaat_Converter {
 			// STEP 7. Convert tags.
 			case 7 :
 				if ( $converter->convert_tags( $start ) ) {
-					update_option( '_fiscaat_converter_step',  $step + 1 );
-					update_option( '_fiscaat_converter_start', 0         );
+					update_option( '_fct_converter_step',  $step + 1 );
+					update_option( '_fct_converter_start', 0         );
 					if ( empty( $start ) ) {
 						$this->converter_output( __( 'No tags to convert', 'fiscaat' ) );
 					}
 				} else {
-					update_option( '_fiscaat_converter_start', $max + 1 );
+					update_option( '_fct_converter_start', $max + 1 );
 					$this->converter_output( sprintf( __( 'Converting account tags (%1$s - %2$s)', 'fiscaat' ), $min, $max ) );
 				}
 
@@ -451,22 +451,22 @@ class Fiscaat_Converter {
 			// STEP 8. Convert records.
 			case 8 :
 				if ( $converter->convert_records( $start ) ) {
-					update_option( '_fiscaat_converter_step',  $step + 1 );
-					update_option( '_fiscaat_converter_start', 0         );
+					update_option( '_fct_converter_step',  $step + 1 );
+					update_option( '_fct_converter_start', 0         );
 					if ( empty( $start ) ) {
 						$this->converter_output( __( 'No records to convert', 'fiscaat' ) );
 					}
 				} else {
-					update_option( '_fiscaat_converter_start', $max + 1 );
+					update_option( '_fct_converter_start', $max + 1 );
 					$this->converter_output( sprintf( __( 'Converting records (%1$s - %2$s)', 'fiscaat' ), $min, $max ) );
 				}
 
 				break;
 
 			default :
-				delete_option( '_fiscaat_converter_step'  );
-				delete_option( '_fiscaat_converter_start' );
-				delete_option( '_fiscaat_converter_query' );
+				delete_option( '_fct_converter_step'  );
+				delete_option( '_fct_converter_start' );
+				delete_option( '_fct_converter_query' );
 
 				$this->converter_output( __( 'Conversion Complete', 'fiscaat' ) );
 
@@ -482,7 +482,7 @@ class Fiscaat_Converter {
 	public function sync_table( $drop = false ) {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'fiscaat_converter_translator';
+		$table_name = $wpdb->prefix . 'fct_converter_translator';
 		if ( ! empty( $drop ) && $wpdb->get_var( "SHOW TABLES LIKE '{$table_name}'" ) == $table_name )
 			$wpdb->query( "DROP TABLE {$table_name}" );
 
@@ -589,9 +589,9 @@ abstract class Fiscaat_Converter_Base {
 		/** Get database connections ******************************************/
 
 		$this->wpdb         = $wpdb;
-		$this->max_rows     = (int) $_POST['_fiscaat_converter_rows'];
-		$this->opdb         = new wpdb( $_POST['_fiscaat_converter_db_user'], $_POST['_fiscaat_converter_db_pass'], $_POST['_fiscaat_converter_db_name'], $_POST['_fiscaat_converter_db_server'] );
-		$this->opdb->prefix = $_POST['_fiscaat_converter_db_prefix'];
+		$this->max_rows     = (int) $_POST['_fct_converter_rows'];
+		$this->opdb         = new wpdb( $_POST['_fct_converter_db_user'], $_POST['_fct_converter_db_pass'], $_POST['_fct_converter_db_name'], $_POST['_fct_converter_db_server'] );
+		$this->opdb->prefix = $_POST['_fct_converter_db_prefix'];
 
 		/**
 		 * Error Reporting
@@ -602,7 +602,7 @@ abstract class Fiscaat_Converter_Base {
 		/**
 		 * Syncing
 		 */
-		$this->sync_table_name = $this->wpdb->prefix . 'fiscaat_converter_translator';
+		$this->sync_table_name = $this->wpdb->prefix . 'fct_converter_translator';
 		if ( $this->wpdb->get_var( "SHOW TABLES LIKE '" . $this->sync_table_name . "'" ) == $this->sync_table_name ) {
 			$this->sync_table = true;
 		} else {
@@ -825,7 +825,7 @@ abstract class Fiscaat_Converter_Base {
 			$year_array = $this->opdb->get_results( $year_query, ARRAY_A );
 
 			// Set this query as the last one ran
-			update_option( '_fiscaat_converter_query', $year_query );
+			update_option( '_fct_converter_query', $year_query );
 
 			// Query returned some results
 			if ( ! empty( $year_array ) ) {
@@ -853,7 +853,7 @@ abstract class Fiscaat_Converter_Base {
 
 								// Translates a field from the old year.
 								} elseif ( isset( $row['callback_method'] ) ) {
-									if ( ( 'callback_userid' == $row['callback_method'] ) && empty( $_POST['_fiscaat_converter_convert_users'] ) ) {
+									if ( ( 'callback_userid' == $row['callback_method'] ) && empty( $_POST['_fct_converter_convert_users'] ) ) {
 										$insert_post[$row['to_fieldname']] = $year[$row['from_fieldname']];
 									} else {
 										$insert_post[$row['to_fieldname']] = call_user_func_array( array( $this, $row['callback_method'] ), array( $year[$row['from_fieldname']], $year ) );
@@ -874,7 +874,7 @@ abstract class Fiscaat_Converter_Base {
 
 								// Translates a field from the old year.
 								} elseif ( isset( $row['callback_method'] ) ) {
-									if ( ( $row['callback_method'] == 'callback_userid' ) && ( 0 == $_POST['_fiscaat_converter_convert_users'] ) ) {
+									if ( ( $row['callback_method'] == 'callback_userid' ) && ( 0 == $_POST['_fct_converter_convert_users'] ) ) {
 										$insert_postmeta[$row['to_fieldname']] = $year[$row['from_fieldname']];
 									} else {
 										$insert_postmeta[$row['to_fieldname']] = call_user_func_array( array( $this, $row['callback_method'] ), array( $year[$row['from_fieldname']], $year ) );
@@ -939,21 +939,21 @@ abstract class Fiscaat_Converter_Base {
 										add_post_meta( $post_id, $key, $value, true );
 
 										// Years need to save their old ID for group year association
-										if ( ( 'year' == $to_type ) && ( '_fiscaat_year_id' == $key ) )
-											add_post_meta( $post_id, '_fiscaat_old_year_id', $value );
+										if ( ( 'year' == $to_type ) && ( '_fct_year_id' == $key ) )
+											add_post_meta( $post_id, '_fct_old_year_id', $value );
 
 										// Accounts need an extra bit of metadata
 										// to be keyed to the new post_id
-										if ( ( 'account' == $to_type ) && ( '_fiscaat_account_id' == $key ) ) {
+										if ( ( 'account' == $to_type ) && ( '_fct_account_id' == $key ) ) {
 
 											// Update the live account ID
 											update_post_meta( $post_id, $key, $post_id );
 
 											// Save the old account ID
-											add_post_meta( $post_id, '_fiscaat_old_account_id', $value );
+											add_post_meta( $post_id, '_fct_old_account_id', $value );
 											if ( '_id' == substr( $key, -3 ) && ( true === $this->sync_table ) ) {
-												$this->wpdb->insert( $this->sync_table_name, array( 'value_type' => 'post', 'value_id' => $post_id, 'meta_key' => '_fiscaat_account_id',     'meta_value' => $post_id ) );
-												$this->wpdb->insert( $this->sync_table_name, array( 'value_type' => 'post', 'value_id' => $post_id, 'meta_key' => '_fiscaat_old_account_id', 'meta_value' => $value   ) );
+												$this->wpdb->insert( $this->sync_table_name, array( 'value_type' => 'post', 'value_id' => $post_id, 'meta_key' => '_fct_account_id',     'meta_value' => $post_id ) );
+												$this->wpdb->insert( $this->sync_table_name, array( 'value_type' => 'post', 'value_id' => $post_id, 'meta_key' => '_fct_old_account_id', 'meta_value' => $value   ) );
 											}
 
 										} elseif ( '_id' == substr( $key, -3 ) && ( true === $this->sync_table ) ) {
@@ -977,11 +977,11 @@ abstract class Fiscaat_Converter_Base {
 		$has_update = false;
 
 		if ( ! empty( $this->sync_table ) )
-			$query = 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_fiscaat_year_parent_id" AND meta_value > 0 LIMIT ' . $start . ', ' . $this->max_rows;
+			$query = 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_fct_year_parent_id" AND meta_value > 0 LIMIT ' . $start . ', ' . $this->max_rows;
 		else
-			$query = 'SELECT post_id AS value_id, meta_value FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_fiscaat_year_parent_id" AND meta_value > 0 LIMIT ' . $start . ', ' . $this->max_rows;
+			$query = 'SELECT post_id AS value_id, meta_value FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_fct_year_parent_id" AND meta_value > 0 LIMIT ' . $start . ', ' . $this->max_rows;
 
-		update_option( '_fiscaat_converter_query', $query );
+		update_option( '_fct_converter_query', $query );
 
 		$year_array = $this->wpdb->get_results( $query );
 
@@ -1005,11 +1005,11 @@ abstract class Fiscaat_Converter_Base {
 		/** Delete bbconverter accounts/years/posts ****************************/
 
 		if ( true === $this->sync_table )
-			$query = 'SELECT value_id FROM ' . $this->sync_table_name . ' INNER JOIN ' . $this->wpdb->posts . ' ON(value_id = ID) WHERE meta_key LIKE "_fiscaat_%" AND value_type = "post" GROUP BY value_id ORDER BY value_id DESC LIMIT ' . $this->max_rows;
+			$query = 'SELECT value_id FROM ' . $this->sync_table_name . ' INNER JOIN ' . $this->wpdb->posts . ' ON(value_id = ID) WHERE meta_key LIKE "_fct_%" AND value_type = "post" GROUP BY value_id ORDER BY value_id DESC LIMIT ' . $this->max_rows;
 		else
-			$query = 'SELECT post_id AS value_id FROM ' . $this->wpdb->postmeta . ' WHERE meta_key LIKE "_fiscaat_%" GROUP BY post_id ORDER BY post_id DESC LIMIT ' . $this->max_rows;
+			$query = 'SELECT post_id AS value_id FROM ' . $this->wpdb->postmeta . ' WHERE meta_key LIKE "_fct_%" GROUP BY post_id ORDER BY post_id DESC LIMIT ' . $this->max_rows;
 
-		update_option( '_fiscaat_converter_query', $query );
+		update_option( '_fct_converter_query', $query );
 
 		$posts = $this->wpdb->get_results( $query, ARRAY_A );
 
@@ -1023,11 +1023,11 @@ abstract class Fiscaat_Converter_Base {
 		/** Delete bbconverter users ******************************************/
 
 		if ( true === $this->sync_table )
-			$query = 'SELECT value_id FROM ' . $this->sync_table_name . ' INNER JOIN ' . $this->wpdb->users . ' ON(value_id = ID) WHERE meta_key = "_fiscaat_user_id" AND value_type = "user" LIMIT ' . $this->max_rows;
+			$query = 'SELECT value_id FROM ' . $this->sync_table_name . ' INNER JOIN ' . $this->wpdb->users . ' ON(value_id = ID) WHERE meta_key = "_fct_user_id" AND value_type = "user" LIMIT ' . $this->max_rows;
 		else
-			$query = 'SELECT user_id AS value_id FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_fiscaat_user_id" LIMIT ' . $this->max_rows;
+			$query = 'SELECT user_id AS value_id FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_fct_user_id" LIMIT ' . $this->max_rows;
 
-		update_option( '_fiscaat_converter_query', $query );
+		update_option( '_fct_converter_query', $query );
 
 		$users = $this->wpdb->get_results( $query, ARRAY_A );
 
@@ -1055,8 +1055,8 @@ abstract class Fiscaat_Converter_Base {
 
 		/** Delete bbconverter passwords **************************************/
 
-		$query       = 'SELECT user_id, meta_value FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_fiscaat_password" LIMIT ' . $start . ', ' . $this->max_rows;
-		update_option( '_fiscaat_converter_query', $query );
+		$query       = 'SELECT user_id, meta_value FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_fct_password" LIMIT ' . $start . ', ' . $this->max_rows;
+		update_option( '_fct_converter_query', $query );
 
 		$bbconverter = $this->wpdb->get_results( $query, ARRAY_A );
 
@@ -1067,7 +1067,7 @@ abstract class Fiscaat_Converter_Base {
 					$this->wpdb->query( 'UPDATE ' . $this->wpdb->users . ' ' . 'SET user_pass = "" ' . 'WHERE ID = "' . $value['user_id'] . '"' );
 				} else {
 					$this->wpdb->query( 'UPDATE ' . $this->wpdb->users . ' ' . 'SET user_pass = "' . $value['meta_value'] . '" ' . 'WHERE ID = "' . $value['user_id'] . '"' );
-					$this->wpdb->query( 'DELETE FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_fiscaat_password" AND user_id = "' . $value['user_id'] . '"' );
+					$this->wpdb->query( 'DELETE FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_fct_password" AND user_id = "' . $value['user_id'] . '"' );
 				}
 			}
 			$has_delete = true;
@@ -1121,12 +1121,12 @@ abstract class Fiscaat_Converter_Base {
 	public function callback_pass( $username, $password ) {
 		$user = $this->wpdb->get_row( 'SELECT * FROM ' . $this->wpdb->users . ' WHERE user_login = "' . $username . '" AND user_pass = "" LIMIT 1' );
 		if ( ! empty( $user ) ) {
-			$usermeta = $this->wpdb->get_row( 'SELECT * FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_fiscaat_password" AND user_id = "' . $user->ID . '" LIMIT 1' );
+			$usermeta = $this->wpdb->get_row( 'SELECT * FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_fct_password" AND user_id = "' . $user->ID . '" LIMIT 1' );
 
 			if ( ! empty( $usermeta ) ) {
 				if ( $this->authenticate_pass( $password, $usermeta->meta_value ) ) {
 					$this->wpdb->query( 'UPDATE ' . $this->wpdb->users . ' ' . 'SET user_pass = "' . wp_hash_password( $password ) . '" ' . 'WHERE ID = "' . $user->ID . '"' );
-					$this->wpdb->query( 'DELETE FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_fiscaat_password" AND user_id = "' . $user->ID . '"' );
+					$this->wpdb->query( 'DELETE FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_fct_password" AND user_id = "' . $user->ID . '"' );
 				}
 			}
 		}
@@ -1141,9 +1141,9 @@ abstract class Fiscaat_Converter_Base {
 	private function callback_yearid( $field ) {
 		if ( !isset( $this->map_yearid[$field] ) ) {
 			if ( ! empty( $this->sync_table ) ) {
-				$row = $this->wpdb->get_row( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_fiscaat_year_id" AND meta_value = "' . $field . '" LIMIT 1' );
+				$row = $this->wpdb->get_row( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_fct_year_id" AND meta_value = "' . $field . '" LIMIT 1' );
 			} else {
-				$row = $this->wpdb->get_row( 'SELECT post_id AS value_id FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_fiscaat_year_id" AND meta_value = "' . $field . '" LIMIT 1' );
+				$row = $this->wpdb->get_row( 'SELECT post_id AS value_id FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_fct_year_id" AND meta_value = "' . $field . '" LIMIT 1' );
 			}
 
 			if ( !is_null( $row ) ) {
@@ -1164,9 +1164,9 @@ abstract class Fiscaat_Converter_Base {
 	private function callback_accountid( $field ) {
 		if ( !isset( $this->map_accountid[$field] ) ) {
 			if ( ! empty( $this->sync_table ) ) {
-				$row = $this->wpdb->get_row( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_fiscaat_old_account_id" AND meta_value = "' . $field . '" LIMIT 1' );
+				$row = $this->wpdb->get_row( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_fct_old_account_id" AND meta_value = "' . $field . '" LIMIT 1' );
 			} else {
-				$row = $this->wpdb->get_row( 'SELECT post_id AS value_id FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_fiscaat_old_account_id" AND meta_value = "' . $field . '" LIMIT 1' );
+				$row = $this->wpdb->get_row( 'SELECT post_id AS value_id FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_fct_old_account_id" AND meta_value = "' . $field . '" LIMIT 1' );
 			}
 
 			if ( !is_null( $row ) ) {
@@ -1187,15 +1187,15 @@ abstract class Fiscaat_Converter_Base {
 	private function callback_userid( $field ) {
 		if ( !isset( $this->map_userid[$field] ) ) {
 			if ( ! empty( $this->sync_table ) ) {
-				$row = $this->wpdb->get_row( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_fiscaat_user_id" AND meta_value = "' . $field . '" LIMIT 1' );
+				$row = $this->wpdb->get_row( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_fct_user_id" AND meta_value = "' . $field . '" LIMIT 1' );
 			} else {
-				$row = $this->wpdb->get_row( 'SELECT user_id AS value_id FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_fiscaat_user_id" AND meta_value = "' . $field . '" LIMIT 1' );
+				$row = $this->wpdb->get_row( 'SELECT user_id AS value_id FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_fct_user_id" AND meta_value = "' . $field . '" LIMIT 1' );
 			}
 
 			if ( !is_null( $row ) ) {
 				$this->map_userid[$field] = $row->value_id;
 			} else {
-				if ( ! empty( $_POST['_fiscaat_converter_convert_users'] ) && ( $_POST['_fiscaat_converter_convert_users'] == 1 ) ) {
+				if ( ! empty( $_POST['_fct_converter_convert_users'] ) && ( $_POST['_fct_converter_convert_users'] == 1 ) ) {
 					$this->map_userid[$field] = 0;
 				} else {
 					$this->map_userid[$field] = $field;

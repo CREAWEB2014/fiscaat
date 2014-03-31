@@ -37,73 +37,73 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *
  *           v--WordPress Actions       v--Fiscaat Sub-actions
  */
-add_filter( 'request',                 'fiscaat_request',            10    );
-add_filter( 'wp_title',                'fiscaat_title',              10, 3 );
-add_filter( 'body_class',              'fiscaat_body_class',         10, 2 );
-add_filter( 'map_meta_cap',            'fiscaat_map_meta_caps',      10, 4 );
-add_filter( 'redirect_canonical',      'fiscaat_redirect_canonical', 10    );
-add_filter( 'plugin_locale',           'fiscaat_plugin_locale',      10, 2 );
+add_filter( 'request',                 'fct_request',            10    );
+add_filter( 'wp_title',                'fct_title',              10, 3 );
+add_filter( 'body_class',              'fct_body_class',         10, 2 );
+add_filter( 'map_meta_cap',            'fct_map_meta_caps',      10, 4 );
+add_filter( 'redirect_canonical',      'fct_redirect_canonical', 10    );
+add_filter( 'plugin_locale',           'fct_plugin_locale',      10, 2 );
 
 // Remove years roles from list of all roles
-add_filter( 'editable_roles', 'fiscaat_filter_blog_editable_roles' );
+add_filter( 'editable_roles', 'fct_filter_blog_editable_roles' );
 
 // Links
-add_filter( 'paginate_links',                'fiscaat_add_view_all' );
-add_filter( 'fiscaat_get_account_permalink', 'fiscaat_add_view_all' );
-add_filter( 'fiscaat_get_record_permalink',  'fiscaat_add_view_all' );
-add_filter( 'fiscaat_get_year_permalink',    'fiscaat_add_view_all' );
+add_filter( 'paginate_links',                'fct_add_view_all' );
+add_filter( 'fct_get_account_permalink', 'fct_add_view_all' );
+add_filter( 'fct_get_record_permalink',  'fct_add_view_all' );
+add_filter( 'fct_get_year_permalink',    'fct_add_view_all' );
 
 // wp_filter_kses on new/edit account/record title
-add_filter( 'fiscaat_new_record_pre_title',     'wp_filter_kses' );
-add_filter( 'fiscaat_new_account_pre_title',    'wp_filter_kses' );
-add_filter( 'fiscaat_edit_record_pre_title',    'wp_filter_kses' );
-add_filter( 'fiscaat_edit_account_pre_title',   'wp_filter_kses' );
+add_filter( 'fct_new_record_pre_title',     'wp_filter_kses' );
+add_filter( 'fct_new_account_pre_title',    'wp_filter_kses' );
+add_filter( 'fct_edit_record_pre_title',    'wp_filter_kses' );
+add_filter( 'fct_edit_account_pre_title',   'wp_filter_kses' );
 
 // balanceTags, wp_filter_kses and wp_rel_nofollow on new/edit account/record text
-add_filter( 'fiscaat_new_record_pre_content',   'balanceTags'     );
-add_filter( 'fiscaat_new_record_pre_content',   'wp_rel_nofollow' );
-add_filter( 'fiscaat_new_record_pre_content',   'wp_filter_kses'  );
-add_filter( 'fiscaat_new_account_pre_content',  'balanceTags'     );
-add_filter( 'fiscaat_new_account_pre_content',  'wp_rel_nofollow' );
-add_filter( 'fiscaat_new_account_pre_content',  'wp_filter_kses'  );
-add_filter( 'fiscaat_edit_record_pre_content',  'balanceTags'     );
-add_filter( 'fiscaat_edit_record_pre_content',  'wp_rel_nofollow' );
-add_filter( 'fiscaat_edit_record_pre_content',  'wp_filter_kses'  );
-add_filter( 'fiscaat_edit_account_pre_content', 'balanceTags'     );
-add_filter( 'fiscaat_edit_account_pre_content', 'wp_rel_nofollow' );
-add_filter( 'fiscaat_edit_account_pre_content', 'wp_filter_kses'  );
+add_filter( 'fct_new_record_pre_content',   'balanceTags'     );
+add_filter( 'fct_new_record_pre_content',   'wp_rel_nofollow' );
+add_filter( 'fct_new_record_pre_content',   'wp_filter_kses'  );
+add_filter( 'fct_new_account_pre_content',  'balanceTags'     );
+add_filter( 'fct_new_account_pre_content',  'wp_rel_nofollow' );
+add_filter( 'fct_new_account_pre_content',  'wp_filter_kses'  );
+add_filter( 'fct_edit_record_pre_content',  'balanceTags'     );
+add_filter( 'fct_edit_record_pre_content',  'wp_rel_nofollow' );
+add_filter( 'fct_edit_record_pre_content',  'wp_filter_kses'  );
+add_filter( 'fct_edit_account_pre_content', 'balanceTags'     );
+add_filter( 'fct_edit_account_pre_content', 'wp_rel_nofollow' );
+add_filter( 'fct_edit_account_pre_content', 'wp_filter_kses'  );
 
 // Run filters on record content
-add_filter( 'fiscaat_get_record_content', 'capital_P_dangit'             );
-add_filter( 'fiscaat_get_record_content', 'wptexturize',            3    );
-add_filter( 'fiscaat_get_record_content', 'convert_chars',          5    );
-add_filter( 'fiscaat_get_record_content', 'make_clickable',         9    );
-add_filter( 'fiscaat_get_record_content', 'force_balance_tags',     25   );
-add_filter( 'fiscaat_get_record_content', 'convert_smilies',        20   );
-add_filter( 'fiscaat_get_record_content', 'wpautop',                30   );
+add_filter( 'fct_get_record_content', 'capital_P_dangit'             );
+add_filter( 'fct_get_record_content', 'wptexturize',            3    );
+add_filter( 'fct_get_record_content', 'convert_chars',          5    );
+add_filter( 'fct_get_record_content', 'make_clickable',         9    );
+add_filter( 'fct_get_record_content', 'force_balance_tags',     25   );
+add_filter( 'fct_get_record_content', 'convert_smilies',        20   );
+add_filter( 'fct_get_record_content', 'wpautop',                30   );
 
 // Run filters on account content
-add_filter( 'fiscaat_get_account_content', 'capital_P_dangit'             );
-add_filter( 'fiscaat_get_account_content', 'wptexturize',            3    );
-add_filter( 'fiscaat_get_account_content', 'convert_chars',          5    );
-add_filter( 'fiscaat_get_account_content', 'make_clickable',         9    );
-add_filter( 'fiscaat_get_account_content', 'force_balance_tags',     25   );
-add_filter( 'fiscaat_get_account_content', 'convert_smilies',        20   );
-add_filter( 'fiscaat_get_account_content', 'wpautop',                30   );
+add_filter( 'fct_get_account_content', 'capital_P_dangit'             );
+add_filter( 'fct_get_account_content', 'wptexturize',            3    );
+add_filter( 'fct_get_account_content', 'convert_chars',          5    );
+add_filter( 'fct_get_account_content', 'make_clickable',         9    );
+add_filter( 'fct_get_account_content', 'force_balance_tags',     25   );
+add_filter( 'fct_get_account_content', 'convert_smilies',        20   );
+add_filter( 'fct_get_account_content', 'wpautop',                30   );
 
 // Add number format filter to functions requiring numeric output
-add_filter( 'fiscaat_get_year_account_count',   'fiscaat_number_format', 10 );
-add_filter( 'fiscaat_get_year_record_count',    'fiscaat_number_format', 10 );
-add_filter( 'fiscaat_get_account_record_count', 'fiscaat_number_format', 10 );
+add_filter( 'fct_get_year_account_count',   'fct_number_format', 10 );
+add_filter( 'fct_get_year_record_count',    'fct_number_format', 10 );
+add_filter( 'fct_get_account_record_count', 'fct_number_format', 10 );
 
 // Run wp_kses_data on account/record content in admin section
 if ( is_admin() ) {
-	add_filter( 'fiscaat_get_record_content',  'wp_kses_data' );
-	add_filter( 'fiscaat_get_account_content', 'wp_kses_data' );
+	add_filter( 'fct_get_record_content',  'wp_kses_data' );
+	add_filter( 'fct_get_account_content', 'wp_kses_data' );
 }
 
 // Capabilities
-add_filter( 'fiscaat_map_meta_caps', 'fiscaat_map_primary_meta_caps', 10, 4 ); // Primary caps
-add_filter( 'fiscaat_map_meta_caps', 'fiscaat_map_year_meta_caps',    10, 4 ); // Years
-add_filter( 'fiscaat_map_meta_caps', 'fiscaat_map_account_meta_caps', 10, 4 ); // Accounts
-add_filter( 'fiscaat_map_meta_caps', 'fiscaat_map_record_meta_caps',  10, 4 ); // Records
+add_filter( 'fct_map_meta_caps', 'fct_map_primary_meta_caps', 10, 4 ); // Primary caps
+add_filter( 'fct_map_meta_caps', 'fct_map_year_meta_caps',    10, 4 ); // Years
+add_filter( 'fct_map_meta_caps', 'fct_map_account_meta_caps', 10, 4 ); // Accounts
+add_filter( 'fct_map_meta_caps', 'fct_map_record_meta_caps',  10, 4 ); // Records

@@ -44,8 +44,8 @@ class Fiscaat_Users_Admin {
 			return;
 
 		// User profile edit/display actions
-		add_action( 'edit_user_profile', array( $this, 'fiscaat_user_options' ) );
-		add_action( 'show_user_profile', array( $this, 'fiscaat_user_options' ) );
+		add_action( 'edit_user_profile', array( $this, 'fct_user_options' ) );
+		add_action( 'show_user_profile', array( $this, 'fct_user_options' ) );
 
 		// WordPress user screen
 		add_filter( 'manage_users_columns',                     array( $this, 'user_role_column'        )        );
@@ -60,7 +60,7 @@ class Fiscaat_Users_Admin {
 	 * @param WP_User $profileuser User data
 	 * @return bool Always false
 	 */
-	public static function fiscaat_user_options( $profileuser ) {
+	public static function fct_user_options( $profileuser ) {
 
 		// Bail if current user cannot edit users
 		if ( ! current_user_can( 'edit_user', $profileuser->ID ) || ! current_user_can( 'promote_users' ) )
@@ -74,9 +74,9 @@ class Fiscaat_Users_Admin {
 					<th><label for="fiscaat-role"><?php _e( 'Fiscaat Role', 'fiscaat' ); ?></label></th>
 					<td>
 
-						<?php $dynamic_roles = fiscaat_get_dynamic_roles(); ?>
+						<?php $dynamic_roles = fct_get_dynamic_roles(); ?>
 
-						<?php $user_role = fiscaat_get_user_role( $profileuser->ID ); ?>
+						<?php $user_role = fct_get_user_role( $profileuser->ID ); ?>
 
 						<select name="fiscaat-role" id="fiscaat-role">
 
@@ -106,9 +106,9 @@ class Fiscaat_Users_Admin {
 
 						<?php $disable = user_can( $profileuser->ID, 'fiscaat' ) || user_can( $profileuser->ID, 'control' ); ?>
 
-						<?php wp_nonce_field( 'fiscaat_global_spectator', 'fiscaat_global_spectator_nonce' ); ?>
+						<?php wp_nonce_field( 'fct_global_spectator', 'fct_global_spectator_nonce' ); ?>
 
-						<input name="fiscaat-global-spectator" id="fiscaat-global-spectator" type="checkbox" value="1" <?php checked( fiscaat_user_can_view_all( $profileuser->ID ) ); ?> <?php disabled( $disable ); ?> />
+						<input name="fiscaat-global-spectator" id="fiscaat-global-spectator" type="checkbox" value="1" <?php checked( fct_user_can_view_all( $profileuser->ID ) ); ?> <?php disabled( $disable ); ?> />
 						<label for="fiscaat-global-spectator"><?php _e('Give this user the ability to view all Fiscaat data.', 'fiscaat'); ?></label>
 
 						<?php if ( $disable ) : ?>
@@ -123,15 +123,15 @@ class Fiscaat_Users_Admin {
 					<th><label for="fisaat-block-commenter"><?php _e( 'Block Commenter', 'fisaat' ); ?></label></th>
 					<td>
 
-						<?php wp_nonce_field( 'fiscaat_block_commenter', 'fiscaat_block_commenter_nonce' ); ?>
+						<?php wp_nonce_field( 'fct_block_commenter', 'fct_block_commenter_nonce' ); ?>
 
-						<input name="fiscaat-block-commenter" id="fiscaat-block-commenter" type="checkbox" value="1" <?php checked( ! fiscaat_user_can_comment( $profileuser->ID ) ); ?> />
+						<input name="fiscaat-block-commenter" id="fiscaat-block-commenter" type="checkbox" value="1" <?php checked( ! fct_user_can_comment( $profileuser->ID ) ); ?> />
 						<label for="fiscaat-block-commenter"><?php _e('Block this user from commenting in Fiscaat.', 'fiscaat'); ?></label>
 
 					</td>
 				</tr>
 
-				<?php do_action( 'fiscaat_user_options_after', $profileuser ); ?>
+				<?php do_action( 'fct_user_options_after', $profileuser ); ?>
 
 			</tbody>
 		</table>
@@ -148,7 +148,7 @@ class Fiscaat_Users_Admin {
 	 */
 	public static function user_role_column( $columns = array() ) {
 		$columns['role']              = __( 'Site Role',    'fiscaat' );
-		$columns['fiscaat_user_role'] = __( 'Fiscaat Role', 'fiscaat' );
+		$columns['fct_user_role'] = __( 'Fiscaat Role', 'fiscaat' );
 
 		return $columns;
 	}
@@ -160,7 +160,7 @@ class Fiscaat_Users_Admin {
 	 * @return array $hidden
 	 */
 	public static function user_role_column_hidden( $hidden ) {
-		$hidden[] = 'fiscaat_user_role';
+		$hidden[] = 'fct_user_role';
 
 		return $hidden;
 	}
@@ -177,15 +177,15 @@ class Fiscaat_Users_Admin {
 	public static function user_role_row( $retval = '', $column_name = '', $user_id = 0 ) {
 
 		// Only looking for Fiscaat's user role column
-		if ( 'fiscaat_user_role' == $column_name ) {
+		if ( 'fct_user_role' == $column_name ) {
 
 			// Get the users role
-			$user_role = fiscaat_get_user_role( $user_id );
+			$user_role = fct_get_user_role( $user_id );
 			$retval    = false;
 
 			// Translate user role for display
 			if ( ! empty( $user_role ) ) {
-				$roles  = fiscaat_get_dynamic_roles();
+				$roles  = fct_get_dynamic_roles();
 				$retval = translate_user_role( $roles[$user_role]['name'] );
 			}
 		}

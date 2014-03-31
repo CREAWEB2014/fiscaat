@@ -32,7 +32,7 @@ class Fiscaat_Admin_Records_Edit extends Fiscaat_Admin_Records {
 		global $post_type_object;
 
 		if ( empty( $post_type_object ) )
-			$post_type_object = get_post_type_object( fiscaat_get_record_post_type() );
+			$post_type_object = get_post_type_object( fct_get_record_post_type() );
 
 		parent::__construct( array(
 			'page'       => 'edit',
@@ -60,16 +60,16 @@ class Fiscaat_Admin_Records_Edit extends Fiscaat_Admin_Records {
 		add_action( $this->args->hook_prefix .'_form_top', array( $this, 'form_top' ) );
 
 		// Table hooks
-		add_filter( 'fiscaat_records_list_table_class',    array( $this, 'list_table_class' ) );
-		add_action( 'fiscaat_records_list_table_tablenav', array( $this, 'extra_tablenav'   ) );
+		add_filter( 'fct_records_list_table_class',    array( $this, 'list_table_class' ) );
+		add_action( 'fct_records_list_table_tablenav', array( $this, 'extra_tablenav'   ) );
 
 		// Column hooks
-		add_action( 'fiscaat_records_posts_columns', array( $this, 'remove_column_cb' ) );
+		add_action( 'fct_records_posts_columns', array( $this, 'remove_column_cb' ) );
 
 		// Messages
 		// add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
-		// Check if there are any fiscaat_toggle_record_* requests on admin_init, also have a message displayed
+		// Check if there are any fct_toggle_record_* requests on admin_init, also have a message displayed
 		// add_action( 'load-edit.php',  array( $this, 'toggle_record'        ) );
 		// add_action( 'admin_notices',  array( $this, 'toggle_record_notice' ) );
 
@@ -156,8 +156,8 @@ class Fiscaat_Admin_Records_Edit extends Fiscaat_Admin_Records {
 		$default_record = array(
 			'ID'                  => 0,
 			'post_parent'         => 0,
-			'post_status'         => fiscaat_get_public_status_id(),
-			'post_type'           => fiscaat_get_record_post_type(),
+			'post_status'         => fct_get_public_status_id(),
+			'post_type'           => fct_get_record_post_type(),
 			'post_title'          => '',
 			'post_content'        => '',
 			'post_author'         => 0,
@@ -166,8 +166,8 @@ class Fiscaat_Admin_Records_Edit extends Fiscaat_Admin_Records {
 
 			// Record meta
 			'offset_account'      => false,
-			'fiscaat_value'       => false,
-			'fiscaat_value_type'  => false,
+			'fct_value'       => false,
+			'fct_value_type'  => false,
 			);
 
 		// Is this a redo ?
@@ -183,33 +183,33 @@ class Fiscaat_Admin_Records_Edit extends Fiscaat_Admin_Records {
 					'post_parent'         => $record['account_id'],
 					'post_content'        => $record['description'],
 					'offset_account'      => $record['offset_account'],
-					'fiscaat_value'       => $record['value'],
-					'fiscaat_value_type'  => $record['value_type']
+					'fct_value'       => $record['value'],
+					'fct_value_type'  => $record['value_type']
 				) );
 
 				// Add redo record data to items
-				$items[] = (object) fiscaat_parse_args( $args, $default_record, 'redo_new_record' );
+				$items[] = (object) fct_parse_args( $args, $default_record, 'redo_new_record' );
 			}
 
 		// Default to some empty rows
 		} else {
 
 			// Create array with empty records
-			$items = array_fill( 0, 4, (object) $default_record ); // get_option( '_fiscaat_records_per_page', 15 ), (object) $default_record );
+			$items = array_fill( 0, 4, (object) $default_record ); // get_option( '_fct_records_per_page', 15 ), (object) $default_record );
 		}
 
-		return apply_filters( 'fiscaat_new_records_items', $items, $redo );
+		return apply_filters( 'fct_new_records_items', $items, $redo );
 	}
 
 	/**
 	 * Insert new records on edit page load
 	 *
 	 * @uses self::new_records_required_fields()
-	 * @uses fiscaat_float_format()
-	 * @uses fiscaat_get_debit_record_type()
-	 * @uses fiscaat_get_credit_record_type()
-	 * @uses fiscaat_insert_record()
-	 * @uses fiscaat_get_record_post_type()
+	 * @uses fct_float_format()
+	 * @uses fct_get_debit_record_type()
+	 * @uses fct_get_credit_record_type()
+	 * @uses fct_insert_record()
+	 * @uses fct_get_record_post_type()
 	 * @uses wp_safe_redirect() To redirect the user
 	 */
 	public function new_records_insert_records() {
@@ -217,16 +217,16 @@ class Fiscaat_Admin_Records_Edit extends Fiscaat_Admin_Records {
 		if ( $this->bail() ) return;
 
 		// Bail if not submitted
-		if ( ! isset( $_REQUEST['fiscaat_insert_new_records_submit'] ) ) return;
+		if ( ! isset( $_REQUEST['fct_insert_new_records_submit'] ) ) return;
 
 		// Bail if no records posted
-		if ( ! isset( $_REQUEST['fiscaat_new_record'] ) ) return;
+		if ( ! isset( $_REQUEST['fct_new_record'] ) ) return;
 
 		// Setup records array
 		$_records = array();
 
 		// Rewrite input records as record => fields instead of field => records
-		foreach ( (array) $_REQUEST['fiscaat_new_record'] as $field => $records ) {
+		foreach ( (array) $_REQUEST['fct_new_record'] as $field => $records ) {
 			foreach ( $records as $k => $value ) {
 				$_records[$k][$field] = $value;
 			}
@@ -304,11 +304,11 @@ class Fiscaat_Admin_Records_Edit extends Fiscaat_Admin_Records {
 			
 			// Handle types
 			if ( $record['debit'] ) {
-				$value      = fiscaat_float_format( $record['debit'] );
-				$value_type = fiscaat_get_debit_record_type();
+				$value      = fct_float_format( $record['debit'] );
+				$value_type = fct_get_debit_record_type();
 			} elseif ( $record['credit' ] ) {
-				$value      = fiscaat_float_format( $record['credit'] );
-				$value_type = fiscaat_get_credit_record_type();
+				$value      = fct_float_format( $record['credit'] );
+				$value_type = fct_get_credit_record_type();
 			} else {
 				$value      = false;
 				$value_type = false;
@@ -339,7 +339,7 @@ class Fiscaat_Admin_Records_Edit extends Fiscaat_Admin_Records {
 			foreach ( $_records as $k => $record ) {
 
 				// Save record
-				$records[] = fiscaat_insert_record( 
+				$records[] = fct_insert_record( 
 					array(
 						'post_parent'    => (int) $record['account_id'],
 						'post_content'   => $record['description']
@@ -371,7 +371,7 @@ class Fiscaat_Admin_Records_Edit extends Fiscaat_Admin_Records {
 			}
 
 			// Redirect to clean New Records page
-			wp_safe_redirect( add_query_arg( array( 'post_type' => fiscaat_get_record_post_type(), 'page' => 'new', 'message' => $message, 'failure' => $failure ), admin_url( 'edit.php' ) ) );
+			wp_safe_redirect( add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'page' => 'new', 'message' => $message, 'failure' => $failure ), admin_url( 'edit.php' ) ) );
 
 			// For good measure
 			exit;
@@ -381,14 +381,14 @@ class Fiscaat_Admin_Records_Edit extends Fiscaat_Admin_Records {
 	/**
 	 * Return required fields for new records
 	 *
-	 * @uses apply_filters() Calls 'fiscaat_new_records_required_fields'
+	 * @uses apply_filters() Calls 'fct_new_records_required_fields'
 	 *                        with empty array
 	 * @return array Required record fields
 	 */
 	public function new_records_required_fields( $type = 'fields' ) {
 
 		// Hook for extra required fields
-		$fields = apply_filters( 'fiscaat_new_records_required_fields', array(), $type );
+		$fields = apply_filters( 'fct_new_records_required_fields', array(), $type );
 		$core   = array();
 
 		// Required fields
@@ -404,11 +404,11 @@ class Fiscaat_Admin_Records_Edit extends Fiscaat_Admin_Records {
 		// Required field names
 		if ( 'names' == $type )
 			$core = array(
-				'fiscaat_new_records[ledger_id][]',
-				'fiscaat_new_records[account_id][]',
-				'fiscaat_new_records[description][]',
-				'fiscaat_new_records[debit][]',
-				'fiscaat_new_records[credit][]',
+				'fct_new_records[ledger_id][]',
+				'fct_new_records[account_id][]',
+				'fct_new_records[description][]',
+				'fct_new_records[debit][]',
+				'fct_new_records[credit][]',
 			);
 
 		return array_merge( $fields, $core );
@@ -484,7 +484,7 @@ class Fiscaat_Admin_Records_Edit extends Fiscaat_Admin_Records {
 
 			);
 
-		return apply_filters( 'fiscaat_new_records_updated_messages', $messages );
+		return apply_filters( 'fct_new_records_updated_messages', $messages );
 	}
 
 }
@@ -499,6 +499,6 @@ endif; // class_exists check
  *
  * @uses Fiscaat_Admin_Records_Edit
  */
-function fiscaat_admin_records_edit() {
+function fct_admin_records_edit() {
 	fiscaat()->admin->records_edit = new Fiscaat_Admin_Records_Edit();
 }
