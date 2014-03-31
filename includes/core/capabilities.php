@@ -12,7 +12,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /** Mapping *******************************************************************/
 
@@ -242,15 +242,15 @@ function _fiscaat_reinit_dynamic_roles( $roles = array() ) {
 	foreach( fiscaat_get_dynamic_roles() as $role_id => $details ) {
 		$roles[$role_id] = $details;
 	}
-	return $roles;
+		return $roles;
 }
 
 /**
- * Fetch a filtered list of fiscaat roles that the current user is
+ * Fetch a filtered list of Fiscaat roles that the current user is
  * allowed to have.
  *
  * Simple function who's main purpose is to allow filtering of the
- * list of fiscaat roles so that plugins can remove inappropriate ones depending
+ * list of Fiscaat roles so that plugins can remove inappropriate ones depending
  * on the situation or user making edits.
  *
  * Specifically because without filtering, anyone with the edit_users
@@ -300,27 +300,3 @@ function fiscaat_filter_blog_editable_roles( $all_roles = array() ) {
 				unset( $all_roles[$wp_role] );
 			}
 		}
-	}
-
-	return $all_roles;
-}
-
-/**
- * The fiscus role for Fiscaat users
- *
- * @uses apply_filters() Allow override of hardcoded fiscus role
- * @return string
- */
-function fiscaat_get_fiscus_role() {
-	return apply_filters( 'fiscaat_get_fiscus_role', 'fiscaat_fiscus' );
-}
-
-/**
- * The spectator role for registered user that can view financial accounts
- *
- * @uses apply_filters() Allow override of hardcoded spectator role
- * @return string
- */
-function fiscaat_get_spectator_role() {
-	return apply_filters( 'fiscaat_get_spectator_role', 'fiscaat_spectator' );
-}

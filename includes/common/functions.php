@@ -11,7 +11,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /** Formatting ****************************************************************/
 
@@ -200,7 +200,7 @@ function fiscaat_time_since( $older_date, $newer_date = false ) {
 			array( 1,                   __( 'second', 'fiscaat' ), __( 'seconds', 'fiscaat' ) )
 		);
 
-		if ( !empty( $older_date ) && !is_numeric( $older_date ) ) {
+		if ( ! empty( $older_date ) && !is_numeric( $older_date ) ) {
 			$time_chunks = explode( ':', str_replace( ' ', ':', $older_date ) );
 			$date_chunks = explode( '-', str_replace( ' ', '-', $older_date ) );
 			$older_date  = gmmktime( (int) $time_chunks[1], (int) $time_chunks[2], (int) $time_chunks[3], (int) $date_chunks[1], (int) $date_chunks[2], (int) $date_chunks[0] );
@@ -286,7 +286,7 @@ function fiscaat_time_since( $older_date, $newer_date = false ) {
 function fiscaat_add_view_all( $original_link = '', $force = false ) {
 
 	// Are we appending the view=all vars?
-	if ( fiscaat_get_view_all() || !empty( $force ) )
+	if ( fiscaat_get_view_all() || ! empty( $force ) )
 		$link = add_query_arg( array( 'view' => 'all' ), $original_link );
 	else
 		$link = $original_link;
@@ -315,7 +315,7 @@ function fiscaat_remove_view_all( $original_link = '' ) {
  * @return bool Whether current user can and is viewing all
  */
 function fiscaat_get_view_all( $cap = 'moderate' ) {
-	$retval = ( ( !empty( $_GET['view'] ) && ( 'all' == $_GET['view'] ) && current_user_can( $cap ) ) );
+	$retval = ( ( ! empty( $_GET['view'] ) && ( 'all' == $_GET['view'] ) && current_user_can( $cap ) ) );
 	return apply_filters( 'fiscaat_get_view_all', (bool) $retval );
 }
 
@@ -333,12 +333,12 @@ function fiscaat_get_paged() {
 		$paged = get_query_var( 'paged' );
 
 	// Check query paged
-	} elseif ( !empty( $wp_query->query['paged'] ) ) {
+	} elseif ( ! empty( $wp_query->query['paged'] ) ) {
 		$paged = $wp_query->query['paged'];
 	}
 
 	// Paged found
-	if ( !empty( $paged ) )
+	if ( ! empty( $paged ) )
 		return (int) $paged;
 
 	// Default to first page
@@ -362,7 +362,7 @@ function fiscaat_get_paged() {
  *                           are also not counted.
  *  - count_approved_records: Count approved records of the current year?
  *  - count_unapproved_records: Count unapproved records of the current year?
- *  - count_disapproved_records: Count disapproved records of the current year?
+ *  - count_declined_records: Count declined records of the current year?
  *  - count_to_balance: Count to balance value of the current year?
  *  - count_current_comments: Count comments of the current year?
  * @uses fiscaat_count_users() To count the number of registered users
@@ -379,47 +379,46 @@ function fiscaat_get_paged() {
 function fiscaat_get_statistics( $args = '' ) {
 
 	$defaults = array (
-		'count_users'               => true,
-		'count_years'               => true,
-		'count_accounts'            => true,
-		'count_records'             => true,
-		'count_current_records'     => true,
-		'count_approved_records'    => true,
-		'count_unapproved_records'  => true,
-		'count_disapproved_records' => true,
-		'count_to_balance'          => true,
-		'count_comments'            => true,
+		'count_users'              => true,
+		'count_years'              => true,
+		'count_accounts'           => true,
+		'count_records'            => true,
+		'count_current_records'    => true,
+		'count_approved_records'   => true,
+		'count_unapproved_records' => true,
+		'count_declined_records'   => true,
+		'count_to_balance'         => true,
+		'count_comments'           => true,
 	);
 	$r = fiscaat_parse_args( $args, $defaults, 'get_statistics' );
 	extract( $r );
 
 	// Users
-	if ( !empty( $count_users ) ) {
-		$fiscus_count     = fiscaat_get_total_fisci();
-		$controller_count = fiscaat_get_total_controllers();
-		$spectator_count  = fiscaat_get_total_spectators();	
+	if ( ! empty( $count_users ) ) {
+		$fiscus_count    = fiscaat_get_total_fisci();
+		$spectator_count = fiscaat_get_total_spectators();	
 	}
 
 	// Years
-	if ( !empty( $count_years ) ) {
+	if ( ! empty( $count_years ) ) {
 		$year_count = wp_count_posts( fiscaat_get_year_post_type() );
 		$year_count = array_sum( (array) $year_count ) - $year_count->{'auto-draft'};
 	}
 
 	// Accounts
-	if ( !empty( $count_accounts ) ) {
+	if ( ! empty( $count_accounts ) ) {
 		$account_count = wp_count_posts( fiscaat_get_account_post_type() );
 		$account_count = array_sum( (array) $account_count ) - $account_count->{'auto-draft'};
 	}
 
 	// Records
-	if ( !empty( $count_records ) ) {
+	if ( ! empty( $count_records ) ) {
 		$record_count = wp_count_posts( fiscaat_get_record_post_type() );
 		$record_count = array_sum( (array) $record_count ) - $record_count->{'auto-draft'};
 	}
 
 	// Currently in Fiscaat
-	if ( !empty( $count_current_records ) ) {
+	if ( ! empty( $count_current_records ) ) {
 
 		// wp_count_posts has no filtering so use fiscaat_count_posts
 		$current_records = fiscaat_count_posts( array( 'type' => fiscaat_get_record_post_type(), 'year_id' => fiscaat_get_current_year_id() ) );
@@ -428,34 +427,34 @@ function fiscaat_get_statistics( $args = '' ) {
 		$current_record_count = array_sum( (array) $current_records ) - $current_records->{'auto-draft'};
 
 		// Post statuses
-		$disapproved = fiscaat_get_disapproved_status_id();
-		$approved    = fiscaat_get_approved_status_id();
-		$closed      = fiscaat_get_closed_status_id();
+		$declined = fiscaat_get_declined_status_id();
+		$approved = fiscaat_get_approved_status_id();
+		$closed   = fiscaat_get_closed_status_id();
 
 		// Approved
 		$current_approved_count = $current_records->{$approved} + $current_records->{$closed};
 
 		// Unapproved
-		$current_unapproved_count = $current_records->publish + $current_records->{$disapproved};
+		$current_unapproved_count = $current_records->publish + $current_records->{$declined};
 
-		// Disapproved
-		$current_disapproved_count = $current_records->{$disapproved};
+		// Declined
+		$current_declined_count = $current_records->{$declined};
 	}
 
 	// To Balance
-	if ( !empty( $count_to_balance ) ) {
+	if ( ! empty( $count_to_balance ) ) {
 		$current_to_balance = fiscaat_get_year_to_balance( fiscaat_get_current_year_id() );
 	}
 
 	// Comments
-	if ( !empty( $count_comments ) ) {
+	if ( ! empty( $count_comments ) ) {
 
 		// @todo fix comment system
 		$current_comment_count = (int) 0;
 	}
 
 	// Tally the tallies
-	$statistics = compact( 'fiscus_count', 'controller_count', 'spectator_count', 'year_count', 'account_count', 'record_count', 'current_record_count', 'current_disapproved_count', 'current_unapproved_count', 'current_approved_count', 'current_comment_count' );
+	$statistics = compact( 'fiscus_count', 'spectator_count', 'year_count', 'account_count', 'record_count', 'current_record_count', 'current_declined_count', 'current_unapproved_count', 'current_approved_count', 'current_comment_count' );
 	$statistics = array_map( 'absint',             $statistics );
 	$statistics = array_map( 'number_format_i18n', $statistics );
 
@@ -463,7 +462,7 @@ function fiscaat_get_statistics( $args = '' ) {
 	if ( isset( $current_to_balance ) )
 		$statistics['current_to_balance'] = $current_to_balance;
 
-	return apply_filters( 'fiscaat_get_statistics', $statistics, $args );
+	return apply_filters( 'fiscaat_get_statistics', $statistics, $r );
 }
 
 /**
@@ -497,7 +496,7 @@ function fiscaat_count_posts( $args = '' ) {
 	}
 
 	// Added post_parent querying
-	if ( !empty( $parent ) ) {
+	if ( ! empty( $parent ) ) {
 		$query .= " AND post_parent = %s";
 	}
 
@@ -548,7 +547,7 @@ function fiscaat_parse_args( $args, $defaults = '', $filter_key = '' ) {
 		wp_parse_str( $args, $r );
 
 	// Passively filter the args before the parse
-	if ( !empty( $filter_key ) )
+	if ( ! empty( $filter_key ) )
 		$r = apply_filters( 'fiscaat_before_' . $filter_key . '_parse_args', $r );
 
 	// Parse
@@ -556,7 +555,7 @@ function fiscaat_parse_args( $args, $defaults = '', $filter_key = '' ) {
 		$r = array_merge( $defaults, $r );
 
 	// Aggressively filter the args after the parse
-	if ( !empty( $filter_key ) )
+	if ( ! empty( $filter_key ) )
 		$r = apply_filters( 'fiscaat_after_' . $filter_key . '_parse_args', $r );
 
 	// Return the parsed results
@@ -588,7 +587,7 @@ function fiscaat_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 	$cache_id    = 'fiscaat_parent_' . $parent_id . '_type_' . $post_type . '_child_count';
 	$post_status = array( 
 		fiscaat_get_public_status_id(),
-		fiscaat_get_disapproved_status_id(),
+		fiscaat_get_declined_status_id(),
 		fiscaat_get_approved_status_id(),
 		fiscaat_get_closed_status_id()
 	);
@@ -632,7 +631,7 @@ function fiscaat_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	$cache_id    = 'fiscaat_parent_public_' . $parent_id . '_type_' . $post_type . '_child_ids';
 	$post_status = array( 
 		fiscaat_get_public_status_id(),
-		fiscaat_get_disapproved_status_id(),
+		fiscaat_get_declined_status_id(),
 		fiscaat_get_approved_status_id(),
 		fiscaat_get_closed_status_id()
 	);
@@ -690,7 +689,7 @@ function fiscaat_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 
 		// Record
 		case fiscaat_get_record_post_type() :
-			$post_status[] = fiscaat_get_disapproved_status_id();
+			$post_status[] = fiscaat_get_declined_status_id();
 			$post_status[] = fiscaat_get_approved_status_id();
 			$post_status[] = fiscaat_get_closed_status_id();
 			break;
@@ -745,13 +744,13 @@ function fiscaat_parse_query( $posts_query ) {
 	$is_edit  = $posts_query->get( fiscaat_get_edit_rewrite_id() );
 
 	// Year/Account/Record Edit Page
-	if ( !empty( $is_edit ) ) {
+	if ( ! empty( $is_edit ) ) {
 
 		// Get the post type from the main query loop
 		$post_type = $posts_query->get( 'post_type' );
 		
 		// Check which post_type we are editing, if any
-		if ( !empty( $post_type ) ) {
+		if ( ! empty( $post_type ) ) {
 			switch( $post_type ) {
 
 				// We are editing a year
@@ -817,7 +816,7 @@ function fiscaat_get_page_by_path( $path = '' ) {
 	$retval = false;
 
 	// Path is not empty
-	if ( !empty( $path ) ) {
+	if ( ! empty( $path ) ) {
 
 		// Pretty permalinks are on so path might exist
 		if ( get_option( 'permalink_structure' ) ) {
@@ -1136,69 +1135,4 @@ function fiscaat_the_currency_format( $currency = '' ){
 		'SIT' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
 		'ZAR' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ' ' ),
 		'KRW' => array( 'decimals' => 0, 'dec_point' => '',  'thousands_sep' => ',' ),
-		'SZL' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ', ' ),
-		'SEK' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'CHF' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => '\'' ),
-		'TZS' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'THB' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'TOP' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'AED' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'UAH' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => ' ' ),
-		'USD' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'VUV' => array( 'decimals' => 0, 'dec_point' => '',  'thousands_sep' => ',' ),
-		'VEF' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'VEB' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'VND' => array( 'decimals' => 0, 'dec_point' => '',  'thousands_sep' => '.' ),
-		'ZWD' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ' ' )
-	);
-
-	if ( ! isset( $formats[$currency] ) )
-		$currency = 'USD';
-
-	return apply_filters( 'fiscaat_the_currency_formats', $formats[$currency], $currency );
-}
-
-/**
- * A Fiscaat specific method for formatting values for INR currency
- *
- * @see http://www.joelpeterson.com/blog/2011/03/formatting-over-100-currencies-in-php/
- * 
- * @param float $number Number to format
- * @uses fiscaat_the_currency_format() To get the INR currency format
- * @uses apply_filters() Calls 'fiscaat_the_currency_format_INR' with the
- *                        formatted number, and initial number
- * @return string Formatted number
- */
-function fiscaat_the_currency_format_INR( $number = 0 ) {
-	$format = fiscaat_the_currency_format( 'INR' );
-	$dec    = '';
-
-	// Has value decimals
-	if ( $pos = strpos( $number, '.' ) ) {
-		$dec    = substr( round( substr( $number, $pos ), $format['decimals'] ), 1 );
-		$number = substr( $number, 0, $pos );
-	}
-
-	// Setup number parts
-	$retval = substr( $number, -3 );
-	$number = substr( $number, 0, -3 );
-
-	// Add seperators
-	while ( strlen( $number ) > 0 ) {
-		$retval = substr( $number, -2 ) . $format['thousands_sep'] . $retval;
-		$number = substr( $number, 0, -2 );
-	}
-
-	return apply_filters( 'fiscaat_the_currency_format_INR', $retval . $dec, $number );
-}
-
-/**
- * Sanitize currency input to be an existing currency
- * 
- * @param string $input Currency input
- * @uses fiscaat_get_currencies() To get available currencies
- * @return string Sanitized currency
- */
-function fiscaat_sanitize_currency( $input = '' ) {
-	return in_array( $input, array_keys( fiscaat_get_currencies() ) ) ? $input : 'USD';
-}
+		'SZ

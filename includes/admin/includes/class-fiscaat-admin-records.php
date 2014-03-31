@@ -8,7 +8,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 if ( !class_exists( 'Fiscaat_Admin_Records' ) ) :
 
@@ -324,7 +324,7 @@ class Fiscaat_Admin_Records {
 			<?php do_action( $this->args->hook_prefix .'_form_top' ); ?>
 
 			<input type="hidden" name="page" class="post_page_page" value="<?php echo $this->args->page; ?>" />
-			<input type="hidden" name="post_status" class="post_status_page" value="<?php echo !empty($_REQUEST['post_status']) ? esc_attr($_REQUEST['post_status']) : 'all'; ?>" />
+			<input type="hidden" name="post_status" class="post_status_page" value="<?php echo ! empty($_REQUEST['post_status']) ? esc_attr($_REQUEST['post_status']) : 'all'; ?>" />
 			<input type="hidden" name="post_type" class="post_type_page" value="<?php echo $this->post_type; ?>" />
 
 			<?php $this->list_table->display(); ?>

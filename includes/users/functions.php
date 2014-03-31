@@ -8,7 +8,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /** User Updaters *************************************************************/
 
@@ -264,26 +264,6 @@ function fiscaat_get_total_fisci() {
 }
 
 /**
- * Get the total number of controllers on Fiscaat
- *
- * @uses wp_cache_get() Check if query is in cache
- * @uses get_users() To execute our query and get the var back
- * @uses wp_cache_set() Set the query in the cache
- * @uses apply_filters() Calls 'fiscaat_get_total_users' with number of controllers
- * @return int Total number of controllers
- */
-function fiscaat_get_total_controllers() {
-	$user_count = count_users();
-	$role       = fiscaat_get_controller_role();
-
-	// Check for Controllers
-	if ( ! isset( $user_count['avail_roles'][$role] ) )
-		return 0;
-
-	return apply_filters( 'fiscaat_get_total_controllers', (int) $user_count['avail_roles'][$role] );
-}
-
-/**
  * Get the total number of spectators on Fiscaat
  *
  * @uses wp_cache_get() Check if query is in cache
@@ -300,124 +280,4 @@ function fiscaat_get_total_spectators() {
 	if ( ! isset( $user_count['avail_roles'][$role] ) )
 		return 0;
 
-	return apply_filters( 'fiscaat_get_total_spectators', (int) $user_count['avail_roles'][$role] );
-}
-
-/** Admin Bar Menu ************************************************************/
-
-/**
- * Setup Fiscaat admin bar menu for all spectators
- * 
- * @param WP_Admin_Bar $wp_admin_bar
- * @uses current_user_can() To check if user can see menu
- * @uses fiscaat_get_year_post_type()
- * @uses fiscaat_get_account_post_type()
- * @uses fiscaat_get_record_post_type()
- * @uses WP_Admin_Bar::remove_node() To remove default nodes
- * @uses apply_filters() Calls 'fiscaat_admin_bar_menu' with the nodes
- * @uses fiscaat_is_control_active()
- * @uses fiscaat_get_year_record_count_unapproved()
- * @uses fiscaat_get_current_year_id()
- * @uses WP_Admin_Bar::add_node() To add new admin bar menu items
- */
-function fiscaat_admin_bar_menu( $wp_admin_bar ) {
-
-	// Check is user capable
-	if ( ! current_user_can( 'fiscaat_spectate' ) )
-		return;
-
-	// Remove new-post_type nodes
-	foreach ( array( fiscaat_get_year_post_type(), fiscaat_get_account_post_type(), fiscaat_get_record_post_type() ) as $post_type )
-		$wp_admin_bar->remove_node( 'new-'. $post_type );
-
-	// Setup nodes as id => other attrs
-	$nodes = apply_filters( 'fiscaat_admin_bar_menu', array( 
-		
-		// Top level menu
-		'fiscaat' => array(
-			'title'  => _x('Fiscaat', 'Admin bar menu title', 'fiscaat'),
-			'href'   => add_query_arg( array( 'post_type' => fiscaat_get_year_post_type() ), admin_url( 'edit.php' ) ),
-			'meta'   => array()
-			),
-
-		// View Year
-		'fiscaat-view-ledger' => array(
-			'title'  =>  __('View Ledger', 'fiscaat'),
-			'parent' => 'fiscaat',
-			'href'   => add_query_arg( array( 'post_type' => fiscaat_get_account_post_type() ), admin_url( 'edit.php' ) ),
-			'meta'   => array()
-			),
-
-		// New Records node
-		'fiscaat-new-records' => current_user_can( 'fiscaat' ) 
-			? array(
-				'title'  => __('New Records', 'fiscaat'),
-				'parent' => 'fiscaat',
-				'href'   => add_query_arg( array( 'post_type' => fiscaat_get_record_post_type() ), admin_url( 'post-new.php' ) ),
-				'meta'   => array()
-				)
-			: array(),
-
-		// New Account node
-		'fiscaat-new-account' => current_user_can( 'fiscaat' ) 
-			? array(
-				'title'  => __('New Account', 'fiscaat'),
-				'parent' => 'fiscaat',
-				'href'   => add_query_arg( array( 'post_type' => fiscaat_get_account_post_type() ), admin_url( 'post-new.php' ) ),
-				'meta'   => array()
-				)
-			: array(),
-
-		// Control Unapproved node
-		'fiscaat-control' => fiscaat_is_control_active() && current_user_can( 'control' )
-			? array(
-				'title'  => sprintf( __('Unapproved Records (%d)', 'fiscaat'), fiscaat_get_year_record_count_unapproved( fiscaat_get_current_year_id() ) ),
-				'parent' => 'fiscaat',
-				'href'   => add_query_arg( array( 'post_type' => fiscaat_get_record_post_type(), 'approval' => 0 ), admin_url( 'edit.php' ) ),
-				'meta'   => array()
-				)
-			: array(),
-
-		// Control Disapproved node. Only if there are any
-		'fiscaat-disapproved' => fiscaat_is_control_active() && ( current_user_can( 'fiscaat' ) || current_user_can( 'control' ) ) && 0 != fiscaat_get_year_record_count_disapproved( fiscaat_get_current_year_id() )
-			? array(
-				'title'  => sprintf( __('Disapproved Records (%d)', 'fiscaat'), fiscaat_get_year_record_count_disapproved( fiscaat_get_current_year_id() ) ),
-				'parent' => 'fiscaat',
-				'href'   => add_query_arg( array( 'post_type' => fiscaat_get_record_post_type(), 'approval' => 2 ), admin_url( 'edit.php' ) ),
-				'meta'   => array()
-				)
-			: array(),
-
-		// Tools page
-		'fiscaat-tools' => current_user_can( 'fiscaat' ) // Admin caps are mapped in wp-admin: 'fiscaat_tools_page'
-			? array(
- 				'title'  => __('Tools', 'fiscaat'),
-				'parent' => 'fiscaat',
-				'href'   => add_query_arg( array( 'page' => 'fiscaat-repair' ), admin_url( 'tools.php' ) ),
-				'meta'   => array()
-				)
-			: array(),
-
-		// Settings page
-		'fiscaat-settings' => current_user_can( 'fiscaat' ) // Admin caps are mapped in wp-admin: 'fiscaat_settings_page'
-			? array(
- 				'title'  => __('Settings', 'fiscaat'),
-				'parent' => 'fiscaat',
-				'href'   => add_query_arg( array( 'page' => 'fiscaat' ), admin_url( 'options-general.php' ) ),
-				'meta'   => array()
-				)
-			: array(),
-
-		) );
-
-	// Create admin bar menu
-	foreach ( $nodes as $node_id => $args ) {
-
-		// Don't do empty nodes
-		if ( empty( $args ) || empty( $args['title'] ) )
-			continue;
-
-		// Add node
-		$wp_admin_bar->add_node( array_merge( array( 'id' => $node_id ), (array) $args ) );
-	}
-}
+	return apply_filters( 'fiscaat_get

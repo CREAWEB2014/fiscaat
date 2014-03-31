@@ -8,7 +8,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /** Post Type *****************************************************************/
 
@@ -99,9 +99,9 @@ function fiscaat_has_accounts( $args = '' ) {
 	global $wp_rewrite;
 
 	// What are the default allowed statuses (based on user caps)
-	$post_statuses = array( fiscaat_get_public_status_id(), fiscaat_get_closed_status_id(), fiscaat_get_disapproved_status_id(), fiscaat_get_approved_status_id() );
+	$post_statuses = array( fiscaat_get_public_status_id(), fiscaat_get_closed_status_id(), fiscaat_get_declined_status_id(), fiscaat_get_approved_status_id() );
 
-	$default_account_search = !empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : false;
+	$default_account_search = ! empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : false;
 	$default_post_parent    = fiscaat_is_single_year() ? fiscaat_get_year_id() : 'any';
 	$default_post_status    = join( ',', $post_statuses );
 
@@ -133,7 +133,7 @@ function fiscaat_has_accounts( $args = '' ) {
 		$fiscaat_t['post_parent'] = $post_parent = 0;
 
 	// Limited the number of pages shown
-	if ( !empty( $max_num_pages ) )
+	if ( ! empty( $max_num_pages ) )
 		$fiscaat->account_query->max_num_pages = $max_num_pages;
 
 	// If no limit to posts per page, set it to the current post_count
@@ -148,7 +148,7 @@ function fiscaat_has_accounts( $args = '' ) {
 	if ( ( (int) $fiscaat->account_query->post_count || (int) $fiscaat->account_query->found_posts ) && (int) $fiscaat->account_query->posts_per_page ) {
 
 		// Limit the number of accounts shown based on maximum allowed pages
-		if ( ( !empty( $max_num_pages ) ) && $fiscaat->account_query->found_posts > $fiscaat->account_query->max_num_pages * $fiscaat->account_query->post_count )
+		if ( ( ! empty( $max_num_pages ) ) && $fiscaat->account_query->found_posts > $fiscaat->account_query->max_num_pages * $fiscaat->account_query->post_count )
 			$fiscaat->account_query->found_posts = $fiscaat->account_query->max_num_pages * $fiscaat->account_query->post_count;
 
 		// If pretty permalinks are enabled, make our pagination pretty
@@ -256,15 +256,15 @@ function fiscaat_account_id( $account_id = 0) {
 		$fiscaat = fiscaat();
 
 		// Easy empty checking
-		if ( !empty( $account_id ) && is_numeric( $account_id ) )
+		if ( ! empty( $account_id ) && is_numeric( $account_id ) )
 			$fiscaat_account_id = $account_id;
 
 		// Currently inside an account loop
-		elseif ( !empty( $fiscaat->account_query->in_the_loop ) && isset( $fiscaat->account_query->post->ID ) )
+		elseif ( ! empty( $fiscaat->account_query->in_the_loop ) && isset( $fiscaat->account_query->post->ID ) )
 			$fiscaat_account_id = $fiscaat->account_query->post->ID;
 
 		// Currently viewing a year
-		elseif ( ( fiscaat_is_single_account() || fiscaat_is_account_edit() ) && !empty( $fiscaat->current_account_id ) )
+		elseif ( ( fiscaat_is_single_account() || fiscaat_is_account_edit() ) && ! empty( $fiscaat->current_account_id ) )
 			$fiscaat_account_id = $fiscaat->current_account_id;
 
 		// Currently viewing an account
@@ -386,7 +386,7 @@ function fiscaat_account_permalink( $account_id = 0, $redirect_to = '' ) {
 		$account_id = fiscaat_get_account_id( $account_id );
 
 		// Use the redirect address
-		if ( !empty( $redirect_to ) ) {
+		if ( ! empty( $redirect_to ) ) {
 			$account_permalink = esc_url_raw( $redirect_to );
 
 		// Use the account permalink
@@ -452,7 +452,7 @@ function fiscaat_account_archive_title( $title = '' ) {
 
 			// Set root text to page title
 			$page = fiscaat_get_page_by_path( fiscaat_get_account_archive_slug() );
-			if ( !empty( $page ) ) {
+			if ( ! empty( $page ) ) {
 				$title = get_the_title( $page->ID );
 
 			// Default to account post type name label
@@ -558,7 +558,7 @@ function fiscaat_account_pagination( $args = '' ) {
 
 		// Add pagination to query object
 		$pagination_links = paginate_links( $pagination );
-		if ( !empty( $pagination_links ) ) {
+		if ( ! empty( $pagination_links ) ) {
 
 			// Remove first page from pagination
 			if ( $wp_rewrite->using_permalinks() ) {
@@ -973,30 +973,30 @@ function fiscaat_account_record_count( $account_id = 0, $integer = false ) {
 	}
 
 /**
- * Output total disapproved record count of an account 
+ * Output total declined record count of an account 
  *
  * @param int $account_id Optional. Account id
  * @param boolean $integer Optional. Whether or not to format the result
- * @uses fiscaat_get_account_record_count_disapproved() To get the account disapproved record count
+ * @uses fiscaat_get_account_record_count_declined() To get the account declined record count
  */
-function fiscaat_account_record_count_disapproved( $account_id = 0, $integer = false ) {
-	echo fiscaat_get_account_record_count_disapproved( $account_id, $integer );
+function fiscaat_account_record_count_declined( $account_id = 0, $integer = false ) {
+	echo fiscaat_get_account_record_count_declined( $account_id, $integer );
 }
 	/**
-	 * Return total disapproved record count of an account 
+	 * Return total declined record count of an account 
 	 *
 	 * @param int $account_id Optional. Account id
 	 * @param boolean $integer Optional. Whether or not to format the result
 	 * @uses fiscaat_get_account_id() To get the account id
-	 * @uses fiscaat_get_account_meta() To get the disapproved record count
-	 * @uses apply_filters() Calls 'fiscaat_get_account_record_count_disapproved' with
-	 *                        the disapproved record count and account id
-	 * @return int Account disapproved record count
+	 * @uses fiscaat_get_account_meta() To get the declined record count
+	 * @uses apply_filters() Calls 'fiscaat_get_account_record_count_declined' with
+	 *                        the declined record count and account id
+	 * @return int Account declined record count
 	 */
-	function fiscaat_get_account_record_count_disapproved( $account_id = 0, $integer = false ) {
+	function fiscaat_get_account_record_count_declined( $account_id = 0, $integer = false ) {
 		$account_id = fiscaat_get_account_id( $account_id );
-		$records    = (int) fiscaat_get_account_meta( $account_id, 'record_count_disapproved' );
-		$filter     = ( true === $integer ) ? 'fiscaat_get_account_record_count_disapproved_int' : 'fiscaat_get_account_record_count_disapproved';
+		$records    = (int) fiscaat_get_account_meta( $account_id, 'record_count_declined' );
+		$filter     = ( true === $integer ) ? 'fiscaat_get_account_record_count_declined_int' : 'fiscaat_get_account_record_count_declined';
 
 		return apply_filters( $filter, $records, $account_id );
 	}
@@ -1127,7 +1127,7 @@ function fiscaat_account_admin_links( $args = '' ) {
 		}
 
 		// Check caps for trashing the account
-		if ( !current_user_can( 'delete_account', $r['id'] ) && !empty( $r['links']['trash'] ) )
+		if ( !current_user_can( 'delete_account', $r['id'] ) && ! empty( $r['links']['trash'] ) )
 			unset( $r['links']['trash'] );
 
 		// See if links need to be unset
@@ -1357,7 +1357,7 @@ function fiscaat_year_pagination_count() {
 		$start_num = intval( ( $fiscaat->account_query->paged - 1 ) * $fiscaat->account_query->posts_per_page ) + 1;
 		$from_num  = fiscaat_number_format( $start_num );
 		$to_num    = fiscaat_number_format( ( $start_num + ( $fiscaat->account_query->posts_per_page - 1 ) > $fiscaat->account_query->found_posts ) ? $fiscaat->account_query->found_posts : $start_num + ( $fiscaat->account_query->posts_per_page - 1 ) );
-		$total_int = (int) !empty( $fiscaat->account_query->found_posts ) ? $fiscaat->account_query->found_posts : $fiscaat->account_query->post_count;
+		$total_int = (int) ! empty( $fiscaat->account_query->found_posts ) ? $fiscaat->account_query->found_posts : $fiscaat->account_query->post_count;
 		$total     = fiscaat_number_format( $total_int );
 
 		// Several accounts in a year with a single page
@@ -1426,7 +1426,7 @@ function fiscaat_single_account_description( $args = '' ) {
 	 *  - after: After the text
 	 *  - size: Size of the avatar
 	 * @uses fiscaat_get_account_id() To get the account id
-	 * @uses fiscaat_get_account_disapprove_count() To get the account voice count
+	 * @uses fiscaat_get_account_decline_count() To get the account voice count
 	 * @uses fiscaat_get_account_record_count() To get the account record count
 	 * @uses fiscaat_get_account_freshness_link() To get the account freshness link
 	 * @uses fiscaat_get_account_last_active_id() To get the account last active id
@@ -1454,26 +1454,26 @@ function fiscaat_single_account_description( $args = '' ) {
 		remove_filter( 'fiscaat_get_account_permalink', 'fiscaat_add_view_all' );
 
 		// Build the account description
-		$record_count = fiscaat_get_account_records_link  ( $account_id );
-		$disapprove_count = fiscaat_get_account_disapprove_count   ( $account_id );
-		$time_since   = fiscaat_get_account_freshness_link( $account_id );
+		$record_count  = fiscaat_get_account_records_link  ( $account_id );
+		$decline_count = fiscaat_get_account_decline_count ( $account_id );
+		$time_since    = fiscaat_get_account_freshness_link( $account_id );
 
 		// Singular/Plural
-		$disapprove_count = sprintf( _n( '%s disapprove', '%s disapproves', $disapprove_count, 'fiscaat' ), $disapprove_count );
+		$decline_count = sprintf( _n( '%s decline', '%s declines', $decline_count, 'fiscaat' ), $decline_count );
 
 		// Account has records
 		$last_record = fiscaat_get_account_last_active_id( $account_id );
-		if ( !empty( $last_record ) ) {
+		if ( ! empty( $last_record ) ) {
 			$last_updated_by = fiscaat_get_author_link( array( 'post_id' => $last_record, 'size' => $size ) );
-			$retstr          = sprintf( __( 'This account contains %1$s, has %2$s, and was last updated by %3$s %4$s.', 'fiscaat' ), $record_count, $disapprove_count, $last_updated_by, $time_since );
+			$retstr          = sprintf( __( 'This account contains %1$s, has %2$s, and was last updated by %3$s %4$s.', 'fiscaat' ), $record_count, $decline_count, $last_updated_by, $time_since );
 
 		// Account has no records
-		} elseif ( ! empty( $disapprove_count ) && ! empty( $record_count ) ) {
-			$retstr = sprintf( __( 'This account contains %1$s and has %2$s.', 'fiscaat' ), $disapprove_count, $record_count );
+		} elseif ( ! empty( $decline_count ) && ! empty( $record_count ) ) {
+			$retstr = sprintf( __( 'This account contains %1$s and has %2$s.', 'fiscaat' ), $decline_count, $record_count );
 
-		// Account has no records and no disapproves
-		} elseif ( empty( $disapprove_count ) && empty( $record_count ) ) {
-			$retstr = sprintf( __( 'This account has no records.', 'fiscaat' ), $disapprove_count, $record_count );
+		// Account has no records and no declines
+		} elseif ( empty( $decline_count ) && empty( $record_count ) ) {
+			$retstr = sprintf( __( 'This account has no records.', 'fiscaat' ), $decline_count, $record_count );
 		}
 
 		// Add the 'view all' filter back

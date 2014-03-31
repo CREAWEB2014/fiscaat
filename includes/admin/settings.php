@@ -8,7 +8,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /** Sections ******************************************************************/
 
@@ -1064,7 +1064,7 @@ function fiscaat_form_slug_conflict_check( $slug, $default ) {
 			$bp = buddypress();
 
 			// Loop through root slugs and check for conflict
-			if ( !empty( $bp->pages ) ) {
+			if ( ! empty( $bp->pages ) ) {
 				foreach ( $bp->pages as $page => $page_data ) {
 					$page_base    = $page . '_base';
 					$page_title   = sprintf( __( '%s page', 'fiscaat' ), $page_data->title );

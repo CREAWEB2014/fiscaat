@@ -8,7 +8,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 if ( !class_exists( 'Fiscaat_Admin' ) ) :
 
@@ -333,7 +333,7 @@ class Fiscaat_Admin {
 	public function register_importers() {
 
 		// Leave if we're not in the import section
-		if ( !defined( 'WP_LOAD_IMPORTERS' ) )
+		if ( ! defined( 'WP_LOAD_IMPORTERS' ) )
 			return;
 
 		// Load Importer API

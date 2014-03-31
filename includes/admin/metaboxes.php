@@ -36,13 +36,10 @@ function fiscaat_dashboard_widget_right_now() {
 	extract( fiscaat_get_statistics(), EXTR_SKIP ); ?>
 
 	<div class="table table_content">
-
 		<p class="sub"><?php _e( 'Content', 'fiscaat' ); ?></p>
 
 		<table>
-
 			<tr class="first">
-
 				<?php
 					$num  = $year_count;
 					$text = _n( 'Year', 'Years', $year_count, 'fiscaat' );
@@ -53,13 +50,11 @@ function fiscaat_dashboard_widget_right_now() {
 					}
 				?>
 
-				<td class="first b b-accounts"><?php echo $num; ?></td>
-				<td class="t accounts"><?php echo $text; ?></td>
-
+				<td class="first b b-years"><?php echo $num; ?></td>
+				<td class="t years"><?php echo $text; ?></td>
 			</tr>
 
 			<tr>
-
 				<?php
 					$num  = $account_count;
 					$text = _n( 'Account', 'Accounts', $account_count, 'fiscaat' );
@@ -72,11 +67,9 @@ function fiscaat_dashboard_widget_right_now() {
 
 				<td class="first b b-accounts"><?php echo $num; ?></td>
 				<td class="t accounts"><?php echo $text; ?></td>
-
 			</tr>
 
 			<tr>
-
 				<?php
 					$num  = $record_count;
 					$text = _n( 'Record', 'Records', $record_count, 'fiscaat' );
@@ -87,62 +80,39 @@ function fiscaat_dashboard_widget_right_now() {
 					}
 				?>
 
-				<td class="first b b-accounts"><?php echo $num; ?></td>
-				<td class="t accounts"><?php echo $text; ?></td>
-
+				<td class="first b b-records"><?php echo $num; ?></td>
+				<td class="t records"><?php echo $text; ?></td>
 			</tr>
 
 			<tr>
-
 				<?php
 					$num  = $fiscus_count;
 					$text = _n( 'Fiscus', 'Fisci', $fiscus_count, 'fiscaat' );
 				?>
 
-				<td class="first b b-accounts"><?php echo $num; ?></td>
-				<td class="t accounts"><?php echo $text; ?></td>
-
+				<td class="first b b-users"><?php echo $num; ?></td>
+				<td class="t users"><?php echo $text; ?></td>
 			</tr>
 
 			<tr>
-
-				<?php
-					$num  = $controller_count;
-					$text = _n( 'Controller', 'Controllers', $controller_count, 'fiscaat' );
-				?>
-
-				<td class="first b b-accounts"><?php echo $num; ?></td>
-				<td class="t accounts"><?php echo $text; ?></td>
-
-			</tr>
-
-			<tr>
-
 				<?php
 					$num  = $spectator_count;
 					$text = _n( 'Spectator', 'Spectators', $spectator_count, 'fiscaat' );
 				?>
 
-				<td class="first b b-accounts"><?php echo $num; ?></td>
-				<td class="t accounts"><?php echo $text; ?></td>
-
+				<td class="first b b-users"><?php echo $num; ?></td>
+				<td class="t users"><?php echo $text; ?></td>
 			</tr>
 
 			<?php do_action( 'fiscaat_dashboard_widget_right_now_content_table_end' ); ?>
-
 		</table>
-
 	</div>
 
-
 	<div class="table table_discussion">
-
 		<p class="sub"><?php _e( 'Current Year', 'fiscaat' ); ?></p>
 
 		<table>
-
 			<tr class="first">
-
 				<?php
 					$num  = fiscaat_get_currency_format( $current_to_balance, true );
 					$text = __( 'To Balance', 'fiscaat' );
@@ -156,11 +126,9 @@ function fiscaat_dashboard_widget_right_now() {
 
 				<td class="b b-to_balance"><span class="total-count"><?php echo $num; ?></span></td>
 				<td class="last t to_balance"><?php echo $text; ?></td>
-
 			</tr>
 
 			<tr>
-
 				<?php
 					$num  = $current_record_count;
 					$text = _n( 'Record', 'Records', $current_record_count, 'fiscaat' );
@@ -173,13 +141,11 @@ function fiscaat_dashboard_widget_right_now() {
 
 				<td class="b b-records"><?php echo $num; ?></td>
 				<td class="last t records"><?php echo $text; ?></td>
-
 			</tr>
 
 			<?php if ( fiscaat_is_control_active() ) : ?>
 
 			<tr>
-
 				<?php
 					$num  = $current_approved_count;
 					$text = __( 'Approved', 'fiscaat' );
@@ -192,11 +158,9 @@ function fiscaat_dashboard_widget_right_now() {
 
 				<td class="b b-records-approved"><?php echo $num; ?></td>
 				<td class="last t records-approved"><?php echo $text; ?></td>
-
 			</tr>
 
 			<tr>
-
 				<?php
 					$num  = $current_unapproved_count;
 					$text = __( 'Unapproved', 'fiscaat' );
@@ -209,14 +173,12 @@ function fiscaat_dashboard_widget_right_now() {
 
 				<td class="b b-records-unapproved"><?php echo $num; ?></td>
 				<td class="last t records-unapproved"><?php echo $text; ?></td>
-
 			</tr>
 
 			<tr>
-
 				<?php
-					$num  = $current_disapproved_count;
-					$text = __( 'Disapproved', 'fiscaat' );
+					$num  = $current_declined_count;
+					$text = __( 'Declined', 'fiscaat' );
 					if ( current_user_can( 'fiscaat_spectate' ) ) {
 						$link = add_query_arg( array( 'post_type' => fiscaat_get_record_post_type(), 'fiscaat_year_id' => fiscaat_get_current_year_id(), 'approval' => 2 ), get_admin_url( null, 'edit.php' ) );
 						$num  = '<a href="' . $link . '">' . $num  . '</a>';
@@ -224,9 +186,8 @@ function fiscaat_dashboard_widget_right_now() {
 					}
 				?>
 
-				<td class="b b-records-disapproved"><?php echo $num; ?></td>
-				<td class="last t records-disapproved"><?php echo $text; ?></td>
-
+				<td class="b b-records-declined"><?php echo $num; ?></td>
+				<td class="last t records-declined"><?php echo $text; ?></td>
 			</tr>
 
 			<?php endif; ?>
@@ -234,7 +195,6 @@ function fiscaat_dashboard_widget_right_now() {
 			<?php if ( fiscaat_is_comments_active() ) : ?>
 
 			<tr>
-
 				<?php
 					$num  = $current_comment_count;
 					$text = __( 'Comment', 'Comments', $current_comment_count, 'fiscaat' );
@@ -247,15 +207,12 @@ function fiscaat_dashboard_widget_right_now() {
 
 				<td class="b b-to_balance"><span class="total-count"><?php echo $num; ?></span></td>
 				<td class="last t to_balance"><?php echo $text; ?></td>
-
 			</tr>
 
 			<?php endif; ?>
 
 			<?php do_action( 'fiscaat_dashboard_widget_right_now_discussion_table_end' ); ?>
-
 		</table>
-
 	</div>
 
 	<?php do_action( 'fiscaat_dashboard_widget_right_now_table_end' ); ?>
@@ -522,12 +479,4 @@ function fiscaat_record_metabox() {
 	</p>
 
 	<?php 
-	wp_nonce_field( 'fiscaat_record_metabox_save', 'fiscaat_record_metabox' );
-	do_action( 'fiscaat_record_metabox', $post_id );
-}
-
-/** Comments ******************************************************************/
-
-
-/** Spectators ****************************************************************/
-
+	wp_n

@@ -8,7 +8,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /** Post Type *****************************************************************/
 
@@ -101,9 +101,9 @@ function fiscaat_has_records( $args = '' ) {
 	global $wp_rewrite;
 
 	// What are the default allowed statuses (based on user caps)
-	$post_statuses = array( fiscaat_get_public_status_id(), fiscaat_get_disapproved_status_id(), fiscaat_get_approved_status_id(), fiscaat_get_closed_status_id() );
+	$post_statuses = array( fiscaat_get_public_status_id(), fiscaat_get_declined_status_id(), fiscaat_get_approved_status_id(), fiscaat_get_closed_status_id() );
 
-	$default_record_search = !empty( $_REQUEST['rs'] ) ? $_REQUEST['rs'] : false;
+	$default_record_search = ! empty( $_REQUEST['rs'] ) ? $_REQUEST['rs'] : false;
 	$default_post_parent   = ( fiscaat_is_single_account() ) ? fiscaat_get_account_id() : 'any';
 	$default_post_type     = ( fiscaat_is_single_account() && fiscaat_show_lead_account() ) ? fiscaat_get_record_post_type() : array( fiscaat_get_account_post_type(), fiscaat_get_record_post_type() );
 	$default_post_status   = join( ',', $post_statuses );
@@ -256,15 +256,15 @@ function fiscaat_record_id( $record_id = 0 ) {
 		$fiscaat = fiscaat();
 
 		// Easy empty checking
-		if ( !empty( $record_id ) && is_numeric( $record_id ) ) {
+		if ( ! empty( $record_id ) && is_numeric( $record_id ) ) {
 			$fiscaat_record_id = $record_id;
 
 		// Currently inside a records loop
-		} elseif ( !empty( $fiscaat->record_query->in_the_loop ) && isset( $fiscaat->record_query->post->ID ) ) {
+		} elseif ( ! empty( $fiscaat->record_query->in_the_loop ) && isset( $fiscaat->record_query->post->ID ) ) {
 			$fiscaat_record_id = $fiscaat->record_query->post->ID;
 
 		// Currently viewing a year
-		} elseif ( ( fiscaat_is_single_record() || fiscaat_is_record_edit() ) && !empty( $fiscaat->current_record_id ) ) {
+		} elseif ( ( fiscaat_is_single_record() || fiscaat_is_record_edit() ) && ! empty( $fiscaat->current_record_id ) ) {
 			$fiscaat_record_id = $fiscaat->current_record_id;
 
 		// Currently viewing a record
@@ -492,7 +492,7 @@ function fiscaat_record_excerpt( $record_id = 0, $length = 100 ) {
 
 		$excerpt = trim ( strip_tags( $excerpt ) );
 
-		if ( !empty( $length ) && strlen( $excerpt ) > $length ) {
+		if ( ! empty( $length ) && strlen( $excerpt ) > $length ) {
 			$excerpt  = substr( $excerpt, 0, $length - 1 );
 			$excerpt .= '&hellip;';
 		}
@@ -526,8 +526,8 @@ function fiscaat_record_post_date( $record_id = 0, $humanize = false, $gmt = fal
 		$record_id = fiscaat_get_record_id( $record_id );
 
 		// 4 days, 4 hours ago
-		if ( !empty( $humanize ) ) {
-			$gmt    = !empty( $gmt ) ? 'G' : 'U';
+		if ( ! empty( $humanize ) ) {
+			$gmt    = ! empty( $gmt ) ? 'G' : 'U';
 			$date   = get_post_time( $gmt, $record_id );
 			$time   = false; // For filter below
 			$result = fiscaat_time_since( $date );
@@ -608,18 +608,18 @@ function fiscaat_is_record_published( $record_id = 0 ) {
 }
 
 /**
- * Is the record disapproved?
+ * Is the record declined?
  *
  * @param int $record_id Optional. Record id
  * @uses fiscaat_get_record_id() To get the record id
  * @uses fiscaat_get_record_status() To get the record status
- * @return bool True if disapproved, false if not.
+ * @return bool True if declined, false if not.
  */
-function fiscaat_is_record_disapproved( $record_id = 0 ) {
+function fiscaat_is_record_declined( $record_id = 0 ) {
 	$record_id     = fiscaat_get_record_id( $record_id );
-	$record_status = fiscaat_get_record_status( $record_id ) == fiscaat_get_disapproved_status_id();
+	$record_status = fiscaat_get_record_status( $record_id ) == fiscaat_get_declined_status_id();
 	
-	return (bool) apply_filters( 'fiscaat_is_record_disapproved', (bool) $record_status, $record_id );
+	return (bool) apply_filters( 'fiscaat_is_record_declined', (bool) $record_status, $record_id );
 }
 
 /**
@@ -655,7 +655,7 @@ function fiscaat_record_status_icon( $record_id = 0 ) {
 	 * @uses ficsaat_get_record_id()
 	 * @uses fiscaat_get_record_status()
 	 * @uses fiscaat_get_public_status_id()
-	 * @uses fiscaat_get_disapproved_status_id()
+	 * @uses fiscaat_get_declined_status_id()
 	 * @uses fiscaat_get_approved_status_id()
 	 * @uses fiscaat_get_closed_status_id()
 	 * @uses apply_filters() Calls 'fiscaat_get_record_status_icon' with
@@ -673,7 +673,7 @@ function fiscaat_record_status_icon( $record_id = 0 ) {
 				$img = 'on-hold.png';
 				break;
 
-			case fiscaat_get_disapproved_status_id() :
+			case fiscaat_get_declined_status_id() :
 				$img = 'cancelled.png';
 				break;
 
@@ -805,7 +805,7 @@ function fiscaat_record_author_avatar( $record_id = 0, $size = 40 ) {
 	 */
 	function fiscaat_get_record_author_avatar( $record_id = 0, $size = 40 ) {
 		$record_id = fiscaat_get_record_id( $record_id );
-		if ( !empty( $record_id ) ) { 
+		if ( ! empty( $record_id ) ) { 
 			$author_avatar = get_avatar( fiscaat_get_record_author_id( $record_id ), $size );
 		} else {
 			$author_avatar = '';
@@ -1038,19 +1038,19 @@ function fiscaat_record_admin_links( $args = '' ) {
 		// If no links were passed, default to the standard
 		if ( empty( $r['links'] ) ) {
 			$r['links'] = array (
-				'edit'       => fiscaat_get_record_edit_link      ( $r ),
-				'disapprove' => fiscaat_get_record_disapprove_link( $r ),
-				'approve'    => fiscaat_get_record_approve_link   ( $r ),
+				'edit'    => fiscaat_get_record_edit_link   ( $r ),
+				'decline' => fiscaat_get_record_decline_link( $r ),
+				'approve' => fiscaat_get_record_approve_link( $r ),
 			);
 		}
 
 		// See if links need to be unset
 		$record_status = fiscaat_get_record_status( $r['id'] );
-		if ( in_array( $record_status, array( fiscaat_get_disapproved_status_id(), fiscaat_get_approved_status_id() ) ) ) {
+		if ( in_array( $record_status, array( fiscaat_get_declined_status_id(), fiscaat_get_approved_status_id() ) ) ) {
 
-			// Disapprove link shouldn't be visible on disapproved accounts
-			if ( $record_status == fiscaat_get_disapproved_status_id() ) {
-				unset( $r['links']['disapprove'] );
+			// Decline link shouldn't be visible on declined accounts
+			if ( $record_status == fiscaat_get_declined_status_id() ) {
+				unset( $r['links']['decline'] );
 
 			// Approve link shouldn't be visible on approved accounts
 			} elseif ( isset( $r['links']['approve'] ) && ( fiscaat_get_approved_status_id() == $record_status ) ) {
@@ -1172,23 +1172,23 @@ function fiscaat_record_edit_url( $record_id = 0 ) {
 	}
 
 /**
- * Output the disapprove link of the record
+ * Output the decline link of the record
  *
- * @param mixed $args See {@link fiscaat_get_record_disapprove_link()}
- * @uses fiscaat_get_record_disapprove_link() To get the record disapprove link
+ * @param mixed $args See {@link fiscaat_get_record_decline_link()}
+ * @uses fiscaat_get_record_decline_link() To get the record decline link
  */
-function fiscaat_record_disapprove_link( $args = '' ) {
-	echo fiscaat_get_record_disapprove_link( $args );
+function fiscaat_record_decline_link( $args = '' ) {
+	echo fiscaat_get_record_decline_link( $args );
 }
 
 	/**
-	 * Return the disapprove link of the record
+	 * Return the decline link of the record
 	 *
 	 * @param mixed $args This function supports these arguments:
 	 *  - id: Record id
 	 *  - link_before: HTML before the link
 	 *  - link_after: HTML after the link
-	 *  - disapprove_text: Disapprove text
+	 *  - decline_text: Decline text
 	 * @uses fiscaat_get_record_id() To get the record id
 	 * @uses fiscaat_get_record() To get the record
 	 * @uses current_user_can() To check if the current user can edit the
@@ -1197,18 +1197,18 @@ function fiscaat_record_disapprove_link( $args = '' ) {
 	 * @uses wp_nonce_url() To nonce the url
 	 * @uses esc_url() To escape the url
 	 * @uses fiscaat_get_record_edit_url() To get the record edit url
-	 * @uses apply_filters() Calls 'fiscaat_get_record_disapprove_link' with the record
-	 *                        disapprove link and args
-	 * @return string Record disapprove link
+	 * @uses apply_filters() Calls 'fiscaat_get_record_decline_link' with the record
+	 *                        decline link and args
+	 * @return string Record decline link
 	 */
-	function fiscaat_get_record_disapprove_link( $args = '' ) {
+	function fiscaat_get_record_decline_link( $args = '' ) {
 		$defaults = array (
 			'id'           => 0,
 			'link_before'  => '',
 			'link_after'   => '',
-			'disapprove_text' => __( 'Disapprove', 'fiscaat' )
+			'decline_text' => __( 'Decline', 'fiscaat' )
 		);
-		$r = fiscaat_parse_args( $args, $defaults, 'get_record_disapprove_link' );
+		$r = fiscaat_parse_args( $args, $defaults, 'get_record_decline_link' );
 		extract( $r );
 
 		$record = fiscaat_get_record( fiscaat_get_record_id( (int) $id ) );
@@ -1218,9 +1218,9 @@ function fiscaat_record_disapprove_link( $args = '' ) {
 
 		$uri      = add_query_arg( array( 'action' => 'fiscaat_toggle_record_approval', 'record_id' => $record->ID ) );
 		$uri      = esc_url( wp_nonce_url( $uri, 'approval-record_' . $record->ID ) );
-		$retval   = $link_before . '<a href="' . $uri . '">' . $disapprove_text . '</a>' . $link_after;
+		$retval   = $link_before . '<a href="' . $uri . '">' . $decline_text . '</a>' . $link_after;
 
-		return apply_filters( 'fiscaat_get_record_disapprove_link', $retval, $args );
+		return apply_filters( 'fiscaat_get_record_decline_link', $retval, $args );
 	}
 
 /**
@@ -1532,7 +1532,7 @@ function fiscaat_form_record_status_dropdown( $record_id = 0 ) {
 	 * @uses fiscaat_get_record_id()
 	 * @uses fiscaat_get_record_status()
 	 * @uses fiscaat_get_approved_status_id()
-	 * @uses fiscaat_get_disapproved_status_id()
+	 * @uses fiscaat_get_declined_status_id()
 	 * @uses fiscaat_get_closed_status_id()
 	 * @uses apply_filters() Calls 'fiscaat_get_form_record_status_dropdown' with the
 	 *                        status dropdown, record id, and record statuses
@@ -1542,14 +1542,14 @@ function fiscaat_form_record_status_dropdown( $record_id = 0 ) {
 		$record_id     = fiscaat_get_record_id( $record_id );
 		$record_status = fiscaat_get_record_status( $record_id );
 		$statuses      = apply_filters( 'fiscaat_record_statuses', array(
-			fiscaat_get_public_status_id() => __('Open',        'fiscaat'),
-			fiscaat_get_closed_status_id() => __('Closed',      'fiscaat')
+			fiscaat_get_public_status_id() => __('Open',   'fiscaat'),
+			fiscaat_get_closed_status_id() => __('Closed', 'fiscaat')
 		) );
 
 		$disabled = disabled( apply_filters( 'fiscaat_record_status_dropdown_disable', current_user_can( 'fiscaat' ) ), true, false );
-		$status_output = '<select name="fiscaat_record_status" id="fiscaat_record_status" ' . $disabled .'>' . "\n";
+		$status_output = '<select name="fiscaat_record_status" id="fiscaat_record_status" ' . $disabled . '>' . "\n";
 
-		foreach( $statuses as $value => $label ) {
+		foreach ( $statuses as $value => $label ) {
 			$disabled = ' ' . disabled( apply_filters( 'fiscaat_record_status_dropdown_option_disable', false, $value ), true, false );
 			$status_output .= "\t" . '<option value="' . $value . '" ' . selected( $record_status, $value, false ) . $disabled . '>' . esc_html( $label ) . '</option>' . "\n";
 		}
@@ -1583,23 +1583,4 @@ function fiscaat_form_record_value_type_select( $record_id = 0 ) {
 	 * @return string Record value type select
 	 */
 	function fiscaat_get_form_record_value_type_select( $record_id = 0 ) {
-		$record_id  = fiscaat_get_record_id( $record_id );
-		$value_type = fiscaat_get_record_value_type( $record_id );
-		$types      = apply_filters( 'fiscaat_record_value_types', array(
-			fiscaat_get_debit_record_type()  => __('Debit',  'fiscaat'),
-			fiscaat_get_credit_record_type() => __('Credit', 'fiscaat'),
-		) );
-
-		// Disable select
-		$disable = fiscaat_is_control_active() && ! current_user_can( 'fiscaat' ) ? true : false;
-
-		$type_output = '<select name="fiscaat_record_value_type" id="fiscaat_record_value_type" '. disabled( $disable, true, false ) .'>' . "\n";
-
-		foreach( $types as $value => $label )
-			$type_output .= "\t" . '<option value="' . $value . '"' . selected( $value_type, $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
-
-		$type_output .= '</select>';
-
-		return apply_filters( 'fiscaat_get_form_record_value_type_select', $type_output, $record_id, $types );
-	}
-
+		$record_i

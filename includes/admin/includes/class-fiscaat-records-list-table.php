@@ -1,4 +1,5 @@
-	<?php
+<?php
+
 /**
  * Records List Table class
  *
@@ -178,7 +179,9 @@ class Fiscaat_Records_List_Table extends WP_List_Table {
 
 				case 'cb':
 				?>
-				<th scope="row" class="check-column"><?php if ( $can_edit_post ) { ?><input type="checkbox" name="post[]" value="<?php the_ID(); ?>" /><?php } ?></th>
+
+					<th scope="row" class="check-column"><?php if ( $can_edit_post ) { ?><input type="checkbox" name="post[]" value="<?php the_ID(); ?>" /><?php } ?></th>
+
 				<?php
 				break;
 
@@ -189,34 +192,38 @@ class Fiscaat_Records_List_Table extends WP_List_Table {
 						'name'     => 'created', 
 						'value'    => fiscaat_convert_date( $date, 'Y-m-d', true ),
 						'disabled' => true,
-						), $attributes );
+					), $attributes );
 				break;
 
 				case 'fiscaat_record_account_ledger_id':
 				?>
-				<td <?php echo $attributes; ?>><?php
-					fiscaat_ledger_dropdown( array(
-						'select_name' => sprintf( 'fiscaat_new_record[ledger_id][%s]', ! empty( $post->ID ) ? $post->ID : '' ),
-						'select_id'   => 'fiscaat_new_record_ledger_id', // Unique?
-						'class'       => 'fiscaat_new_record_ledger_id',
-						'show_none'   => '&mdash;',
-						'selected'    => $post->post_parent,
-						));
-				?></td>
+
+					<td <?php echo $attributes; ?>>
+						<?php fiscaat_ledger_dropdown( array(
+							'select_name' => sprintf( 'fiscaat_new_record[ledger_id][%s]', ! empty( $post->ID ) ? $post->ID : '' ),
+							'select_id'   => 'fiscaat_new_record_ledger_id', // Unique?
+							'class'       => 'fiscaat_new_record_ledger_id',
+							'show_none'   => '&mdash;',
+							'selected'    => $post->post_parent,
+						)); ?>
+					</td>
+
 				<?php
 				break;
 
 				case 'fiscaat_record_account' :
 				?>
-				<td <?php echo $attributes; ?>><?php
-					fiscaat_account_dropdown( array(
-						'select_name' =>  sprintf( 'fiscaat_new_record[account_id][]', ! empty( $post->ID ) ? $post->ID : '' ),
-						'select_id'   => 'fiscaat_new_record_account_id', // Unique?
-						'class'       => 'fiscaat_new_record_account_id',
-						'show_none'   => __('&mdash; No Account &mdash;', 'fiscaat'),
-						'selected'    => $post->post_parent,
-						) );
-				?></td>
+
+					<td <?php echo $attributes; ?>>
+						<?php fiscaat_account_dropdown( array(
+							'select_name' =>  sprintf( 'fiscaat_new_record[account_id][]', ! empty( $post->ID ) ? $post->ID : '' ),
+							'select_id'   => 'fiscaat_new_record_account_id', // Unique?
+							'class'       => 'fiscaat_new_record_account_id',
+							'show_none'   => __('&mdash; No Account &mdash;', 'fiscaat'),
+							'selected'    => $post->post_parent,
+						) ); ?>
+					</td>
+
 				<?php
 				break;
 
@@ -226,7 +233,7 @@ class Fiscaat_Records_List_Table extends WP_List_Table {
 						'name'  => 'description', 
 						'value' => $post->post_content,
 						'style' => 'rows="1" ',
-						), $attributes );
+					), $attributes );
 				break;
 
 				case 'fiscaat_record_offset_account' :
@@ -234,23 +241,27 @@ class Fiscaat_Records_List_Table extends WP_List_Table {
 						'type'  => 'text', 
 						'name'  => 'offset_account', 
 						'value' => '' //sanitize_text_field( $post->offset_account ),
-						), $attributes );
+					), $attributes );
 				break;
 
 				case 'fiscaat_record_value' :
 				?>
-				<td <?php echo $attributes; ?>>
-					<input name="fiscaat_new_record[debit][]"  class="fiscaat_record_debit_value small-text"  type="text" value="<?php if ( fiscaat_get_debit_record_type()  == $post->fiscaat_value_type ){ fiscaat_currency_format( $post->fiscaat_value ); } ?>" disabled="disabled" tabindex="<?php fiscaat_tab_index(); ?>" />
-					<input name="fiscaat_new_record[credit][]" class="fiscaat_record_credit_value small-text" type="text" value="<?php if ( fiscaat_get_credit_record_type() == $post->fiscaat_value_type ){ fiscaat_currency_format( $post->fiscaat_value ); } ?>" disabled="disabled" tabindex="<?php fiscaat_tab_index(); ?>" />
-				</td>
+
+					<td <?php echo $attributes; ?>>
+						<input name="fiscaat_new_record[debit][]"  class="fiscaat_record_debit_value small-text"  type="text" value="<?php if ( fiscaat_get_debit_record_type()  == $post->fiscaat_value_type ){ fiscaat_currency_format( $post->fiscaat_value ); } ?>" disabled="disabled" tabindex="<?php fiscaat_tab_index(); ?>" />
+						<input name="fiscaat_new_record[credit][]" class="fiscaat_record_credit_value small-text" type="text" value="<?php if ( fiscaat_get_credit_record_type() == $post->fiscaat_value_type ){ fiscaat_currency_format( $post->fiscaat_value ); } ?>" disabled="disabled" tabindex="<?php fiscaat_tab_index(); ?>" />
+					</td>
+
 				<?php
 				break;
 
 				default:
 				?>
-				<td <?php echo $attributes; ?>><?php
-					do_action( "fiscaat_records_list_table_custom_column", $column_name, $post->ID );
-				?></td>
+
+					<td <?php echo $attributes; ?>>
+						<?php do_action( "fiscaat_records_list_table_custom_column", $column_name, $post->ID ); ?>
+					</td>
+
 				<?php
 				break;
 
@@ -263,18 +274,22 @@ class Fiscaat_Records_List_Table extends WP_List_Table {
 
 				case 'fiscaat_record_value':
 				?>
-				<td <?php echo $attributes; ?>>
-					<input id="fiscaat_records_debit_total"  class="fiscaat_record_debit_value fiscaat_record_total small-text"  type="text" value="<?php fiscaat_currency_format( $post->fiscaat_debit_total ); ?>" disabled="disabled" />
-					<input id="fiscaat_records_credit_total" class="fiscaat_record_credit_value fiscaat_record_total small-text" type="text" value="<?php fiscaat_currency_format( $post->fiscaat_credit_total ); ?>" disabled="disabled" />
-				</td>
+
+					<td <?php echo $attributes; ?>>
+						<input id="fiscaat_records_debit_total"  class="fiscaat_record_debit_value fiscaat_record_total small-text"  type="text" value="<?php fiscaat_currency_format( $post->fiscaat_debit_total ); ?>" disabled="disabled" />
+						<input id="fiscaat_records_credit_total" class="fiscaat_record_credit_value fiscaat_record_total small-text" type="text" value="<?php fiscaat_currency_format( $post->fiscaat_credit_total ); ?>" disabled="disabled" />
+					</td>
+	
 				<?php
 				break;
 
 				default:
 				?>
-				<td <?php echo $attributes; ?>><?php
-					do_action( "fiscaat_records_list_table_total_column", $column_name, $post->ID );
-				?></td>
+
+					<td <?php echo $attributes; ?>>
+						<?php do_action( "fiscaat_records_list_table_total_column", $column_name, $post->ID ); ?>
+					</td>
+
 				<?php
 				break;
 

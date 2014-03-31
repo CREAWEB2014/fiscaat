@@ -10,7 +10,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
  * Main Fiscaat_Converter Class
@@ -306,7 +306,7 @@ class Fiscaat_Converter {
 		}
 
 		// Save step and count so that it can be restarted.
-		if ( ! get_option( '_fiscaat_converter_step' ) || ( !empty( $_POST['_fiscaat_converter_restart'] ) ) ) {
+		if ( ! get_option( '_fiscaat_converter_step' ) || ( ! empty( $_POST['_fiscaat_converter_restart'] ) ) ) {
 			update_option( '_fiscaat_converter_step',  1 );
 			update_option( '_fiscaat_converter_start', 0 );
 		}
@@ -318,7 +318,7 @@ class Fiscaat_Converter {
 		$start = $min;
 
 		// Bail if platform did not get saved
-		$platform = !empty( $_POST['_fiscaat_converter_platform' ] ) ? $_POST['_fiscaat_converter_platform' ] : get_option( '_fiscaat_converter_platform' );
+		$platform = ! empty( $_POST['_fiscaat_converter_platform' ] ) ? $_POST['_fiscaat_converter_platform' ] : get_option( '_fiscaat_converter_platform' );
 		if ( empty( $platform ) )
 			return;
 
@@ -329,7 +329,7 @@ class Fiscaat_Converter {
 
 			// STEP 1. Clean all tables.
 			case 1 :
-				if ( !empty( $_POST['_fiscaat_converter_clean'] ) ) {
+				if ( ! empty( $_POST['_fiscaat_converter_clean'] ) ) {
 					if ( $converter->clean( $start ) ) {
 						update_option( '_fiscaat_converter_step',  $step + 1 );
 						update_option( '_fiscaat_converter_start', 0         );
@@ -350,7 +350,7 @@ class Fiscaat_Converter {
 
 			// STEP 2. Convert users.
 			case 2 :
-				if ( !empty( $_POST['_fiscaat_converter_convert_users'] ) ) {
+				if ( ! empty( $_POST['_fiscaat_converter_convert_users'] ) ) {
 					if ( $converter->convert_users( $start ) ) {
 						update_option( '_fiscaat_converter_step',  $step + 1 );
 						update_option( '_fiscaat_converter_start', 0         );
@@ -370,7 +370,7 @@ class Fiscaat_Converter {
 
 			// STEP 3. Clean passwords.
 			case 3 :
-				if ( !empty( $_POST['_fiscaat_converter_convert_users'] ) ) {
+				if ( ! empty( $_POST['_fiscaat_converter_convert_users'] ) ) {
 					if ( $converter->clean_passwords( $start ) ) {
 						update_option( '_fiscaat_converter_step',  $step + 1 );
 						update_option( '_fiscaat_converter_start', 0         );
@@ -488,11 +488,11 @@ class Fiscaat_Converter {
 
 		require_once( ABSPATH . '/wp-admin/includes/upgrade.php' );
 
-		if ( !empty( $wpdb->charset ) ) {
+		if ( ! empty( $wpdb->charset ) ) {
 			$charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
 		}
 
-		if ( !empty( $wpdb->collate ) ) {
+		if ( ! empty( $wpdb->collate ) ) {
 			$charset_collate .= " COLLATE $wpdb->collate";
 		}
 
@@ -770,7 +770,7 @@ abstract class Fiscaat_Converter_Base {
 		}
 
 		// Get the fields from the destination table
-		if ( !empty( $tablename ) ) {
+		if ( ! empty( $tablename ) ) {
 			$tablefield_array = $this->get_fields( $tablename );
 		}
 
@@ -780,7 +780,7 @@ abstract class Fiscaat_Converter_Base {
 		foreach ( $this->field_map as $item ) {
 
 			// Yay a match, and we have a from table, too
-			if ( ( $item['to_type'] == $to_type ) && !empty( $item['from_tablename'] ) ) {
+			if ( ( $item['to_type'] == $to_type ) && ! empty( $item['from_tablename'] ) ) {
 
 				// $from_tablename was set from a previous loop iteration
 				if ( ! empty( $from_tablename ) ) {
@@ -796,7 +796,7 @@ abstract class Fiscaat_Converter_Base {
 				}
 
 				// Specific FROM expression data used
-				if ( !empty( $item['from_expression'] ) ) {
+				if ( ! empty( $item['from_expression'] ) ) {
 
 					// No 'WHERE' in expression
 					if ( stripos( $from_tablename, "WHERE" ) === false ) {
@@ -817,7 +817,7 @@ abstract class Fiscaat_Converter_Base {
 		/** Step 2 ************************************************************/
 
 		// We have a $from_tablename, so we want to get some data to convert
-		if ( !empty( $from_tablename ) ) {
+		if ( ! empty( $from_tablename ) ) {
 
 			// Get some data from the old years
 			$field_list  = array_unique( $field_list );
@@ -828,7 +828,7 @@ abstract class Fiscaat_Converter_Base {
 			update_option( '_fiscaat_converter_query', $year_query );
 
 			// Query returned some results
-			if ( !empty( $year_array ) ) {
+			if ( ! empty( $year_array ) ) {
 
 				// Loop through results
 				foreach ( (array) $year_array as $year ) {
@@ -866,7 +866,7 @@ abstract class Fiscaat_Converter_Base {
 
 							// Destination field is not empty, so we might need
 							// to do some extra work or set a default.
-							} elseif ( !empty( $row['to_fieldname'] ) ) {
+							} elseif ( ! empty( $row['to_fieldname'] ) ) {
 
 								// Allows us to set default fields.
 								if ( isset( $row['default'] ) ) {
@@ -976,7 +976,7 @@ abstract class Fiscaat_Converter_Base {
 
 		$has_update = false;
 
-		if ( !empty( $this->sync_table ) )
+		if ( ! empty( $this->sync_table ) )
 			$query = 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_fiscaat_year_parent_id" AND meta_value > 0 LIMIT ' . $start . ', ' . $this->max_rows;
 		else
 			$query = 'SELECT post_id AS value_id, meta_value FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_fiscaat_year_parent_id" AND meta_value > 0 LIMIT ' . $start . ', ' . $this->max_rows;
@@ -1031,7 +1031,7 @@ abstract class Fiscaat_Converter_Base {
 
 		$users = $this->wpdb->get_results( $query, ARRAY_A );
 
-		if ( !empty( $users ) ) {
+		if ( ! empty( $users ) ) {
 			foreach ( $users as $value ) {
 				wp_delete_user( $value['value_id'] );
 			}
@@ -1060,7 +1060,7 @@ abstract class Fiscaat_Converter_Base {
 
 		$bbconverter = $this->wpdb->get_results( $query, ARRAY_A );
 
-		if ( !empty( $bbconverter ) ) {
+		if ( ! empty( $bbconverter ) ) {
 
 			foreach ( $bbconverter as $value ) {
 				if ( is_serialized( $value['meta_value'] ) ) {
@@ -1120,10 +1120,10 @@ abstract class Fiscaat_Converter_Base {
 	 */
 	public function callback_pass( $username, $password ) {
 		$user = $this->wpdb->get_row( 'SELECT * FROM ' . $this->wpdb->users . ' WHERE user_login = "' . $username . '" AND user_pass = "" LIMIT 1' );
-		if ( !empty( $user ) ) {
+		if ( ! empty( $user ) ) {
 			$usermeta = $this->wpdb->get_row( 'SELECT * FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_fiscaat_password" AND user_id = "' . $user->ID . '" LIMIT 1' );
 
-			if ( !empty( $usermeta ) ) {
+			if ( ! empty( $usermeta ) ) {
 				if ( $this->authenticate_pass( $password, $usermeta->meta_value ) ) {
 					$this->wpdb->query( 'UPDATE ' . $this->wpdb->users . ' ' . 'SET user_pass = "' . wp_hash_password( $password ) . '" ' . 'WHERE ID = "' . $user->ID . '"' );
 					$this->wpdb->query( 'DELETE FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_fiscaat_password" AND user_id = "' . $user->ID . '"' );
@@ -1140,7 +1140,7 @@ abstract class Fiscaat_Converter_Base {
 	 */
 	private function callback_yearid( $field ) {
 		if ( !isset( $this->map_yearid[$field] ) ) {
-			if ( !empty( $this->sync_table ) ) {
+			if ( ! empty( $this->sync_table ) ) {
 				$row = $this->wpdb->get_row( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_fiscaat_year_id" AND meta_value = "' . $field . '" LIMIT 1' );
 			} else {
 				$row = $this->wpdb->get_row( 'SELECT post_id AS value_id FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_fiscaat_year_id" AND meta_value = "' . $field . '" LIMIT 1' );
@@ -1163,7 +1163,7 @@ abstract class Fiscaat_Converter_Base {
 	 */
 	private function callback_accountid( $field ) {
 		if ( !isset( $this->map_accountid[$field] ) ) {
-			if ( !empty( $this->sync_table ) ) {
+			if ( ! empty( $this->sync_table ) ) {
 				$row = $this->wpdb->get_row( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_fiscaat_old_account_id" AND meta_value = "' . $field . '" LIMIT 1' );
 			} else {
 				$row = $this->wpdb->get_row( 'SELECT post_id AS value_id FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_fiscaat_old_account_id" AND meta_value = "' . $field . '" LIMIT 1' );
@@ -1186,7 +1186,7 @@ abstract class Fiscaat_Converter_Base {
 	 */
 	private function callback_userid( $field ) {
 		if ( !isset( $this->map_userid[$field] ) ) {
-			if ( !empty( $this->sync_table ) ) {
+			if ( ! empty( $this->sync_table ) ) {
 				$row = $this->wpdb->get_row( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_fiscaat_user_id" AND meta_value = "' . $field . '" LIMIT 1' );
 			} else {
 				$row = $this->wpdb->get_row( 'SELECT user_id AS value_id FROM ' . $this->wpdb->usermeta . ' WHERE meta_key = "_fiscaat_user_id" AND meta_value = "' . $field . '" LIMIT 1' );
@@ -1195,7 +1195,7 @@ abstract class Fiscaat_Converter_Base {
 			if ( !is_null( $row ) ) {
 				$this->map_userid[$field] = $row->value_id;
 			} else {
-				if ( !empty( $_POST['_fiscaat_converter_convert_users'] ) && ( $_POST['_fiscaat_converter_convert_users'] == 1 ) ) {
+				if ( ! empty( $_POST['_fiscaat_converter_convert_users'] ) && ( $_POST['_fiscaat_converter_convert_users'] == 1 ) ) {
 					$this->map_userid[$field] = 0;
 				} else {
 					$this->map_userid[$field] = $field;
@@ -1229,67 +1229,4 @@ abstract class Fiscaat_Converter_Base {
 	}
 
 	protected function callback_slug( $field ) {
-		return sanitize_title( $field );
-	}
-
-	protected function callback_negative( $field ) {
-		if ( $field < 0 ) {
-			return 0;
-		} else {
-			return $field;
-		}
-	}
-
-	protected function callback_html( $field ) {
-		require_once( fiscaat()->admin->admin_dir . 'parser.php' );
-		$bbcode = BBCode::getInstance();
-		return html_entity_decode( $bbcode->Parse( $field ) );
-	}
-
-	protected function callback_null( $field ) {
-		if ( is_null( $field ) ) {
-			return '';
-		} else {
-			return $field;
-		}
-	}
-
-	protected function callback_datetime( $field ) {
-		if ( is_numeric( $field ) ) {
-			return date( 'Y-m-d H:i:s', $field );
-		} else {
-			return date( 'Y-m-d H:i:s', strtotime( $field ) );
-		}
-	}
-}
-
-/**
- * This is a function that is purposely written to look like a "new" statement.
- * It is basically a dynamic loader that will load in the platform conversion
- * of your choice.
- *
- * @param string $platform Name of valid platform class.
- */
-function fiscaat_new_converter( $platform ) {
-	$found = false;
-
-	if ( $curdir = opendir( fiscaat()->admin->admin_dir . 'converters/' ) ) {
-		while ( $file = readdir( $curdir ) ) {
-			if ( stristr( $file, '.php' ) && stristr( $file, 'index' ) === FALSE ) {
-				$file = preg_replace( '/.php/', '', $file );
-				if ( $platform == $file ) {
-					$found = true;
-					continue;
-				}
-			}
-		}
-		closedir( $curdir );
-	}
-
-	if ( true === $found ) {
-		require_once( fiscaat()->admin->admin_dir . 'converters/' . $platform . '.php' );
-		return new $platform;
-	} else {
-		return null;
-	}
-}
+		retu

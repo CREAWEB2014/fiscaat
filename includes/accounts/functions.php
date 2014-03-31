@@ -8,7 +8,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /** Meta **********************************************************************/
 
@@ -19,15 +19,15 @@ if ( !defined( 'ABSPATH' ) ) exit;
  */
 function fiscaat_get_account_default_meta(){
 	return (array) apply_filters( 'fiscaat_get_account_default_meta', array(
-		'year_id'                  => fiscaat_get_current_year_id(), // Year 
-		'ledger_id'                => 0,                             // Account ledger id
-		'account_type'             => '',                            // 'result', 'asset'
-		'record_count'             => 0,                             // Record count
-		'record_count_disapproved' => 0,                             // Disapproved record count
-		'record_count_unapproved'  => 0,                             // Unapproved record count
-		'from_value'               => 0,                             // Result from balance.
-		'to_value'                 => 0,                             // Current value to balance or income statment.
-		'spectators'               => array(),                       // User ids
+		'year_id'                 => fiscaat_get_current_year_id(), // Year 
+		'ledger_id'               => 0,                             // Account ledger id
+		'account_type'            => '',                            // 'result', 'asset'
+		'record_count'            => 0,                             // Record count
+		'record_count_declined'   => 0,                             // Declined record count
+		'record_count_unapproved' => 0,                             // Unapproved record count
+		'from_value'              => 0,                             // Result from balance.
+		'to_value'                => 0,                             // Current value to balance or income statment.
+		'spectators'              => array(),                       // User ids
 	) );
 }
 
@@ -118,7 +118,7 @@ function fiscaat_insert_account( $account_data = array(), $account_meta = array(
 
 	// Update the year
 	$year_id = fiscaat_get_account_year_id( $account_id );
-	if ( !empty( $year_id ) )
+	if ( ! empty( $year_id ) )
 		fiscaat_update_year( array( 'year_id' => $year_id ) );
 
 	// Return new account ID
@@ -153,27 +153,27 @@ function fiscaat_bump_account_record_count( $account_id = 0, $difference = 1 ) {
 }
 
 /**
- * Bump the total disapproved record count of an account
+ * Bump the total declined record count of an account
  *
  * @param int $account_id Optional. Account id.
  * @param int $difference Optional. Default 1
  * @uses fiscaat_get_account_id() To get the account id
  * @uses fiscaat_update_account_meta() To update the account's record count meta
- * @uses apply_filters() Calls 'fiscaat_bump_account_record_count_disapproved' with the
+ * @uses apply_filters() Calls 'fiscaat_bump_account_record_count_declined' with the
  *                        record count, account id, and difference
- * @return int Account disapproved record count
+ * @return int Account declined record count
  */
-function fiscaat_bump_account_record_count_disapproved( $account_id = 0, $difference = 1 ) {
+function fiscaat_bump_account_record_count_declined( $account_id = 0, $difference = 1 ) {
 
 	// Get counts
 	$account_id   = fiscaat_get_account_id( $account_id );
-	$record_count = fiscaat_get_account_record_count_disapproved( $account_id, false );
+	$record_count = fiscaat_get_account_record_count_declined( $account_id, false );
 	$new_count    = (int) $record_count + (int) $difference;
 
-	// Update this account id's disapproved record count
-	fiscaat_update_account_meta( $account_id, 'record_count_disapproved', (int) $new_count );
+	// Update this account id's declined record count
+	fiscaat_update_account_meta( $account_id, 'record_count_declined', (int) $new_count );
 
-	return (int) apply_filters( 'fiscaat_bump_account_record_count_disapproved', (int) $new_count, $account_id, (int) $difference );
+	return (int) apply_filters( 'fiscaat_bump_account_record_count_declined', (int) $new_count, $account_id, (int) $difference );
 }
 
 /**
@@ -419,7 +419,7 @@ function fiscaat_update_account_record_count_unapproved( $account_id = 0, $recor
 }
 
 /**
- * Adjust the total disapproved record count of an account
+ * Adjust the total declined record count of an account
  *
  * @param int $account_id Optional. Account id to update
  * @param int $record_count Optional. Set the record count manually
@@ -429,12 +429,12 @@ function fiscaat_update_account_record_count_unapproved( $account_id = 0, $recor
  * @uses fiscaat_get_record_post_type() To get the record post type
  * @uses wpdb::prepare() To prepare our sql query
  * @uses wpdb::get_var() To execute our query and get the var back
- * @uses fiscaat_update_account_meta() To update the account disapproved record count meta
- * @uses apply_filters() Calls 'fiscaat_update_account_record_count_disapproved' with the
- *                        disapproved record count and account id
- * @return int Account disapproved record count
+ * @uses fiscaat_update_account_meta() To update the account declined record count meta
+ * @uses apply_filters() Calls 'fiscaat_update_account_record_count_declined' with the
+ *                        declined record count and account id
+ * @return int Account declined record count
  */
-function fiscaat_update_account_record_count_disapproved( $account_id = 0, $record_count = 0 ) {
+function fiscaat_update_account_record_count_declined( $account_id = 0, $record_count = 0 ) {
 	global $wpdb;
 
 	// If it's a record, then get the parent (account id)
@@ -445,11 +445,11 @@ function fiscaat_update_account_record_count_disapproved( $account_id = 0, $reco
 
 	// Get records of account
 	if ( empty( $record_count ) )
-		$record_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = '%s' AND post_type = '%s';", $account_id, fiscaat_get_disapproved_status_id(), fiscaat_get_record_post_type() ) );
+		$record_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = '%s' AND post_type = '%s';", $account_id, fiscaat_get_declined_status_id(), fiscaat_get_record_post_type() ) );
 
-	fiscaat_update_account_meta( $account_id, 'record_count_disapproved', (int) $record_count );
+	fiscaat_update_account_meta( $account_id, 'record_count_declined', (int) $record_count );
 
-	return apply_filters( 'fiscaat_update_account_record_count_disapproved', (int) $record_count, $account_id );
+	return apply_filters( 'fiscaat_update_account_record_count_declined', (int) $record_count, $account_id );
 }
 
 /**
@@ -546,7 +546,7 @@ function fiscaat_update_account_spectators( $account_id = 0, $spectators = false
  * @uses fiscaat_update_account_year_id() To update the account's year id
  * @uses fiscaat_update_account_account_id() To update the account's account id
  * @uses fiscaat_update_account_record_count() To update the account record count
- * @uses fiscaat_update_account_record_count_disapproved() To udpate the account disapproved record count
+ * @uses fiscaat_update_account_record_count_declined() To udpate the account declined record count
  * @uses fiscaat_update_account_record_count_unapproved() To udpate the account unapproved record count
  * @uses fiscaat_update_year() To udpate the account's year
  */
@@ -590,10 +590,10 @@ function fiscaat_update_account( $args = '' ) {
 	if ( empty( $is_edit ) ) {
 
 		// Record account meta
-		fiscaat_update_account_record_count            ( $account_id, 0         );
-		fiscaat_update_account_record_count_disapproved( $account_id, 0         );
-		fiscaat_update_account_record_count_unapproved ( $account_id, 0         );
-		fiscaat_update_account_to_value                ( $account_id, $to_value );
+		fiscaat_update_account_record_count           ( $account_id, 0         );
+		fiscaat_update_account_record_count_declined  ( $account_id, 0         );
+		fiscaat_update_account_record_count_unapproved( $account_id, 0         );
+		fiscaat_update_account_to_value               ( $account_id, $to_value );
 
 		// Update account year
 		fiscaat_update_year( array( 'year_id' => $year_id ) );
@@ -869,121 +869,4 @@ function fiscaat_trash_account( $account_id = 0 ) {
 function fiscaat_untrash_account( $account_id = 0 ) {
 	$account_id = fiscaat_get_account_id( $account_id );
 
-	if ( empty( $account_id ) || !fiscaat_is_account( $account_id ) )
-		return false;
-
-	do_action( 'fiscaat_untrash_account', $account_id );
-
-	// Get the records that were not previously trashed
-	$pre_trashed_records = get_post_meta( $account_id, '_fiscaat_pre_trashed_records', true );
-
-	// There are records to untrash
-	if ( !empty( $pre_trashed_records ) ) {
-
-		// Maybe reverse the trashed records array
-		if ( is_array( $pre_trashed_records ) )
-			$pre_trashed_records = array_reverse( $pre_trashed_records );
-
-		// Loop through records
-		foreach ( (array) $pre_trashed_records as $record ) {
-			wp_untrash_post( $record );
-		}
-	}
-}
-
-/** After Delete/Trash/Untrash ************************************************/
-
-/**
- * Called after deleting an account
- *
- * @uses fiscaat_get_account_id() To get the account id
- * @uses fiscaat_is_account() To check if the passed id is an account
- * @uses do_action() Calls 'fiscaat_deleted_account' with the account id
- */
-function fiscaat_deleted_account( $account_id = 0 ) {
-	$account_id = fiscaat_get_account_id( $account_id );
-
-	if ( empty( $account_id ) || !fiscaat_is_account( $account_id ) )
-		return false;
-
-	do_action( 'fiscaat_deleted_account', $account_id );
-}
-
-/**
- * Called after trashing an account
- *
- * @uses fiscaat_get_account_id() To get the account id
- * @uses fiscaat_is_account() To check if the passed id is an account
- * @uses do_action() Calls 'fiscaat_trashed_account' with the account id
- */
-function fiscaat_trashed_account( $account_id = 0 ) {
-	$account_id = fiscaat_get_account_id( $account_id );
-
-	if ( empty( $account_id ) || !fiscaat_is_account( $account_id ) )
-		return false;
-
-	do_action( 'fiscaat_trashed_account', $account_id );
-}
-
-/**
- * Called after untrashing an account
- *
- * @uses fiscaat_get_account_id() To get the account id
- * @uses fiscaat_is_account() To check if the passed id is an account
- * @uses do_action() Calls 'fiscaat_untrashed_account' with the account id
- */
-function fiscaat_untrashed_account( $account_id = 0 ) {
-	$account_id = fiscaat_get_account_id( $account_id );
-
-	if ( empty( $account_id ) || !fiscaat_is_account( $account_id ) )
-		return false;
-
-	do_action( 'fiscaat_untrashed_account', $account_id );
-}
-
-/** Settings ******************************************************************/
-
-/**
- * Return the accounts per page setting
- *
- * @param int $default Default records per page (15)
- * @uses get_option() To get the setting
- * @uses apply_filters() To allow the return value to be manipulated
- * @return int
- */
-function fiscaat_get_accounts_per_page( $default = 15 ) {
-
-	// Get database option and cast as integer
-	$retval = get_option( '_fiscaat_accounts_per_page', $default );
-
-	// If return val is empty, set it to default
-	if ( empty( $retval ) )
-		$retval = $default;
-
-	// Filter and return
-	return (int) apply_filters( 'fiscaat_get_accounts_per_page', $retval, $default );
-}
-
-/** Permissions ***************************************************************/
-
-/**
- * Redirect if unathorized user is attempting to edit an account
- * 
- * @uses fiscaat_is_account_edit()
- * @uses current_user_can()
- * @uses fiscaat_get_account_id()
- * @uses wp_safe_redirect()
- * @uses fiscaat_get_account_permalink()
- */
-function fiscaat_check_account_edit() {
-
-	// Bail if not editing an account
-	if ( !fiscaat_is_account_edit() )
-		return;
-
-	// User cannot edit account, so redirect back to account
-	if ( !current_user_can( 'edit_account', fiscaat_get_account_id() ) ) {
-		wp_safe_redirect( fiscaat_get_account_permalink() );
-		exit();
-	}
-}
+	if ( empty(

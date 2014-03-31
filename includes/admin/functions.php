@@ -8,7 +8,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /** Admin Menus ***************************************************************/
 
@@ -110,7 +110,7 @@ function fiscaat_admin_menu_order( $menu_order ) {
 function fiscaat_filter_sample_permalink( $post_link, $_post, $leavename = false, $sample = false ) {
 
 	// Bail if not on an admin page and not getting a sample permalink
-	if ( !empty( $sample ) && is_admin() && fiscaat_is_custom_post_type() )
+	if ( ! empty( $sample ) && is_admin() && fiscaat_is_custom_post_type() )
 		return urldecode( $post_link );
 
 	// Return post link

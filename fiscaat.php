@@ -13,21 +13,23 @@
 
 /**
  * Plugin Name: Fiscaat
- * Plugin URI:  http://www.owpd.nl/plugins/fiscaat
+ * Plugin URI:  https://github.com/lmoffereins/fiscaat
  * Description: Fiscaat is accounting software the Wordpress way
  * Author:      Laurens Offereins
- * Author URI:  mailto:lmoffereins@gmail.com
+ * Author URI:  https://github.com/lmoffereins
  * Version:     0.0.1
  * Text Domain: fiscaat
  * Domain Path: /languages/
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
-if ( !class_exists( 'Fiscaat' ) ) :
+if ( ! class_exists( 'Fiscaat' ) ) :
 /**
  * Main Fiscaat Class
+ *
+ * @since 0.0.1
  */
 final class Fiscaat {
 
@@ -65,17 +67,12 @@ final class Fiscaat {
 	/** Singleton *************************************************************/
 
 	/**
-	 * @var Fiscaat The one true Fiscaat
-	 */
-	private static $instance;
-
-	/**
 	 * Main Fiscaat Instance
 	 *
 	 * Insures that only one instance of Fiscaat exists in memory at any one
 	 * time. Also prevents needing to define globals all over the place.
 	 *
-	 * @static array $instance
+	 * @static object $instance
 	 * @uses Fiscaat::setup_globals() Setup the globals needed
 	 * @uses Fiscaat::includes() Include the required files
 	 * @uses Fiscaat::setup_actions() Setup the hooks and actions
@@ -83,13 +80,20 @@ final class Fiscaat {
 	 * @return The one true Fiscaat
 	 */
 	public static function instance() {
-		if ( ! isset( self::$instance ) ) {
-			self::$instance = new Fiscaat;
-			self::$instance->setup_globals();
-			self::$instance->includes();
-			self::$instance->setup_actions();
+
+		// Store the instance locally to avoid private static replication
+		static $instance = null;
+
+		// Only run these methods if they haven't been ran previously
+		if ( null === $instance ) {
+			$instance = new Fiscaat;
+			$instance->setup_globals();
+			$instance->includes();
+			$instance->setup_actions();
 		}
-		return self::$instance;
+
+		// Always return the instance
+		return $instance;
 	}
 
 	/** Magic Methods *********************************************************/
@@ -153,36 +157,40 @@ final class Fiscaat {
 
 		/** Versions **********************************************************/
 
-		$this->version    = '0.0.1';
-		$this->db_version = '001';
+		$this->version       = '0.0.1';
+		$this->db_version    = '001';
 
 		/** Paths *************************************************************/
 
 		// Setup some base path and URL information
-		$this->file       = __FILE__;
-		$this->basename   = apply_filters( 'fiscaat_plugin_basename', plugin_basename( $this->file ) );
-		$this->plugin_dir = apply_filters( 'fiscaat_plugin_dir_path', plugin_dir_path( $this->file ) );
-		$this->plugin_url = apply_filters( 'fiscaat_plugin_dir_url',  plugin_dir_url ( $this->file ) );
+		$this->file          = __FILE__;
+		$this->basename      = apply_filters( 'fiscaat_plugin_basename', plugin_basename( $this->file ) );
+		$this->plugin_dir    = apply_filters( 'fiscaat_plugin_dir_path', plugin_dir_path( $this->file ) );
+		$this->plugin_url    = apply_filters( 'fiscaat_plugin_dir_url',  plugin_dir_url ( $this->file ) );
 
 		// Includes
-		$this->includes_dir = apply_filters( 'fiscaat_includes_dir', trailingslashit( $this->plugin_dir . 'includes'  ) );
-		$this->includes_url = apply_filters( 'fiscaat_includes_url', trailingslashit( $this->plugin_url . 'includes'  ) );
+		$this->includes_dir  = apply_filters( 'fiscaat_includes_dir',  trailingslashit( $this->plugin_dir . 'includes'  ) );
+		$this->includes_url  = apply_filters( 'fiscaat_includes_url',  trailingslashit( $this->plugin_url . 'includes'  ) );
+
+		// Templates
+		$this->templates_dir = apply_filters( 'fiscaat_templates_dir', trailingslashit( $this->plugin_dir . 'templates' ) );
+		$this->templates_url = apply_filters( 'fiscaat_templates_url', trailingslashit( $this->plugin_url . 'templates' ) );
 
 		// Languages
-		$this->lang_dir     = apply_filters( 'fiscaat_lang_dir',     trailingslashit( $this->plugin_dir . 'languages' ) );
+		$this->lang_dir      = apply_filters( 'fiscaat_lang_dir',      trailingslashit( $this->plugin_dir . 'languages' ) );
 
 		/** Identifiers *******************************************************/
 
 		// Post type identifiers
-		$this->record_post_type    = apply_filters( 'fiscaat_record_post_type',  'record'  );
-		$this->account_post_type   = apply_filters( 'fiscaat_account_post_type', 'account' );
-		$this->year_post_type      = apply_filters( 'fiscaat_year_post_type',    'year'    );
+		$this->record_post_type    = apply_filters( 'fiscaat_record_post_type',  'fiscaat_record'  );
+		$this->account_post_type   = apply_filters( 'fiscaat_account_post_type', 'fiscaat_account' );
+		$this->year_post_type      = apply_filters( 'fiscaat_year_post_type',    'fiscaat_year'    );
 
 		// Status identifiers
-		$this->public_status_id      = apply_filters( 'fiscaat_public_post_status',      'publish'     );
-		$this->approved_status_id    = apply_filters( 'fiscaat_approved_post_status',    'approved'    );
-		$this->disapproved_status_id = apply_filters( 'fiscaat_disapproved_post_status', 'disapproved' );
-		$this->closed_status_id      = apply_filters( 'fiscaat_closed_post_status',      'closed'      );
+		$this->public_status_id    = apply_filters( 'fiscaat_public_post_status',   'publish'  );
+		$this->approved_status_id  = apply_filters( 'fiscaat_approved_post_status', 'approved' );
+		$this->declined_status_id  = apply_filters( 'fiscaat_declined_post_status', 'declined' );
+		$this->closed_status_id    = apply_filters( 'fiscaat_closed_post_status',   'closed'   );
 
 		// Account type identifiers
 		$this->result_type_id      = apply_filters( 'fiscaat_result_acccount_type', 'result' );
@@ -193,28 +201,30 @@ final class Fiscaat {
 		$this->credit_type_id      = apply_filters( 'fiscaat_credit_record_type', 'credit' );
 
 		// Other identifiers
-		$this->rcrd_id             = apply_filters( 'fiscaat_rcrd_id', 'fiscaat_rcrd' );
-		$this->acnt_id             = apply_filters( 'fiscaat_acnt_id', 'fiscaat_acnt' );
-		$this->year_id             = apply_filters( 'fiscaat_year_id', 'fiscaat_year' );
+		$this->rcrd_id             = apply_filters( 'fiscaat_rcrd_id',  'fiscaat_rcrd' );
+		$this->acnt_id             = apply_filters( 'fiscaat_acnt_id',  'fiscaat_acnt' );
+		$this->year_id             = apply_filters( 'fiscaat_year_id',  'fiscaat_year' );
+		$this->edit_id             = apply_filters( 'fiscaat_edit_id',  'edit'         );
+		$this->paged_id            = apply_filters( 'fiscaat_paged_id', 'paged'        );
 
 		/** Queries ***********************************************************/
 
 		$this->current_record_id   = 0; // Current record id
 		$this->current_account_id  = 0; // Current account id
 		$this->current_year_id     = 0; // Current year id
-		$this->the_current_year_id = 0; // THE current year id
+		$this->the_current_year_id = 0; // The actual current year id
 
-		$this->record_query  = new stdClass(); // Main record query
-		$this->account_query = new stdClass(); // Main account query
-		$this->year_query    = new stdClass(); // Main year query
+		$this->record_query        = new WP_Query(); // Main record query
+		$this->account_query       = new WP_Query(); // Main account query
+		$this->year_query          = new WP_Query(); // Main year query
 
 		/** Misc **************************************************************/
 
-		$this->domain         = 'fiscaat';        // Unique identifier for retrieving translated strings
-		$this->currency       = '';               // Currency iso code
-		$this->extend         = new stdClass();   // Plugins add data here
-		$this->errors         = new WP_Error();   // Feedback
-		$this->tab_index      = apply_filters( 'fiscaat_default_tab_index', 100 );
+		$this->domain              = 'fiscaat';        // Unique identifier for retrieving translated strings
+		$this->currency            = '';               // Currency iso code
+		$this->extend              = new stdClass();   // Plugins add data here
+		$this->errors              = new WP_Error();   // Feedback
+		$this->tab_index           = apply_filters( 'fiscaat_default_tab_index', 100 );
 
 		/** Cache *************************************************************/
 
@@ -236,7 +246,6 @@ final class Fiscaat {
 		require( $this->includes_dir . 'core/functions.php'         );
 		require( $this->includes_dir . 'core/options.php'           );
 		require( $this->includes_dir . 'core/capabilities.php'      );
-		require( $this->includes_dir . 'core/control.php'           );
 		require( $this->includes_dir . 'core/update.php'            );
 
 		/** Components ********************************************************/
@@ -268,6 +277,11 @@ final class Fiscaat {
 		require( $this->includes_dir . 'users/functions.php'        );
 		require( $this->includes_dir . 'users/template-tags.php'    );
 		require( $this->includes_dir . 'users/options.php'          );
+
+		// Control
+		// require( $this->includes_dir . 'control/actions.php'        );
+		// require( $this->includes_dir . 'control/capabilities.php'   );
+		// require( $this->includes_dir . 'control/functions.php'      );
 
 		/** Hooks *************************************************************/
 
@@ -301,11 +315,11 @@ final class Fiscaat {
 
 		// Array of Fiscaat core actions
 		$actions = array(
-			'register_post_types',     // Register post types (record|account|year)
-			'register_post_statuses',  // Register post statuses (approved|disapproved|closed)
-			'load_textdomain',         // Load textdomain (fiscaat)
-			'add_rewrite_tags',        // Add rewrite tags (edit)
-			'generate_rewrite_rules',  // Generate rewrite rules (edit)
+			'register_post_types',    // Register post types (record|account|year)
+			'register_post_statuses', // Register post statuses (approved|declined|closed)
+			'load_textdomain',        // Load textdomain (fiscaat)
+			'add_rewrite_tags',       // Add rewrite tags (edit)
+			'add_rewrite_rules',      // Add rewrite rules (edit)
 		);
 
 		// Add the actions
@@ -555,12 +569,12 @@ final class Fiscaat {
 			) )
 		);
 
-		// Disapproved
+		// Declined
 		register_post_status(
-			fiscaat_get_disapproved_status_id(),
-			apply_filters( 'fiscaat_register_disapproved_post_status', array(
-				'label'                     => _x( 'Disapproved', 'post', 'fiscaat' ),
-				'label_count'               => _nx_noop( 'Disapproved <span class="count">(%s)</span>', 'Disapproved <span class="count">(%s)</span>', 'fiscaat' ),
+			fiscaat_get_declined_status_id(),
+			apply_filters( 'fiscaat_register_declined_post_status', array(
+				'label'                     => _x( 'Declined', 'post', 'fiscaat' ),
+				'label_count'               => _nx_noop( 'Declined <span class="count">(%s)</span>', 'Declined <span class="count">(%s)</span>', 'fiscaat' ),
 				'public'                    => true,
 				'show_in_admin_status_list' => true,
 				'show_in_admin_all_list'    => true
@@ -588,7 +602,7 @@ final class Fiscaat {
 	 * @uses add_rewrite_tag() To add the rewrite tags
 	 */
 	public static function add_rewrite_tags() {
-		add_rewrite_tag( '%%' . fiscaat_get_edit_rewrite_id() . '%%', '([1]{1,})' ); // Edit Page tag
+		add_rewrite_tag( '%' . fiscaat_get_edit_rewrite_id() . '%', '([1]{1,})' ); // Edit Page tag
 	}
 
 	/**
@@ -596,33 +610,35 @@ final class Fiscaat {
 	 * setup for us by way of custom post types. This includes:
 	 * - Front-end editing
 	 *
-	 * @param WP_Rewrite $wp_rewrite Fiscaat-sepecific rules are appended in
-	 *                                $wp_rewrite->rules
 	 */
-	public static function generate_rewrite_rules( $wp_rewrite ) {
+	public static function add_rewrite_rules() {
+
+		/** Setup *************************************************************/
+
+		// Add rules to top or bottom?
+		$priority       = 'top';
+
+		// Single Slugs
+		$year_slug      = fiscaat_get_year_slug();
+		$account_slug   = fiscaat_get_account_slug();
+		$record_slug    = fiscaat_get_record_slug();
+
+		// Secondary Slugs
+		$edit_slug      = 'edit';
 
 		// Unique rewrite ID's
-		$edit_id = fiscaat_get_edit_rewrite_id();
+		$edit_id        = fiscaat_get_edit_rewrite_id();
+
+		/** Add ***************************************************************/
 
 		// Rewrite rule matches used repeatedly below
-		$edit_rule = '/([^/]+)/edit/?$';
+		$edit_rule    = '/([^/]+)/' . $edit_slug  . '/?$';
 
 		// New Fiscaat specific rules to merge with existing that are not
 		// handled automatically by custom post types or taxonomy types
-		$fiscaat_rules = array(
-
-			// Edit Year|Account|Record
-			fiscaat_get_year_slug()    . $edit_rule => 'index.php?' . fiscaat_get_year_post_type()    . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $edit_id . '=1',
-			fiscaat_get_account_slug() . $edit_rule => 'index.php?' . fiscaat_get_account_post_type() . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $edit_id . '=1',
-			fiscaat_get_record_slug()  . $edit_rule => 'index.php?' . fiscaat_get_record_post_type()  . '=' . $wp_rewrite->preg_index( 1 ) . '&' . $edit_id . '=1',
-
-		);
-
-		// Merge Fiscaat rules with existing
-		$wp_rewrite->rules = array_merge( $fiscaat_rules, $wp_rewrite->rules );
-
-		// Return merged rules
-		return $wp_rewrite;
+		add_rewrite_rule( $year_slug    . $edit_rule, 'index.php?' . fiscaat_get_year_post_type()    . '=$matches[1]&' . $edit_id . '=1', $priority );
+		add_rewrite_rule( $account_slug . $edit_rule, 'index.php?' . fiscaat_get_account_post_type() . '=$matches[1]&' . $edit_id . '=1', $priority );
+		add_rewrite_rule( $record_slug  . $edit_rule, 'index.php?' . fiscaat_get_record_post_type()  . '=$matches[1]&' . $edit_id . '=1', $priority );
 	}
 }
 

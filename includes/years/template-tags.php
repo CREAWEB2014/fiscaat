@@ -8,7 +8,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /** Post Type *****************************************************************/
 
@@ -174,15 +174,15 @@ function fiscaat_year_id( $year_id = 0 ) {
 		$fiscaat = fiscaat();
 
 		// Easy empty checking
-		if ( !empty( $year_id ) && is_numeric( $year_id ) )
+		if ( ! empty( $year_id ) && is_numeric( $year_id ) )
 			$fiscaat_year_id = $year_id;
 
 		// Currently inside a year loop
-		elseif ( !empty( $fiscaat->year_query->in_the_loop ) && isset( $fiscaat->year_query->post->ID ) )
+		elseif ( ! empty( $fiscaat->year_query->in_the_loop ) && isset( $fiscaat->year_query->post->ID ) )
 			$fiscaat_year_id = $fiscaat->year_query->post->ID;
 
 		// Currently viewing a year
-		elseif ( fiscaat_is_single_year() && !empty( $fiscaat->current_year_id ) )
+		elseif ( fiscaat_is_single_year() && ! empty( $fiscaat->current_year_id ) )
 			$fiscaat_year_id = $fiscaat->current_year_id;
 
 		// Currently viewing a year
@@ -267,7 +267,7 @@ function fiscaat_year_permalink( $year_id = 0 ) {
 		$year_id = fiscaat_get_year_id( $year_id );
 
 		// Use the redirect address
-		if ( !empty( $redirect_to ) ) {
+		if ( ! empty( $redirect_to ) ) {
 			$year_permalink = esc_url_raw( $redirect_to );
 
 		// Use the account permalink
@@ -332,7 +332,7 @@ function fiscaat_year_archive_title( $title = '' ) {
 
 			// Set root text to page title
 			$page = fiscaat_get_page_by_path( fiscaat_get_root_slug() );
-			if ( !empty( $page ) ) {
+			if ( ! empty( $page ) ) {
 				$title = get_the_title( $page->ID );
 
 			// Default to year post type name label
@@ -561,30 +561,30 @@ function fiscaat_year_record_count( $year_id = 0, $integer = false ) {
 	}
 
 /**
- * Output total disapproved record count of a year 
+ * Output total declined record count of a year 
  *
  * @param int $year_id Optional. Account id
  * @param boolean $integer Optional. Whether or not to format the result
- * @uses fiscaat_get_year_record_count_disapproved() To get the year disapproved record count
+ * @uses fiscaat_get_year_record_count_declined() To get the year declined record count
  */
-function fiscaat_year_record_count_disapproved( $year_id = 0, $integer = false ) {
-	echo fiscaat_get_year_record_count_disapproved( $year_id, $integer );
+function fiscaat_year_record_count_declined( $year_id = 0, $integer = false ) {
+	echo fiscaat_get_year_record_count_declined( $year_id, $integer );
 }
 	/**
-	 * Return total disapproved record count of a year 
+	 * Return total declined record count of a year 
 	 *
 	 * @param int $year_id Optional. Account id
 	 * @param boolean $integer Optional. Whether or not to format the result
 	 * @uses fiscaat_get_year_id() To get the year id
-	 * @uses fiscaat_get_year_meta() To get the disapproved record count
-	 * @uses apply_filters() Calls 'fiscaat_get_year_record_count_disapproved' with
-	 *                        the disapproved record count and year id
-	 * @return int Account disapproved record count
+	 * @uses fiscaat_get_year_meta() To get the declined record count
+	 * @uses apply_filters() Calls 'fiscaat_get_year_record_count_declined' with
+	 *                        the declined record count and year id
+	 * @return int Account declined record count
 	 */
-	function fiscaat_get_year_record_count_disapproved( $year_id = 0, $integer = false ) {
+	function fiscaat_get_year_record_count_declined( $year_id = 0, $integer = false ) {
 		$year_id = fiscaat_get_year_id( $year_id );
-		$records = (int) fiscaat_get_year_meta( $year_id, 'record_count_disapproved' );
-		$filter  = ( true === $integer ) ? 'fiscaat_get_year_record_count_disapproved_int' : 'fiscaat_get_year_record_count_disapproved';
+		$records = (int) fiscaat_get_year_meta( $year_id, 'record_count_declined' );
+		$filter  = ( true === $integer ) ? 'fiscaat_get_year_record_count_declined_int' : 'fiscaat_get_year_record_count_declined';
 
 		return apply_filters( $filter, $records, $year_id );
 	}

@@ -8,7 +8,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 if ( !class_exists( 'Fiscaat_Records_Importer' ) ) :
 
@@ -229,7 +229,7 @@ class Fiscaat_Records_Importer {
 		$step = ! (bool) $_POST['fiscaat_import_restart'] ? (int) get_option( '_fiscaat_importer_step', 1 ) : 1;
 
 		// Bail if file type is not valid
-		$file_type = fiscaat_records_import_get_filetype( !empty( $_POST['_fiscaat_import_file_type' ] ) ? $_POST['_fiscaat_import_file_type' ] : '' );
+		$file_type = fiscaat_records_import_get_filetype( ! empty( $_POST['_fiscaat_import_file_type' ] ) ? $_POST['_fiscaat_import_file_type' ] : '' );
 		if ( empty( $file_type ) )
 			return $this->import_output( __('No import file type selected.', 'fiscaat'), 'error' );
 

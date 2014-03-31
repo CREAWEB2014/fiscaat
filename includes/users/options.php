@@ -8,7 +8,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
  * Get the default user options and their values
@@ -101,7 +101,7 @@ function fiscaat_filter_get_user_option( $value = false, $option = '', $user = 0
 	$fiscaat = fiscaat();
 
 	// Check the options global for preset value
-	if ( isset( $user->ID ) && isset( $fiscaat->user_options[$user->ID] ) && !empty( $fiscaat->user_options[$user->ID][$option] ) )
+	if ( isset( $user->ID ) && isset( $fiscaat->user_options[$user->ID] ) && ! empty( $fiscaat->user_options[$user->ID][$option] ) )
 		$value = $fiscaat->user_options[$user->ID][$option];
 
 	// Always return a value, even if false

@@ -54,7 +54,7 @@ function fiscaat_map_record_meta_caps( $caps = array(), $cap = '', $user_id = 0,
 			// Fisci can always read
 			} elseif ( user_can( $user_id, 'fiscaat' )
 				|| fiscaat_user_can_spectate( $args[0], $user_id )
-			) {
+				) {
 				$caps = array( 'fiscaat_spectate' );
 			}
 
@@ -64,7 +64,7 @@ function fiscaat_map_record_meta_caps( $caps = array(), $cap = '', $user_id = 0,
 
 		case 'publish_records'  :
 
-			// Restrain when requirements lack
+			// Bail when there's no open year or account
 			if ( ! fiscaat_has_open_year() || ! fiscaat_has_open_account() ) {
 				$caps = array( 'do_not_allow' );
 
@@ -81,7 +81,7 @@ function fiscaat_map_record_meta_caps( $caps = array(), $cap = '', $user_id = 0,
 
 			// Do some post ID based logic
 			$_post = get_post( $args[0] );
-			if ( !empty( $_post ) ){
+			if ( ! empty( $_post ) ){
 
 				// Record is closed
 				if ( fiscaat_get_closed_status_id() == $_post->post_status ){
@@ -127,7 +127,6 @@ function fiscaat_map_record_meta_caps( $caps = array(), $cap = '', $user_id = 0,
 		/** Attachments *******************************************************/
 
 		case 'upload_files' :
-
 			global $wp_query;
 
 			// Fisci can always upload for records

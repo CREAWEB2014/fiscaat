@@ -8,7 +8,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /** Repair ********************************************************************/
 
@@ -336,13 +336,13 @@ function fiscaat_admin_repair_group_year_relationship() {
 		$updated = $wpdb->query( "UPDATE `{$tablename}` SET `meta_value` = '{$group_years->ID}' WHERE `meta_key` = 'year_id' AND `meta_value` = '{$group_years->meta_value}';" );
 
 		// Bump the count
-		if ( !empty( $updated ) && ! is_wp_error( $updated ) ) {
+		if ( ! empty( $updated ) && ! is_wp_error( $updated ) ) {
 			++$g_count;
 		}
 
 		// Update group's year metadata
 		$group_id = (int) $wpdb->get_var( "SELECT `group_id` FROM `{$tablename}` WHERE `meta_key` = 'year_id' AND `meta_value` = '{$group_years->ID}';" );
-		if ( !empty( $group_id ) ) {
+		if ( ! empty( $group_id ) ) {
 			update_post_meta( $group_years->ID, '_fiscaat_group_ids', array( $group_id ) );
 			++$f_count;
 		}
@@ -408,7 +408,7 @@ function fiscaat_admin_repair_year_account_count() {
 		return array( 1, sprintf( $statement, $result ) );
 
 	$years = get_posts( array( 'post_type' => fiscaat_get_year_post_type(), 'numberposts' => -1 ) );
-	if ( !empty( $years ) ) {
+	if ( ! empty( $years ) ) {
 		foreach( $years as $year ) {
 			fiscaat_update_year_account_count( $year->ID );
 		}
@@ -442,7 +442,7 @@ function fiscaat_admin_repair_year_record_count() {
 		return array( 1, sprintf( $statement, $result ) );
 
 	$years = get_posts( array( 'post_type' => fiscaat_get_year_post_type(), 'numberposts' => -1 ) );
-	if ( !empty( $years ) ) {
+	if ( ! empty( $years ) ) {
 		foreach( $years as $year ) {
 			fiscaat_update_year_record_count( $year->ID );
 		}
@@ -942,7 +942,7 @@ function fiscaat_admin_reset() {
  * @uses wp_cache_flush() To flush the cache
  */
 function fiscaat_admin_reset_handler() {
-	if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && !empty( $_POST['fiscaat-are-you-sure'] ) ) {
+	if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && ! empty( $_POST['fiscaat-are-you-sure'] ) ) {
 		check_admin_referer( 'fiscaat-reset' );
 
 		global $wpdb;
@@ -966,7 +966,7 @@ function fiscaat_admin_reset_handler() {
 
 		/** Post Meta *********************************************************/
 
-		if ( !empty( $sql_posts ) ) {
+		if ( ! empty( $sql_posts ) ) {
 			foreach( $sql_posts as $key => $value ) {
 				$sql_meta[] = $key;
 			}

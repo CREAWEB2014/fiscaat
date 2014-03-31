@@ -52,9 +52,9 @@ function fiscaat_map_year_meta_caps( $caps = array(), $cap = '', $user_id = 0, $
 				$caps = array( 'do_not_allow' );
 
 			// Fisci, Controllers and assigned users can read
-			} elseif ( user_can( $user_id, 'fiscaat' ) 
+			} elseif ( user_can( $user_id, 'fiscaat' )
 				|| fiscaat_user_can_spectate( $args[0], $user_id ) 
-			) {
+				) {
 				$caps = array( 'fiscaat_spectate' );
 			}
 
@@ -88,7 +88,7 @@ function fiscaat_map_year_meta_caps( $caps = array(), $cap = '', $user_id = 0, $
 		case 'edit_year' :
 
 			// User cannot edit
-			if ( !user_can( $user_id, 'fiscaat' ) ) {
+			if ( ! user_can( $user_id, 'fiscaat' ) ) {
 				$caps = array( 'do_not_allow' );
 			
 			// Year is closed

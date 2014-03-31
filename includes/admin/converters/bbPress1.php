@@ -537,7 +537,7 @@ class Fiscaat1 extends Fiscaat_Converter_Base {
 	 * @return string Prefixed account title, or empty string
 	 */
 	public function callback_record_title( $title = '' ) {
-		$title = !empty( $title ) ? __( 'Re: ', 'fiscaat' ) . html_entity_decode( $title ) : '';
+		$title = ! empty( $title ) ? __( 'Re: ', 'fiscaat' ) . html_entity_decode( $title ) : '';
 		return $title;
 	}
 

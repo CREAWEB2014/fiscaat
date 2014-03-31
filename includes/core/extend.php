@@ -11,7 +11,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
  * Loads Akismet inside the Fiscaat global class
@@ -21,7 +21,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 function fiscaat_setup_akismet() {
 
 	// Bail if no akismet
-	if ( !defined( 'AKISMET_VERSION' ) ) return;
+	if ( ! defined( 'AKISMET_VERSION' ) ) return;
 
 	// Bail if Akismet is turned off
 	if ( !fiscaat_is_akismet_active() ) return;

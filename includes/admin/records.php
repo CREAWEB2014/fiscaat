@@ -8,7 +8,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 if ( !class_exists( 'Fiscaat_Records_Admin' ) ) :
 
@@ -102,7 +102,7 @@ class Fiscaat_Records_Admin {
 	 * @return boolean
 	 */
 	private function bail() {
-		if ( !isset( get_current_screen()->post_type ) || ( $this->post_type != get_current_screen()->post_type ) )
+		if ( ! isset( get_current_screen()->post_type ) || ( $this->post_type != get_current_screen()->post_type ) )
 			return true;
 
 		return false;
@@ -401,7 +401,7 @@ class Fiscaat_Records_Admin {
 				background-color: #eaeaea;
 			}
 
-			.status-disapproved {
+			.status-declined {
 				background-color: #faeaea;
 			}
 
@@ -448,7 +448,7 @@ class Fiscaat_Records_Admin {
 					background-color: #de9e0c;
 				}
 
-				.fiscaat_record_status_icon.status_<?php echo fiscaat_get_disapproved_status_id(); ?> {
+				.fiscaat_record_status_icon.status_<?php echo fiscaat_get_declined_status_id(); ?> {
 					background-color: #d54e21;
 				}
 
@@ -482,7 +482,7 @@ class Fiscaat_Records_Admin {
 	 *                 found
 	 * @uses check_admin_referer() To verify the nonce and check referer
 	 * @uses fiscaat_is_record_approved() To check if the record is marked as approved
-	 * @uses fiscaat_disapprove_record() To unmark the record as disapproved
+	 * @uses fiscaat_disapprove_record() To unmark the record as declined
 	 * @uses fiscaat_approve_record() To mark the record as approved
 	 * @uses do_action() Calls 'fiscaat_toggle_record_admin' with success, post
 	 *                    data, action and message
@@ -494,7 +494,7 @@ class Fiscaat_Records_Admin {
 		if ( $this->bail() ) return;
 
 		// Only proceed if GET is a record toggle action
-		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'fiscaat_toggle_record_spam' ) ) && !empty( $_GET['record_id'] ) ) {
+		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'fiscaat_toggle_record_spam' ) ) && ! empty( $_GET['record_id'] ) ) {
 			$action    = $_GET['action'];             // What action is taking place?
 			$record_id  = (int) $_GET['record_id'];   // What's the record id?
 			$success   = false;                       // Flag
@@ -513,7 +513,7 @@ class Fiscaat_Records_Admin {
 					check_admin_referer( 'approval-record_' . $record_id );
 
 					$approve = fiscaat_is_record_approved( $record_id );
-					$message = $approve ? 'disapproved' : 'approved';
+					$message = $approve ? 'declined' : 'approved';
 					$success = $approve ? fiscaat_disapprove_record( $record_id ) : fiscaat_approve_record( $record_id );
 
 					break;
@@ -556,10 +556,10 @@ class Fiscaat_Records_Admin {
 		if ( $this->bail() ) return;
 
 		// Only proceed if GET is a record toggle action
-		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && !empty( $_GET['fiscaat_record_toggle_notice'] ) && in_array( $_GET['fiscaat_record_toggle_notice'], array( 'spammed', 'unspammed' ) ) && !empty( $_GET['record_id'] ) ) {
+		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_GET['fiscaat_record_toggle_notice'] ) && in_array( $_GET['fiscaat_record_toggle_notice'], array( 'spammed', 'unspammed' ) ) && ! empty( $_GET['record_id'] ) ) {
 			$notice     = $_GET['fiscaat_record_toggle_notice'];    // Which notice?
 			$record_id  = (int) $_GET['record_id'];                 // What's the record id?
-			$is_failure = !empty( $_GET['failed'] ) ? true : false; // Was that a failure?
+			$is_failure = ! empty( $_GET['failed'] ) ? true : false; // Was that a failure?
 
 			// Empty? No record?
 			if ( empty( $notice ) || empty( $record_id ) )
@@ -577,8 +577,8 @@ class Fiscaat_Records_Admin {
 					$message = $is_failure == true ? sprintf( __( 'There was a problem marking the record "%1$s" as approved.',    'fiscaat' ), $record_title ) : sprintf( __( 'Record "%1$s" successfully marked as approved.',    'fiscaat' ), $record_title );
 					break;
 
-				case 'disapproved' :
-					$message = $is_failure == true ? sprintf( __( 'There was a problem marking the record "%1$s" as disapproved.', 'fiscaat' ), $record_title ) : sprintf( __( 'Record "%1$s" successfully marked as disapproved.', 'fiscaat' ), $record_title );
+				case 'declined' :
+					$message = $is_failure == true ? sprintf( __( 'There was a problem marking the record "%1$s" as declined.', 'fiscaat' ), $record_title ) : sprintf( __( 'Record "%1$s" successfully marked as declined.', 'fiscaat' ), $record_title );
 					break;
 			}
 
@@ -719,7 +719,7 @@ class Fiscaat_Records_Admin {
 				case 'fiscaat_record_account' :
 
 					// Output title name
-					if ( !empty( $account_id ) ) {
+					if ( ! empty( $account_id ) ) {
 
 						// Account Title
 						$account_title = fiscaat_get_account_records_admin_link( $account_id );
@@ -785,7 +785,7 @@ class Fiscaat_Records_Admin {
 					$account_year_id = fiscaat_get_account_year_id( $account_id );
 
 					// Output year name
-					if ( !empty( $record_year_id ) ) {
+					if ( ! empty( $record_year_id ) ) {
 
 						// Year Title
 						$year_title = fiscaat_get_year_title( $record_year_id );
@@ -939,8 +939,8 @@ class Fiscaat_Records_Admin {
 				$approval_uri  = esc_url( wp_nonce_url( add_query_arg( array( 'record_id' => $record->ID, 'action' => 'fiscaat_toggle_record_approval' ), remove_query_arg( array( 'fiscaat_record_toggle_notice', 'record_id', 'failed', 'super' ) ) ), 'approval-record_'  . $record->ID ) );
 				if ( ! fiscaat_is_record_approved( $record->ID ) ) {
 					$actions['approval'] = '<a href="' . $approval_uri . '" title="' . esc_attr__( 'Mark this record as approved',    'fiscaat' ) . '">' . __( 'Approve',    'fiscaat' ) . '</a>';
-				} elseif( ! fiscaat_is_record_disapproved( $record->ID ) ) {
-					$actions['approval'] = '<a href="' . $approval_uri . '" title="' . esc_attr__( 'Mark this record as disapproved', 'fiscaat' ) . '">' . __( 'Disapprove', 'fiscaat' ) . '</a>';
+				} elseif( ! fiscaat_is_record_declined( $record->ID ) ) {
+					$actions['approval'] = '<a href="' . $approval_uri . '" title="' . esc_attr__( 'Mark this record as declined', 'fiscaat' ) . '">' . __( 'Disapprove', 'fiscaat' ) . '</a>';
 				}
 			}
 		}
@@ -1051,7 +1051,7 @@ class Fiscaat_Records_Admin {
 
 				// Unapproved
 				case 0 :
-					$query_vars['post_status'] = array( fiscaat_get_public_status_id(), fiscaat_get_disapproved_status_id() ); // + disapproved?
+					$query_vars['post_status'] = array( fiscaat_get_public_status_id(), fiscaat_get_declined_status_id() ); // + declined?
 					break;
 
 				// Approved
@@ -1059,9 +1059,9 @@ class Fiscaat_Records_Admin {
 					$query_vars['post_status'] = array( fiscaat_get_approved_status_id(), fiscaat_get_closed_status_id() ); // + closed?
 					break;
 
-				// Disapproved
+				// Declined
 				case 2 :
-					$query_vars['post_status'] = fiscaat_get_disapproved_status_id();
+					$query_vars['post_status'] = fiscaat_get_declined_status_id();
 					break;
 			}
 		}
@@ -1089,7 +1089,7 @@ class Fiscaat_Records_Admin {
 				// Record offset account
 				case 'record_offset_acount' :
 					$query_vars['meta_key'] = '_fiscaat_offset_account'; // No meta_query
-					$query_vars['orderby']  = 'meta_value_num';
+					$query_vars['orderby']  = 'meta_value'; // Account can be string
 					break;
 			}
 

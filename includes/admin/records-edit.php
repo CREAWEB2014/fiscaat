@@ -8,9 +8,9 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
-if ( !class_exists( 'Fiscaat_Admin_Records_Edit' ) ) :
+if ( ! class_exists( 'Fiscaat_Admin_Records_Edit' ) ) :
 
 /**
  * Loads Fiscaat new record admin area
@@ -472,10 +472,10 @@ class Fiscaat_Admin_Records_Edit extends Fiscaat_Admin_Records {
 				? sprintf( __('Records approved. %d records were approved.', 'fiscaat'), (int) $_GET['record_count'] )
 				: __('Records approved.', 'fiscaat'),
 
-			// Records disapproved
+			// Records declined
 			6 => isset( $_GET['record_count'] )
-				? sprintf( __('Records disapproved. %d records were disapproved.', 'fiscaat'), (int) $_GET['record_count'] )
-				: __('Records disapproved.', 'fiscaat'),
+				? sprintf( __('Records declined. %d records were declined.', 'fiscaat'), (int) $_GET['record_count'] )
+				: __('Records declined.', 'fiscaat'),
 
 			// Records closed
 			7 => isset( $_GET['record_count'] )

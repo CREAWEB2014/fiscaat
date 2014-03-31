@@ -8,7 +8,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 if ( !class_exists( 'Fiscaat_Years_Admin' ) ) :
 /**
@@ -331,7 +331,7 @@ class Fiscaat_Years_Admin {
 			.column-fiscaat_year_account_count,
 			.column-fiscaat_year_record_count,
 			.column-fiscaat_account_record_count,
-			.column-fiscaat_account_record_count_disapproved,
+			.column-fiscaat_account_record_count_declined,
 			.column-fiscaat_account_record_count_unapproved {
 				width: 8% !important;
 			}
@@ -358,7 +358,7 @@ class Fiscaat_Years_Admin {
 				background-color: #eaeaea;
 			}
 
-			.status-disapproved {
+			.status-declined {
 				background-color: #faeaea;
 			}
 

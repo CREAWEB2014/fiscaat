@@ -8,7 +8,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /** Meta **********************************************************************/
 
@@ -20,12 +20,12 @@ if ( !defined( 'ABSPATH' ) ) exit;
  */
 function fiscaat_get_year_default_meta(){
 	return (array) apply_filters( 'fiscaat_get_year_default_meta', array(
-		'closed'                   => 0, // Year date closed
-		'account_count'            => 0, // Total year account count
-		'record_count'             => 0, // Total record count
-		'record_count_unapproved'  => 0, // Unapproved record count
-		'record_count_disapproved' => 0, // Disapproved record count
-		'to_balance'               => 0, // Current result to balance
+		'closed'                  => 0, // Year date closed
+		'account_count'           => 0, // Total year account count
+		'record_count'            => 0, // Total record count
+		'record_count_unapproved' => 0, // Unapproved record count
+		'record_count_declined'   => 0, // Declined record count
+		'to_balance'              => 0, // Current result to balance
 	) );
 }
 
@@ -247,27 +247,27 @@ function fiscaat_bump_year_record_count( $year_id = 0, $difference = 1 ) {
 }
 
 /**
- * Bump the total disapproved record count of a year
+ * Bump the total declined record count of a year
  *
  * @param int $year_id Optional. Year id.
  * @param int $difference Optional. Default 1
  * @uses fiscaat_get_year_id() To get the year id
  * @uses fiscaat_update_year_meta() To update the year's record count meta
- * @uses apply_filters() Calls 'fiscaat_bump_year_record_count_disapproved' with the
+ * @uses apply_filters() Calls 'fiscaat_bump_year_record_count_declined' with the
  *                        record count, year id, and difference
- * @return int Year disapproved record count
+ * @return int Year declined record count
  */
-function fiscaat_bump_year_record_count_disapproved( $year_id = 0, $difference = 1 ) {
+function fiscaat_bump_year_record_count_declined( $year_id = 0, $difference = 1 ) {
 
 	// Get some counts
 	$year_id      = fiscaat_get_year_id( $year_id );
-	$record_count = fiscaat_get_year_record_count_disapproved( $year_id, false );
+	$record_count = fiscaat_get_year_record_count_declined( $year_id, false );
 	$new_count    = (int) $record_count + (int) $difference;
 
 	// Update this year id
-	fiscaat_update_year_meta( $year_id, 'record_count_disapproved', (int) $new_count );
+	fiscaat_update_year_meta( $year_id, 'record_count_declined', (int) $new_count );
 
-	return (int) apply_filters( 'fiscaat_bump_year_record_count_disapproved', (int) $new_count, $year_id, (int) $difference );
+	return (int) apply_filters( 'fiscaat_bump_year_record_count_declined', (int) $new_count, $year_id, (int) $difference );
 }
 
 /**
@@ -341,7 +341,7 @@ function fiscaat_save_year_extras( $year_id = 0 ) {
 
 	/** Year Status ******************************************************/
 
-	if ( !empty( $_POST['fiscaat_year_status'] ) && in_array( $_POST['fiscaat_year_status'], array( 'open', 'closed' ) ) ) {
+	if ( ! empty( $_POST['fiscaat_year_status'] ) && in_array( $_POST['fiscaat_year_status'], array( 'open', 'closed' ) ) ) {
 		if ( 'closed' == $_POST['fiscaat_year_status'] && ! fiscaat_is_year_closed( $year_id, false ) ) {
 			fiscaat_close_year( $year_id );
 		} elseif ( 'open' == $_POST['fiscaat_year_status'] && fiscaat_is_year_closed( $year_id, false ) ) {
@@ -351,7 +351,7 @@ function fiscaat_save_year_extras( $year_id = 0 ) {
 
 	/** Close date *******************************************************/
 
-	if ( !empty( $_POST['fiscaat_year_closed'] ) && ! fiscaat_is_year_closed( $year_id, false ) ) {
+	if ( ! empty( $_POST['fiscaat_year_closed'] ) && ! fiscaat_is_year_closed( $year_id, false ) ) {
 		fiscaat_update_year_closed( $year_id );
 	}
 }
@@ -414,7 +414,7 @@ function fiscaat_update_year_account_count( $year_id = 0 ) {
 }
 
 /**
- * Adjust the total disapproved record count of a year
+ * Adjust the total declined record count of a year
  *
  * @param int $year_id Optional. Year id or record id. It is checked whether it
  *                       is a record or a year. If it's a record, its grandparent,
@@ -426,12 +426,12 @@ function fiscaat_update_year_account_count( $year_id = 0 ) {
  * @uses fiscaat_get_year_id() To get the year id
  * @uses wpdb::prepare() To prepare our sql query
  * @uses wpdb::get_var() To execute our query and get the count var back
- * @uses fiscaat_update_year_meta() To update the year disapproved record count meta
- * @uses apply_filters() Calls 'fiscaat_update_year_record_count_disapproved' with the
- *                        disapproved record count and year id
- * @return int Account disapproved record count
+ * @uses fiscaat_update_year_meta() To update the year declined record count meta
+ * @uses apply_filters() Calls 'fiscaat_update_year_record_count_declined' with the
+ *                        declined record count and year id
+ * @return int Account declined record count
  */
-function fiscaat_update_year_record_count_disapproved( $year_id = 0, $record_count = 0 ) {
+function fiscaat_update_year_record_count_declined( $year_id = 0, $record_count = 0 ) {
 	global $wpdb;
 
 	// If record_id was passed as $year_id, then get its year
@@ -446,12 +446,12 @@ function fiscaat_update_year_record_count_disapproved( $year_id = 0, $record_cou
 
 	// Get records of year
 	if ( empty( $record_count ) )
-		$record_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = '%s' AND post_type = '%s';", $year_id, fiscaat_get_disapproved_status_id(), fiscaat_get_record_post_type() ) );
+		$record_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = '%s' AND post_type = '%s';", $year_id, fiscaat_get_declined_status_id(), fiscaat_get_record_post_type() ) );
 
 	// Update the count
-	fiscaat_update_year_meta( $year_id, 'record_count_disapproved', (int) $record_count );
+	fiscaat_update_year_meta( $year_id, 'record_count_declined', (int) $record_count );
 
-	return (int) apply_filters( 'fiscaat_update_year_record_count_disapproved', (int) $record_count, $year_id );
+	return (int) apply_filters( 'fiscaat_update_year_record_count_declined', (int) $record_count, $year_id );
 }
 
 /**
@@ -526,7 +526,7 @@ function fiscaat_update_year_record_count( $year_id = 0 ) {
 
 	// Don't count records if the year is empty
 	$record_ids = fiscaat_year_query_record_ids( $year_id );
-	if ( !empty( $record_ids ) )
+	if ( ! empty( $record_ids ) )
 		$record_count = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent IN ( " . join( ',', $record_ids ) . " ) AND post_type = '%s';", fiscaat_get_record_post_type() ) );
 	else
 		$record_count = 0;
@@ -591,7 +591,7 @@ function fiscaat_update_year_to_balance( $year_id = 0, $to_balance = 0 ) {
  * @uses fiscaat_update_year_to_balance() To update the year to balance value
  * @uses fiscaat_update_year_account_count() To update the year account count
  * @uses fiscaat_update_year_record_count() To update the year record count
- * @uses fiscaat_update_year_record_count_disapproved() To update the disapproved record count
+ * @uses fiscaat_update_year_record_count_declined() To update the declined record count
  * @uses fiscaat_update_year_record_count_unapproved() To update the unapproved record count
  */
 function fiscaat_update_year( $args = '' ) {
@@ -609,10 +609,10 @@ function fiscaat_update_year( $args = '' ) {
 	fiscaat_update_year_to_balance( $year_id, $to_balance );
 
 	// Counts
-	fiscaat_update_year_account_count           ( $year_id );
-	fiscaat_update_year_record_count            ( $year_id );
-	fiscaat_update_year_record_count_unapproved ( $year_id );
-	fiscaat_update_year_record_count_disapproved( $year_id );
+	fiscaat_update_year_account_count          ( $year_id );
+	fiscaat_update_year_record_count           ( $year_id );
+	fiscaat_update_year_record_count_unapproved( $year_id );
+	fiscaat_update_year_record_count_declined  ( $year_id );
 }
 
 
@@ -854,7 +854,7 @@ function fiscaat_trash_year_accounts( $year_id = 0 ) {
 	// Allowed post statuses to pre-trash
 	$post_stati = join( ',', array(
 		fiscaat_get_public_status_id(),
-		fiscaat_get_disapproved_status_id(),
+		fiscaat_get_declined_status_id(),
 		fiscaat_get_approved_status_id(),
 		fiscaat_get_closed_status_id()
 	) );
@@ -911,129 +911,7 @@ function fiscaat_untrash_year_accounts( $year_id = 0 ) {
 	$pre_trashed_accounts = get_post_meta( $year_id, '_fiscaat_pre_trashed_accounts', true );
 
 	// There are accounts to untrash
-	if ( !empty( $pre_trashed_accounts ) ) {
+	if ( ! empty( $pre_trashed_accounts ) ) {
 
 		// Maybe reverse the trashed accounts array
-		if ( is_array( $pre_trashed_accounts ) )
-			$pre_trashed_accounts = array_reverse( $pre_trashed_accounts );
-
-		// Loop through accounts
-		foreach ( (array) $pre_trashed_accounts as $account ) {
-			wp_untrash_post( $account );
-		}
-	}
-}
-
-/** Before Delete/Trash/Untrash ***********************************************/
-
-/**
- * Called before deleting a year.
- *
- * This function is supplemental to the actual year deletion which is
- * handled by WordPress core API functions. It is used to clean up after
- * a year that is being deleted.
- *
- * @since Fiscaat (r3668)
- * @uses fiscaat_get_year_id() To get the year id
- * @uses fiscaat_is_year() To check if the passed id is a year
- * @uses do_action() Calls 'fiscaat_delete_year' with the year id
- */
-function fiscaat_delete_year( $year_id = 0 ) {
-	$year_id = fiscaat_get_year_id( $year_id );
-
-	if ( empty( $year_id ) || !fiscaat_is_year( $year_id ) )
-		return false;
-
-	do_action( 'fiscaat_delete_year', $year_id );
-}
-
-/**
- * Called before trashing a year
- *
- * This function is supplemental to the actual year being trashed which is
- * handled by WordPress core API functions. It is used to clean up after
- * a year that is being trashed.
- *
- * @since Fiscaat (r3668)
- * @uses fiscaat_get_year_id() To get the year id
- * @uses fiscaat_is_year() To check if the passed id is a year
- * @uses do_action() Calls 'fiscaat_trash_year' with the year id
- */
-function fiscaat_trash_year( $year_id = 0 ) {
-	$year_id = fiscaat_get_year_id( $year_id );
-
-	if ( empty( $year_id ) || !fiscaat_is_year( $year_id ) )
-		return false;
-
-	do_action( 'fiscaat_trash_year', $year_id );
-}
-
-/**
- * Called before untrashing a year
- *
- * @since Fiscaat (r3668)
- * @uses fiscaat_get_year_id() To get the year id
- * @uses fiscaat_is_year() To check if the passed id is a year
- * @uses do_action() Calls 'fiscaat_untrash_year' with the year id
- */
-function fiscaat_untrash_year( $year_id = 0 ) {
-	$year_id = fiscaat_get_year_id( $year_id );
-
-	if ( empty( $year_id ) || !fiscaat_is_year( $year_id ) )
-		return false;
-
-	do_action( 'fiscaat_untrash_year', $year_id );
-}
-
-/** After Delete/Trash/Untrash ************************************************/
-
-/**
- * Called after deleting a year
- *
- * @since Fiscaat (r3668)
- * @uses fiscaat_get_year_id() To get the year id
- * @uses fiscaat_is_year() To check if the passed id is a year
- * @uses do_action() Calls 'fiscaat_deleted_year' with the year id
- */
-function fiscaat_deleted_year( $year_id = 0 ) {
-	$year_id = fiscaat_get_year_id( $year_id );
-
-	if ( empty( $year_id ) || !fiscaat_is_year( $year_id ) )
-		return false;
-
-	do_action( 'fiscaat_deleted_year', $year_id );
-}
-
-/**
- * Called after trashing a year
- *
- * @since Fiscaat (r3668)
- * @uses fiscaat_get_year_id() To get the year id
- * @uses fiscaat_is_year() To check if the passed id is a year
- * @uses do_action() Calls 'fiscaat_trashed_year' with the year id
- */
-function fiscaat_trashed_year( $year_id = 0 ) {
-	$year_id = fiscaat_get_year_id( $year_id );
-
-	if ( empty( $year_id ) || !fiscaat_is_year( $year_id ) )
-		return false;
-
-	do_action( 'fiscaat_trashed_year', $year_id );
-}
-
-/**
- * Called after untrashing a year
- *
- * @since Fiscaat (r3668)
- * @uses fiscaat_get_year_id() To get the year id
- * @uses fiscaat_is_year() To check if the passed id is a year
- * @uses do_action() Calls 'fiscaat_untrashed_year' with the year id
- */
-function fiscaat_untrashed_year( $year_id = 0 ) {
-	$year_id = fiscaat_get_year_id( $year_id );
-
-	if ( empty( $year_id ) || !fiscaat_is_year( $year_id ) )
-		return false;
-
-	do_action( 'fiscaat_untrashed_year', $year_id );
-}
+		

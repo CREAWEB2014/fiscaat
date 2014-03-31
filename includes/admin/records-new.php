@@ -8,7 +8,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 if ( !class_exists( 'Fiscaat_Admin_Records_New' ) ) :
 
@@ -39,7 +39,7 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 			'menu_title' => $post_type_object->labels->add_new,
 			'page_title' => $post_type_object->labels->add_new,
 			'cap'        => $post_type_object->cap->publish_posts
-			) );
+		) );
 	}
 
 	/**
@@ -95,7 +95,10 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 	 * Redirect users from post-new.php to new record page
 	 */
 	public function redirect() {
-		if ( $this->bail( false ) ) return;
+
+		// Bail
+		if ( $this->bail( false ) ) 
+			return;
 
 		// Safely redirect
 		wp_safe_redirect( add_query_arg( array( 'post_type' => $this->post_type, 'page' => $this->args->page ), admin_url( 'edit.php' ) ) );
@@ -133,7 +136,9 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 	public function prepare_items() {
 		global $wp_query;
 
-		if ( $this->bail() ) return;
+		// Bail
+		if ( $this->bail() ) 
+			return;
 
 		// Fill $wp_query
 		$wp_query->post_count = $wp_query->found_posts = apply_filters( $this->args->hook_prefix .'_post_count', 8 );
@@ -172,7 +177,10 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 	 * Remove checkbox column
 	 */
 	public function remove_column_cb( $columns ) {
-		if ( $this->bail() ) return $columns;
+		
+		// Bail
+		if ( $this->bail() ) 
+			return $columns;
 
 		unset( $columns['cb'] );
 		return $columns;
@@ -182,32 +190,39 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 	 * Output add num rows input section
 	 */
 	public function add_num_rows_select( $which ) {
-		if ( $this->bail() ) return;
+		
+		// Bail
+		if ( $this->bail() ) 
+			return;
 
-		if ( 'top' != $which && !is_singular() ) {
-		?>
-		<label for="num-rows">
-			<?php printf( __('Add %s rows', 'fiscaat'), 
-			'<input type="number" name="num-rows" id="num-rows" class="small-text" step="1" min="1" value="1" />' ); ?>
-		</label>
-		<?php 
-			submit_button( __('Add', 'fiscaat'), 'secondary', false, false, array( 'id' => 'add-num-rows' ) );
-		}
+		// Only on table top
+		if ( 'top' != $which && ! is_singular() ) : ?>
+
+			<label for="num-rows">
+				<?php printf( __('Add %s rows', 'fiscaat'), 
+				'<input type="number" name="num-rows" id="num-rows" class="small-text" step="1" min="1" value="1" />' ); ?>
+			</label>
+			<?php submit_button( __('Add', 'fiscaat'), 'secondary', false, false, array( 'id' => 'add-num-rows' ) ); ?>
+
+		<?php endif;
 	}
 
 	/**
 	 * Output hidden new default row
+	 * 
+	 * Wraps a <tr> in a hidden <table>
 	 */
 	public function new_default_row() {
 		global $wp_query;
 
-		if ( $this->bail() ) return;
+		// Bail
+		if ( $this->bail() ) 
+			return; ?>
 
-		// Wrap <tr> in a hidden <table>
-		?>
-		<table id="new-default-container" style="display:none;">
-			<?php $this->list_table->single_row( $wp_query->posts[0] ); ?>
-		</table>
+			<table id="new-default-container" style="display:none;">
+				<?php $this->list_table->single_row( $wp_query->posts[0] ); ?>
+			</table>
+			
 		<?php
 	}
 
@@ -216,7 +231,9 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 	 */
 	public function enqueue_page_scripts() {
 
-		if ( $this->bail() ) return;
+		// Bail
+		if ( $this->bail() ) 
+			return;
 
 		// Enqueue & localize New Records script
 		wp_register_script( 'fiscaat-records-new', fiscaat()->admin->admin_url . 'scripts/fiscaat-records-new.js', array( 'jquery', 'livequery', 'format-currency' ) );
@@ -341,7 +358,7 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 						break;
 
 					default :
-						do_action( $this->args->hook_prefix .'_fetch_field', &$v, $field, $records, &$error );
+						// do_action( $this->args->hook_prefix .'_fetch_field', &$v, $field, $records, &$error );
 						break;
 				}
 			}
@@ -378,13 +395,17 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 	 */
 	public function new_records_insert_records() {
 
-		if ( $this->bail() ) return;
+		// Bail
+		if ( $this->bail() ) 
+			return;
 
 		// Bail if not submitted
-		if ( ! isset( $_REQUEST['fiscaat_insert_new_records_submit'] ) ) return;
+		if ( ! isset( $_REQUEST['fiscaat_insert_new_records_submit'] ) ) 
+			return;
 
 		// Bail if no records posted
-		if ( ! isset( $_REQUEST['fiscaat_new_record'] ) ) return;
+		if ( ! isset( $_REQUEST['fiscaat_new_record'] ) ) 
+			return;
 
 		// Setup records array
 		$_records = array();
@@ -421,10 +442,10 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 						if ( ( 
 							   ( ! isset( $record[$field] ) || empty( $record[$field] ) )
 							&& ( ! isset( $record[$other] ) || empty( $record[$other] ) )
-						) || ( 
+							) || ( 
 							   ( isset( $record[$field] ) && ! empty( $record[$field] ) )
 							&& ( isset( $record[$other] ) && ! empty( $record[$other] ) )
-						) ) {
+							) ) {
 							$record[$field] = false;
 							$list[] = $k;
 						}
@@ -547,122 +568,4 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 	 *
 	 * @uses apply_filters() Calls 'fiscaat_new_records_required_fields'
 	 *                        with empty array
-	 * @return array Required record fields
-	 */
-	public function new_records_required_fields( $type = 'fields' ) {
-
-		// Hook for extra required fields
-		$fields = apply_filters( 'fiscaat_new_records_required_fields', array(), $type );
-		$core   = array();
-
-		// Required fields
-		if ( 'fields' == $type )
-			$core = array( 
-				'ledger_id'   => _x('No.', 'Account number', 'fiscaat'),
-				'account_id'  => __('Account',               'fiscaat'),
-				'description' => __('Description',           'fiscaat'),
-				'debit'       => __('Debit',                 'fiscaat'), // Debit/Credit ?
-				'credit'      => __('Credit',                'fiscaat'), // Debit/Credit ?
-			);
-
-		// Required field names
-		if ( 'names' == $type )
-			$core = array(
-				'fiscaat_new_records[ledger_id][]',
-				'fiscaat_new_records[account_id][]',
-				'fiscaat_new_records[description][]',
-				'fiscaat_new_records[debit][]',
-				'fiscaat_new_records[credit][]',
-			);
-
-		return array_merge( $fields, $core );
-	}
-
-	/**
-	 * Output admin message for New Records page
-	 * 
-	 * @uses self::new_records_updated_messages()
-	 */
-	public function new_records_display_admin_notice() {
-
-		if ( $this->bail() ) return;
-
-		// Only display if message available
-		if ( ! isset( $_GET['message'] ) ) return;
-
-		// Get vars
-		$notice     = (int) $_GET['message'];
-		$is_failure = ! empty( $_GET['failure'] ) ? true : false;
-		$messages   = $this->updated_messages();
-
-		// Output message
-		if ( isset( $messages[$notice] ) ) {
-			?>
-
-			<div id="message" class="<?php echo $is_failure == true ? 'error' : 'updated'; ?> fade">
-				<p style="line-height: 150%"><?php echo $messages[$notice]; ?></p>
-			</div>
-
-			<?php
-		}
-	}
-
-	/**
-	 * Return array of admin messages for New Records page
-	 * 
-	 * @return array Admin messages
-	 */
-	public function updated_messages() {
-
-		// Setup messages array
-		$messages = array(
-
-			// Saved successfully
-			1 => isset( $_GET['record_count'] )
-				? sprintf( __('Records saved. %d new records were saved to the database.', 'fiscaat'), (int) $_GET['record_count'] )
-				: __('Records saved.', 'fiscaat'),
-
-			// Something went wrong
-			2 => __('Something went wrong with saving the records. Please try again', 'fiscaat'),
-
-			// No records to save
-			3 => __('There were no records found to be saved. Make sure you fill at least two rows before submitting.', 'fiscaat'),
-
-			// Missing required fields
-			4 => sprintf( __('Values are missing. All new records require at least the following fields: %s.', 'fiscaat'), join( ', ', $this->new_records_required_fields() ) ),
-
-			// Records approved
-			5 => isset( $_GET['record_count'] )
-				? sprintf( __('Records approved. %d records were approved.', 'fiscaat'), (int) $_GET['record_count'] )
-				: __('Records approved.', 'fiscaat'),
-
-			// Records disapproved
-			6 => isset( $_GET['record_count'] )
-				? sprintf( __('Records disapproved. %d records were disapproved.', 'fiscaat'), (int) $_GET['record_count'] )
-				: __('Records disapproved.', 'fiscaat'),
-
-			// Records closed
-			7 => isset( $_GET['record_count'] )
-				? sprintf( __('Records closed. %d records were closed.', 'fiscaat'), (int) $_GET['record_count'] )
-				: __('Records closed.', 'fiscaat'),
-
-			);
-
-		return apply_filters( 'fiscaat_new_records_updated_messages', $messages );
-	}
-
-}
-
-endif; // class_exists check
-
-/**
- * Setup Fiscaat Records New
- *
- * This is currently here to make hooking and unhooking of the admin UI easy.
- * It could use dependency injection in the future, but for now this is easier.
- *
- * @uses Fiscaat_Admin_Records_New
- */
-function fiscaat_admin_records_new() {
-	fiscaat()->admin->records_new = new Fiscaat_Admin_Records_New();
-}
+	 * @ret
