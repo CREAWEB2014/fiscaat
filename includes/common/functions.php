@@ -1135,4 +1135,69 @@ function fct_the_currency_format( $currency = '' ){
 		'SIT' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
 		'ZAR' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ' ' ),
 		'KRW' => array( 'decimals' => 0, 'dec_point' => '',  'thousands_sep' => ',' ),
-		'SZ
+		'SZL' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ', ' ),
+		'SEK' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
+		'CHF' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => '\'' ),
+		'TZS' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
+		'THB' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
+		'TOP' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
+		'AED' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
+		'UAH' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => ' ' ),
+		'USD' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
+		'VUV' => array( 'decimals' => 0, 'dec_point' => '',  'thousands_sep' => ',' ),
+		'VEF' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
+		'VEB' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
+		'VND' => array( 'decimals' => 0, 'dec_point' => '',  'thousands_sep' => '.' ),
+		'ZWD' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ' ' )
+	);
+
+	if ( ! isset( $formats[$currency] ) )
+		$currency = 'USD';
+
+	return apply_filters( 'fct_the_currency_formats', $formats[$currency], $currency );
+}
+
+/**
+ * A Fiscaat specific method for formatting values for INR currency
+ *
+ * @see http://www.joelpeterson.com/blog/2011/03/formatting-over-100-currencies-in-php/
+ * 
+ * @param float $number Number to format
+ * @uses fct_the_currency_format() To get the INR currency format
+ * @uses apply_filters() Calls 'fct_the_currency_format_INR' with the
+ *                        formatted number, and initial number
+ * @return string Formatted number
+ */
+function fct_the_currency_format_INR( $number = 0 ) {
+	$format = fct_the_currency_format( 'INR' );
+	$dec    = '';
+
+	// Has value decimals
+	if ( $pos = strpos( $number, '.' ) ) {
+		$dec    = substr( round( substr( $number, $pos ), $format['decimals'] ), 1 );
+		$number = substr( $number, 0, $pos );
+	}
+
+	// Setup number parts
+	$retval = substr( $number, -3 );
+	$number = substr( $number, 0, -3 );
+
+	// Add seperators
+	while ( strlen( $number ) > 0 ) {
+		$retval = substr( $number, -2 ) . $format['thousands_sep'] . $retval;
+		$number = substr( $number, 0, -2 );
+	}
+
+	return apply_filters( 'fct_the_currency_format_INR', $retval . $dec, $number );
+}
+
+/**
+ * Sanitize currency input to be an existing currency
+ * 
+ * @param string $input Currency input
+ * @uses fct_get_currencies() To get available currencies
+ * @return string Sanitized currency
+ */
+function fct_sanitize_currency( $input = '' ) {
+	return in_array( $input, array_keys( fct_get_currencies() ) ) ? $input : 'USD';
+}

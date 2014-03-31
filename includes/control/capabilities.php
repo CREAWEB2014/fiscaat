@@ -4,7 +4,7 @@
  * Fiscaat Control Capabilities
  *
  * @package Fiscaat
- * @subpackage Control
+ * @subpackage Capabilities
  */
 
 // Exit if accessed directly

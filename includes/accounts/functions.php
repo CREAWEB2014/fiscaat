@@ -237,7 +237,7 @@ function fct_bump_account_to_value( $account_id = 0, $add_value = 0, $value_type
 
 	// Value less debit
 	if ( $value_type == fct_get_debit_record_type() )
-		$new_to_value -= (int) $add_value;
+		$new_to_value= (int) $add_value;
 
 	// Value plus credit
 	elseif ( $value_type == fct_get_credit_record_type() )
@@ -495,7 +495,7 @@ function fct_update_account_to_value( $account_id = 0, $to_value = false ) {
 				$values[ fct_get_record_value_type( $record_id ) ] += fct_get_record_value( $record_id );
 
 			// Less credit with debit
-			$to_value = $values[ fct_get_credit_record_type() ] - $values[ fct_get_debit_record_type() ];
+			$to_value = $values[ fct_get_credit_record_type() ] $values[ fct_get_debit_record_type() ];
 
 		// No records
 		} else {
@@ -869,4 +869,121 @@ function fct_trash_account( $account_id = 0 ) {
 function fct_untrash_account( $account_id = 0 ) {
 	$account_id = fct_get_account_id( $account_id );
 
-	if ( empty(
+	if ( empty( $account_id ) || ! fct_is_account( $account_id ) )
+		return false;
+
+	do_action( 'fct_untrash_account', $account_id );
+
+	// Get the records that were not previously trashed
+	$pre_trashed_records = get_post_meta( $account_id, '_fct_pre_trashed_records', true );
+
+	// There are records to untrash
+	if ( !empty( $pre_trashed_records ) ) {
+
+		// Maybe reverse the trashed records array
+		if ( is_array( $pre_trashed_records ) )
+			$pre_trashed_records = array_reverse( $pre_trashed_records );
+
+		// Loop through records
+		foreach ( (array) $pre_trashed_records as $record ) {
+			wp_untrash_post( $record );
+		}
+	}
+}
+
+/** After Delete/Trash/Untrash ************************************************/
+
+/**
+ * Called after deleting an account
+ *
+ * @uses fct_get_account_id() To get the account id
+ * @uses fct_is_account() To check if the passed id is an account
+ * @uses do_action() Calls 'fct_deleted_account' with the account id
+ */
+function fct_deleted_account( $account_id = 0 ) {
+	$account_id = fct_get_account_id( $account_id );
+
+	if ( empty( $account_id ) || ! fct_is_account( $account_id ) )
+		return false;
+
+	do_action( 'fct_deleted_account', $account_id );
+}
+
+/**
+ * Called after trashing an account
+ *
+ * @uses fct_get_account_id() To get the account id
+ * @uses fct_is_account() To check if the passed id is an account
+ * @uses do_action() Calls 'fct_trashed_account' with the account id
+ */
+function fct_trashed_account( $account_id = 0 ) {
+	$account_id = fct_get_account_id( $account_id );
+
+	if ( empty( $account_id ) || ! fct_is_account( $account_id ) )
+		return false;
+
+	do_action( 'fct_trashed_account', $account_id );
+}
+
+/**
+ * Called after untrashing an account
+ *
+ * @uses fct_get_account_id() To get the account id
+ * @uses fct_is_account() To check if the passed id is an account
+ * @uses do_action() Calls 'fct_untrashed_account' with the account id
+ */
+function fct_untrashed_account( $account_id = 0 ) {
+	$account_id = fct_get_account_id( $account_id );
+
+	if ( empty( $account_id ) || ! fct_is_account( $account_id ) )
+		return false;
+
+	do_action( 'fct_untrashed_account', $account_id );
+}
+
+/** Settings ******************************************************************/
+
+/**
+ * Return the accounts per page setting
+ *
+ * @param int $default Default records per page (15)
+ * @uses get_option() To get the setting
+ * @uses apply_filters() To allow the return value to be manipulated
+ * @return int
+ */
+function fct_get_accounts_per_page( $default = 15 ) {
+
+	// Get database option and cast as integer
+	$retval = get_option( '_fct_accounts_per_page', $default );
+
+	// If return val is empty, set it to default
+	if ( empty( $retval ) )
+		$retval = $default;
+
+	// Filter and return
+	return (int) apply_filters( 'fct_get_accounts_per_page', $retval, $default );
+}
+
+/** Permissions ***************************************************************/
+
+/**
+ * Redirect if unathorized user is attempting to edit an account
+ * 
+ * @uses fct_is_account_edit()
+ * @uses current_user_can()
+ * @uses fct_get_account_id()
+ * @uses wp_safe_redirect()
+ * @uses fct_get_account_permalink()
+ */
+function fct_check_account_edit() {
+
+	// Bail if not editing an account
+	if ( ! fct_is_account_edit() )
+		return;
+
+	// User cannot edit account, so redirect back to account
+	if ( ! current_user_can( 'edit_account', fct_get_account_id() ) ) {
+		wp_safe_redirect( fct_get_account_permalink() );
+		exit();
+	}
+}

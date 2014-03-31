@@ -6,6 +6,7 @@
  * @package Fiscaat
  * @subpackage Main
  *
+ * @todo Sync with latest bbPress
  * @todo Create Import system. For MT940 (ING), CSV, QIF, OFC, OFX, SFC (Incassoos)
  * @todo Create Fiscaat comment system
  * @todo Fix Control

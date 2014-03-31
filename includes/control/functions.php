@@ -4,7 +4,7 @@
  * Fiscaat Control Functions
  *
  * @package Fiscaat
- * @subpackage Control
+ * @subpackage Functions
  */
 
 // Exit if accessed directly
@@ -25,6 +25,24 @@ function fct_control_record_statuses( $options ) {
 	) );
 
 	return $options;
+}
+
+/**
+ * Return the approved post status ID
+ *
+ * @return string
+ */
+function fct_get_approved_status_id() {
+	return fiscaat()->approved_status_id;
+}
+
+/**
+ * Return the declined post status ID
+ *
+ * @return string
+ */
+function fct_get_declined_status_id() {
+	return fiscaat()->declined_status_id;
 }
 
 /**

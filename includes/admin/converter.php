@@ -1229,4 +1229,67 @@ abstract class Fiscaat_Converter_Base {
 	}
 
 	protected function callback_slug( $field ) {
-		retu
+		return sanitize_title( $field );
+	}
+
+	protected function callback_negative( $field ) {
+		if ( $field < 0 ) {
+			return 0;
+		} else {
+			return $field;
+		}
+	}
+
+	protected function callback_html( $field ) {
+		require_once( fiscaat()->admin->admin_dir . 'parser.php' );
+		$bbcode = BBCode::getInstance();
+		return html_entity_decode( $bbcode->Parse( $field ) );
+	}
+
+	protected function callback_null( $field ) {
+		if ( is_null( $field ) ) {
+			return '';
+		} else {
+			return $field;
+		}
+	}
+
+	protected function callback_datetime( $field ) {
+		if ( is_numeric( $field ) ) {
+			return date( 'Y-m-d H:i:s', $field );
+		} else {
+			return date( 'Y-m-d H:i:s', strtotime( $field ) );
+		}
+	}
+}
+
+/**
+ * This is a function that is purposely written to look like a "new" statement.
+ * It is basically a dynamic loader that will load in the platform conversion
+ * of your choice.
+ *
+ * @param string $platform Name of valid platform class.
+ */
+function fct_new_converter( $platform ) {
+	$found = false;
+
+	if ( $curdir = opendir( fiscaat()->admin->admin_dir . 'converters/' ) ) {
+		while ( $file = readdir( $curdir ) ) {
+			if ( stristr( $file, '.php' ) && stristr( $file, 'index' ) === FALSE ) {
+				$file = preg_replace( '/.php/', '', $file );
+				if ( $platform == $file ) {
+					$found = true;
+					continue;
+				}
+			}
+		}
+		closedir( $curdir );
+	}
+
+	if ( true === $found ) {
+		require_once( fiscaat()->admin->admin_dir . 'converters/' . $platform . '.php' );
+		return new $platform;
+	} else {
+		return null;
+	}
+}

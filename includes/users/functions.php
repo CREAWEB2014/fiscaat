@@ -28,11 +28,11 @@ function fct_profile_update_global_spectator( $user_id = 0 ) {
 		return;
 
 	// Bail if no data
-	if ( ! isset( $_POST['fiscaat-global-spectator-nonce'] ) )
+	if ( ! isset( $_POST['fct-global-spectator-nonce'] ) )
 		return;
 
 	// Get user data
-	$add_user = isset( $_POST['fiscaat-global-spectator'] );
+	$add_user = isset( $_POST['fct-global-spectator'] );
 
 	// Validate data
 	$user_id  = fct_get_user_id( $user_id );
@@ -68,11 +68,11 @@ function fct_profile_update_block_commenter( $user_id = 0 ) {
 		return;
 
 	// Bail if no data
-	if ( ! isset( $_POST['fiscaat-block-commenter-nonce'] ) )
+	if ( ! isset( $_POST['fct-block-commenter-nonce'] ) )
 		return;
 
 	// Get user data
-	$add_user = isset( $_POST['fiscaat-block-commenter'] );
+	$add_user = isset( $_POST['fct-block-commenter'] );
 
 	// Validate data
 	$user_id  = fct_get_user_id( $user_id );
@@ -280,4 +280,124 @@ function fct_get_total_spectators() {
 	if ( ! isset( $user_count['avail_roles'][$role] ) )
 		return 0;
 
-	return apply_filters( 'fct_get
+	return apply_filters( 'fct_get_total_spectators', (int) $user_count['avail_roles'][$role] );
+}
+
+/** Admin Bar Menu ************************************************************/
+
+/**
+ * Setup Fiscaat admin bar menu for all spectators
+ * 
+ * @param WP_Admin_Bar $wp_admin_bar
+ * @uses current_user_can() To check if user can see menu
+ * @uses fct_get_year_post_type()
+ * @uses fct_get_account_post_type()
+ * @uses fct_get_record_post_type()
+ * @uses WP_Admin_Bar::remove_node() To remove default nodes
+ * @uses apply_filters() Calls 'fct_admin_bar_menu' with the nodes
+ * @uses fct_is_control_active()
+ * @uses fct_get_year_record_count_unapproved()
+ * @uses fct_get_current_year_id()
+ * @uses WP_Admin_Bar::add_node() To add new admin bar menu items
+ */
+function fct_admin_bar_menu( $wp_admin_bar ) {
+
+	// Check is user capable
+	if ( ! current_user_can( 'fct_spectate' ) )
+		return;
+
+	// Remove new-post_type nodes
+	foreach ( array( fct_get_year_post_type(), fct_get_account_post_type(), fct_get_record_post_type() ) as $post_type )
+		$wp_admin_bar->remove_node( 'new-'. $post_type );
+
+	// Setup nodes as id => other attrs
+	$nodes = apply_filters( 'fct_admin_bar_menu', array( 
+		
+		// Top level menu
+		'fiscaat' => array(
+			'title'  => _x('Fiscaat', 'Admin bar menu title', 'fiscaat'),
+			'href'   => add_query_arg( array( 'post_type' => fct_get_year_post_type() ), admin_url( 'edit.php' ) ),
+			'meta'   => array()
+			),
+
+		// View Year
+		'fct-view-ledger' => array(
+			'title'  =>  __('View Ledger', 'fiscaat'),
+			'parent' => 'fiscaat',
+			'href'   => add_query_arg( array( 'post_type' => fct_get_account_post_type() ), admin_url( 'edit.php' ) ),
+			'meta'   => array()
+			),
+
+		// New Records node
+		'fct-new-records' => current_user_can( 'fiscaat' ) 
+			? array(
+				'title'  => __('New Records', 'fiscaat'),
+				'parent' => 'fiscaat',
+				'href'   => add_query_arg( array( 'post_type' => fct_get_record_post_type() ), admin_url( 'post-new.php' ) ),
+				'meta'   => array()
+				)
+			: array(),
+
+		// New Account node
+		'fct-new-account' => current_user_can( 'fiscaat' ) 
+			? array(
+				'title'  => __('New Account', 'fiscaat'),
+				'parent' => 'fiscaat',
+				'href'   => add_query_arg( array( 'post_type' => fct_get_account_post_type() ), admin_url( 'post-new.php' ) ),
+				'meta'   => array()
+				)
+			: array(),
+
+		/*/ Control Unapproved node
+		'fct-control' => fct_is_control_active() && current_user_can( 'control' )
+			? array(
+				'title'  => sprintf( __('Unapproved Records (%d)', 'fiscaat'), fct_get_year_record_count_unapproved( fct_get_current_year_id() ) ),
+				'parent' => 'fiscaat',
+				'href'   => add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'approval' => 0 ), admin_url( 'edit.php' ) ),
+				'meta'   => array()
+				)
+			: array(),
+
+		// Control Declined node. Only if there are any
+		'fct-declined' => fct_is_control_active() && ( current_user_can( 'fiscaat' ) || current_user_can( 'control' ) ) && 0 != fct_get_year_record_count_declined( fct_get_current_year_id() )
+			? array(
+				'title'  => sprintf( __('Declined Records (%d)', 'fiscaat'), fct_get_year_record_count_declined( fct_get_current_year_id() ) ),
+				'parent' => 'fiscaat',
+				'href'   => add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'approval' => 2 ), admin_url( 'edit.php' ) ),
+				'meta'   => array()
+				)
+			: array(),
+
+		/*/ Tools page
+		'fct-tools' => current_user_can( 'fiscaat' ) // Admin caps are mapped in wp-admin: 'fct_tools_page'
+			? array(
+ 				'title'  => __('Tools', 'fiscaat'),
+				'parent' => 'fiscaat',
+				'href'   => add_query_arg( array( 'page' => 'fct-repair' ), admin_url( 'tools.php' ) ),
+				'meta'   => array()
+				)
+			: array(),
+
+		// Settings page
+		'fct-settings' => current_user_can( 'fiscaat' ) // Admin caps are mapped in wp-admin: 'fct_settings_page'
+			? array(
+ 				'title'  => __('Settings', 'fiscaat'),
+				'parent' => 'fiscaat',
+				'href'   => add_query_arg( array( 'page' => 'fiscaat' ), admin_url( 'options-general.php' ) ),
+				'meta'   => array()
+				)
+			: array(),
+
+		) );
+
+	// Create admin bar menu
+	foreach ( $nodes as $node_id => $args ) {
+
+		// Don't do empty nodes
+		if ( empty( $args ) || empty( $args['title'] ) )
+			continue;
+
+		// Add node
+		$wp_admin_bar->add_node( array_merge( array( 'id' => $node_id ), (array) $args ) );
+	}
+}

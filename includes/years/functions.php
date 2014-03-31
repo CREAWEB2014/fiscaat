@@ -914,4 +914,126 @@ function fct_untrash_year_accounts( $year_id = 0 ) {
 	if ( ! empty( $pre_trashed_accounts ) ) {
 
 		// Maybe reverse the trashed accounts array
-		
+		if ( is_array( $pre_trashed_accounts ) )
+			$pre_trashed_accounts = array_reverse( $pre_trashed_accounts );
+
+		// Loop through accounts
+		foreach ( (array) $pre_trashed_accounts as $account ) {
+			wp_untrash_post( $account );
+		}
+	}
+}
+
+/** Before Delete/Trash/Untrash ***********************************************/
+
+/**
+ * Called before deleting a year.
+ *
+ * This function is supplemental to the actual year deletion which is
+ * handled by WordPress core API functions. It is used to clean up after
+ * a year that is being deleted.
+ *
+ * @since Fiscaat (r3668)
+ * @uses fct_get_year_id() To get the year id
+ * @uses fct_is_year() To check if the passed id is a year
+ * @uses do_action() Calls 'fct_delete_year' with the year id
+ */
+function fct_delete_year( $year_id = 0 ) {
+	$year_id = fct_get_year_id( $year_id );
+
+	if ( empty( $year_id ) || ! fct_is_year( $year_id ) )
+		return false;
+
+	do_action( 'fct_delete_year', $year_id );
+}
+
+/**
+ * Called before trashing a year
+ *
+ * This function is supplemental to the actual year being trashed which is
+ * handled by WordPress core API functions. It is used to clean up after
+ * a year that is being trashed.
+ *
+ * @since Fiscaat (r3668)
+ * @uses fct_get_year_id() To get the year id
+ * @uses fct_is_year() To check if the passed id is a year
+ * @uses do_action() Calls 'fct_trash_year' with the year id
+ */
+function fct_trash_year( $year_id = 0 ) {
+	$year_id = fct_get_year_id( $year_id );
+
+	if ( empty( $year_id ) || ! fct_is_year( $year_id ) )
+		return false;
+
+	do_action( 'fct_trash_year', $year_id );
+}
+
+/**
+ * Called before untrashing a year
+ *
+ * @since Fiscaat (r3668)
+ * @uses fct_get_year_id() To get the year id
+ * @uses fct_is_year() To check if the passed id is a year
+ * @uses do_action() Calls 'fct_untrash_year' with the year id
+ */
+function fct_untrash_year( $year_id = 0 ) {
+	$year_id = fct_get_year_id( $year_id );
+
+	if ( empty( $year_id ) || ! fct_is_year( $year_id ) )
+		return false;
+
+	do_action( 'fct_untrash_year', $year_id );
+}
+
+/** After Delete/Trash/Untrash ************************************************/
+
+/**
+ * Called after deleting a year
+ *
+ * @since Fiscaat (r3668)
+ * @uses fct_get_year_id() To get the year id
+ * @uses fct_is_year() To check if the passed id is a year
+ * @uses do_action() Calls 'fct_deleted_year' with the year id
+ */
+function fct_deleted_year( $year_id = 0 ) {
+	$year_id = fct_get_year_id( $year_id );
+
+	if ( empty( $year_id ) || ! fct_is_year( $year_id ) )
+		return false;
+
+	do_action( 'fct_deleted_year', $year_id );
+}
+
+/**
+ * Called after trashing a year
+ *
+ * @since Fiscaat (r3668)
+ * @uses fct_get_year_id() To get the year id
+ * @uses fct_is_year() To check if the passed id is a year
+ * @uses do_action() Calls 'fct_trashed_year' with the year id
+ */
+function fct_trashed_year( $year_id = 0 ) {
+	$year_id = fct_get_year_id( $year_id );
+
+	if ( empty( $year_id ) || ! fct_is_year( $year_id ) )
+		return false;
+
+	do_action( 'fct_trashed_year', $year_id );
+}
+
+/**
+ * Called after untrashing a year
+ *
+ * @since Fiscaat (r3668)
+ * @uses fct_get_year_id() To get the year id
+ * @uses fct_is_year() To check if the passed id is a year
+ * @uses do_action() Calls 'fct_untrashed_year' with the year id
+ */
+function fct_untrashed_year( $year_id = 0 ) {
+	$year_id = fct_get_year_id( $year_id );
+
+	if ( empty( $year_id ) || ! fct_is_year( $year_id ) )
+		return false;
+
+	do_action( 'fct_untrashed_year', $year_id );
+}

@@ -300,3 +300,27 @@ function fct_filter_blog_editable_roles( $all_roles = array() ) {
 				unset( $all_roles[$wp_role] );
 			}
 		}
+	}
+
+	return $all_roles;
+}
+
+/**
+ * The fiscus role for Fiscaat users
+ *
+ * @uses apply_filters() Allow override of hardcoded fiscus role
+ * @return string
+ */
+function fct_get_fiscus_role() {
+	return apply_filters( 'fct_get_fiscus_role', 'fct_fiscus' );
+}
+
+/**
+ * The spectator role for registered user that can view financial accounts
+ *
+ * @uses apply_filters() Allow override of hardcoded spectator role
+ * @return string
+ */
+function fct_get_spectator_role() {
+	return apply_filters( 'fct_get_spectator_role', 'fct_spectator' );
+}

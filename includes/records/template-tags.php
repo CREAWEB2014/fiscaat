@@ -1583,4 +1583,22 @@ function fct_form_record_value_type_select( $record_id = 0 ) {
 	 * @return string Record value type select
 	 */
 	function fct_get_form_record_value_type_select( $record_id = 0 ) {
-		$record_i
+		$record_id  = fct_get_record_id( $record_id );
+		$value_type = fct_get_record_value_type( $record_id );
+		$types      = apply_filters( 'fct_record_value_types', array(
+			fct_get_debit_record_type()  => __('Debit',  'fiscaat'),
+			fct_get_credit_record_type() => __('Credit', 'fiscaat'),
+		) );
+
+		// Disable select
+		$disable = fct_is_control_active() && ! current_user_can( 'fiscaat' ) ? true : false;
+
+		$type_output = '<select name="fct_record_value_type" id="fct_record_value_type" '. disabled( $disable, true, false ) .'>' . "\n";
+
+		foreach( $types as $value => $label )
+			$type_output .= "\t" . '<option value="' . $value . '"' . selected( $value_type, $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
+
+		$type_output .= '</select>';
+
+		return apply_filters( 'fct_get_form_record_value_type_select', $type_output, $record_id, $types );
+	}
