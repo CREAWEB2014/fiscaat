@@ -573,7 +573,7 @@ function fct_close_account( $account_id = 0 ) {
 
 	// Bail if already closed
 	$bail = fct_get_closed_status_id() == $account['post_status'];
-	if ( apply_filters( 'fct_pre_close_account_bail', $bail, $account ) )
+	if ( apply_filters( 'fct_no_close_account', $bail, $account ) )
 		return false;
 
 	// Execute pre close code

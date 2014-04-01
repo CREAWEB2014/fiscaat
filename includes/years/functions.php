@@ -136,7 +136,7 @@ function fct_close_year( $year_id = 0 ) {
 
 	// Bail if already closed
 	$bail = fct_get_closed_status_id() == $year['post_status'];
-	if ( apply_filters( 'fct_pre_close_year_bail', $bail, $year ) )
+	if ( apply_filters( 'fct_no_close_year', $bail, $year ) )
 		return false;
 
 	// Execute pre close code

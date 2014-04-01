@@ -154,7 +154,7 @@ function fct_update_account_record_count_declined( $account_id = 0, $record_coun
  * @param object $account Account object
  * @return bool Bail
  */
-function fct_ctrl_pre_close_account_bail( $bail, $account ) {
+function fct_ctrl_no_close_account( $bail, $account ) {
 
 	// Get unapproved records of account
 	$unapproved = fct_get_account_meta( $account_id, 'record_count_unapproved' );

@@ -168,7 +168,7 @@ function fct_update_year_record_count_unapproved( $year_id = 0, $record_count = 
  * @param object $year Year object
  * @return bool Bail
  */
-function fct_ctrl_pre_close_year_bail( $bail, $year ) {
+function fct_ctrl_no_close_year( $bail, $year ) {
 
 	// Get unapproved records of year
 	$unapproved = fct_get_year_meta( $year->ID, 'record_count_unapproved' );

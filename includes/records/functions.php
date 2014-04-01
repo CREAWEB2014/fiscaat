@@ -390,7 +390,7 @@ function fct_close_record( $record_id = 0 ) {
 
 	// Bail if already closed
 	$bail = fct_get_closed_status_id() == $record['post_status'];
-	if ( apply_filters( 'fct_pre_close_record_bail', $bail, $record ) )
+	if ( apply_filters( 'fct_no_close_record', $bail, $record ) )
 		return false;
 
 	// Execute pre close code

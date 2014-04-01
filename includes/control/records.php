@@ -112,7 +112,7 @@ function fct_approve_record( $record_id = 0 ) {
  * @param object $record Record object
  * @return bool Bail
  */
-function fct_ctrl_pre_close_record_bail( $bail, $record ) {
+function fct_ctrl_no_close_record( $bail, $record ) {
 
 	// Bail if unapproved
 	return fct_get_approved_status_id() != $record['post_status'];
