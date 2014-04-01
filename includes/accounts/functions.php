@@ -23,11 +23,9 @@ function fct_get_account_default_meta(){
 		'ledger_id'               => 0,                             // Account ledger id
 		'account_type'            => '',                            // 'result', 'asset'
 		'record_count'            => 0,                             // Record count
-		'record_count_declined'   => 0,                             // Declined record count
-		'record_count_unapproved' => 0,                             // Unapproved record count
 		'from_value'              => 0,                             // Result from balance.
 		'to_value'                => 0,                             // Current value to balance or income statment.
-		'spectators'              => array(),                       // User ids
+		'spectators'              => array()                        // User ids
 	) );
 }
 
@@ -150,54 +148,6 @@ function fct_bump_account_record_count( $account_id = 0, $difference = 1 ) {
 	fct_update_account_meta( $account_id, 'record_count', (int) $new_count );
 
 	return (int) apply_filters( 'fct_bump_account_record_count', (int) $new_count, $account_id, (int) $difference );
-}
-
-/**
- * Bump the total declined record count of an account
- *
- * @param int $account_id Optional. Account id.
- * @param int $difference Optional. Default 1
- * @uses fct_get_account_id() To get the account id
- * @uses fct_update_account_meta() To update the account's record count meta
- * @uses apply_filters() Calls 'fct_bump_account_record_count_declined' with the
- *                        record count, account id, and difference
- * @return int Account declined record count
- */
-function fct_bump_account_record_count_declined( $account_id = 0, $difference = 1 ) {
-
-	// Get counts
-	$account_id   = fct_get_account_id( $account_id );
-	$record_count = fct_get_account_record_count_declined( $account_id, false );
-	$new_count    = (int) $record_count + (int) $difference;
-
-	// Update this account id's declined record count
-	fct_update_account_meta( $account_id, 'record_count_declined', (int) $new_count );
-
-	return (int) apply_filters( 'fct_bump_account_record_count_declined', (int) $new_count, $account_id, (int) $difference );
-}
-
-/**
- * Bump the total unapproved record count of an account
- *
- * @param int $account_id Optional. Account id.
- * @param int $difference Optional. Default 1
- * @uses fct_get_account_id() To get the account id
- * @uses fct_update_account_meta() To update the account's record count meta
- * @uses apply_filters() Calls 'fct_bump_account_record_count_unapproved' with the
- *                        record count, account id, and difference
- * @return int Account unapproved record count
- */
-function fct_bump_account_record_count_unapproved( $account_id = 0, $difference = 1 ) {
-
-	// Get counts
-	$account_id   = fct_get_account_id( $account_id );
-	$record_count = fct_get_account_record_count_unapproved( $account_id, false );
-	$new_count    = (int) $record_count + (int) $difference;
-
-	// Update this account id's unapproved record count
-	fct_update_account_meta( $account_id, 'record_count_unapproved', (int) $new_count );
-
-	return (int) apply_filters( 'fct_bump_account_record_count_unapproved', (int) $new_count, $account_id, (int) $difference );
 }
 
 /**
@@ -385,74 +335,6 @@ function fct_update_account_record_count( $account_id = 0, $record_count = 0 ) {
 }
 
 /**
- * Adjust the total unapproved record count of an account
- *
- * @param int $account_id Optional. Account id to update
- * @param int $record_count Optional. Set the record count manually
- * @uses fct_is_record() To check if the passed account id is a record
- * @uses fct_get_record_account_id() To get the record account id
- * @uses fct_get_account_id() To get the account id
- * @uses fct_get_record_post_type() To get the record post type
- * @uses wpdb::prepare() To prepare our sql query
- * @uses wpdb::get_var() To execute our query and get the var back
- * @uses fct_update_account_meta() To update the account unapproved record count meta
- * @uses apply_filters() Calls 'fct_update_account_record_count_unapproved' with the
- *                        unapproved record count and account id
- * @return int Account unapproved record count
- */
-function fct_update_account_record_count_unapproved( $account_id = 0, $record_count = 0 ) {
-	global $wpdb;
-
-	// If it's a record, then get the parent (account id)
-	if ( fct_is_record( $account_id ) )
-		$account_id = fct_get_record_account_id( $account_id );
-	else
-		$account_id = fct_get_account_id( $account_id );
-
-	// Get records of account
-	if ( empty( $record_count ) )
-		$record_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status NOT IN ( '" . join( '\',\'', array( fct_get_approved_status_id(), fct_get_closed_status_id() ) ) . "') AND post_type = '%s';", $account_id, fct_get_record_post_type() ) );
-
-	fct_update_account_meta( $account_id, 'record_count_unapproved', (int) $record_count );
-
-	return apply_filters( 'fct_update_account_record_count_unapproved', (int) $record_count, $account_id );
-}
-
-/**
- * Adjust the total declined record count of an account
- *
- * @param int $account_id Optional. Account id to update
- * @param int $record_count Optional. Set the record count manually
- * @uses fct_is_record() To check if the passed account id is a record
- * @uses fct_get_record_account_id() To get the record account id
- * @uses fct_get_account_id() To get the account id
- * @uses fct_get_record_post_type() To get the record post type
- * @uses wpdb::prepare() To prepare our sql query
- * @uses wpdb::get_var() To execute our query and get the var back
- * @uses fct_update_account_meta() To update the account declined record count meta
- * @uses apply_filters() Calls 'fct_update_account_record_count_declined' with the
- *                        declined record count and account id
- * @return int Account declined record count
- */
-function fct_update_account_record_count_declined( $account_id = 0, $record_count = 0 ) {
-	global $wpdb;
-
-	// If it's a record, then get the parent (account id)
-	if ( fct_is_record( $account_id ) )
-		$account_id = fct_get_record_account_id( $account_id );
-	else
-		$account_id = fct_get_account_id( $account_id );
-
-	// Get records of account
-	if ( empty( $record_count ) )
-		$record_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = '%s' AND post_type = '%s';", $account_id, fct_get_declined_status_id(), fct_get_record_post_type() ) );
-
-	fct_update_account_meta( $account_id, 'record_count_declined', (int) $record_count );
-
-	return apply_filters( 'fct_update_account_record_count_declined', (int) $record_count, $account_id );
-}
-
-/**
  * Adjust the total to value of an account
  *
  * Fiscaat handles an account's to value as credit less debit.
@@ -591,8 +473,9 @@ function fct_update_account( $args = '' ) {
 
 		// Record account meta
 		fct_update_account_record_count           ( $account_id, 0         );
-		fct_update_account_record_count_declined  ( $account_id, 0         );
-		fct_update_account_record_count_unapproved( $account_id, 0         );
+		// @todo Move to Control
+		// fct_update_account_record_count_declined  ( $account_id, 0         );
+		// fct_update_account_record_count_unapproved( $account_id, 0         );
 		fct_update_account_to_value               ( $account_id, $to_value );
 
 		// Update account year
@@ -685,15 +568,12 @@ function fct_get_year_ledger_ids( $year_id = 0 ) {
 function fct_close_account( $account_id = 0 ) {
 
 	// Get account
-	if ( !$account = get_post( $account_id, ARRAY_A ) )
+	if ( ! $account = get_post( $account_id, ARRAY_A ) )
 		return $account;
 
 	// Bail if already closed
-	if ( fct_get_closed_status_id() == $account['post_status'] )
-		return false;
-
-	// Bail if account has unapproved records
-	if ( 0 != fct_get_account_meta( $account_id, 'record_count_unapproved' ) )
+	$bail = fct_get_closed_status_id() == $account['post_status'];
+	if ( apply_filters( 'fct_pre_close_account_bail', $bail, $account ) )
 		return false;
 
 	// Execute pre close code
@@ -741,7 +621,7 @@ function fct_open_account( $account_id = 0 ) {
 	do_action( 'fct_open_account', $account_id );
 
 	// Set previous status
-	$account['post_status'] = fct_get_approved_status_id();
+	$account['post_status'] = fct_get_public_status_id();
 
 	// No revisions
 	remove_action( 'pre_post_update', 'wp_save_post_revision' );

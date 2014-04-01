@@ -8,9 +8,9 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
-if ( !class_exists( 'Fiscaat_Accounts_Admin' ) ) :
+if ( ! class_exists( 'Fiscaat_Accounts_Admin' ) ) :
 
 /**
  * Loads Fiscaat accounts admin area

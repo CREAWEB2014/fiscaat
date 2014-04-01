@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * @param array $args
  * @return Mapped caps
  */
-function fct_control_map_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
+function fct_ctrl_map_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 
 	// For Controllers only
 	if ( ! user_can( $user_id, 'fct_control' ) )
@@ -59,7 +59,7 @@ function fct_control_map_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 			break;
 	}
 
-	return apply_filters( 'fct_control_map_meta_caps', $caps, $cap, $user_id, $args );
+	return apply_filters( 'fct_ctrl_map_meta_caps', $caps, $cap, $user_id, $args );
 }
 
 /**
@@ -69,17 +69,17 @@ function fct_control_map_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
  * @param string $role
  * @return array
  */
-function fct_control_get_caps_for_role( $caps, $role ) {
+function fct_ctrl_get_caps_for_role( $caps, $role ) {
 
 	// Controller
 	if ( fct_get_controller_role() == $role ) {
 		$caps = array(
 
 			// Controllers only
-			'fct_control'        => true,
+			'fct_control'            => true,
 
 			// Primary caps
-			'fct_spectate'       => true,
+			'fct_spectate'           => true,
 
 			// Record caps
 			'publish_records'        => false,
@@ -116,7 +116,7 @@ function fct_control_get_caps_for_role( $caps, $role ) {
  * @param array $roles
  * @return array
  */
-function fct_control_get_dynamic_role( $roles ) {
+function fct_ctrl_get_dynamic_roles( $roles ) {
 	$roles[fct_get_controller_role()] = array(
 		'name'         => __( 'Controller', 'fiscaat' ),
 		'capabilities' => fct_get_caps_for_role( fct_get_controller_role() )

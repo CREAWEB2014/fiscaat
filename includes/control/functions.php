@@ -11,23 +11,6 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * Add control post stati to record status dropdown
- * 
- * @param array $options
- * @return array
- */
-function fct_control_record_statuses( $options ) {
-
-	// Insert options after 'publish' and before 'close'
-	$options = array_splice( $options, 1, 0, array(
-		fct_get_approved_status_id() => __('Approved', 'fiscaat'),
-		fct_get_declined_status_id() => __('Declined', 'fiscaat'),
-	) );
-
-	return $options;
-}
-
-/**
  * Return the approved post status ID
  *
  * @return string
@@ -46,12 +29,61 @@ function fct_get_declined_status_id() {
 }
 
 /**
+ * Register the post statuses used by Fiscaat Control
+ *
+ * @uses register_post_status() To register post statuses
+ */
+function fct_ctrl_register_post_statuses() {
+
+	// Approved
+	register_post_status(
+		fct_get_approved_status_id(),
+		apply_filters( 'fct_register_approved_post_status', array(
+			'label'                     => _x( 'Approved', 'post', 'fiscaat' ),
+			'label_count'               => _nx_noop( 'Approved <span class="count">(%s)</span>', 'Approved <span class="count">(%s)</span>', 'fiscaat' ),
+			'public'                    => true,
+			'show_in_admin_status_list' => true,
+			'show_in_admin_all'         => true
+		) )
+	);
+
+	// Declined
+	register_post_status(
+		fct_get_declined_status_id(),
+		apply_filters( 'fct_register_declined_post_status', array(
+			'label'                     => _x( 'Declined', 'post', 'fiscaat' ),
+			'label_count'               => _nx_noop( 'Declined <span class="count">(%s)</span>', 'Declined <span class="count">(%s)</span>', 'fiscaat' ),
+			'public'                    => true,
+			'show_in_admin_status_list' => true,
+			'show_in_admin_all_list'    => true
+		) )
+	);
+}
+
+/**
+ * Add control post stati to record status dropdown
+ * 
+ * @param array $options
+ * @return array
+ */
+function fct_ctrl_record_statuses( $options ) {
+
+	// Insert options after 'publish' and before 'close'
+	$options = array_splice( $options, 1, 0, array(
+		fct_get_approved_status_id() => __('Approved', 'fiscaat'),
+		fct_get_declined_status_id() => __('Declined', 'fiscaat'),
+	) );
+
+	return $options;
+}
+
+/**
  * Enable record status dropdown for Controllers
  * 
  * @param boolean $disable
  * @return boolean
  */
-function fct_control_record_status_dropdown_disable( $disable ) {
+function fct_ctrl_record_status_dropdown_disable( $disable ) {
 
 	// User can control
 	if ( fct_is_control_active() && current_user_can( 'fct_control' ) )
@@ -67,7 +99,7 @@ function fct_control_record_status_dropdown_disable( $disable ) {
  * @param string $option
  * @return boolean
  */
-function fct_control_record_status_dropdown_option_disable( $disable, $option ) {
+function fct_ctrl_record_status_dropdown_option_disable( $disable, $option ) {
 
 	// Which options is being checked?
 	switch ( $option ) {
@@ -115,7 +147,7 @@ function fct_get_total_controllers() {
  * @param array $args
  * @return array Statistics
  */
-function fct_control_get_statistics( $stats, args ) {
+function fct_ctrl_get_statistics( $stats, args ) {
 
 	// Counting users
 	if ( $args['count_users'] ) {
@@ -131,7 +163,7 @@ function fct_control_get_statistics( $stats, args ) {
  *
  * @uses fct_get_total_controllers()
  */
-function fct_control_dashboard_widget_right_now_content() {
+function fct_ctrl_dashboard_widget_right_now_content() {
 
 	// Get controller count
 	$controller_count = fct_get_total_controllers(); ?>
@@ -155,10 +187,10 @@ function fct_control_dashboard_widget_right_now_content() {
  * @param array $menu_items
  * @return array
  */
-function fct_control_admin_bar_menu( $menu_items ) {
+function fct_ctrl_admin_bar_menu( $menu_items ) {
 
 	// Control Unapproved node
-	if ( fct_is_control_active() && current_user_can( 'fct_control' ) ) {	
+	if ( current_user_can( 'fct_control' ) ) {	
 		$menu_items['fiscaat-control'] = array(
 			'title'  => sprintf( __('Unapproved Records (%d)', 'fiscaat'), fct_get_year_record_count_unapproved( fct_get_current_year_id() ) ),
 			'parent' => 'fiscaat',
@@ -168,7 +200,7 @@ function fct_control_admin_bar_menu( $menu_items ) {
 	}
 
 	// Control Declined node. Only if there are any
-	if ( fct_is_control_active() && ( current_user_can( 'fiscaat' ) || current_user_can( 'fct_control' ) ) && 0 != fct_get_year_record_count_declined( fct_get_current_year_id() ) {
+	if ( ( current_user_can( 'fiscaat' ) || current_user_can( 'fct_control' ) ) && 0 != fct_get_year_record_count_declined( fct_get_current_year_id() ) {
 		$menu_items['fiscaat-declined'] = array(
 			'title'  => sprintf( __('Declined Records (%d)', 'fiscaat'), fct_get_year_record_count_declined( fct_get_current_year_id() ) ),
 			'parent' => 'fiscaat',

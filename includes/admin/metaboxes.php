@@ -143,55 +143,6 @@ function fct_dashboard_widget_right_now() {
 				<td class="last t records"><?php echo $text; ?></td>
 			</tr>
 
-			<?php if ( fct_is_control_active() ) : ?>
-
-			<tr>
-				<?php
-					$num  = $current_approved_count;
-					$text = __( 'Approved', 'fiscaat' );
-					if ( current_user_can( 'fct_spectate' ) ) {
-						$link = add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'fct_year_id' => fct_get_current_year_id(), 'approval' => 1 ), get_admin_url( null, 'edit.php' ) );
-						$num  = '<a href="' . $link . '">' . $num  . '</a>';
-						$text = '<a class="approved" href="' . $link . '">' . $text . '</a>';
-					}
-				?>
-
-				<td class="b b-records-approved"><?php echo $num; ?></td>
-				<td class="last t records-approved"><?php echo $text; ?></td>
-			</tr>
-
-			<tr>
-				<?php
-					$num  = $current_unapproved_count;
-					$text = __( 'Unapproved', 'fiscaat' );
-					if ( current_user_can( 'fct_spectate' ) ) {
-						$link = add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'fct_year_id' => fct_get_current_year_id(), 'approval' => 0 ), get_admin_url( null, 'edit.php' ) );
-						$num  = '<a href="' . $link . '">' . $num  . '</a>';
-						$text = '<a class="waiting" href="' . $link . '">' . $text . '</a>';
-					}
-				?>
-
-				<td class="b b-records-unapproved"><?php echo $num; ?></td>
-				<td class="last t records-unapproved"><?php echo $text; ?></td>
-			</tr>
-
-			<tr>
-				<?php
-					$num  = $current_declined_count;
-					$text = __( 'Declined', 'fiscaat' );
-					if ( current_user_can( 'fct_spectate' ) ) {
-						$link = add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'fct_year_id' => fct_get_current_year_id(), 'approval' => 2 ), get_admin_url( null, 'edit.php' ) );
-						$num  = '<a href="' . $link . '">' . $num  . '</a>';
-						$text = '<a class="spam" href="' . $link . '">' . $text . '</a>';
-					}
-				?>
-
-				<td class="b b-records-declined"><?php echo $num; ?></td>
-				<td class="last t records-declined"><?php echo $text; ?></td>
-			</tr>
-
-			<?php endif; ?>
-
 			<?php if ( fct_is_comments_active() ) : ?>
 
 			<tr>

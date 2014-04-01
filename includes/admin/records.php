@@ -10,7 +10,7 @@
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-if ( !class_exists( 'Fiscaat_Records_Admin' ) ) :
+if ( ! class_exists( 'Fiscaat_Records_Admin' ) ) :
 
 /**
  * Loads Fiscaat records admin area

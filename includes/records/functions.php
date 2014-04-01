@@ -21,10 +21,10 @@ if ( !defined( 'ABSPATH' ) ) exit;
 function fct_get_record_default_meta(){
 	return apply_filters( 'fct_get_record_default_meta', array(
 		'year_id'        => fct_get_current_year_id(), // Year
-		'account_id'     => 0,                             // Account
-		'offset_account' => 0,                             // Account received from or send to
-		'value'          => 0,                             // Value
-		'value_type'     => '',                            // 'debit', 'credit'
+		'account_id'     => 0,                         // Account
+		'offset_account' => 0,                         // Account received from or send to
+		'value'          => 0,                         // Value
+		'value_type'     => '',                        // 'debit', 'credit'
 	) );
 }
 
@@ -389,11 +389,8 @@ function fct_close_record( $record_id = 0 ) {
 		return $record;
 
 	// Bail if already closed
-	if ( fct_get_closed_status_id() == $record['post_status'] )
-		return false;
-
-	// Bail if unapproved
-	if ( fct_get_approved_status_id() != $record['post_status'] )
+	$bail = fct_get_closed_status_id() == $record['post_status'];
+	if ( apply_filters( 'fct_pre_close_record_bail', $bail, $record ) )
 		return false;
 
 	// Execute pre close code

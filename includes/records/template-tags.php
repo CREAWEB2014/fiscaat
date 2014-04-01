@@ -608,36 +608,6 @@ function fct_is_record_published( $record_id = 0 ) {
 }
 
 /**
- * Is the record declined?
- *
- * @param int $record_id Optional. Record id
- * @uses fct_get_record_id() To get the record id
- * @uses fct_get_record_status() To get the record status
- * @return bool True if declined, false if not.
- */
-function fct_is_record_declined( $record_id = 0 ) {
-	$record_id     = fct_get_record_id( $record_id );
-	$record_status = fct_get_record_status( $record_id ) == fct_get_declined_status_id();
-	
-	return (bool) apply_filters( 'fct_is_record_declined', (bool) $record_status, $record_id );
-}
-
-/**
- * Is the record approved?
- *
- * @param int $record_id Optional. Account id
- * @uses fct_get_record_id() To get the record id
- * @uses fct_get_record_status() To get the record status
- * @return bool True if approved, false if not.
- */
-function fct_is_record_approved( $record_id = 0 ) {
-	$record_id     = fct_get_record_id( $record_id );
-	$record_status = fct_get_record_status( $record_id ) == fct_get_approved_status_id();
-	
-	return (bool) apply_filters( 'fct_is_record_approved', (bool) $record_status, $record_id );
-}
-
-/**
  * Output the record's status icon
  * 
  * @param int $record_id Optional. Record id
@@ -1024,11 +994,11 @@ function fct_record_admin_links( $args = '' ) {
 			return fct_get_account_admin_links( $args );
 
 		// If post is not a record, return
-		if ( !fct_is_record( $r['id'] ) )
+		if ( ! fct_is_record( $r['id'] ) )
 			return;
 
 		// Make sure user can edit this record
-		if ( !current_user_can( 'edit_record', $r['id'] ) )
+		if ( ! current_user_can( 'edit_record', $r['id'] ) )
 			return;
 
 		// If account is closed, do not show admin links
@@ -1105,10 +1075,10 @@ function fct_record_edit_link( $args = '' ) {
 		$record = fct_get_record( fct_get_record_id( (int) $id ) );
 
 		// Bypass check if user has caps
-		if ( !current_user_can( 'edit_others_records' ) ) {
+		if ( ! current_user_can( 'edit_others_records' ) ) {
 
 			// User cannot edit or it is past the lock time
-			if ( empty( $record ) || !current_user_can( 'edit_record', $record->ID ) )
+			if ( empty( $record ) || ! current_user_can( 'edit_record', $record->ID ) )
 				return;
 		}
 
@@ -1213,7 +1183,7 @@ function fct_record_decline_link( $args = '' ) {
 
 		$record = fct_get_record( fct_get_record_id( (int) $id ) );
 
-		if ( empty( $record ) || !current_user_can( 'control', $record->ID ) )
+		if ( empty( $record ) || ! current_user_can( 'control', $record->ID ) )
 			return;
 
 		$uri      = add_query_arg( array( 'action' => 'fct_toggle_record_approval', 'record_id' => $record->ID ) );
@@ -1221,110 +1191,6 @@ function fct_record_decline_link( $args = '' ) {
 		$retval   = $link_before . '<a href="' . $uri . '">' . $decline_text . '</a>' . $link_after;
 
 		return apply_filters( 'fct_get_record_decline_link', $retval, $args );
-	}
-
-/**
- * Output the approve link of the record
- *
- * @param mixed $args See {@link fct_get_record_approve_link()}
- * @uses fct_get_record_approve_link() To get the record approve link
- */
-function fct_record_approve_link( $args = '' ) {
-	echo fct_get_record_approve_link( $args );
-}
-
-	/**
-	 * Return the approve link of the record
-	 *
-	 * @param mixed $args This function supports these arguments:
-	 *  - id: Record id
-	 *  - link_before: HTML before the link
-	 *  - link_after: HTML after the link
-	 *  - approve_text: Approve text
-	 * @uses fct_get_record_id() To get the record id
-	 * @uses fct_get_record() To get the record
-	 * @uses current_user_can() To check if the current user can edit the
-	 *                           record
-	 * @uses add_query_arg() To add custom args to the url
-	 * @uses wp_nonce_url() To nonce the url
-	 * @uses esc_url() To escape the url
-	 * @uses fct_get_record_edit_url() To get the record edit url
-	 * @uses apply_filters() Calls 'fct_get_record_approve_link' with the record
-	 *                        approve link and args
-	 * @return string Record approve link
-	 */
-	function fct_get_record_approve_link( $args = '' ) {
-		$defaults = array (
-			'id'           => 0,
-			'link_before'  => '',
-			'link_after'   => '',
-			'approve_text' => __( 'Approve', 'fiscaat' )
-		);
-		$r = fct_parse_args( $args, $defaults, 'get_record_approve_link' );
-		extract( $r );
-
-		$record = fct_get_record( fct_get_record_id( (int) $id ) );
-
-		if ( empty( $record ) || !current_user_can( 'control', $record->ID ) )
-			return;
-
-		$uri      = add_query_arg( array( 'action' => 'fct_toggle_record_approval', 'record_id' => $record->ID ) );
-		$uri      = esc_url( wp_nonce_url( $uri, 'approval-record_' . $record->ID ) );
-		$retval   = $link_before . '<a href="' . $uri . '">' . $approve_text . '</a>' . $link_after;
-
-		return apply_filters( 'fct_get_record_approve_link', $retval, $args );
-	}
-
-/**
- * Output the suspense link of the record
- *
- * @param mixed $args See {@link fct_get_record_suspense_link()}
- * @uses fct_get_record_suspense_link() To get the record suspense link
- */
-function fct_record_suspense_link( $args = '' ) {
-	echo fct_get_record_suspense_link( $args );
-}
-
-	/**
-	 * Return the suspense link of the record
-	 *
-	 * @param mixed $args This function supports these arguments:
-	 *  - id: Record id
-	 *  - link_before: HTML before the link
-	 *  - link_after: HTML after the link
-	 *  - suspense_text: Suspense text
-	 * @uses fct_get_record_id() To get the record id
-	 * @uses fct_get_record() To get the record
-	 * @uses current_user_can() To check if the current user can edit the
-	 *                           record
-	 * @uses add_query_arg() To add custom args to the url
-	 * @uses wp_nonce_url() To nonce the url
-	 * @uses esc_url() To escape the url
-	 * @uses fct_get_record_edit_url() To get the record edit url
-	 * @uses apply_filters() Calls 'fct_get_record_suspense_link' with the record
-	 *                        suspense link and args
-	 * @return string Record suspense link
-	 */
-	function fct_get_record_suspense_link( $args = '' ) {
-		$defaults = array (
-			'id'           => 0,
-			'link_before'  => '',
-			'link_after'   => '',
-			'suspense_text' => __( 'Suspense', 'fiscaat' )
-		);
-		$r = fct_parse_args( $args, $defaults, 'get_record_suspense_link' );
-		extract( $r );
-
-		$record = fct_get_record( fct_get_record_id( (int) $id ) );
-
-		if ( empty( $record ) || !current_user_can( 'control', $record->ID ) )
-			return;
-
-		$uri      = add_query_arg( array( 'action' => 'fct_set_record_suspense', 'record_id' => $record->ID ) );
-		$uri      = esc_url( wp_nonce_url( $uri, 'suspense-record_' . $record->ID ) );
-		$retval   = $link_before . '<a href="' . $uri . '">' . $suspense_text . '</a>' . $link_after;
-
-		return apply_filters( 'fct_get_record_suspense_link', $retval, $args );
 	}
 
 /**
@@ -1530,9 +1396,7 @@ function fct_form_record_status_dropdown( $record_id = 0 ) {
 	 * @param int $record_id Optional. Record id
 	 * @param bool $disable Optional. Whether to disable the dropdown
 	 * @uses fct_get_record_id()
-	 * @uses fct_get_record_status()
-	 * @uses fct_get_approved_status_id()
-	 * @uses fct_get_declined_status_id()
+	 * @uses fct_get_record_status_id()
 	 * @uses fct_get_closed_status_id()
 	 * @uses apply_filters() Calls 'fct_get_form_record_status_dropdown' with the
 	 *                        status dropdown, record id, and record statuses
@@ -1591,7 +1455,7 @@ function fct_form_record_value_type_select( $record_id = 0 ) {
 		) );
 
 		// Disable select
-		$disable = fct_is_control_active() && ! current_user_can( 'fiscaat' ) ? true : false;
+		$disable = fct_is_control_active() && ! current_user_can( 'fiscaat' );
 
 		$type_output = '<select name="fct_record_value_type" id="fct_record_value_type" '. disabled( $disable, true, false ) .'>' . "\n";
 

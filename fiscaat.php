@@ -21,7 +21,7 @@
  * Version:           0.0.2
  * Text Domain:       fiscaat
  * Domain Path:       /languages/
- * Github Plugin URI: lmoffereins/fiscaat
+ * GitHub Plugin URI: lmoffereins/fiscaat
  */
 
 // Exit if accessed directly
@@ -127,13 +127,13 @@ final class Fiscaat {
 	public function __isset( $key ) { return isset( $this->data[$key] ); }
 
 	/**
-	 * Magic method for getting Fiscaat varibles
+	 * Magic method for getting Fiscaat variables
 	 *
 	 */
 	public function __get( $key ) { return isset( $this->data[$key] ) ? $this->data[$key] : null; }
 
 	/**
-	 * Magic method for setting Fiscaat varibles
+	 * Magic method for setting Fiscaat variables
 	 *
 	 */
 	public function __set( $key, $value ) { $this->data[$key] = $value; }
@@ -553,35 +553,8 @@ final class Fiscaat {
 	 * Register the post statuses used by Fiscaat
 	 *
 	 * @uses register_post_status() To register post statuses
-	 * @uses $wp_post_statuses To modify trash and private statuses
-	 * @uses current_user_can() To check if the current user is capable &
-	 *                           modify $wp_post_statuses accordingly
 	 */
 	public static function register_post_statuses() {
-
-		// Approved
-		register_post_status(
-			fct_get_approved_status_id(),
-			apply_filters( 'fct_register_approved_post_status', array(
-				'label'                     => _x( 'Approved', 'post', 'fiscaat' ),
-				'label_count'               => _nx_noop( 'Approved <span class="count">(%s)</span>', 'Approved <span class="count">(%s)</span>', 'fiscaat' ),
-				'public'                    => true,
-				'show_in_admin_status_list' => true,
-				'show_in_admin_all'         => true
-			) )
-		);
-
-		// Declined
-		register_post_status(
-			fct_get_declined_status_id(),
-			apply_filters( 'fct_register_declined_post_status', array(
-				'label'                     => _x( 'Declined', 'post', 'fiscaat' ),
-				'label_count'               => _nx_noop( 'Declined <span class="count">(%s)</span>', 'Declined <span class="count">(%s)</span>', 'fiscaat' ),
-				'public'                    => true,
-				'show_in_admin_status_list' => true,
-				'show_in_admin_all_list'    => true
-			) )
-		);
 
 		// Closed
 		register_post_status(

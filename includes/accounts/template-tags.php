@@ -99,7 +99,7 @@ function fct_has_accounts( $args = '' ) {
 	global $wp_rewrite;
 
 	// What are the default allowed statuses (based on user caps)
-	$post_statuses = array( fct_get_public_status_id(), fct_get_closed_status_id(), fct_get_declined_status_id(), fct_get_approved_status_id() );
+	$post_statuses = array( fct_get_public_status_id(), fct_get_closed_status_id() );
 
 	$default_account_search = ! empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : false;
 	$default_post_parent    = fct_is_single_year() ? fct_get_year_id() : 'any';
@@ -108,13 +108,13 @@ function fct_has_accounts( $args = '' ) {
 	// Default argument array
 	$default = array(
 		'post_type'      => fct_get_account_post_type(), // Narrow query down to Fiscaat accounts
-		'post_parent'    => $default_post_parent,            // Year ID
-		'post_status'    => $default_post_status,            // Post Status
-		'order'          => 'DESC',                          // 'ASC', 'DESC'
+		'post_parent'    => $default_post_parent,        // Year ID
+		'post_status'    => $default_post_status,        // Post Status
+		'order'          => 'DESC',                      // 'ASC', 'DESC'
 		'posts_per_page' => fct_get_accounts_per_page(), // Accounts per page
 		'paged'          => fct_get_paged(),             // Page Number
-		's'              => $default_account_search,         // Account Search
-		'max_num_pages'  => false,                           // Maximum number of pages to show
+		's'              => $default_account_search,     // Account Search
+		'max_num_pages'  => false,                       // Maximum number of pages to show
 	);
 
 	$fct_t = fct_parse_args( $args, $default, 'has_accounts' );
@@ -968,64 +968,6 @@ function fct_account_record_count( $account_id = 0, $integer = false ) {
 		$account_id = fct_get_account_id( $account_id );
 		$records    = (int) fct_get_account_meta( $account_id, 'record_count' );
 		$filter     = ( true === $integer ) ? 'fct_get_account_record_count_int' : 'fct_get_account_record_count';
-
-		return apply_filters( $filter, $records, $account_id );
-	}
-
-/**
- * Output total declined record count of an account 
- *
- * @param int $account_id Optional. Account id
- * @param boolean $integer Optional. Whether or not to format the result
- * @uses fct_get_account_record_count_declined() To get the account declined record count
- */
-function fct_account_record_count_declined( $account_id = 0, $integer = false ) {
-	echo fct_get_account_record_count_declined( $account_id, $integer );
-}
-	/**
-	 * Return total declined record count of an account 
-	 *
-	 * @param int $account_id Optional. Account id
-	 * @param boolean $integer Optional. Whether or not to format the result
-	 * @uses fct_get_account_id() To get the account id
-	 * @uses fct_get_account_meta() To get the declined record count
-	 * @uses apply_filters() Calls 'fct_get_account_record_count_declined' with
-	 *                        the declined record count and account id
-	 * @return int Account declined record count
-	 */
-	function fct_get_account_record_count_declined( $account_id = 0, $integer = false ) {
-		$account_id = fct_get_account_id( $account_id );
-		$records    = (int) fct_get_account_meta( $account_id, 'record_count_declined' );
-		$filter     = ( true === $integer ) ? 'fct_get_account_record_count_declined_int' : 'fct_get_account_record_count_declined';
-
-		return apply_filters( $filter, $records, $account_id );
-	}
-
-/**
- * Output total unapproved record count of an account 
- *
- * @param int $account_id Optional. Account id
- * @param boolean $integer Optional. Whether or not to format the result
- * @uses fct_get_account_record_count_unapproved() To get the account unapproved record count
- */
-function fct_account_record_count_unapproved( $account_id = 0, $integer = false ) {
-	echo fct_get_account_record_count_unapproved( $account_id, $integer );
-}
-	/**
-	 * Return total unapproved record count of an account 
-	 *
-	 * @param int $account_id Optional. Account id
-	 * @param boolean $integer Optional. Whether or not to format the result
-	 * @uses fct_get_account_id() To get the account id
-	 * @uses fct_get_account_meta() To get the unapproved record count
-	 * @uses apply_filters() Calls 'fct_get_account_record_count_unapproved' with
-	 *                        the unapproved record count and account id
-	 * @return int Account unapproved record count
-	 */
-	function fct_get_account_record_count_unapproved( $account_id = 0, $integer = false ) {
-		$account_id = fct_get_account_id( $account_id );
-		$records    = (int) fct_get_account_meta( $account_id, 'record_count_unapproved' );
-		$filter     = ( true === $integer ) ? 'fct_get_account_record_count_unapproved_int' : 'fct_get_account_record_count_unapproved';
 
 		return apply_filters( $filter, $records, $account_id );
 	}

@@ -561,64 +561,6 @@ function fct_year_record_count( $year_id = 0, $integer = false ) {
 	}
 
 /**
- * Output total declined record count of a year 
- *
- * @param int $year_id Optional. Account id
- * @param boolean $integer Optional. Whether or not to format the result
- * @uses fct_get_year_record_count_declined() To get the year declined record count
- */
-function fct_year_record_count_declined( $year_id = 0, $integer = false ) {
-	echo fct_get_year_record_count_declined( $year_id, $integer );
-}
-	/**
-	 * Return total declined record count of a year 
-	 *
-	 * @param int $year_id Optional. Account id
-	 * @param boolean $integer Optional. Whether or not to format the result
-	 * @uses fct_get_year_id() To get the year id
-	 * @uses fct_get_year_meta() To get the declined record count
-	 * @uses apply_filters() Calls 'fct_get_year_record_count_declined' with
-	 *                        the declined record count and year id
-	 * @return int Account declined record count
-	 */
-	function fct_get_year_record_count_declined( $year_id = 0, $integer = false ) {
-		$year_id = fct_get_year_id( $year_id );
-		$records = (int) fct_get_year_meta( $year_id, 'record_count_declined' );
-		$filter  = ( true === $integer ) ? 'fct_get_year_record_count_declined_int' : 'fct_get_year_record_count_declined';
-
-		return apply_filters( $filter, $records, $year_id );
-	}
-
-/**
- * Output total unapproved record count of a year 
- *
- * @param int $year_id Optional. Account id
- * @param boolean $integer Optional. Whether or not to format the result
- * @uses fct_get_year_record_count_unapproved() To get the year unapproved record count
- */
-function fct_year_record_count_unapproved( $year_id = 0, $integer = false ) {
-	echo fct_get_year_record_count_unapproved( $year_id, $integer );
-}
-	/**
-	 * Return total unapproved record count of a year 
-	 *
-	 * @param int $year_id Optional. Account id
-	 * @param boolean $integer Optional. Whether or not to format the result
-	 * @uses fct_get_year_id() To get the year id
-	 * @uses fct_get_year_meta() To get the unapproved record count
-	 * @uses apply_filters() Calls 'fct_get_year_record_count_unapproved' with
-	 *                        the unapproved record count and year id
-	 * @return int Account unapproved record count
-	 */
-	function fct_get_year_record_count_unapproved( $year_id = 0, $integer = false ) {
-		$year_id = fct_get_year_id( $year_id );
-		$records = (int) fct_get_year_meta( $year_id, 'record_count_unapproved' );
-		$filter  = ( true === $integer ) ? 'fct_get_year_record_count_unapproved_int' : 'fct_get_year_record_count_unapproved';
-
-		return apply_filters( $filter, $records, $year_id );
-	}
-
-/**
  * Output the year status
  * 
  * @param int $year_id Optional. Year id
