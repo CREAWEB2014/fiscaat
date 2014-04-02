@@ -18,7 +18,7 @@
  * Description:       Fiscaat is accounting software the Wordpress way
  * Author:            Laurens Offereins
  * Author URI:        https://github.com/lmoffereins
- * Version:           0.0.2
+ * Version:           0.0.3
  * Text Domain:       fiscaat
  * Domain Path:       /languages/
  * GitHub Plugin URI: lmoffereins/fiscaat
@@ -159,7 +159,7 @@ final class Fiscaat {
 
 		/** Versions **********************************************************/
 
-		$this->version       = '0.0.2';
+		$this->version       = '0.0.3';
 		$this->db_version    = '001';
 
 		/** Paths *************************************************************/
@@ -256,8 +256,6 @@ final class Fiscaat {
 		require( $this->includes_dir . 'common/classes.php'         );
 		require( $this->includes_dir . 'common/functions.php'       );
 		require( $this->includes_dir . 'common/template-tags.php'   );
-		// require( $this->includes_dir . 'common/widgets.php'         );
-		// require( $this->includes_dir . 'common/shortcodes.php'      );
 
 		// Records
 		require( $this->includes_dir . 'records/capabilities.php'   );
@@ -281,9 +279,15 @@ final class Fiscaat {
 		require( $this->includes_dir . 'users/options.php'          );
 
 		// Control
+		// require( $this->includes_dir . 'control/accounts.php'       );
 		// require( $this->includes_dir . 'control/actions.php'        );
+		// require( $this->includes_dir . 'control/admin.php'          );
 		// require( $this->includes_dir . 'control/capabilities.php'   );
+		// require( $this->includes_dir . 'control/filters.php'        );
 		// require( $this->includes_dir . 'control/functions.php'      );
+		// require( $this->includes_dir . 'control/records.php'        );
+		// require( $this->includes_dir . 'control/template-tags.php'  );
+		// require( $this->includes_dir . 'control/years.php'          );
 
 		/** Hooks *************************************************************/
 
