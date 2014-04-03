@@ -136,23 +136,86 @@ function fct_get_total_controllers() {
 	if ( ! isset( $user_count['avail_roles'][$role] ) )
 		return 0;
 
-	return apply_filters( 'fct_get_total_controllers', (int) $user_count['avail_roles'][$role] );
+	return (int) apply_filters( 'fct_get_total_controllers', (int) $user_count['avail_roles'][$role] );
 }
 
 /**
- * Add the controller count to fiscaat statistics
+ * Add record post status counts to default Fiscaat statistics args
+ * 
+ * The following args will be added:
+ *  - count_approved_records: Count approved records of the current year?
+ *  - count_unapproved_records: Count unapproved records of the current year?
+ *  - count_declined_records: Count declined records of the current year?
+ * 
+ * @param array $args 
+ * @return array Args
+ */
+function fct_ctrl_get_statistics_default_args( $args ) {
+
+	// Merge record post status counts
+	$args = array_merge( array(
+		'count_approved_records'   => true,
+		'count_unapproved_records' => true,
+		'count_declined_records'   => true
+	), $args );
+
+	return $args;
+}
+
+/**
+ * Add various control statistics to the Fiscaat statistics array
  *
  * @uses fct_get_total_controllers()
- * @param array $stats
- * @param array $args
+ * @uses fct_get_declined_status_id()
+ * @uses fct_get_approved_status_id()
+ * @uses fct_get_closed_status_id()
+ * 
+ * @param array $stats Fiscaat statistics
+ * @param array $args Arguments for what values to count
  * @return array Statistics
  */
-function fct_ctrl_get_statistics( $stats, args ) {
+function fct_ctrl_get_statistics( $stats, $args ) {
+
+	// Setup local var
+	$ctrl = array();
 
 	// Counting users
-	if ( $args['count_users'] ) {
-		$count = fct_get_total_controllers();
-		$stats['controller_count'] = number_format_i18n( absint( $count ) )
+	if ( ! empty( $args['count_users'] ) ) {
+		$ctrl['controller_count'] = fct_get_total_controllers();
+	}
+
+	// Counting records
+	if ( ! empty( $args['count_current_records'] ) ) {
+
+		// Approved
+		if ( ! empty( $args['count_approved_records'] ) ) {
+			$approved = fct_get_approved_status_id();
+			$closed   = fct_get_closed_status_id();
+			$ctrl['current_approved_count']   = $current_records->{$approved} + $current_records->{$closed};
+		}
+
+		// Unapproved
+		if ( ! empty( $args['count_unapproved_records'] ) ) {
+			$declined = fct_get_declined_status_id();
+			$ctrl['current_unapproved_count'] = $current_records->publish + $current_records->{$declined};
+		}
+
+		// Declined
+		if ( ! empty( $args['count_declined_records'] ) ) {
+			$declined = fct_get_declined_status_id();
+			$ctrl['current_declined_count']   = $current_records->{$declined};
+		}
+	}
+
+	// Sanitize and merge 
+	if ( ! empty( $ctrl ) ) {
+
+		// Sanitize values
+		$ctrl = array_map( 'absint',             $ctrl );
+		$ctrl = array_map( 'number_format_i18n', $ctrl );
+
+		// Merge with statistics
+		$stats = array_merge( $ctrl, $stats );
 	}
 
 	return $stats;
@@ -189,7 +252,7 @@ function fct_ctrl_dashboard_widget_right_now_content() {
  */
 function fct_ctrl_admin_bar_menu( $menu_items ) {
 
-	// Control Unapproved node
+	// Unapproved records node
 	if ( current_user_can( 'fct_control' ) ) {	
 		$menu_items['fiscaat-control'] = array(
 			'title'  => sprintf( __('Unapproved Records (%d)', 'fiscaat'), fct_get_year_record_count_unapproved( fct_get_current_year_id() ) ),
@@ -199,7 +262,7 @@ function fct_ctrl_admin_bar_menu( $menu_items ) {
 		);
 	}
 
-	// Control Declined node. Only if there are any
+	// Declined records node, only if there are any
 	if ( ( current_user_can( 'fiscaat' ) || current_user_can( 'fct_control' ) ) && 0 != fct_get_year_record_count_declined( fct_get_current_year_id() ) {
 		$menu_items['fiscaat-declined'] = array(
 			'title'  => sprintf( __('Declined Records (%d)', 'fiscaat'), fct_get_year_record_count_declined( fct_get_current_year_id() ) ),

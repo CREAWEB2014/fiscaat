@@ -20,12 +20,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 function fct_get_account_default_meta(){
 	return (array) apply_filters( 'fct_get_account_default_meta', array(
 		'year_id'                 => fct_get_current_year_id(), // Year 
-		'ledger_id'               => 0,                             // Account ledger id
-		'account_type'            => '',                            // 'result', 'asset'
-		'record_count'            => 0,                             // Record count
-		'from_value'              => 0,                             // Result from balance.
-		'to_value'                => 0,                             // Current value to balance or income statment.
-		'spectators'              => array()                        // User ids
+		'ledger_id'               => 0,                         // Account ledger id
+		'account_type'            => '',                        // 'result', 'asset'
+		'record_count'            => 0,                         // Record count
+		'from_value'              => 0,                         // Result from balance.
+		'to_value'                => 0,                         // Current value to balance or income statment.
+		'spectators'              => array()                    // User ids
 	) );
 }
 
@@ -116,8 +116,9 @@ function fct_insert_account( $account_data = array(), $account_meta = array() ) 
 
 	// Update the year
 	$year_id = fct_get_account_year_id( $account_id );
-	if ( ! empty( $year_id ) )
+	if ( ! empty( $year_id ) ) {
 		fct_update_year( array( 'year_id' => $year_id ) );
+	}
 
 	// Return new account ID
 	return $account_id;
@@ -176,22 +177,24 @@ function fct_bump_account_to_value( $account_id = 0, $add_value = 0, $value_type
 		return false;
 
 	// If it's a record, then get the parent (account id)
-	if ( fct_is_record( $account_id ) )
+	if ( fct_is_record( $account_id ) ) {
 		$account_id = fct_get_record_account_id( $account_id );
-	else
+	} else {
 		$account_id = fct_get_account_id( $account_id );
+	}
 
 	// Get to values
 	$to_value     = fct_get_account_meta( $account_id, 'to_value' );
 	$new_to_value = (int) $to_value;
 
 	// Value less debit
-	if ( $value_type == fct_get_debit_record_type() )
+	if ( $value_type == fct_get_debit_record_type() ) {
 		$new_to_value= (int) $add_value;
 
 	// Value plus credit
-	elseif ( $value_type == fct_get_credit_record_type() )
+	} elseif ( $value_type == fct_get_credit_record_type() ) {
 		$new_to_value += (int) $add_value;
+	}
 
 	// Update this account id's to value
 	fct_update_account_meta( $account_id, 'to_value', (int) $new_to_value );
@@ -217,8 +220,9 @@ function fct_bump_account_to_value( $account_id = 0, $add_value = 0, $value_type
 function fct_update_account_year_id( $account_id = 0, $year_id = 0 ) {
 	$account_id = fct_get_account_id( $account_id );
 
-	if ( empty( $year_id ) )
+	if ( empty( $year_id ) ) {
 		$year_id = get_post_field( 'post_parent', $account_id );
+	}
 
 	fct_update_account_meta( $account_id, 'year_id', (int) $year_id );
 
@@ -246,6 +250,7 @@ function fct_update_account_ledger_id( $account_id = 0, $ledger_id = 0 ) {
 	// Bail if ledger id conflict
 	fct_check_ledger_id( $account_id, (int) $ledger_id );
 
+	// Update the meta value
 	fct_update_account_meta( $account_id, 'ledger_id', (int) $ledger_id );
 
 	return (int) apply_filters( 'fct_update_account_ledger_id', (int) $ledger_id, $account_id );
@@ -320,14 +325,16 @@ function fct_update_account_account_type( $account_id = 0, $account_type = '' ) 
 function fct_update_account_record_count( $account_id = 0, $record_count = 0 ) {
 
 	// If it's a record, then get the parent (account id)
-	if ( fct_is_record( $account_id ) )
+	if ( fct_is_record( $account_id ) ) {
 		$account_id = fct_get_record_account_id( $account_id );
-	else
+	} else {
 		$account_id = fct_get_account_id( $account_id );
+	}
 
 	// Get records of account if not passed
-	if ( empty( $record_count ) )
+	if ( empty( $record_count ) ) {
 		$record_count = fct_get_public_child_count( $account_id, fct_get_record_post_type() );
+	}
 
 	fct_update_account_meta( $account_id, 'record_count', (int) $record_count );
 
@@ -356,10 +363,11 @@ function fct_update_account_record_count( $account_id = 0, $record_count = 0 ) {
 function fct_update_account_to_value( $account_id = 0, $to_value = false ) {
 
 	// If it's a record, then get the parent (account id)
-	if ( fct_is_record( $account_id ) )
+	if ( fct_is_record( $account_id ) ) {
 		$account_id = fct_get_record_account_id( $account_id );
-	else
+	} else {
 		$account_id = fct_get_account_id( $account_id );
+	}
 
 	// Get value if none given
 	if ( false === $to_value ) {
@@ -367,17 +375,18 @@ function fct_update_account_to_value( $account_id = 0, $to_value = false ) {
 		// Get records of account
 		$record_ids = fct_get_public_child_ids( $account_id, fct_get_record_post_type() );
 
-		if ( ! empty( $record_ids ) ){
+		if ( ! empty( $record_ids ) ) {
 
 			// Setup values array
 			$values = array( fct_get_debit_record_type() => 0, fct_get_credit_record_type() => 0 );
 
 			// Loop records and add record value to value type
-			foreach ( $record_ids as $record_id )
+			foreach ( $record_ids as $record_id ) {
 				$values[ fct_get_record_value_type( $record_id ) ] += fct_get_record_value( $record_id );
+			}
 
 			// Less credit with debit
-			$to_value = $values[ fct_get_credit_record_type() ] $values[ fct_get_debit_record_type() ];
+			$to_value = $values[ fct_get_credit_record_type() ] - $values[ fct_get_debit_record_type() ];
 
 		// No records
 		} else {

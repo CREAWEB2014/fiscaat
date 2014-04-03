@@ -24,13 +24,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *                        number and display decimals bool
  * @return string Formatted string
  */
-function fct_number_format( $number = 0, $decimals = false, $dec_point = '.', $thousands_sep = ',' ) {
+function fct_number_format( $number = 0, $decimals = false, $decimal_sep = '.', $thousand_sep = ',' ) {
 
 	// If empty, set $number to (int) 0
 	if ( ! is_numeric( $number ) )
 		$number = 0;
 
-	return apply_filters( 'fct_number_format', number_format( $number, $decimals, $dec_point, $thousands_sep ), $number, $decimals, $dec_point, $thousands_sep );
+	return apply_filters( 'fct_number_format', number_format( $number, $decimals, $decimal_sep, $thousand_sep ), $number, $decimals, $decimal_sep, $thousand_sep );
 }
 
 /**
@@ -52,51 +52,6 @@ function fct_number_format_i18n( $number = 0, $decimals = false ) {
 }
 
 /**
- * Output a Fiscaat specific method of formatting values by currency
- *
- * @param string $value Number to format
- * @param bool $symbol Whether to return with currency symbol
- * @return string Formatted string
- */
-function fct_currency_format( $number = 0, $symbol = false ) {
-	echo fct_get_currency_format( $number, $symbol );
-}
-	/**
-	 * Return a Fiscaat specific method of formatting values by currency
-	 *
-	 * Enables currency being different from locale.
-	 * 
-	 * @param string $value Number to format
-	 * @param bool $symbol Whether to return with currency symbol
-	 * @uses fct_get_currency() To get the currency
-	 * @uses fct_the_currency_format_INR() To handle INR currency format
-	 * @uses fct_the_currency_format() To get the currency format
-	 * @uses apply_filters() Calls 'fct_currency_format_symbol' with whether
-	 *                        to append the symbol
-	 * @uses apply_filters() Calls 'fct_get_currency_format' with the formatted
-	 *                        value, original number, and whether to add symbol
-	 * @return string Formatted string
-	 */
-	function fct_get_currency_format( $number = 0, $symbol = false ) {
-		$currency = fct_get_currency();
-
-		// Treat INR currency differently
-		if ( 'INR' == $currency ) 
-			$retval = fct_the_currency_format_INR( $number );
-
-		else {
-			$format = fct_the_currency_format( $currency );
-			$retval = number_format( $number, $format['decimals'], $format['dec_point'], $format['thousands_sep'] );
-		}
-
-		// Prepend currency symbol
-		if ( apply_filters( 'fct_currency_format_symbol', $symbol ) )
-			$retval = fct_get_currency( 'symbol' ) .' '. $retval;
-
-		return apply_filters( 'fct_get_currency_format', $retval, $number, $symbol );
-	}
-
-/**
  * A Fiscaat specific method of formatting currency values to float
  * 
  * @param string $value Value to format
@@ -109,21 +64,21 @@ function fct_currency_format( $number = 0, $symbol = false ) {
 function fct_float_format( $value = '' ) {
 
 	// Get currency format details
-	$format = fct_the_currency_format( fct_get_currency() );
+	$format = fct_the_currency_format();
 
 	// Remove currency symbol if present
 	$value = str_replace( fct_get_currency( 'symbol' ), '', $value );
 
 	// Remove thousands separators
-	$value = str_replace( $format['thousands_sep'], '', $value );
+	$value = str_replace( $format['thousand_sep'], '', $value );
 
-	// Change decimal delimiter to dot
-	$value = str_replace( $format['dec_point'], '.', $value );
+	// Change decimal separator to dot
+	$value = str_replace( $format['decimal_sep'], '.', $value );
 
 	// Remove whitespace
 	$value = trim( $value );
 
-	return (float) apply_filters( 'fct_float_format', $value, $format );
+	return (float) apply_filters( 'fct_float_format', $value );
 }
 
 /**
@@ -360,9 +315,6 @@ function fct_get_paged() {
  *  - count_current_records: Count records of current year? If set to false,
  *                           diapproved, unapproved, approved and closed records 
  *                           are also not counted.
- *  - count_approved_records: Count approved records of the current year?
- *  - count_unapproved_records: Count unapproved records of the current year?
- *  - count_declined_records: Count declined records of the current year?
  *  - count_to_balance: Count to balance value of the current year?
  *  - count_current_comments: Count comments of the current year?
  * @uses fct_count_users() To count the number of registered users
@@ -384,11 +336,8 @@ function fct_get_statistics( $args = '' ) {
 		'count_accounts'           => true,
 		'count_records'            => true,
 		'count_current_records'    => true,
-		'count_approved_records'   => true,
-		'count_unapproved_records' => true,
-		'count_declined_records'   => true,
 		'count_to_balance'         => true,
-		'count_comments'           => true,
+		'count_comments'           => true
 	);
 	$r = fct_parse_args( $args, $defaults, 'get_statistics' );
 	extract( $r );
@@ -425,20 +374,6 @@ function fct_get_statistics( $args = '' ) {
 
 		// All records published
 		$current_record_count = array_sum( (array) $current_records ) - $current_records->{'auto-draft'};
-
-		// Post statuses
-		$declined = fct_get_declined_status_id();
-		$approved = fct_get_approved_status_id();
-		$closed   = fct_get_closed_status_id();
-
-		// Approved
-		$current_approved_count = $current_records->{$approved} + $current_records->{$closed};
-
-		// Unapproved
-		$current_unapproved_count = $current_records->publish + $current_records->{$declined};
-
-		// Declined
-		$current_declined_count = $current_records->{$declined};
 	}
 
 	// To Balance
@@ -449,20 +384,20 @@ function fct_get_statistics( $args = '' ) {
 	// Comments
 	if ( ! empty( $count_comments ) ) {
 
-		// @todo fix comment system
+		// @todo Move to Comments
 		$current_comment_count = (int) 0;
 	}
 
 	// Tally the tallies
-	$statistics = compact( 'fiscus_count', 'spectator_count', 'year_count', 'account_count', 'record_count', 'current_record_count', 'current_declined_count', 'current_unapproved_count', 'current_approved_count', 'current_comment_count' );
-	$statistics = array_map( 'absint',             $statistics );
-	$statistics = array_map( 'number_format_i18n', $statistics );
+	$stats = compact( 'fiscus_count', 'spectator_count', 'year_count', 'account_count', 'record_count', 'current_record_count', 'current_comment_count' );
+	$stats = array_map( 'absint',             $stats );
+	$stats = array_map( 'number_format_i18n', $stats );
 
 	// Add the to_balance title attribute strings because we don't need to run the math functions on these (see above)
 	if ( isset( $current_to_balance ) )
-		$statistics['current_to_balance'] = $current_to_balance;
+		$stats['current_to_balance'] = $current_to_balance;
 
-	return apply_filters( 'fct_get_statistics', $statistics, $r );
+	return apply_filters( 'fct_get_statistics', $stats, $r );
 }
 
 /**
@@ -478,7 +413,7 @@ function fct_count_posts( $args = '' ) {
 		'type'   => 'post',
 		'perm'   => '',
 		'parent' => false
-		);
+	);
 	$r = fct_parse_args( $args, $defaults, 'count_posts' );
 	extract( $r );
 
@@ -509,11 +444,13 @@ function fct_count_posts( $args = '' ) {
 	$count = $wpdb->get_results( $wpdb->prepare( $query, $type, $parent ), ARRAY_A );
 
 	$stats = array();
-	foreach ( get_post_stati() as $state )
+	foreach ( get_post_stati() as $state ) {
 		$stats[$state] = 0;
+	}
 
-	foreach ( (array) $count as $row )
+	foreach ( (array) $count as $row ) {
 		$stats[$row['post_status']] = $row['num_posts'];
+	}
 
 	$stats = (object) $stats;
 	wp_cache_set($cache_key, $stats, 'fct_counts');
@@ -689,8 +626,9 @@ function fct_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 
 		// Record
 		case fct_get_record_post_type() :
-			$post_status[] = fct_get_declined_status_id();
-			$post_status[] = fct_get_approved_status_id();
+			// @todo Move to Control
+			// $post_status[] = fct_get_declined_status_id();
+			// $post_status[] = fct_get_approved_status_id();
 			$post_status[] = fct_get_closed_status_id();
 			break;
 	}
@@ -849,350 +787,232 @@ function fct_set_404() {
 /** Currencies ****************************************************************/
 
 /**
- * Returns list of currencies
+ * Get the details of a single currency or a list of all available currencies
  * 
- * @see https://github.com/piwik/piwik/blob/master/core/DataFiles/Currencies.php
+ * Items in the list have the following format: 
+ * 'ISO-4217 code' => array( 'symbol', 'name' )
+ * 
+ * @link https://github.com/piwik/piwik/blob/master/core/DataFiles/Currencies.php
  *
  * @uses apply_filters() Calls 'fct_get_currencies' with the currencies
+ * @param string $currency Optional. Currency ISO code
+ * @return array All currencies or single currency if ISO code provided
  */
-function fct_get_currencies(){
+function fct_get_currencies( $currency = '' ){
 
+	// Collect all currencies
 	$currencies = array( 
-		// 'ISO-4217 CODE' => array( 'symbol' => 'currency symbol', 'desc' => 'description'),
 
 		// Top 5 by global trading volume
-		'USD' => array( 'symbol' => '$', 'desc' => 'US dollar'),
-		'EUR' => array( 'symbol' => '€', 'desc' => 'Euro'),
-		'JPY' => array( 'symbol' => '¥', 'desc' => 'Japanese yen'),
-		'GBP' => array( 'symbol' => '£', 'desc' => 'British pound'),
-		'CHF' => array( 'symbol' => 'Fr', 'desc' => 'Swiss franc'),
+		'USD' => array( 'symbol' => '$', 'name' => 'US dollar'),
+		'EUR' => array( 'symbol' => '€', 'name' => 'Euro'),
+		'JPY' => array( 'symbol' => '¥', 'name' => 'Japanese yen'),
+		'GBP' => array( 'symbol' => '£', 'name' => 'British pound'),
+		'CHF' => array( 'symbol' => 'Fr', 'name' => 'Swiss franc'),
 
-		'AFN' => array( 'symbol' => '؋', 'desc' => 'Afghan afghani'),
-		'ALL' => array( 'symbol' => 'L', 'desc' => 'Albanian lek'),
-		'DZD' => array( 'symbol' => 'د.ج', 'desc' => 'Algerian dinar'),
-		'AOA' => array( 'symbol' => 'Kz', 'desc' => 'Angolan kwanza'),
-		'ARS' => array( 'symbol' => '$', 'desc' => 'Argentine peso'),
-		'AMD' => array( 'symbol' => 'դր.', 'desc' => 'Armenian dram'),
-		'AWG' => array( 'symbol' => 'ƒ', 'desc' => 'Aruban florin'),
-		'AUD' => array( 'symbol' => '$', 'desc' => 'Australian dollar'),
-		'AZN' => array( 'symbol' => 'm', 'desc' => 'Azerbaijani manat'),
-		'BSD' => array( 'symbol' => '$', 'desc' => 'Bahamian dollar'),
-		'BHD' => array( 'symbol' => '.د.ب', 'desc' => 'Bahraini dinar'),
-		'BDT' => array( 'symbol' => '৳', 'desc' => 'Bangladeshi taka'),
-		'BBD' => array( 'symbol' => '$', 'desc' => 'Barbadian dollar'),
-		'BYR' => array( 'symbol' => 'Br', 'desc' => 'Belarusian ruble'),
-		'BZD' => array( 'symbol' => '$', 'desc' => 'Belize dollar'),
-		'BMD' => array( 'symbol' => '$', 'desc' => 'Bermudian dollar'),
-		'BTN' => array( 'symbol' => 'Nu.', 'desc' => 'Bhutanese ngultrum'),
-		'BOB' => array( 'symbol' => 'Bs.', 'desc' => 'Bolivian boliviano'),
-		'BAM' => array( 'symbol' => 'KM', 'desc' => 'Bosnia Herzegovina mark'),
-		'BWP' => array( 'symbol' => 'P', 'desc' => 'Botswana pula'),
-		'BRL' => array( 'symbol' => 'R$', 'desc' => 'Brazilian real'),
-	//	'GBP' => array( 'symbol' => '£', 'desc' => 'British pound'),
-		'BND' => array( 'symbol' => '$', 'desc' => 'Brunei dollar'),
-		'BGN' => array( 'symbol' => 'лв', 'desc' => 'Bulgarian lev'),
-		'BIF' => array( 'symbol' => 'Fr', 'desc' => 'Burundian franc'),
-		'KHR' => array( 'symbol' => '៛', 'desc' => 'Cambodian riel'),
-		'CAD' => array( 'symbol' => '$', 'desc' => 'Canadian dollar'),
-		'CVE' => array( 'symbol' => '$', 'desc' => 'Cape Verdean escudo'),
-		'KYD' => array( 'symbol' => '$', 'desc' => 'Cayman Islands dollar'),
-		'XAF' => array( 'symbol' => 'Fr', 'desc' => 'Central African CFA franc'),
-		'CLP' => array( 'symbol' => '$', 'desc' => 'Chilean peso'),
-		'CNY' => array( 'symbol' => '元', 'desc' => 'Chinese yuan'),
-		'COP' => array( 'symbol' => '$', 'desc' => 'Colombian peso'),
-		'KMF' => array( 'symbol' => 'Fr', 'desc' => 'Comorian franc'),
-		'CDF' => array( 'symbol' => 'Fr', 'desc' => 'Congolese franc'),
-		'CRC' => array( 'symbol' => '₡', 'desc' => 'Costa Rican colón'),
-		'HRK' => array( 'symbol' => 'kn', 'desc' => 'Croatian kuna'),
-		'XPF' => array( 'symbol' => 'F', 'desc' => 'CFP franc'),
-		'CUC' => array( 'symbol' => '$', 'desc' => 'Cuban convertible peso'),
-		'CUP' => array( 'symbol' => '$', 'desc' => 'Cuban peso'),
-		'CMG' => array( 'symbol' => 'ƒ', 'desc' => 'Curaçao and Sint Maarten guilder'),
-		'CZK' => array( 'symbol' => 'Kč', 'desc' => 'Czech koruna'),
-		'DKK' => array( 'symbol' => 'kr', 'desc' => 'Danish krone'),
-		'DJF' => array( 'symbol' => 'Fr', 'desc' => 'Djiboutian franc'),
-		'DOP' => array( 'symbol' => '$', 'desc' => 'Dominican peso'),
-		'XCD' => array( 'symbol' => '$', 'desc' => 'East Caribbean dollar'),
-		'EGP' => array( 'symbol' => 'ج.م', 'desc' => 'Egyptian pound'),
-		'ERN' => array( 'symbol' => 'Nfk', 'desc' => 'Eritrean nakfa'),
-		'EEK' => array( 'symbol' => 'kr', 'desc' => 'Estonian kroon'),
-		'ETB' => array( 'symbol' => 'Br', 'desc' => 'Ethiopian birr'),
-	//	'EUR' => array( 'symbol' => '€', 'desc' => 'Euro'),
-		'FKP' => array( 'symbol' => '£', 'desc' => 'Falkland Islands pound'),
-		'FJD' => array( 'symbol' => '$', 'desc' => 'Fijian dollar'),
-		'GMD' => array( 'symbol' => 'D', 'desc' => 'Gambian dalasi'),
-		'GEL' => array( 'symbol' => 'ლ', 'desc' => 'Georgian lari'),
-		'GHS' => array( 'symbol' => '₵', 'desc' => 'Ghanaian cedi'),
-		'GIP' => array( 'symbol' => '£', 'desc' => 'Gibraltar pound'),
-		'GTQ' => array( 'symbol' => 'Q', 'desc' => 'Guatemalan quetzal'),
-		'GNF' => array( 'symbol' => 'Fr', 'desc' => 'Guinean franc'),
-		'GYD' => array( 'symbol' => '$', 'desc' => 'Guyanese dollar'),
-		'HTG' => array( 'symbol' => 'G', 'desc' => 'Haitian gourde'),
-		'HNL' => array( 'symbol' => 'L', 'desc' => 'Honduran lempira'),
-		'HKD' => array( 'symbol' => '$', 'desc' => 'Hong Kong dollar'),
-		'HUF' => array( 'symbol' => 'Ft', 'desc' => 'Hungarian forint'),
-		'ISK' => array( 'symbol' => 'kr', 'desc' => 'Icelandic króna'),
-		'INR' => array( 'symbol' => '‎₹', 'desc' => 'Indian rupee'),
-		'IDR' => array( 'symbol' => 'Rp', 'desc' => 'Indonesian rupiah'),
-		'IRR' => array( 'symbol' => '﷼', 'desc' => 'Iranian rial'),
-		'IQD' => array( 'symbol' => 'ع.د', 'desc' => 'Iraqi dinar'),
-		'ILS' => array( 'symbol' => '₪', 'desc' => 'Israeli new shekel'),
-		'JMD' => array( 'symbol' => '$', 'desc' => 'Jamaican dollar'),
-	//	'JPY' => array( 'symbol' => '¥', 'desc' => 'Japanese yen'),
-		'JOD' => array( 'symbol' => 'د.ا', 'desc' => 'Jordanian dinar'),
-		'KZT' => array( 'symbol' => '₸', 'desc' => 'Kazakhstani tenge'),
-		'KES' => array( 'symbol' => 'Sh', 'desc' => 'Kenyan shilling'),
-		'KWD' => array( 'symbol' => 'د.ك', 'desc' => 'Kuwaiti dinar'),
-		'KGS' => array( 'symbol' => 'лв', 'desc' => 'Kyrgyzstani som'),
-		'LAK' => array( 'symbol' => '₭', 'desc' => 'Lao kip'),
-		'LVL' => array( 'symbol' => 'Ls', 'desc' => 'Latvian lats'),
-		'LBP' => array( 'symbol' => 'ل.ل', 'desc' => 'Lebanese pound'),
-		'LSL' => array( 'symbol' => 'L', 'desc' => 'Lesotho loti'),
-		'LRD' => array( 'symbol' => '$', 'desc' => 'Liberian dollar'),
-		'LYD' => array( 'symbol' => 'ل.د', 'desc' => 'Libyan dinar'),
-		'LTL' => array( 'symbol' => 'Lt', 'desc' => 'Lithuanian litas'),
-		'MOP' => array( 'symbol' => 'P', 'desc' => 'Macanese pataca'),
-		'MKD' => array( 'symbol' => 'ден', 'desc' => 'Macedonian denar'),
-		'MGA' => array( 'symbol' => 'Ar', 'desc' => 'Malagasy ariary'),
-		'MWK' => array( 'symbol' => 'MK', 'desc' => 'Malawian kwacha'),
-		'MYR' => array( 'symbol' => 'RM', 'desc' => 'Malaysian ringgit'),
-		'MVR' => array( 'symbol' => 'ރ.', 'desc' => 'Maldivian rufiyaa'),
-		'MRO' => array( 'symbol' => 'UM', 'desc' => 'Mauritanian ouguiya'),
-		'MUR' => array( 'symbol' => '₨', 'desc' => 'Mauritian rupee'),
-		'MXN' => array( 'symbol' => '$', 'desc' => 'Mexican peso'),
-		'MDL' => array( 'symbol' => 'L', 'desc' => 'Moldovan leu'),
-		'MNT' => array( 'symbol' => '₮', 'desc' => 'Mongolian tögrög'),
-		'MAD' => array( 'symbol' => 'د.م.', 'desc' => 'Moroccan dirham'),
-		'MZN' => array( 'symbol' => 'MTn', 'desc' => 'Mozambican metical'),
-		'MMK' => array( 'symbol' => 'K', 'desc' => 'Myanma kyat'),
-		'NAD' => array( 'symbol' => '$', 'desc' => 'Namibian dollar'),
-		'NPR' => array( 'symbol' => '₨', 'desc' => 'Nepalese rupee'),
-		'ANG' => array( 'symbol' => 'ƒ', 'desc' => 'Netherlands Antillean guilder'),
-		'TWD' => array( 'symbol' => '$', 'desc' => 'New Taiwan dollar'),
-		'NZD' => array( 'symbol' => '$', 'desc' => 'New Zealand dollar'),
-		'NIO' => array( 'symbol' => 'C$', 'desc' => 'Nicaraguan córdoba'),
-		'NGN' => array( 'symbol' => '₦', 'desc' => 'Nigerian naira'),
-		'KPW' => array( 'symbol' => '₩', 'desc' => 'North Korean won'),
-		'NOK' => array( 'symbol' => 'kr', 'desc' => 'Norwegian krone'),
-		'OMR' => array( 'symbol' => 'ر.ع.', 'desc' => 'Omani rial'),
-		'PKR' => array( 'symbol' => '₨', 'desc' => 'Pakistani rupee'),
-		'PAB' => array( 'symbol' => 'B/.', 'desc' => 'Panamanian balboa'),
-		'PGK' => array( 'symbol' => 'K', 'desc' => 'Papua New Guinean kina'),
-		'PYG' => array( 'symbol' => '₲', 'desc' => 'Paraguayan guaraní'),
-		'PEN' => array( 'symbol' => 'S/.', 'desc' => 'Peruvian nuevo sol'),
-		'PHP' => array( 'symbol' => '₱', 'desc' => 'Philippine peso'),
-		'PLN' => array( 'symbol' => 'zł', 'desc' => 'Polish złoty'),
-		'QAR' => array( 'symbol' => 'ر.ق', 'desc' => 'Qatari riyal'),
-		'RON' => array( 'symbol' => 'L', 'desc' => 'Romanian leu'),
-		'RUB' => array( 'symbol' => 'руб.', 'desc' => 'Russian ruble'),
-		'RWF' => array( 'symbol' => 'Fr', 'desc' => 'Rwandan franc'),
-		'SHP' => array( 'symbol' => '£', 'desc' => 'Saint Helena pound'),
-		'SVC' => array( 'symbol' => '₡', 'desc' => 'Salvadoran colón'),
-		'WST' => array( 'symbol' => 'T', 'desc' => 'Samoan tala'),
-		'STD' => array( 'symbol' => 'Db', 'desc' => 'São Tomé and Príncipe dobra'),
-		'SAR' => array( 'symbol' => 'ر.س', 'desc' => 'Saudi riyal'),
-		'RSD' => array( 'symbol' => 'дин. or din.', 'desc' => 'Serbian dinar'),
-		'SCR' => array( 'symbol' => '₨', 'desc' => 'Seychellois rupee'),
-		'SLL' => array( 'symbol' => 'Le', 'desc' => 'Sierra Leonean leone'),
-		'SGD' => array( 'symbol' => '$', 'desc' => 'Singapore dollar'),
-		'SBD' => array( 'symbol' => '$', 'desc' => 'Solomon Islands dollar'),
-		'SOS' => array( 'symbol' => 'Sh', 'desc' => 'Somali shilling'),
-		'ZAR' => array( 'symbol' => 'R', 'desc' => 'South African rand'),
-		'KRW' => array( 'symbol' => '₩', 'desc' => 'South Korean won'),
-		'LKR' => array( 'symbol' => 'Rs', 'desc' => 'Sri Lankan rupee'),
-		'SDG' => array( 'symbol' => 'جنيه سوداني', 'desc' => 'Sudanese pound'),
-		'SRD' => array( 'symbol' => '$', 'desc' => 'Surinamese dollar'),
-		'SZL' => array( 'symbol' => 'L', 'desc' => 'Swazi lilangeni'),
-		'SEK' => array( 'symbol' => 'kr', 'desc' => 'Swedish krona'),
-	//	'CHF' => array( 'symbol' => 'Fr', 'desc' => 'Swiss franc'),
-		'SYP' => array( 'symbol' => 'ل.س', 'desc' => 'Syrian pound'),
-		'TJS' => array( 'symbol' => 'ЅМ', 'desc' => 'Tajikistani somoni'),
-		'TZS' => array( 'symbol' => 'Sh', 'desc' => 'Tanzanian shilling'),
-		'THB' => array( 'symbol' => '฿', 'desc' => 'Thai baht'),
-		'TOP' => array( 'symbol' => 'T$', 'desc' => 'Tongan paʻanga'),
-		'TTD' => array( 'symbol' => '$', 'desc' => 'Trinidad and Tobago dollar'),
-		'TND' => array( 'symbol' => 'د.ت', 'desc' => 'Tunisian dinar'),
-		'TRY' => array( 'symbol' => 'TL', 'desc' => 'Turkish lira'),
-		'TMM' => array( 'symbol' => 'm', 'desc' => 'Turkmenistani manat'),
-		'UGX' => array( 'symbol' => 'Sh', 'desc' => 'Ugandan shilling'),
-		'UAH' => array( 'symbol' => '₴', 'desc' => 'Ukrainian hryvnia'),
-		'AED' => array( 'symbol' => 'د.إ', 'desc' => 'United Arab Emirates dirham'),
-	//	'USD' => array( 'symbol' => '$', 'desc' => 'United States dollar'),
-		'UYU' => array( 'symbol' => '$', 'desc' => 'Uruguayan peso'),
-		'UZS' => array( 'symbol' => 'лв', 'desc' => 'Uzbekistani som'),
-		'VUV' => array( 'symbol' => 'Vt', 'desc' => 'Vanuatu vatu'),
-		'VEF' => array( 'symbol' => 'Bs F', 'desc' => 'Venezuelan bolívar'),
-		'VND' => array( 'symbol' => '₫', 'desc' => 'Vietnamese đồng'),
-		'XOF' => array( 'symbol' => 'Fr', 'desc' => 'West African CFA franc'),
-		'YER' => array( 'symbol' => '﷼', 'desc' => 'Yemeni rial'),
-		'ZMK' => array( 'symbol' => 'ZK', 'desc' => 'Zambian kwacha'),
-		'ZWL' => array( 'symbol' => '$', 'desc' => 'Zimbabwean dollar'),
+		'AFN' => array( 'symbol' => '؋', 'name' => 'Afghan afghani'),
+		'ALL' => array( 'symbol' => 'L', 'name' => 'Albanian lek'),
+		'DZD' => array( 'symbol' => 'د.ج', 'name' => 'Algerian dinar'),
+		'AOA' => array( 'symbol' => 'Kz', 'name' => 'Angolan kwanza'),
+		'ARS' => array( 'symbol' => '$', 'name' => 'Argentine peso'),
+		'AMD' => array( 'symbol' => 'դր.', 'name' => 'Armenian dram'),
+		'AWG' => array( 'symbol' => 'ƒ', 'name' => 'Aruban florin'),
+		'AUD' => array( 'symbol' => '$', 'name' => 'Australian dollar'),
+		'AZN' => array( 'symbol' => 'm', 'name' => 'Azerbaijani manat'),
+		'BSD' => array( 'symbol' => '$', 'name' => 'Bahamian dollar'),
+		'BHD' => array( 'symbol' => '.د.ب', 'name' => 'Bahraini dinar'),
+		'BDT' => array( 'symbol' => '৳', 'name' => 'Bangladeshi taka'),
+		'BBD' => array( 'symbol' => '$', 'name' => 'Barbadian dollar'),
+		'BYR' => array( 'symbol' => 'Br', 'name' => 'Belarusian ruble'),
+		'BZD' => array( 'symbol' => '$', 'name' => 'Belize dollar'),
+		'BMD' => array( 'symbol' => '$', 'name' => 'Bermudian dollar'),
+		'BTN' => array( 'symbol' => 'Nu.', 'name' => 'Bhutanese ngultrum'),
+		'BOB' => array( 'symbol' => 'Bs.', 'name' => 'Bolivian boliviano'),
+		'BAM' => array( 'symbol' => 'KM', 'name' => 'Bosnia Herzegovina mark'),
+		'BWP' => array( 'symbol' => 'P', 'name' => 'Botswana pula'),
+		'BRL' => array( 'symbol' => 'R$', 'name' => 'Brazilian real'),
+	//	'GBP' => array( 'symbol' => '£', 'name' => 'British pound'),
+		'BND' => array( 'symbol' => '$', 'name' => 'Brunei dollar'),
+		'BGN' => array( 'symbol' => 'лв', 'name' => 'Bulgarian lev'),
+		'BIF' => array( 'symbol' => 'Fr', 'name' => 'Burundian franc'),
+		'KHR' => array( 'symbol' => '៛', 'name' => 'Cambodian riel'),
+		'CAD' => array( 'symbol' => '$', 'name' => 'Canadian dollar'),
+		'CVE' => array( 'symbol' => '$', 'name' => 'Cape Verdean escudo'),
+		'KYD' => array( 'symbol' => '$', 'name' => 'Cayman Islands dollar'),
+		'XAF' => array( 'symbol' => 'Fr', 'name' => 'Central African CFA franc'),
+		'CLP' => array( 'symbol' => '$', 'name' => 'Chilean peso'),
+		'CNY' => array( 'symbol' => '元', 'name' => 'Chinese yuan'),
+		'COP' => array( 'symbol' => '$', 'name' => 'Colombian peso'),
+		'KMF' => array( 'symbol' => 'Fr', 'name' => 'Comorian franc'),
+		'CDF' => array( 'symbol' => 'Fr', 'name' => 'Congolese franc'),
+		'CRC' => array( 'symbol' => '₡', 'name' => 'Costa Rican colón'),
+		'HRK' => array( 'symbol' => 'kn', 'name' => 'Croatian kuna'),
+		'XPF' => array( 'symbol' => 'F', 'name' => 'CFP franc'),
+		'CUC' => array( 'symbol' => '$', 'name' => 'Cuban convertible peso'),
+		'CUP' => array( 'symbol' => '$', 'name' => 'Cuban peso'),
+		'CMG' => array( 'symbol' => 'ƒ', 'name' => 'Curaçao and Sint Maarten guilder'),
+		'CZK' => array( 'symbol' => 'Kč', 'name' => 'Czech koruna'),
+		'DKK' => array( 'symbol' => 'kr', 'name' => 'Danish krone'),
+		'DJF' => array( 'symbol' => 'Fr', 'name' => 'Djiboutian franc'),
+		'DOP' => array( 'symbol' => '$', 'name' => 'Dominican peso'),
+		'XCD' => array( 'symbol' => '$', 'name' => 'East Caribbean dollar'),
+		'EGP' => array( 'symbol' => 'ج.م', 'name' => 'Egyptian pound'),
+		'ERN' => array( 'symbol' => 'Nfk', 'name' => 'Eritrean nakfa'),
+		'EEK' => array( 'symbol' => 'kr', 'name' => 'Estonian kroon'),
+		'ETB' => array( 'symbol' => 'Br', 'name' => 'Ethiopian birr'),
+	//	'EUR' => array( 'symbol' => '€', 'name' => 'Euro'),
+		'FKP' => array( 'symbol' => '£', 'name' => 'Falkland Islands pound'),
+		'FJD' => array( 'symbol' => '$', 'name' => 'Fijian dollar'),
+		'GMD' => array( 'symbol' => 'D', 'name' => 'Gambian dalasi'),
+		'GEL' => array( 'symbol' => 'ლ', 'name' => 'Georgian lari'),
+		'GHS' => array( 'symbol' => '₵', 'name' => 'Ghanaian cedi'),
+		'GIP' => array( 'symbol' => '£', 'name' => 'Gibraltar pound'),
+		'GTQ' => array( 'symbol' => 'Q', 'name' => 'Guatemalan quetzal'),
+		'GNF' => array( 'symbol' => 'Fr', 'name' => 'Guinean franc'),
+		'GYD' => array( 'symbol' => '$', 'name' => 'Guyanese dollar'),
+		'HTG' => array( 'symbol' => 'G', 'name' => 'Haitian gourde'),
+		'HNL' => array( 'symbol' => 'L', 'name' => 'Honduran lempira'),
+		'HKD' => array( 'symbol' => '$', 'name' => 'Hong Kong dollar'),
+		'HUF' => array( 'symbol' => 'Ft', 'name' => 'Hungarian forint'),
+		'ISK' => array( 'symbol' => 'kr', 'name' => 'Icelandic króna'),
+		'INR' => array( 'symbol' => '‎₹', 'name' => 'Indian rupee'),
+		'IDR' => array( 'symbol' => 'Rp', 'name' => 'Indonesian rupiah'),
+		'IRR' => array( 'symbol' => '﷼', 'name' => 'Iranian rial'),
+		'IQD' => array( 'symbol' => 'ع.د', 'name' => 'Iraqi dinar'),
+		'ILS' => array( 'symbol' => '₪', 'name' => 'Israeli new shekel'),
+		'JMD' => array( 'symbol' => '$', 'name' => 'Jamaican dollar'),
+	//	'JPY' => array( 'symbol' => '¥', 'name' => 'Japanese yen'),
+		'JOD' => array( 'symbol' => 'د.ا', 'name' => 'Jordanian dinar'),
+		'KZT' => array( 'symbol' => '₸', 'name' => 'Kazakhstani tenge'),
+		'KES' => array( 'symbol' => 'Sh', 'name' => 'Kenyan shilling'),
+		'KWD' => array( 'symbol' => 'د.ك', 'name' => 'Kuwaiti dinar'),
+		'KGS' => array( 'symbol' => 'лв', 'name' => 'Kyrgyzstani som'),
+		'LAK' => array( 'symbol' => '₭', 'name' => 'Lao kip'),
+		'LVL' => array( 'symbol' => 'Ls', 'name' => 'Latvian lats'),
+		'LBP' => array( 'symbol' => 'ل.ل', 'name' => 'Lebanese pound'),
+		'LSL' => array( 'symbol' => 'L', 'name' => 'Lesotho loti'),
+		'LRD' => array( 'symbol' => '$', 'name' => 'Liberian dollar'),
+		'LYD' => array( 'symbol' => 'ل.د', 'name' => 'Libyan dinar'),
+		'LTL' => array( 'symbol' => 'Lt', 'name' => 'Lithuanian litas'),
+		'MOP' => array( 'symbol' => 'P', 'name' => 'Macanese pataca'),
+		'MKD' => array( 'symbol' => 'ден', 'name' => 'Macedonian denar'),
+		'MGA' => array( 'symbol' => 'Ar', 'name' => 'Malagasy ariary'),
+		'MWK' => array( 'symbol' => 'MK', 'name' => 'Malawian kwacha'),
+		'MYR' => array( 'symbol' => 'RM', 'name' => 'Malaysian ringgit'),
+		'MVR' => array( 'symbol' => 'ރ.', 'name' => 'Maldivian rufiyaa'),
+		'MRO' => array( 'symbol' => 'UM', 'name' => 'Mauritanian ouguiya'),
+		'MUR' => array( 'symbol' => '₨', 'name' => 'Mauritian rupee'),
+		'MXN' => array( 'symbol' => '$', 'name' => 'Mexican peso'),
+		'MDL' => array( 'symbol' => 'L', 'name' => 'Moldovan leu'),
+		'MNT' => array( 'symbol' => '₮', 'name' => 'Mongolian tögrög'),
+		'MAD' => array( 'symbol' => 'د.م.', 'name' => 'Moroccan dirham'),
+		'MZN' => array( 'symbol' => 'MTn', 'name' => 'Mozambican metical'),
+		'MMK' => array( 'symbol' => 'K', 'name' => 'Myanma kyat'),
+		'NAD' => array( 'symbol' => '$', 'name' => 'Namibian dollar'),
+		'NPR' => array( 'symbol' => '₨', 'name' => 'Nepalese rupee'),
+		'ANG' => array( 'symbol' => 'ƒ', 'name' => 'Netherlands Antillean guilder'),
+		'TWD' => array( 'symbol' => '$', 'name' => 'New Taiwan dollar'),
+		'NZD' => array( 'symbol' => '$', 'name' => 'New Zealand dollar'),
+		'NIO' => array( 'symbol' => 'C$', 'name' => 'Nicaraguan córdoba'),
+		'NGN' => array( 'symbol' => '₦', 'name' => 'Nigerian naira'),
+		'KPW' => array( 'symbol' => '₩', 'name' => 'North Korean won'),
+		'NOK' => array( 'symbol' => 'kr', 'name' => 'Norwegian krone'),
+		'OMR' => array( 'symbol' => 'ر.ع.', 'name' => 'Omani rial'),
+		'PKR' => array( 'symbol' => '₨', 'name' => 'Pakistani rupee'),
+		'PAB' => array( 'symbol' => 'B/.', 'name' => 'Panamanian balboa'),
+		'PGK' => array( 'symbol' => 'K', 'name' => 'Papua New Guinean kina'),
+		'PYG' => array( 'symbol' => '₲', 'name' => 'Paraguayan guaraní'),
+		'PEN' => array( 'symbol' => 'S/.', 'name' => 'Peruvian nuevo sol'),
+		'PHP' => array( 'symbol' => '₱', 'name' => 'Philippine peso'),
+		'PLN' => array( 'symbol' => 'zł', 'name' => 'Polish złoty'),
+		'QAR' => array( 'symbol' => 'ر.ق', 'name' => 'Qatari riyal'),
+		'RON' => array( 'symbol' => 'L', 'name' => 'Romanian leu'),
+		'RUB' => array( 'symbol' => 'руб.', 'name' => 'Russian ruble'),
+		'RWF' => array( 'symbol' => 'Fr', 'name' => 'Rwandan franc'),
+		'SHP' => array( 'symbol' => '£', 'name' => 'Saint Helena pound'),
+		'SVC' => array( 'symbol' => '₡', 'name' => 'Salvadoran colón'),
+		'WST' => array( 'symbol' => 'T', 'name' => 'Samoan tala'),
+		'STD' => array( 'symbol' => 'Db', 'name' => 'São Tomé and Príncipe dobra'),
+		'SAR' => array( 'symbol' => 'ر.س', 'name' => 'Saudi riyal'),
+		'RSD' => array( 'symbol' => 'дин. or din.', 'name' => 'Serbian dinar'),
+		'SCR' => array( 'symbol' => '₨', 'name' => 'Seychellois rupee'),
+		'SLL' => array( 'symbol' => 'Le', 'name' => 'Sierra Leonean leone'),
+		'SGD' => array( 'symbol' => '$', 'name' => 'Singapore dollar'),
+		'SBD' => array( 'symbol' => '$', 'name' => 'Solomon Islands dollar'),
+		'SOS' => array( 'symbol' => 'Sh', 'name' => 'Somali shilling'),
+		'ZAR' => array( 'symbol' => 'R', 'name' => 'South African rand'),
+		'KRW' => array( 'symbol' => '₩', 'name' => 'South Korean won'),
+		'LKR' => array( 'symbol' => 'Rs', 'name' => 'Sri Lankan rupee'),
+		'SDG' => array( 'symbol' => 'جنيه سوداني', 'name' => 'Sudanese pound'),
+		'SRD' => array( 'symbol' => '$', 'name' => 'Surinamese dollar'),
+		'SZL' => array( 'symbol' => 'L', 'name' => 'Swazi lilangeni'),
+		'SEK' => array( 'symbol' => 'kr', 'name' => 'Swedish krona'),
+	//	'CHF' => array( 'symbol' => 'Fr', 'name' => 'Swiss franc'),
+		'SYP' => array( 'symbol' => 'ل.س', 'name' => 'Syrian pound'),
+		'TJS' => array( 'symbol' => 'ЅМ', 'name' => 'Tajikistani somoni'),
+		'TZS' => array( 'symbol' => 'Sh', 'name' => 'Tanzanian shilling'),
+		'THB' => array( 'symbol' => '฿', 'name' => 'Thai baht'),
+		'TOP' => array( 'symbol' => 'T$', 'name' => 'Tongan paʻanga'),
+		'TTD' => array( 'symbol' => '$', 'name' => 'Trinidad and Tobago dollar'),
+		'TND' => array( 'symbol' => 'د.ت', 'name' => 'Tunisian dinar'),
+		'TRY' => array( 'symbol' => 'TL', 'name' => 'Turkish lira'),
+		'TMM' => array( 'symbol' => 'm', 'name' => 'Turkmenistani manat'),
+		'UGX' => array( 'symbol' => 'Sh', 'name' => 'Ugandan shilling'),
+		'UAH' => array( 'symbol' => '₴', 'name' => 'Ukrainian hryvnia'),
+		'AED' => array( 'symbol' => 'د.إ', 'name' => 'United Arab Emirates dirham'),
+	//	'USD' => array( 'symbol' => '$', 'name' => 'United States dollar'),
+		'UYU' => array( 'symbol' => '$', 'name' => 'Uruguayan peso'),
+		'UZS' => array( 'symbol' => 'лв', 'name' => 'Uzbekistani som'),
+		'VUV' => array( 'symbol' => 'Vt', 'name' => 'Vanuatu vatu'),
+		'VEF' => array( 'symbol' => 'Bs F', 'name' => 'Venezuelan bolívar'),
+		'VND' => array( 'symbol' => '₫', 'name' => 'Vietnamese đồng'),
+		'XOF' => array( 'symbol' => 'Fr', 'name' => 'West African CFA franc'),
+		'YER' => array( 'symbol' => '﷼', 'name' => 'Yemeni rial'),
+		'ZMK' => array( 'symbol' => 'ZK', 'name' => 'Zambian kwacha'),
+		'ZWL' => array( 'symbol' => '$', 'name' => 'Zimbabwean dollar'),
 	);
 
-	return apply_filters( 'fct_get_currencies', $currencies );
+	// Return single currency details if ISO is provided
+	if ( ! empty( $currency ) ) {
+
+		// Fallback to 'USD' if not found
+		if ( ! isset( $currencies[$currency] ) ) {
+			$currency = 'USD';
+		} 
+
+		$details = $currencies[$currency];
+
+	// Return all currencies
+	} else {
+		$details = $currencies;
+	}
+
+	return apply_filters( 'fct_get_currencies', $details, $currency );
 }
 
 /**
- * Returns currency format for given currency
+ * Returns the currency format
+ *
+ * For international currency formatting support see
+ * @link http://www.joelpeterson.com/blog/2011/03/formatting-over-100-currencies-in-php/
  * 
- * @see http://www.joelpeterson.com/blog/2011/03/formatting-over-100-currencies-in-php/
- * 
- * @param string $currency The currency iso code. Defaults to USD
- * @uses apply_filters() Calls 'fct_the_currency_format' with the
- *                        currency format, and currency
+ * @uses apply_filters() Calls 'fct_the_currency_format' with the currency format
  * @return array Currency format
  */
-function fct_the_currency_format( $currency = '' ){
+function fct_the_currency_format(){
 
-	$formats = array(
-		'ARS' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'AMD' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'AWG' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'AUD' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ' ' ),
-		'BSD' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'BHD' => array( 'decimals' => 3, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'BDT' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'BZD' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'BMD' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'BOB' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'BAM' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'BWP' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'BRL' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'BND' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'CAD' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'KYD' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'CLP' => array( 'decimals' => 0, 'dec_point' => '',  'thousands_sep' => '.' ),
-		'CNY' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'COP' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'CRC' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'HRK' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'CUC' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'CUP' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'CYP' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'CZK' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'DKK' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'DOP' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'XCD' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'EGP' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'SVC' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'ATS' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'BEF' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'DEM' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'EEK' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'ESP' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'EUR' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'FIM' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'FRF' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'GRD' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'IEP' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'ITL' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'LUF' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'NLG' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'PTE' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'GHC' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'GIP' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'GTQ' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'HNL' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'HKD' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'HUF' => array( 'decimals' => 0, 'dec_point' => '',  'thousands_sep' => '.' ),
-		'ISK' => array( 'decimals' => 0, 'dec_point' => '',  'thousands_sep' => '.' ),
-		'INR' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'IDR' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'IRR' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'JMD' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'JPY' => array( 'decimals' => 0, 'dec_point' => '',  'thousands_sep' => ',' ),
-		'JOD' => array( 'decimals' => 3, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'KES' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'KWD' => array( 'decimals' => 3, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'LVL' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'LBP' => array( 'decimals' => 0, 'dec_point' => '',  'thousands_sep' => ' ' ),
-		'LTL' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => ' ' ),
-		'MKD' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'MYR' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'MTL' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'MUR' => array( 'decimals' => 0, 'dec_point' => '',  'thousands_sep' => ',' ),
-		'MXN' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'MZM' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'NPR' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'ANG' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'ILS' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'TRY' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'NZD' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'NOK' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'PKR' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'PEN' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'UYU' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'PHP' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'PLN' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ' ' ),
-		'GBP' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'OMR' => array( 'decimals' => 3, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'RON' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'ROL' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'RUB' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'SAR' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'SGD' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'SKK' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => ' ' ),
-		'SIT' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'ZAR' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ' ' ),
-		'KRW' => array( 'decimals' => 0, 'dec_point' => '',  'thousands_sep' => ',' ),
-		'SZL' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ', ' ),
-		'SEK' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'CHF' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => '\'' ),
-		'TZS' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'THB' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'TOP' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'AED' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'UAH' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => ' ' ),
-		'USD' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ',' ),
-		'VUV' => array( 'decimals' => 0, 'dec_point' => '',  'thousands_sep' => ',' ),
-		'VEF' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'VEB' => array( 'decimals' => 2, 'dec_point' => ',', 'thousands_sep' => '.' ),
-		'VND' => array( 'decimals' => 0, 'dec_point' => '',  'thousands_sep' => '.' ),
-		'ZWD' => array( 'decimals' => 2, 'dec_point' => '.', 'thousands_sep' => ' ' )
+	// Get the currency settings
+	$format = array(
+		'thousand_sep' => get_option( '_fct_thousand_sep' ),
+		'decimal_sep'  => get_option( '_fct_decimal_sep'  ),
+		'decimals'     => get_option( '_fct_num_decimals' ),
 	);
 
-	if ( ! isset( $formats[$currency] ) )
-		$currency = 'USD';
-
-	return apply_filters( 'fct_the_currency_formats', $formats[$currency], $currency );
+	return apply_filters( 'fct_the_currency_format', $format );
 }
 
 /**
- * A Fiscaat specific method for formatting values for INR currency
- *
- * @see http://www.joelpeterson.com/blog/2011/03/formatting-over-100-currencies-in-php/
- * 
- * @param float $number Number to format
- * @uses fct_the_currency_format() To get the INR currency format
- * @uses apply_filters() Calls 'fct_the_currency_format_INR' with the
- *                        formatted number, and initial number
- * @return string Formatted number
- */
-function fct_the_currency_format_INR( $number = 0 ) {
-	$format = fct_the_currency_format( 'INR' );
-	$dec    = '';
-
-	// Has value decimals
-	if ( $pos = strpos( $number, '.' ) ) {
-		$dec    = substr( round( substr( $number, $pos ), $format['decimals'] ), 1 );
-		$number = substr( $number, 0, $pos );
-	}
-
-	// Setup number parts
-	$retval = substr( $number, -3 );
-	$number = substr( $number, 0, -3 );
-
-	// Add seperators
-	while ( strlen( $number ) > 0 ) {
-		$retval = substr( $number, -2 ) . $format['thousands_sep'] . $retval;
-		$number = substr( $number, 0, -2 );
-	}
-
-	return apply_filters( 'fct_the_currency_format_INR', $retval . $dec, $number );
-}
-
-/**
- * Sanitize currency input to be an existing currency
+ * Sanitize currency input to be a listed currency
  * 
  * @param string $input Currency input
  * @uses fct_get_currencies() To get available currencies
@@ -1201,3 +1021,4 @@ function fct_the_currency_format_INR( $number = 0 ) {
 function fct_sanitize_currency( $input = '' ) {
 	return in_array( $input, array_keys( fct_get_currencies() ) ) ? $input : 'USD';
 }
+

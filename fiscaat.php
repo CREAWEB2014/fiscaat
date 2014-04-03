@@ -22,6 +22,7 @@
  * Text Domain:       fiscaat
  * Domain Path:       /languages/
  * GitHub Plugin URI: lmoffereins/fiscaat
+ * GitHub Timeout:    0.01667
  */
 
 // Exit if accessed directly

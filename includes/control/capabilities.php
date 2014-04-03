@@ -5,6 +5,8 @@
  *
  * @package Fiscaat
  * @subpackage Capabilities
+ *
+ * @todo Fisci cannot be Controllers et vice versa
  */
 
 // Exit if accessed directly

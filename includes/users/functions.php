@@ -368,7 +368,7 @@ function fct_admin_bar_menu( $wp_admin_bar ) {
 				)
 			: array(),
 
-		/*/ Tools page
+		*/// Tools page
 		'fct-tools' => current_user_can( 'fiscaat' ) // Admin caps are mapped in wp-admin: 'fct_tools_page'
 			? array(
  				'title'  => __('Tools', 'fiscaat'),

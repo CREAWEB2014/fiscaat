@@ -58,8 +58,8 @@ add_action( 'fct_admin_init', 'fct_register_admin_settings'     );
 add_action( 'fct_init', 'fct_admin' );
 
 // Initalize record edit/new pages
-add_action( 'fct_init', 'fct_admin_records_new'  );
-add_action( 'fct_init', 'fct_admin_records_edit' );
+// add_action( 'fct_init', 'fct_admin_records_new'  );
+// add_action( 'fct_init', 'fct_admin_records_edit' );
 
 // Reset the menu order
 add_action( 'fct_admin_menu', 'fct_admin_separator' );

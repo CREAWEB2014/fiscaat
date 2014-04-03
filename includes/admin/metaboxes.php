@@ -430,4 +430,11 @@ function fct_record_metabox() {
 	</p>
 
 	<?php 
-	wp_n
+	wp_nonce_field( 'fiscaat_record_metabox_save', 'fiscaat_record_metabox' );
+	do_action( 'fiscaat_record_metabox', $post_id );
+}
+
+/** Comments ******************************************************************/
+
+
+/** Spectators ****************************************************************/

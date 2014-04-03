@@ -31,5 +31,6 @@ add_filter( 'fct_record_statuses',                       'fct_ctrl_record_status
 add_filter( 'fct_record_status_dropdown_disable',        'fct_ctrl_record_status_dropdown_disable'        );
 add_filter( 'fct_record_status_dropdown_option_disable', 'fct_ctrl_record_status_dropdown_option_disable' );
 
-// Stats
-add_filter( 'fct_get_statistics', 'fct_ctrl_get_statistics', 10, 2 );
+// Statistics
+add_filter( 'fct_before_get_statistics_parse_args', 'fct_ctrl_get_statistics_default_args'   );
+add_filter( 'fct_get_statistics',                   'fct_ctrl_get_statistics',         10, 2 );

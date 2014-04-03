@@ -1,4 +1,4 @@
--<?php
+<?php
 
 /**
  * Fiscaat Options
@@ -27,6 +27,10 @@ function fct_get_default_options() {
 		/** Settings **********************************************************/
 
 		'_fct_currency'              => 'USD',        // Currency
+		'_fct_currency_position'     => 'left_space', // Currency Position
+		'_fct_thousand_sep'          => ',',          // Thousand Separator
+		'_fct_decimal_sep'           => '.',          // Decimal Separator
+		'_fct_num_decimals'          => 2,            // Number of Decimals
 
 		/** Functionality *****************************************************/
 

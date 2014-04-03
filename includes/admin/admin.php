@@ -10,7 +10,7 @@
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-if ( !class_exists( 'Fiscaat_Admin' ) ) :
+if ( ! class_exists( 'Fiscaat_Admin' ) ) :
 
 /**
  * Loads Fiscaat plugin admin area
@@ -85,21 +85,21 @@ class Fiscaat_Admin {
 	 * @access private
 	 */
 	private function includes() {
-		require( $this->admin_dir . 'tools.php'     );
-		require( $this->admin_dir . 'converter.php' );
-		require( $this->admin_dir . 'import.php'    );
-		require( $this->admin_dir . 'settings.php'  );
-		require( $this->admin_dir . 'functions.php' );
-		require( $this->admin_dir . 'metaboxes.php' );
-		require( $this->admin_dir . 'years.php'     );
 		require( $this->admin_dir . 'accounts.php'  );
+		require( $this->admin_dir . 'converter.php' );
+		require( $this->admin_dir . 'functions.php' );
+		require( $this->admin_dir . 'import.php'    );
+		require( $this->admin_dir . 'metaboxes.php' );
 		require( $this->admin_dir . 'records.php'   );
+		require( $this->admin_dir . 'settings.php'  );
+		require( $this->admin_dir . 'tools.php'     );
 		require( $this->admin_dir . 'users.php'     );
+		require( $this->admin_dir . 'years.php'     );
 
 		// Record new/edit pages
 		require( $this->admin_dir . 'includes/class-fiscaat-admin-records.php' );
-		require( $this->admin_dir . 'records-edit.php' );
-		require( $this->admin_dir . 'records-new.php'  );
+		// require( $this->admin_dir . 'records-edit.php' );
+		// require( $this->admin_dir . 'records-new.php'  );
 	}
 
 	/**
@@ -123,13 +123,12 @@ class Fiscaat_Admin {
 		add_action( 'fct_admin_notices',           array( $this, 'activation_notice'          ) ); // Add notice if not using a Fiscaat theme
 		add_action( 'fct_register_admin_settings', array( $this, 'register_admin_settings'    ) ); // Add settings
 		add_action( 'fct_activation',              array( $this, 'new_install'                ) ); // Create new content on install
-		add_action( 'admin_enqueue_scripts',           array( $this, 'enqueue_scripts'            ) ); // Add enqueued JS and CSS
-		add_action( 'wp_dashboard_setup',              array( $this, 'dashboard_widget_right_now' ) ); // Years 'Right now' Dashboard widget
+		add_action( 'admin_enqueue_scripts',       array( $this, 'enqueue_scripts'            ) ); // Add enqueued JS and CSS
+		add_action( 'wp_dashboard_setup',          array( $this, 'dashboard_widget_right_now' ) ); // Years 'Right now' Dashboard widget
 
 		/** Ajax **************************************************************/
 
-		add_action( 'wp_ajax_fct_suggest_account',        array( $this, 'suggest_account' ) );
-		add_action( 'wp_ajax_nopriv_fct_suggest_account', array( $this, 'suggest_account' ) );
+		add_action( 'wp_ajax_fct_suggest_account', array( $this, 'suggest_account' ) );
 
 		/** Filters ***********************************************************/
 

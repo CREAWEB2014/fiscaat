@@ -1532,34 +1532,93 @@ function fct_currency( $arg = '' ){
 	/**
 	 * Return the stored currency (attribute)
 	 * 
-	 * @param string $arg Optional. Currency attribute
 	 * @uses fct_get_currencies() To get the currencies list
-	 * @return string The currency
+	 * 
+	 * @param string $arg Optional. Currency attribute may be one of:
+	 * - symbol: Returns the currency symbol
+	 * - name: Returns the currency name
+	 * @return string The currency or details
 	 */
 	function fct_get_currency( $attr = '' ){
 		$fiscaat = fiscaat();
 
 		// Load once. Default to 'USD'
 		if ( empty( $fiscaat->currency ) ) {
-			$c = get_option( '_fct_currency', false );
-			$fiscaat->currency = ! empty( $c ) ? $c : 'USD';
+			$fiscaat->currency = get_option( '_fct_currency', 'USD' );
 		}
+
+		$iso = $fiscaaat->currency;
 
 		// Attribute requested
 		if ( ! empty( $attr ) ) {
-			$currencies = fct_get_currencies();
+			$currency = fct_get_currencies( $iso );
 
-			if ( isset( $currencies[$fiscaat->currency] ) && isset( $currencies[$fiscaat->currency][$attr] ) )
-				$currency = $currencies[$fiscaat->currency][$attr];			
-			else
-				$currency = $fiscaat->currency;
+			if ( ! empty( $currency ) && isset( $currency[$attr] ) ) {
+				$currency = $currency[$attr];
+			} else {
+				$currency = $iso;
+			}
 
-		// Default to currency iso code
+		// Default to currency ISO code
 		} else {
-			$currency = $fiscaat->currency;
+			$currency = $iso;
 		}
 
-		return apply_filters( 'fct_get_currency', $currency, $fiscaat->currency, $attr );
+		return apply_filters( 'fct_get_currency', $currency, $attr );
+	}
+
+/**
+ * Output a Fiscaat specific method of formatting values by currency
+ *
+ * @param int|string $value Number to format
+ * @param bool|string $curr_pos Optional. Whether to return with positioned currency symbol
+ * @return string Formatted string
+ */
+function fct_currency_format( $number = 0, $curr_pos = false ) {
+	echo fct_get_currency_format( $number, $curr_pos );
+}
+	/**
+	 * Return a Fiscaat specific method of formatting values by currency
+	 *
+	 * @uses fct_get_currency() To get the currency
+	 * @uses fct_the_currency_format() To get the currency format
+	 * @param int|string $value Number to format
+	 * @param bool|string $curr_pos Optional. Whether to return with positioned currency symbol
+	 * @return string Formatted string
+	 */
+	function fct_get_currency_format( $number = 0, $curr_pos = false ) {
+
+		// Parse float for it may be a string
+		$number = fct_float_format( $number );
+
+		// Parse currency format		
+		$format = fct_the_currency_format();
+		$retval = number_format_i18n( $number, $format['decimals'], $format['decimal_sep'], $format['thousand_sep'] );
+
+		// Prepend currency symbol
+		if ( ! empty( $curr_pos ) ) {
+			$pos    = ! is_string( $curr_pos ) ? get_option( '_fct_currency_position' ) : $curr_pos;
+			$symbol = fct_get_currency( 'symbol' );
+
+			// Add symbol to the value
+			switch ( $pos ) {
+				case 'left' : 
+					$retval = $symbol . $retval;
+					break;
+				case 'right' : 
+					$retval .= $symbol;
+					break;
+				case 'right_space' : 
+					$retval .= ' ' . $symbol;
+					break;
+				case 'left_space' : 
+				default           :
+					$retval = $symbol . ' ' . $retval;
+					break;
+			}
+		}
+
+		return apply_filters( 'fct_get_currency_format', $retval, $number, $curr_pos );
 	}
 
 /**
@@ -1613,11 +1672,14 @@ function fct_currency_dropdown( $args = '' ) {
 				$retval .= '<select name="' . $name . '" id="' . $select_id . '"' . $tab  . $disabled . '>' . "\n";
 			}
 
-			foreach ( $items as $iso => $att )
-				$retval .= "\t<option value=\"$iso\" class=\"level-0\"". selected( $selected, $iso, false ) . ">" . $att['desc'] ."</option>\n";
+			// Loop all currency items
+			foreach ( $items as $iso => $args ) {
+				$retval .= "\t<option value=\"$iso\" class=\"level-0\"". selected( $selected, $iso, false ) . ">" . $args['name'] ." (" . $args['symbol'] . ")</option>\n";
+			}
 
-			if ( empty( $options_only ) )
+			if ( empty( $options_only ) ) {
 				$retval .= '</select>';
+			}
 
 		// No items found - Display feedback if no custom message was passed
 		} elseif ( empty( $none_found ) ) {

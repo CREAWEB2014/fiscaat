@@ -5,6 +5,8 @@
  *
  * @package Fiscaat
  * @subpackage Administration
+ *
+ * @todo Use settings tabs
  */
 
 // Exit if accessed directly
@@ -19,14 +21,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 function fct_admin_get_settings_sections() {
 	return (array) apply_filters( 'fct_admin_get_settings_sections', array(
-		'fct_settings_main' => array(
-			'title'    => __( 'Main Settings', 'fiscaat' ),
-			'callback' => 'fct_admin_setting_callback_main_section',
+		'fct_settings_features' => array(
+			'title'    => __( 'Features', 'fiscaat' ),
+			'callback' => 'fct_admin_setting_callback_features_section',
 			'page'     => 'fiscaat',
 		),
-		'fct_settings_functionality' => array(
-			'title'    => __( 'Functionality', 'fiscaat' ),
-			'callback' => 'fct_admin_setting_callback_functionality_section',
+		'fct_settings_currency' => array(
+			'title'    => __( 'Currency Settings', 'fiscaat' ),
+			'callback' => 'fct_admin_setting_callback_currency_section',
 			'page'     => 'fiscaat',
 		),
 		'fct_settings_per_page' => array(
@@ -62,7 +64,7 @@ function fct_admin_get_settings_fields() {
 
 		/** Main Section ******************************************************/
 
-		'fct_settings_main' => array(
+		'fct_settings_currency' => array(
 
 			// Currency setting
 			'_fct_currency' => array(
@@ -72,15 +74,47 @@ function fct_admin_get_settings_fields() {
 				'args'              => array()
 			),
 
+			// Currency position
+			'_fct_currency_position' => array(
+				'title'             => __( 'Currency Position', 'fiscaat' ),
+				'callback'          => 'fct_admin_setting_callback_currency_position',
+				'sanitize_callback' => 'fct_sanitize_currency_position',
+				'args'              => array()
+			),
+
+			// Thousand separator
+			'_fct_thousand_sep' => array(
+				'title'             => __( 'Thousand Separator', 'fiscaat' ),
+				'callback'          => 'fct_admin_setting_callback_thousand_sep',
+				'sanitize_callback' => '',
+				'args'              => array()
+			),
+
+			// Decimal separator
+			'_fct_decimal_sep' => array(
+				'title'             => __( 'Decimal Separator', 'fiscaat' ),
+				'callback'          => 'fct_admin_setting_callback_decimal_sep',
+				'sanitize_callback' => '',
+				'args'              => array()
+			),
+
+			// Number of decimals
+			'_fct_num_decimals' => array(
+				'title'             => __( 'Number of Decimals', 'fiscaat' ),
+				'callback'          => 'fct_admin_setting_callback_num_decimals',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
 		),
 
 		/** Functionality Section *********************************************/
 
-		'fct_settings_functionality' => array(
+		'fct_settings_features' => array(
 
 			// Enable control setting
 			'_fct_enable_control' => array(
-				'title'             => __( 'Enable control', 'fiscaat' ),
+				'title'             => __( 'Control', 'fiscaat' ),
 				'callback'          => 'fct_admin_setting_callback_enable_control',
 				'sanitize_callback' => 'intval',
 				'args'              => array()
@@ -88,7 +122,7 @@ function fct_admin_get_settings_fields() {
 
 			// Enable comments setting
 			'_fct_enable_comments' => array(
-				'title'             => __( 'Enable comments', 'fiscaat' ),
+				'title'             => __( 'Comments', 'fiscaat' ),
 				'callback'          => 'fct_admin_setting_callback_enable_comments',
 				'sanitize_callback' => 'intval',
 				'args'              => array()
@@ -250,33 +284,101 @@ function fct_admin_get_settings_fields_for_section( $section_id = '' ) {
 	return (array) apply_filters( 'fct_admin_get_settings_fields_for_section', $retval, $section_id );
 }
 
-/** Main Section **************************************************************/
+/** Currency Section **********************************************************/
 
 /**
- * Main settings section description for the settings page
+ * Currency settings section description for the settings page
  */
-function fct_admin_setting_callback_main_section() {
+function fct_admin_setting_callback_currency_section() {
 ?>
 
-	<p><?php _e( 'Settings for Fiscaat to work properly.', 'fiscaat' ); ?></p>
+	<p><?php _e( 'The following settings affect how amounts in Fiscaat are displayed on your site.', 'fiscaat' ); ?></p>
 
 <?php
 }
 
 /**
- * Valuta setting field
+ * Currency setting field
  *
- * @uses fct_form_option() To output the option value
+ * @uses fct_currency_form() To output the option input
+ * @uses fct_get_currency() To get the option value
+ * @uses fct_maybe_admin_setting_disabled()
  */
 function fct_admin_setting_callback_currency() {
-?>
 
-	<?php fct_currency_dropdown( array( 
+	fct_currency_dropdown( array( 
 		'select_id' => '_fct_currency',
 		'selected'  => fct_get_currency(),
 		'disabled'  => fct_maybe_admin_setting_disabled( '_fct_currency' )
-		) ); ?>
-	<label for="_fct_currency"><?php _e( 'Select your currency.', 'fiscaat' ); ?></label>
+	) );
+
+}
+
+/**
+ * Currency position setting field
+ *
+ * @uses fct_get_form_option() To get the option value
+ * @uses fct_get_amount() To get a currency value representation
+ */
+function fct_admin_setting_callback_currency() {
+
+	// Build options
+	$options = array(
+		'left'        => __('Left',             'fiscaat'),
+		'right'       => __('Right',            'fiscaat'),
+		'left_space'  => __('Left with space',  'fiscaat'),
+		'right_space' => __('Right with space', 'fiscaat')
+	); ?>
+
+	<select id="_fct_currency_position" name="_fct_currency_position" <?php fct_maybe_admin_setting_disabled( '_fct_currency_position' ); ?>>
+
+		<?php foreach ( $options as $position => $label ) :
+
+			echo "<option value='$position' " . selected( fct_get_form_option( '_fct_currency_position' ), $position, false ) . ">$label (" . fct_get_currency_format( '99.99', $position ) . ")</option>";
+
+		endforeach; ?>
+
+	</select>
+	<label for="_fct_currency_position"><?php _e( 'Select the position of the currency symbol.', 'fiscaat'); ?></label>
+
+<?php
+}
+
+/**
+ * Thousand separator setting field
+ *
+ * @uses fct_form_option() To get the option value
+ */
+function fct_admin_setting_callback_thousand_sep() {
+?>
+
+	<input name="_fct_thousand_sep" type="text" id="_fct_thousand_sep" value="<?php fct_form_option( '_fct_thousand_sep', '15' ); ?>" class="small-text" <?php fct_maybe_admin_setting_disabled( '_fct_thousand_sep' ); ?> />
+
+<?php
+}
+
+/**
+ * Decimal separator setting field
+ *
+ * @uses fct_form_option() To get the option value
+ */
+function fct_admin_setting_callback_decimal_sep() {
+?>
+
+	<input name="_fct_decimal_sep" type="text" id="_fct_decimal_sep" value="<?php fct_form_option( '_fct_decimal_sep', '15' ); ?>" class="small-text" <?php fct_maybe_admin_setting_disabled( '_fct_decimal_sep' ); ?> />
+
+<?php
+}
+
+/**
+ * Decimal separator setting field
+ *
+ * @uses fct_form_option() To get the option value
+ */
+function fct_admin_setting_callback_num_decimals() {
+?>
+
+	<input name="_fct_num_decimals" type="number" id="_fct_num_decimals" value="<?php fct_form_option( '_fct_num_decimals', '15' ); ?>" class="small-text" <?php fct_maybe_admin_setting_disabled( '_fct_num_decimals' ); ?> />
 
 <?php
 }
@@ -286,7 +388,7 @@ function fct_admin_setting_callback_currency() {
 /**
  * Main settings section description for the settings page
  */
-function fct_admin_setting_callback_functionality_section() {
+function fct_admin_setting_callback_features_section() {
 ?>
 
 	<p><?php _e( 'Main settings for enabling and disabling features.', 'fiscaat' ); ?></p>
@@ -303,7 +405,7 @@ function fct_admin_setting_callback_enable_control() {
 ?>
 
 	<input id="_fct_enable_control" name="_fct_enable_control" type="checkbox" value="1" <?php checked( fct_is_control_active() ); fct_maybe_admin_setting_disabled( '_fct_enable_control' ); ?> />
-	<label for="_fct_enable_control"><?php _e( "Enable the Controller role and it's functionality.", 'fiscaat' ); ?></label>
+	<label for="_fct_enable_control"><?php _e( 'Enable the control feature and the Controller role.', 'fiscaat' ); ?></label>
 
 <?php
 }
@@ -317,7 +419,7 @@ function fct_admin_setting_callback_enable_comments() {
 ?>
 
 	<input id="_fct_enable_comments" name="_fct_enable_comments" type="checkbox" value="1" <?php checked( fct_is_comments_active() ); fct_maybe_admin_setting_disabled( '_fct_enable_comments' ); ?> />
-	<label for="_fct_enable_comments"><?php _e( "Activate the comment system wihtin Fiscaat.", 'fiscaat' ); ?></label>
+	<label for="_fct_enable_comments"><?php _e( "Enable commenting on records in Fiscaat.", 'fiscaat' ); ?></label>
 
 <?php
 }
@@ -1078,7 +1180,7 @@ function fct_form_slug_conflict_check( $slug, $default ) {
 	}
 
 	// Loop through slugs to check
-	foreach( $the_core_slugs as $key => $value ) {
+	foreach ( $the_core_slugs as $key => $value ) {
 
 		// Get the slug
 		$slug_check = fct_get_form_option( $key, $value['default'], true );
