@@ -47,9 +47,9 @@ class Fiscaat_Admin {
 	/** Capability ************************************************************/
 
 	/**
-	 * @var bool Minimum capability to access Tools and Settings
+	 * @var bool Minimum capability to access Fiscaat pages
 	 */
-	public $minimum_capability = 'fiscaat';
+	public $minimum_capability = 'fct_spectate';
 
 	/** Functions *************************************************************/
 
@@ -136,7 +136,7 @@ class Fiscaat_Admin {
 		add_filter( 'plugin_action_links', array( $this, 'modify_plugin_action_links' ), 10, 2 );
 
 		// Map settings capabilities
-		add_filter( 'fct_map_meta_caps', array( $this, 'map_settings_meta_caps'   ), 10, 4 );
+		add_filter( 'fct_map_meta_caps',   array( $this, 'map_settings_meta_caps'     ), 10, 4 );
 
 		/** Dependencies ******************************************************/
 
@@ -155,7 +155,80 @@ class Fiscaat_Admin {
 
 		$hooks = array();
 
-		// These are later removed in admin_head
+		// Fiscaat menu
+		if ( current_user_can( 'fct_spectate' ) ) {
+
+			// Parent menu item
+			add_menu_page(
+				__( 'Fiscaat', 'fiscaat' ),
+				__( 'Fiscaat', 'fiscaat' ),
+				$this->minimum_capability,
+				'fiscaat',
+				'',
+				'dashicons-vault',
+				333333
+			);
+
+			// Accounts
+			add_submenu_page(
+				'fiscaat',
+				__( 'General Ledger', 'fiscaat' ),
+				__( 'General Ledger', 'fiscaat' ),
+				$this->minimum_capability,
+				'edit.php?post_type=' . fct_get_account_post_type()
+			);
+
+			// Records
+			add_submenu_page(
+				'fiscaat',
+				__( 'Manage Records', 'fiscaat' ),
+				__( 'Manage Records', 'fiscaat' ),
+				$this->minimum_capability,
+				'edit.php?post_type=' . fct_get_record_post_type()
+			);
+
+			// Years
+			add_submenu_page(
+				'fiscaat',
+				__( 'Fiscaat Years', 'fiscaat' ),
+				__( 'View Years', 'fiscaat' ),
+				$this->minimum_capability,
+				'edit.php?post_type=' . fct_get_year_post_type()
+			);
+
+			// Balance
+			add_submenu_page(
+				'fiscaat',
+				__( 'Balance', 'fiscaat' ),
+				__( 'Balance', 'fiscaat' ),
+				$this->minimum_capability,
+				'fiscaat-balance',
+				'fct_admin_balance'
+			);
+
+			// Reports
+			add_submenu_page(
+				'fiscaat',
+				__( 'Reports', 'fiscaat' ),
+				__( 'Reports', 'fiscaat' ),
+				$this->minimum_capability,
+				'fiscaat-reports',
+				'fct_admin_reports'
+			);
+
+			// Are settings enabled?
+			if ( current_user_can( 'fct_settings_page' ) ) {
+				add_submenu_page(
+					__( 'Fiscaat',  'fiscaat' ),
+					__( 'Fiscaat',  'fiscaat' ),
+					$this->minimum_capability,
+					'fiscaat',
+					'fct_admin_settings'
+				);
+			}
+		}
+
+		// Tools pages. These are later removed in admin_head
 		if ( current_user_can( 'fct_tools_page' ) ) {
 			if ( current_user_can( 'fct_tools_repair_page' ) ) {
 				$hooks[] = add_management_page(
@@ -202,24 +275,13 @@ class Fiscaat_Admin {
 			);
 		}
 
-		// Are settings enabled?
-		if ( current_user_can( 'fct_settings_page' ) ) {
-			add_options_page(
-				__( 'Fiscaat',  'fiscaat' ),
-				__( 'Fiscaat',  'fiscaat' ),
-				$this->minimum_capability,
-				'fiscaat',
-				'fct_admin_settings'
-			);
-		}
 	}
 
 	/**
-	 * If this is a new installation or no years exist, create some initial year content.
+	 * If this is a new installation or no years exist, create some initial Fiscaat content.
 	 *
 	 * @uses fct_has_open_year() To check if an open year exists
 	 * @uses fct_create_initial_content() To create initial Fiscaat content
-	 * @return type
 	 */
 	public static function new_install() {
 		if ( fct_has_open_year() )
@@ -292,12 +354,13 @@ class Fiscaat_Admin {
 			case 'fct_settings_page'          : // Settings Page
 
 				// Fisci
-				if ( user_can( $user_id, fiscaat()->admin->minimum_capability ) )
-					$caps = array( fiscaat()->admin->minimum_capability );
+				if ( user_can( $user_id, 'fiscaat' ) ) {
+					$caps = array( 'fiscaat' );
 				
 				// Admins
-				else
+				} else {
 					$caps = array( 'manage_options' );
+				}
 
 				break;
 				
@@ -306,11 +369,11 @@ class Fiscaat_Admin {
 			case 'fct_tools_repair_page'      : // Tools - Repair Page
 			case 'fct_tools_import_page'      : // Tools - Import Page
 			case 'fct_tools_reset_page'       : // Tools - Reset Page
-			case 'fct_settings_main'          : // Settings - General
-			case 'fct_settings_functionality' : // Settings - Functionality // Really Fisci can unset Control?
+			case 'fct_settings_currency'      : // Settings - General
+			case 'fct_settings_functionality' : // Settings - Functionality // Really, Fisci can unset Control?
 			case 'fct_settings_per_page'      : // Settings - Per page
 			case 'fct_settings_accounts'      : // Settings - Accounts
-				$caps = array( fiscaat()->admin->minimum_capability );
+				$caps = array( 'fiscaat' );
 				break;
 
 			// Admins

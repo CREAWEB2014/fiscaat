@@ -24,6 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 function fct_years_url( $path = '/' ) {
 	echo fct_get_years_url( $path );
 }
+
 	/**
 	 * Return the year URL
 	 * 
@@ -44,6 +45,7 @@ function fct_years_url( $path = '/' ) {
 function fct_accounts_url( $path = '/' ) {
 	echo fct_get_accounts_url( $path );
 }
+
 	/**
 	 * Return the year URL
 	 *
@@ -62,7 +64,7 @@ function fct_accounts_url( $path = '/' ) {
  * Add our custom head action to wp_head
  *
  * @uses do_action() Calls 'fct_head'
-*/
+ */
 function fct_head() {
 	do_action( 'fct_head' );
 }
@@ -76,7 +78,7 @@ function fct_footer() {
 	do_action( 'fct_footer' );
 }
 
-/** is_ ***********************************************************************/
+/** Is Functions **************************************************************/
 
 /**
  * Check if current page is a Fiscaat year
@@ -599,6 +601,7 @@ function fct_redirect_to_field( $redirect_to = '' ) {
 function fct_sanitize_val( $request = '', $input_type = 'text' ) {
 	echo fct_get_sanitize_val( $request, $input_type );
 }
+
 	/**
 	 * Return sanitized $_REQUEST value.
 	 *
@@ -687,6 +690,7 @@ function fct_tab_index( $auto_increment = true ) {
 function fct_dropdown( $args = '' ) {
 	echo fct_get_dropdown( $args );
 }
+
 	/**
 	 * Output a select box allowing to pick which year/account a new
 	 * account/record belongs in.
@@ -961,8 +965,8 @@ function fct_record_form_fields() {
 	else : ?>
 
 		<input type="hidden" name="fct_record_title" id="fct_record_title" value="<?php printf( __( 'Record To: %s', 'fiscaat' ), fct_get_account_title() ); ?>" />
-		<input type="hidden" name="fct_account_id"    id="fct_account_id"    value="<?php fct_account_id(); ?>" />
-		<input type="hidden" name="action"          id="fct_post_action" value="fiscaat-new-record" />
+		<input type="hidden" name="fct_account_id"   id="fct_account_id"   value="<?php fct_account_id(); ?>" />
+		<input type="hidden" name="action"           id="fct_post_action"  value="fiscaat-new-record" />
 
 		<?php if ( current_user_can( 'unfiltered_html' ) )
 			wp_nonce_field( 'fiscaat-unfiltered-html-record_' . fct_get_account_id(), '_fct_unfiltered_html_record', false ); ?>
@@ -986,6 +990,7 @@ function fct_record_form_fields() {
 function fct_the_content( $args = array() ) {
 	echo fct_get_the_content( $args );
 }
+
 	/**
 	 * Return a textarea or TinyMCE if enabled
 	 *
@@ -1136,6 +1141,7 @@ function fct_title_breadcrumb( $args = array() ) {
 function fct_breadcrumb( $args = array() ) {
 	echo fct_get_breadcrumb( $args );
 }
+
 	/**
 	 * Return a breadcrumb ( year -> account -> record )
 	 *
@@ -1521,6 +1527,25 @@ function fct_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 /** Currency ******************************************************************/
 
 /**
+ * Output the currency symbol
+ *
+ * @uses fct_get_currency_symbol()
+ */
+function fct_currency_symbol() {
+	echo fct_get_currency_symbol();
+}
+
+	/**
+	 * Return the currency symbol
+	 *
+	 * @uses fct_get_currency()
+	 * @return string Currency symbol
+	 */
+	function fct_get_currency_symbol() {
+		return fct_get_currency( 'symbol' );
+	}
+
+/**
  * Output the stored currency attribute
  * 
  * @param string $arg Optional. Currency attribute
@@ -1529,9 +1554,12 @@ function fct_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 function fct_currency( $arg = '' ){
 	echo fct_get_currency( $arg );
 }
+
 	/**
 	 * Return the stored currency (attribute)
-	 * 
+	 *
+	 * Defaults to currency ISO code
+	 *
 	 * @uses fct_get_currencies() To get the currencies list
 	 * 
 	 * @param string $arg Optional. Currency attribute may be one of:
@@ -1577,6 +1605,7 @@ function fct_currency( $arg = '' ){
 function fct_currency_format( $number = 0, $curr_pos = false ) {
 	echo fct_get_currency_format( $number, $curr_pos );
 }
+
 	/**
 	 * Return a Fiscaat specific method of formatting values by currency
 	 *
@@ -1593,12 +1622,12 @@ function fct_currency_format( $number = 0, $curr_pos = false ) {
 
 		// Parse currency format		
 		$format = fct_the_currency_format();
-		$retval = number_format_i18n( $number, $format['decimals'], $format['decimal_sep'], $format['thousand_sep'] );
+		$retval = number_format( $number, $format['decimals'], $format['decimal_sep'], $format['thousand_sep'] );
 
 		// Prepend currency symbol
 		if ( ! empty( $curr_pos ) ) {
 			$pos    = ! is_string( $curr_pos ) ? get_option( '_fct_currency_position' ) : $curr_pos;
-			$symbol = fct_get_currency( 'symbol' );
+			$symbol = fct_get_currency_symbol();
 
 			// Add symbol to the value
 			switch ( $pos ) {
@@ -1630,6 +1659,7 @@ function fct_currency_format( $number = 0, $curr_pos = false ) {
 function fct_currency_dropdown( $args = '' ) {
 	echo fct_get_currency_dropdown( $args );
 }
+
 	/**
 	 * Return a select box allowing to pick a currency.
 	 * 

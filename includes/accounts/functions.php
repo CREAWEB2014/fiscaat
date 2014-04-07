@@ -21,7 +21,7 @@ function fct_get_account_default_meta(){
 	return (array) apply_filters( 'fct_get_account_default_meta', array(
 		'year_id'                 => fct_get_current_year_id(), // Year 
 		'ledger_id'               => 0,                         // Account ledger id
-		'account_type'            => '',                        // 'result', 'asset'
+		'account_type'            => '',                        // 'result' or 'asset'
 		'record_count'            => 0,                         // Record count
 		'from_value'              => 0,                         // Result from balance.
 		'to_value'                => 0,                         // Current value to balance or income statment.

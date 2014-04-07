@@ -10,22 +10,15 @@
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-/** Admin Menus ***************************************************************/
-
 /**
  * Add a separator to the WordPress admin menus
  */
 function fct_admin_separator() {
+	global $menu;
 
 	// Prevent duplicate separators when no new menu items exist
-	if ( ! current_user_can( 'fct_spectate' ) )
+	if ( ! current_user_can( fiscaat()->admin->minimum_capability ) )
 		return;
-
-	// Prevent duplicate separators when no core menu items exist
-	if ( ! current_user_can( 'manage_options' ) )
-		return;
-
-	global $menu;
 
 	$menu[] = array( '', 'read', 'separator-fiscaat', '', 'wp-menu-separator fiscaat' );
 }
@@ -37,14 +30,14 @@ function fct_admin_separator() {
  * @return bool Always true
  */
 function fct_admin_custom_menu_order( $menu_order = false ) {
-	if ( ! current_user_can( 'fct_spectate' ) )
+	if ( ! current_user_can( fiscaat()->admin->minimum_capability ) )
 		return $menu_order;
 
 	return true;
 }
 
 /**
- * Move our custom separator above our custom post types
+ * Move our custom separator above our custom admin page
  *
  * @param array $menu_order Menu Order
  * @uses fct_get_year_post_type() To get the year post type
@@ -53,26 +46,24 @@ function fct_admin_custom_menu_order( $menu_order = false ) {
 function fct_admin_menu_order( $menu_order ) {
 
 	// Bail if user cannot see any top level Fiscaat menus
-	if ( empty( $menu_order ) || ( ! current_user_can( 'fct_spectate' ) ) )
+	if ( empty( $menu_order ) || ! current_user_can( fiscaat()->admin->minimum_capability ) )
 		return $menu_order;
 
 	// Initialize our custom order array
 	$fct_menu_order = array();
 
 	// Menu values
-	$second_sep   = 'separator2';
+	$wp_core_sep  = 'separator2';
 	$custom_menus = array(
-		'separator-fiscaat',                                     // Separator
-		'edit.php?post_type=' . fct_get_year_post_type(),    // Years
-		'edit.php?post_type=' . fct_get_account_post_type(), // Accounts
-		'edit.php?post_type=' . fct_get_record_post_type()   // Records
+		'separator-fiscaat', // Separator
+		'fiscaat'            // Fiscaat
 	);
 
 	// Loop through menu order and do some rearranging
 	foreach ( $menu_order as $item ) {
 
 		// Position Fiscaat menus above appearance
-		if ( $second_sep == $item ) {
+		if ( $wp_core_sep == $item ) {
 
 			// Add our custom menus
 			foreach ( $custom_menus as $custom_menu ) {
@@ -82,7 +73,7 @@ function fct_admin_menu_order( $menu_order ) {
 			}
 
 			// Add the appearance separator
-			$fct_menu_order[] = $second_sep;
+			$fct_menu_order[] = $wp_core_sep;
 
 		// Skip our menu items
 		} elseif ( ! in_array( $item, $custom_menus ) ) {

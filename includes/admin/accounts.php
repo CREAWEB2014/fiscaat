@@ -55,18 +55,18 @@ class Fiscaat_Accounts_Admin {
 	private function setup_actions() {
 
 		// Add some general styling to the admin area
-		add_action( 'fct_admin_head',    array( $this, 'admin_head'       ) );
+		add_action( 'fct_admin_head', array( $this, 'admin_head' ) );
 
 		// Messages
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
-		// Account column headers.
-		add_filter( 'manage_' . $this->post_type . '_posts_columns',        array( $this, 'accounts_column_headers' ) );
+		// Account column headers
+		add_filter( 'manage_'      . $this->post_type . '_posts_columns',       array( $this, 'accounts_column_headers' ) );
 
 		// Account columns (in post row)
-		add_action( 'manage_' . $this->post_type . '_posts_custom_column',   array( $this, 'accounts_column_data'      ), 10, 2 );
-		add_filter( 'manage_edit-' . $this->post_type . '_sortable_columns', array( $this, 'accounts_sortable_columns' ), 10, 2 );
-		add_filter( 'post_row_actions',                                      array( $this, 'accounts_row_actions'      ), 10, 2 );
+		add_action( 'manage_'      . $this->post_type . '_posts_custom_column', array( $this, 'accounts_column_data'      ), 10, 2 );
+		add_filter( 'manage_edit-' . $this->post_type . '_sortable_columns',    array( $this, 'accounts_sortable_columns' ), 10, 2 );
+		add_filter( 'post_row_actions',                                         array( $this, 'accounts_row_actions'      ), 10, 2 );
 
 		// Account metabox actions
 		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox'      ) );
@@ -78,14 +78,14 @@ class Fiscaat_Accounts_Admin {
 
 		// Add ability to filter accounts and records per year
 		add_filter( 'restrict_manage_posts', array( $this, 'filter_dropdown'  ) );
-		add_filter( 'fct_request',       array( $this, 'filter_post_rows' ) );
+		add_filter( 'fct_request',           array( $this, 'filter_post_rows' ) );
 
 		// Contextual Help
 		add_action( 'load-edit.php',     array( $this, 'edit_help' ) );
 		add_action( 'load-post-new.php', array( $this, 'new_help'  ) );
 
 		// Fiscaat requires
-		add_action( 'load-post-new.php', array( $this, 'requires' ) );
+		add_action( 'load-post-new.php', array( $this, 'requires'  ) );
 
 		// Account records view link
 		// add_filter( 'get_edit_post_link', array( $this, 'accounts_edit_post_link' ), 10, 3 ); // Uncontrolled behavior

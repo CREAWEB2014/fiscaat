@@ -24,7 +24,7 @@ function fct_get_default_options() {
 
 		'_fct_db_version'            => fiscaat()->db_version,
 
-		/** Settings **********************************************************/
+		/** Currency **********************************************************/
 
 		'_fct_currency'              => 'USD',        // Currency
 		'_fct_currency_position'     => 'left_space', // Currency Position
