@@ -332,8 +332,8 @@ function fct_admin_bar_menu( $wp_admin_bar ) {
 			'parent' => 'fiscaat',
 			'href'   => add_query_arg( array( 'page' => 'fct-balance' ), admin_url() ),
 			'meta'   => array()
-		),
-	}
+		)
+	);
 
 	// New records node
 	if ( current_user_can( 'create_records' ) ) {
