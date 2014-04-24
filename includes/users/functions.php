@@ -316,7 +316,7 @@ function fct_admin_bar_menu( $wp_admin_bar ) {
 			'title'  => '<span class="ab-icon"></span> <span class="ab-label">' . _x('Fiscaat', 'Admin bar menu title', 'fiscaat') . '</span>',
 			'href'   => add_query_arg( array( 'post_type' => fct_get_year_post_type() ), admin_url( 'edit.php' ) ),
 			'meta'   => array()
-		)
+		),
 
 		// General Ledger
 		'fct-general-ledger' => array(
