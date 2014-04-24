@@ -366,7 +366,7 @@ function fct_admin_bar_menu( $wp_admin_bar ) {
 	}
 
 	// Settings page
-	if ( current_user_can( 'fct_settings_page' ) {
+	if ( current_user_can( 'fct_settings_page' ) ) {
 		$nodes['fct-settings'] = array(
 			'title'  => __('Settings', 'fiscaat'),
 			'parent' => 'fiscaat',
