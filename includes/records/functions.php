@@ -571,8 +571,8 @@ function fct_check_record_edit() {
  */
 function fct_get_record_statuses() {
 	return apply_filters( 'fct_get_record_statuses', array(
-		fct_get_public_status_id() => __('Open',   'fiscaat'),
-		fct_get_closed_status_id() => __('Closed', 'fiscaat')
+		fct_get_public_status_id() => __( 'Open',   'fiscaat' ),
+		fct_get_closed_status_id() => __( 'Closed', 'fiscaat' )
 	) );
 }
 
@@ -609,8 +609,8 @@ function fct_get_credit_record_type_id() {
  */
 function fct_get_record_types() {
 	return apply_filters( 'fct_get_record_types', array(
-		fct_get_debit_record_type_id()  => __( 'Debit',  'fiscaat' );
-		fct_get_credit_record_type_id() => __( 'Credit', 'fiscaat' );
+		fct_get_debit_record_type_id()  => __( 'Debit',  'fiscaat' ),
+		fct_get_credit_record_type_id() => __( 'Credit', 'fiscaat' )
 	) );
 }
 

@@ -891,8 +891,8 @@ function fct_check_account_edit() {
  */
 function fct_get_account_statuses() {
 	return apply_filters( 'fct_get_account_statuses', array(
-		fct_get_public_status_id() => __('Open',   'fiscaat'),
-		fct_get_closed_status_id() => __('Closed', 'fiscaat')
+		fct_get_public_status_id() => __( 'Open',   'fiscaat' ),
+		fct_get_closed_status_id() => __( 'Closed', 'fiscaat' )
 	) );
 }
 
@@ -933,8 +933,8 @@ function fct_get_capital_account_type_id() {
  */
 function fct_get_account_types() {
 	return apply_filters( 'fct_get_account_types', array(
-		fct_get_revenue_account_type_id() => __('Revenue', 'fiscaat'),
-		fct_get_capital_account_type_id() => __('Capital', 'fiscaat'),
+		fct_get_revenue_account_type_id() => __( 'Revenue', 'fiscaat' ),
+		fct_get_capital_account_type_id() => __( 'Capital', 'fiscaat' )
 	) );
 }
 
