@@ -901,7 +901,7 @@ function fct_get_account_statuses() {
 /**
  * Return the unique id of the revenue type for accounts
  * 
- * @since 0.0.1
+ * @since 0.0.5
  * 
  * @return string The unique revenue account type id
  */
@@ -912,7 +912,7 @@ function fct_get_revenue_account_type_id() {
 /**
  * Return the unique id of the capital type for accounts
  * 
- * @since 0.0.1
+ * @since 0.0.5
  * 
  * @return string The unique capital account type id
  */

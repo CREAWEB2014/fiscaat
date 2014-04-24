@@ -581,6 +581,8 @@ function fct_get_record_statuses() {
 /**
  * Return the debit record value type id
  *
+ * @since 0.0.5
+ * 
  * @return string The debit record value type
  */
 function fct_get_debit_record_type_id() {
@@ -589,7 +591,9 @@ function fct_get_debit_record_type_id() {
 
 /**
  * Return the credit record value type id
- *
+ * 
+ * @since 0.0.5
+ * 
  * @return string The credit record value type
  */
 function fct_get_credit_record_type_id() {
