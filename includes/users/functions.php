@@ -313,7 +313,7 @@ function fct_admin_bar_menu( $wp_admin_bar ) {
 		
 		// Top level menu
 		'fiscaat' => array(
-			'title'  => '<span class="ab-icon"></span> <span class="ab-label">' . _x('Fiscaat', 'Admin bar menu title', 'fiscaat') . '</span>',
+			'title'  => _x('Fiscaat', 'Admin bar menu title', 'fiscaat'),
 			'href'   => add_query_arg( array( 'post_type' => fct_get_year_post_type() ), admin_url( 'edit.php' ) ),
 			'meta'   => array()
 		),
@@ -385,4 +385,16 @@ function fct_admin_bar_menu( $wp_admin_bar ) {
 			$wp_admin_bar->add_node( array_merge( array( 'id' => $node_id ), (array) $args ) );
 		}
 	}
+}
+
+/**
+ * Output styles for Fiscaat's admin bar menu item
+ *
+ * @since 0.0.6
+ */
+function fct_admin_bar_menu_style() { ?> 
+<style type="text/css" media="screen">
+	#wpadminbar #wp-admin-bar-fiscaat > .ab-item:before { content: '\f178'; top: 2px; }
+</style>
+<?php
 }

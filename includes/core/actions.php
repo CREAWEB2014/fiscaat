@@ -232,4 +232,5 @@ add_action( 'fct_template_redirect', 'fct_check_record_edit',      10 );
 // add_action( 'fct_init', 'fct_control' );
 
 // Admin bar
-add_action( 'admin_bar_menu', 'fct_admin_bar_menu', 90 );
+add_action( 'admin_bar_menu', 'fct_admin_bar_menu',       90 );
+add_action( 'wp_head',        'fct_admin_bar_menu_style', 90 );
