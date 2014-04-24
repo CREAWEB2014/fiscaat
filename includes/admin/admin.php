@@ -196,16 +196,6 @@ class Fiscaat_Admin {
 				'edit.php?post_type=' . fct_get_year_post_type()
 			);
 
-			// Balance
-			add_submenu_page(
-				'fiscaat',
-				__( 'Balance', 'fiscaat' ),
-				__( 'Balance', 'fiscaat' ),
-				$this->minimum_capability,
-				'fct-balance',
-				'fct_admin_balance'
-			);
-
 			// Reports
 			add_submenu_page(
 				'fiscaat',
@@ -235,7 +225,7 @@ class Fiscaat_Admin {
 					__( 'Repair Fiscaat', 'fiscaat' ),
 					__( 'Fiscaat Repair', 'fiscaat' ),
 					$this->minimum_capability,
-					'fiscaat-repair',
+					'fct-repair',
 					'fct_admin_repair'
 				);
 			}
@@ -245,7 +235,7 @@ class Fiscaat_Admin {
 					__( 'Import Fiscaat', 'fiscaat' ),
 					__( 'Fiscaat Import', 'fiscaat' ),
 					$this->minimum_capability,
-					'fiscaat-converter',
+					'fct-converter',
 					'fct_converter_settings'
 				);
 			}
@@ -255,7 +245,7 @@ class Fiscaat_Admin {
 					__( 'Reset Fiscaat', 'fiscaat' ),
 					__( 'Fiscaat Reset', 'fiscaat' ),
 					$this->minimum_capability,
-					'fiscaat-reset',
+					'fct-reset',
 					'fct_admin_reset'
 				);
 			}
@@ -270,7 +260,7 @@ class Fiscaat_Admin {
 				__( 'Fiscaat', 'fiscaat' ),
 				__( 'Fiscaat', 'fiscaat' ),
 				$this->minimum_capability,
-				'fiscaat-repair',
+				'fct-repair',
 				'fct_admin_repair'
 			);
 		}
@@ -351,7 +341,7 @@ class Fiscaat_Admin {
 		switch ( $cap ) {
 
 			// Fisci & Admins
-			case 'fct_settings_page'          : // Settings Page
+			case 'fct_settings_page' : // Settings Page
 
 				// Fisci
 				if ( user_can( $user_id, 'fiscaat' ) ) {
@@ -430,7 +420,7 @@ class Fiscaat_Admin {
 	public function activation_notice() {
 		
 		// Admins only
-		if ( ! current_user_can( 'administrator' ) )
+		if ( ! current_user_can( 'manage_options' ) )
 			return;
 
 		// Show message that nothing is visible yet. Users need to be promoted to Fiscus, Controller or Spectator
@@ -483,9 +473,9 @@ class Fiscaat_Admin {
 
 		// Remove the individual recount and converter menus.
 		// They are grouped together by h2 tabs
-		remove_submenu_page( 'tools.php', 'fiscaat-repair'    );
-		remove_submenu_page( 'tools.php', 'fiscaat-converter' );
-		remove_submenu_page( 'tools.php', 'fiscaat-reset'     );
+		remove_submenu_page( 'tools.php', 'fct-repair'    );
+		remove_submenu_page( 'tools.php', 'fct-converter' );
+		remove_submenu_page( 'tools.php', 'fct-reset'     );
 
 		// The /wp-admin/images/ folder
 		$wp_admin_url     = admin_url( 'images/' );
