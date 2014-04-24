@@ -10,7 +10,7 @@
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-if ( !class_exists( 'Fiscaat_Admin_Records' ) ) :
+if ( ! class_exists( 'Fiscaat_Admin_Records' ) ) :
 
 /**
  * Loads Fiscaat record admin area
@@ -40,10 +40,17 @@ class Fiscaat_Admin_Records {
 	/** Functions *************************************************************/
 
 	/**
-	 * The main Fiscaat admin loader
+	 * The main Fiscaat record admin loader
 	 *
 	 * @uses Fiscaat_Admin_Records::setup_globals() Setup the globals needed
-	 * @uses Fiscaat_Admin_Records::setup_actions() Setup the hooks and actions
+	 * @uses Fiscaat_Admin_Records::class_actions() Setup the default hooks and actions
+	 * @uses Fiscaat_Admin_Records::setup_actions() Setup child hooks and actions
+	 *
+	 * @param array $args Child class construct arguments:
+	 *  - string $page       Required. The page slug
+	 *  - string $menu_title Optional. The menu title
+	 *  - string $page_title Optional. The page title
+	 *  - string $cap        Optional. The required page capability
 	 */
 	public function __construct( $args = array() ) {
 		$this->setup_globals( $args );
@@ -68,7 +75,7 @@ class Fiscaat_Admin_Records {
 		add_action( $this->args->hook_prefix .'_load',   array( $this, 'load_list_table'  )        );
 		add_action( $this->args->hook_prefix .'_load',   array( $this, 'help'             )        );
 		add_action( $this->args->hook_prefix .'_load',   array( $this, 'remove_add_rows'  )        );
-		add_filter( 'fct_records_list_table_action', array( $this, 'submit_action'    )        );
+		add_filter( 'fct_records_list_table_action',     array( $this, 'submit_action'    )        );
 		add_filter( $this->args->hook_prefix .'_action', array( $this, 'submit_do_action' ), 10, 2 );
 
 		// Page head hooks
@@ -100,7 +107,7 @@ class Fiscaat_Admin_Records {
 			'menu_title' => $post_type_object->labels->name,
 			'page_title' => $post_type_object->labels->name,
 			'cap'        => $post_type_object->cap->edit_posts,
-			);
+		);
 		$args = wp_parse_args( $args, $default );
 
 		// Require page
@@ -125,7 +132,7 @@ class Fiscaat_Admin_Records {
 	 * @return boolean
 	 */
 	protected function bail( $check_page = true ) {
-		if ( !isset( get_current_screen()->post_type ) || ( $this->post_type != get_current_screen()->post_type ) )
+		if ( ! isset( get_current_screen()->post_type ) || ( $this->post_type != get_current_screen()->post_type ) )
 			return true;
 
 		if ( $check_page && isset( $_GET['page'] ) && $this->args->page != $_GET['page'] ) 
@@ -311,11 +318,11 @@ class Fiscaat_Admin_Records {
 	 * Output record new admin page
 	 */
 	public function admin_page() {
-		global $post_type_object;
-?>
+		?>
+
 	<div class="wrap">
 		<?php screen_icon(); ?>
-		<h2><?php echo $this->args->page_title; ?><?php do_action( $this->args->hook_prefix .'_title_append' ); ?></h2>
+		<h2><?php $this->page_title(); ?></h2>
 
 		<?php do_action( $this->args->hook_prefix .'_form_before' ); ?>
 
@@ -343,7 +350,17 @@ class Fiscaat_Admin_Records {
 		<div id="ajax-response"></div>
 		<br class="clear" />
 	</div>
-<?php
+
+		<?php
+	}
+
+	/**
+	 * Output the page title
+	 * 
+	 * @uses apply_filters() Calls '{$hook_prefix}_page_title' with the page title
+	 */
+	public function page_title() {
+		echo apply_filters( $this->args->hook_prefix . '_page_title', $this->args->page_title );
 	}
 
 	/**

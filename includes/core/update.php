@@ -8,7 +8,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
  * If there is no raw DB version, this is the first installation
@@ -137,101 +137,101 @@ function fct_create_initial_content( $args = array() ) {
 
 		// Cash Book
 		'cash_book' => array(
-			'account_title'   => __( 'Cash Book',                                   'fiscaat' ),
-			'account_content' => __( 'The cash book monitors all real cash flows.', 'fiscaat' ),
-			'account_type'    => fct_get_asset_account_type(),
+			'account_title'   => _x( 'Cash Book', 'Account title',                      'fiscaat' ),
+			'account_content' => __( 'The cash book monitors all physical cash flows.', 'fiscaat' ),
+			'account_type'    => fct_get_capital_account_type_id(),
 			'ledger_id'       => 101,
 		),
 
 		// Main Bank Account
 		'main_bank_account' => array(
-			'account_title'   => __( 'Main Bank Account',                          'fiscaat' ),
+			'account_title'   => _x( 'Main Bank Account', 'Account title',         'fiscaat' ),
 			'account_content' => __( 'Shows the flows of your banking transfers.', 'fiscaat' ),
-			'account_type'    => fct_get_asset_account_type(),
+			'account_type'    => fct_get_capital_account_type_id(),
 			'ledger_id'       => 102,
 		),
 
 		// Accounts Receivable
 		'accounts_receivable' => array(
-			'account_title'   => __( 'Accounts Receivable',                      'fiscaat' ),
+			'account_title'   => _x( 'Accounts Receivable', 'Account title',     'fiscaat' ),
 			'account_content' => __( 'Keeping an eye out for all your debtors.', 'fiscaat' ),
-			'account_type'    => fct_get_asset_account_type(),
+			'account_type'    => fct_get_capital_account_type_id(),
 			'ledger_id'       => 121,
 		),
 
 		// Other Assets
 		'other_assets' => array(
-			'account_title'   => __( 'Other Assets',                      'fiscaat' ),
+			'account_title'   => _x( 'Other Assets', 'Account title',     'fiscaat' ),
 			'account_content' => __( 'Carries all non-specified assets.', 'fiscaat' ),
-			'account_type'    => fct_get_asset_account_type(),
+			'account_type'    => fct_get_capital_account_type_id(),
 			'ledger_id'       => 171,
 		),
 
 		// Notes Payable
 		'notes_payable' => array(
-			'account_title'   => __( 'Notes Payable',                               'fiscaat' ),
+			'account_title'   => _x( 'Notes Payable', 'Account title',              'fiscaat' ),
 			'account_content' => __( 'Carries the short term written liabilities.', 'fiscaat' ),
-			'account_type'    => fct_get_asset_account_type(),
+			'account_type'    => fct_get_capital_account_type_id(),
 			'ledger_id'       => 201,
 		),
 
 		// Accounts Payable
 		'accounts_payable' => array(
-			'account_title'   => __( 'Accounts Payable',                                   'fiscaat' ),
+			'account_title'   => _x( 'Accounts Payable', 'Account title',                  'fiscaat' ),
 			'account_content' => __( 'Keep your friends close and your creditors closer.', 'fiscaat' ),
-			'account_type'    => fct_get_asset_account_type(),
+			'account_type'    => fct_get_capital_account_type_id(),
 			'ledger_id'       => 211,
 		),
 
-		/** Results ***********************************************************/
+		/** Revenues and Expenses *********************************************/
 
 		// Operating Revenues
 		'operating_revenues' => array(
-			'account_title'   => __( 'Operating Revenues',           'fiscaat' ),
-			'account_content' => __( 'Carries all gained revenues.', 'fiscaat' ),
-			'account_type'    => fct_get_result_account_type(),
+			'account_title'   => _x( 'Operating Revenues', 'Account title', 'fiscaat' ),
+			'account_content' => __( 'Carries all gained revenues.',        'fiscaat' ),
+			'account_type'    => fct_get_revenue_account_type_id(),
 			'ledger_id'       => 310,
 		),
 
 		// Operating Expenses
 		'operating_expenses' => array(
-			'account_title'   => __( 'Operating Expenses',    'fiscaat' ),
-			'account_content' => __( 'Carries all expenses.', 'fiscaat' ),
-			'account_type'    => fct_get_result_account_type(),
+			'account_title'   => _x( 'Operating Expenses', 'Account title', 'fiscaat' ),
+			'account_content' => __( 'Carries all expenses.',               'fiscaat' ),
+			'account_type'    => fct_get_revenue_account_type_id(),
 			'ledger_id'       => 510,
 		),
 
 		// Non-operating Revenues
 		'non_operating_revenues' => array(
-			'account_title'   => __( 'Non-operating Revenues',                              'fiscaat' ),
+			'account_title'   => _x( 'Non-operating Revenues', 'Account title',             'fiscaat' ),
 			'account_content' => __( 'Carries all revenues and gains from non-operations.', 'fiscaat' ),
-			'account_type'    => fct_get_result_account_type(),
+			'account_type'    => fct_get_revenue_account_type_id(),
 			'ledger_id'       => 930,
 		),
 
 		// Non-operating Expenses
 		'non_operating_expenses' => array(
-			'account_title'   => __( 'Non-operating Expenses',                               'fiscaat' ),
+			'account_title'   => _x( 'Non-operating Expenses', 'Account title',              'fiscaat' ),
 			'account_content' => __( 'Carries all expenses and losses from non-operations.', 'fiscaat' ),
-			'account_type'    => fct_get_result_account_type(),
+			'account_type'    => fct_get_revenue_account_type_id(),
 			'ledger_id'       => 950,
 		),
 
-		/** Other *************************************************************/
+		/** Utility Accounts **************************************************/
 
 		// Balance Account
 		'balance_account' => array(
-			'account_title'   => __( 'Balance Account',                               'fiscaat' ),
+			'account_title'   => _x( 'Balance Account', 'Account title',              'fiscaat' ),
 			'account_content' => __( 'Manages transfers between your bank accounts.', 'fiscaat' ),
-			'account_type'    => fct_get_asset_account_type(),
+			'account_type'    => fct_get_capital_account_type_id(),
 			'ledger_id'       => 199,
 		),
 
 		// Suspense Account
 		'suspense_account' => array(
-			'account_title'   => __( 'Suspense Account',                                                'fiscaat' ),
-			'account_content' => __( 'Carries temporarily uncertain or doubtful receipts or expenses.', 'fiscaat' ),
-			'account_type'    => fct_get_asset_account_type(),
+			'account_title'   => _x( 'Suspense Account', 'Account title',                         'fiscaat' ),
+			'account_content' => __( 'Carries temporarily uncertain or doubtful record entries.', 'fiscaat' ),
+			'account_type'    => fct_get_capital_account_type_id(),
 			'ledger_id'       => 999,
 		),
 

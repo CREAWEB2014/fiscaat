@@ -253,7 +253,7 @@ function fct_add_view_all( $original_link = '', $force = false ) {
  * Remove 'view=all' from query string
  *
  * @param string $original_link Original Link to be modified
- * @uses current_user_can() To check if the current user can moderate
+ * @uses current_user_can() To check if the current user can fiscaat
  * @uses add_query_arg() To add args to the url
  * @uses apply_filters() Calls 'fct_add_view_all' with the link and original link
  * @return string The link with 'view=all' appended if necessary
@@ -265,11 +265,11 @@ function fct_remove_view_all( $original_link = '' ) {
 /**
  * If current user can and is vewing all records
  *
- * @uses current_user_can() To check if the current user can moderate
+ * @uses current_user_can() To check if the current user can fiscaat
  * @uses apply_filters() Calls 'fct_get_view_all' with the link and original link
  * @return bool Whether current user can and is viewing all
  */
-function fct_get_view_all( $cap = 'moderate' ) {
+function fct_get_view_all( $cap = 'fiscaat' ) {
 	$retval = ( ( ! empty( $_GET['view'] ) && ( 'all' == $_GET['view'] ) && current_user_can( $cap ) ) );
 	return apply_filters( 'fct_get_view_all', (bool) $retval );
 }
@@ -315,7 +315,7 @@ function fct_get_paged() {
  *  - count_current_records: Count records of current year? If set to false,
  *                           diapproved, unapproved, approved and closed records 
  *                           are also not counted.
- *  - count_to_balance: Count to balance value of the current year?
+ *  - count_value_end: Count to balance value of the current year?
  *  - count_current_comments: Count comments of the current year?
  * @uses fct_count_users() To count the number of registered users
  * @uses fct_get_year_post_type() To get the year post type
@@ -336,7 +336,7 @@ function fct_get_statistics( $args = '' ) {
 		'count_accounts'           => true,
 		'count_records'            => true,
 		'count_current_records'    => true,
-		'count_to_balance'         => true,
+		'count_value_end'         => true,
 		'count_comments'           => true
 	);
 	$r = fct_parse_args( $args, $defaults, 'get_statistics' );
@@ -377,8 +377,8 @@ function fct_get_statistics( $args = '' ) {
 	}
 
 	// To Balance
-	if ( ! empty( $count_to_balance ) ) {
-		$current_to_balance = fct_get_year_to_balance( fct_get_current_year_id() );
+	if ( ! empty( $count_value_end ) ) {
+		$current_value_end = fct_get_year_value_end( fct_get_current_year_id() );
 	}
 
 	// Comments
@@ -393,9 +393,9 @@ function fct_get_statistics( $args = '' ) {
 	$stats = array_map( 'absint',             $stats );
 	$stats = array_map( 'number_format_i18n', $stats );
 
-	// Add the to_balance title attribute strings because we don't need to run the math functions on these (see above)
-	if ( isset( $current_to_balance ) )
-		$stats['current_to_balance'] = $current_to_balance;
+	// Add the value_end title attribute strings because we don't need to run the math functions on these (see above)
+	if ( isset( $current_value_end ) )
+		$stats['current_value_end'] = $current_value_end;
 
 	return apply_filters( 'fct_get_statistics', $stats, $r );
 }

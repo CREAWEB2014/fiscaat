@@ -4,11 +4,11 @@
  * Fiscaat Control Record Functions
  *
  * @package Fiscaat
- * @subpackage Functions
+ * @subpackage Control
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /** Record Actions *************************************************************/
 
@@ -114,6 +114,6 @@ function fct_approve_record( $record_id = 0 ) {
  */
 function fct_ctrl_no_close_record( $bail, $record ) {
 
-	// Bail if unapproved
+	// Bail if not approved
 	return fct_get_approved_status_id() != $record['post_status'];
 }

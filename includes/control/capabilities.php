@@ -119,9 +119,10 @@ function fct_ctrl_get_caps_for_role( $caps, $role ) {
  * @return array
  */
 function fct_ctrl_get_dynamic_roles( $roles ) {
-	$roles[fct_get_controller_role()] = array(
+	$role = fct_get_controller_role();
+	$roles[ $role ] = array(
 		'name'         => __( 'Controller', 'fiscaat' ),
-		'capabilities' => fct_get_caps_for_role( fct_get_controller_role() )
+		'capabilities' => fct_get_caps_for_role( $role )
 	);
 
 	return $roles;
@@ -136,3 +137,22 @@ function fct_ctrl_get_dynamic_roles( $roles ) {
 function fct_get_controller_role() {
 	return apply_filters( 'fct_get_controller_role', 'fct_controller' );
 }
+
+/**
+ * Get the total number of controllers on Fiscaat
+ *
+ * @uses count_users() To execute our query and get the var back
+ * @uses apply_filters() Calls 'fct_get_total_controllers' with number of controllers
+ * @return int Total number of controllers
+ */
+function fct_get_total_controllers() {
+	$user_count = count_users();
+	$role       = fct_get_controller_role();
+
+	// Check for Controllers
+	if ( ! isset( $user_count['avail_roles'][$role] ) )
+		return 0;
+
+	return (int) apply_filters( 'fct_get_total_controllers', (int) $user_count['avail_roles'][$role] );
+}
+

@@ -8,7 +8,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /** Users *********************************************************************/
 
@@ -35,7 +35,7 @@ function fct_user_id( $user_id = 0, $displayed_user_fallback = true, $current_us
 		global $profileuser;
 
 		// Easy empty checking
-		if ( !empty( $user_id ) && is_numeric( $user_id ) ) {
+		if ( ! empty( $user_id ) && is_numeric( $user_id ) ) {
 			$fct_user_id = $user_id;
 
 		// Currently viewing or editing a user
@@ -305,7 +305,9 @@ function fct_user_can_view_account( $account_id = 0, $user_id = 0 ) {
 /**
  * Performs a series of checks to ensure the current user can create years.
  *
- * @since Fiscaat (r3549)
+ * Super admins are not privileged.
+ *
+ * @since 0.0.1
  *
  * @uses fct_is_year_edit()
  * @uses current_user_can()
@@ -318,12 +320,8 @@ function fct_current_user_can_access_create_year_form() {
 	// Users need to earn access
 	$retval = false;
 
-	// Always allow super admins
-	if ( is_super_admin() ) {
-		$retval = true;
-
 	// Looking at a single year & year is open
-	} elseif ( ( is_page() || is_single() ) && fct_is_year_open() ) {
+	if ( ( is_page() || is_single() ) && fct_is_year_open() ) {
 		$retval = fct_current_user_can_publish_years();
 
 	// User can edit this account
@@ -338,7 +336,9 @@ function fct_current_user_can_access_create_year_form() {
 /**
  * Performs a series of checks to ensure the current user can create accounts.
  *
- * @since Fiscaat (r3127)
+ * Super admins are not privileged.
+ *
+ * @since 0.0.1
  *
  * @uses fct_is_account_edit()
  * @uses current_user_can()
@@ -353,12 +353,8 @@ function fct_current_user_can_access_create_account_form() {
 	// Users need to earn access
 	$retval = false;
 
-	// Always allow super admins
-	if ( is_super_admin() ) {
-		$retval = true;
-
 	// Looking at a single year & year is open
-	} elseif ( ( fct_is_single_year() || is_page() || is_single() ) && fct_is_year_open() ) {
+	if ( ( fct_is_single_year() || is_page() || is_single() ) && fct_is_year_open() ) {
 		$retval = fct_current_user_can_publish_accounts();
 
 	// User can edit this account
@@ -373,7 +369,9 @@ function fct_current_user_can_access_create_account_form() {
 /**
  * Performs a series of checks to ensure the current user can create records.
  *
- * @since Fiscaat (r3127)
+ * Super admins are not privileged.
+ *
+ * @since 0.0.1
  *
  * @uses fct_is_account_edit()
  * @uses current_user_can()
@@ -388,12 +386,8 @@ function fct_current_user_can_access_create_record_form() {
 	// Users need to earn access
 	$retval = false;
 
-	// Always allow super admins
-	if ( is_super_admin() ) {
-		$retval = true;
-
 	// Looking at a single account, account is open, and year is open
-	} elseif ( ( fct_is_single_account() || is_page() || is_single() ) && fct_is_account_open() && fct_is_year_open() ) {
+	if ( ( fct_is_single_account() || is_page() || is_single() ) && fct_is_account_open() && fct_is_year_open() ) {
 		$retval = fct_current_user_can_publish_records();
 
 	// User can edit this account

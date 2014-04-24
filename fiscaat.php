@@ -195,8 +195,8 @@ final class Fiscaat {
 		$this->closed_status_id    = apply_filters( 'fct_closed_post_status',   'closed'   );
 
 		// Account type identifiers
-		$this->result_type_id      = apply_filters( 'fct_result_acccount_type', 'result'   );
-		$this->asset_type_id       = apply_filters( 'fct_asset_acccount_type',  'asset'    );
+		$this->revenue_type_id     = apply_filters( 'fct_revenue_acccount_type', 'revenue' );
+		$this->capital_type_id     = apply_filters( 'fct_capital_acccount_type', 'capital' );
 
 		// Record type identifiers
 		$this->debit_type_id       = apply_filters( 'fct_debit_record_type',    'debit'    );
@@ -437,7 +437,7 @@ final class Fiscaat {
 				'exclude_from_search' => true,
 				'show_in_nav_menus'   => false,
 				'public'              => true,
-				'show_ui'             => current_user_can( 'fct_spectate' ),
+				'show_ui'             => false, // Show later
 				'can_export'          => true,
 				'hierarchical'        => false,
 				'query_var'           => true,
@@ -491,7 +491,7 @@ final class Fiscaat {
 				'exclude_from_search' => true,
 				'show_in_nav_menus'   => false,
 				'public'              => true,
-				'show_ui'             => current_user_can( 'fct_spectate' ),
+				'show_ui'             => false, // Show later
 				'can_export'          => true,
 				'hierarchical'        => false,
 				'query_var'           => true,
@@ -544,7 +544,7 @@ final class Fiscaat {
 				'exclude_from_search' => true,
 				'show_in_nav_menus'   => false,
 				'public'              => true,
-				'show_ui'             => current_user_can( 'fct_spectate' ),
+				'show_ui'             => false, // Show later
 				'can_export'          => true,
 				'hierarchical'        => false,
 				'query_var'           => true,

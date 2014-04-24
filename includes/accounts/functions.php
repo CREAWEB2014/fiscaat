@@ -19,13 +19,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 function fct_get_account_default_meta(){
 	return (array) apply_filters( 'fct_get_account_default_meta', array(
-		'year_id'                 => fct_get_current_year_id(), // Year 
-		'ledger_id'               => 0,                         // Account ledger id
-		'account_type'            => '',                        // 'result' or 'asset'
-		'record_count'            => 0,                         // Record count
-		'from_value'              => 0,                         // Result from balance.
-		'to_value'                => 0,                         // Current value to balance or income statment.
-		'spectators'              => array()                    // User ids
+		'year_id'      => fct_get_current_year_id(), // Year 
+		'ledger_id'    => 0,                         // Account ledger id
+		'account_type' => '',                        // 'revenue' or 'capital'
+		'record_count' => 0,                         // Record count
+		'value_start'  => 0,                         // Balance value at start
+		'value_end'    => 0,                         // Balance value at end
 	) );
 }
 
@@ -152,28 +151,28 @@ function fct_bump_account_record_count( $account_id = 0, $difference = 1 ) {
 }
 
 /**
- * Bump the total to value of an account
+ * Bump the total end value of an account
  *
- * Fiscaat handles an account's to value as credit less debit.
+ * Fiscaat handles an account's end value as credit less debit.
  * 
  * @param int $account_id Optional. Account id
- * @param int $add_value Value to add
- * @param string $value_type Value type to add
+ * @param float $amount Amount to add
+ * @param string $record_type Record type to add
  * @uses fct_is_record() To find if given id is a record
  * @uses fct_get_account_id() To get the account id
  * @uses fct_get_record_account_id() To get the record's account id
- * @uses fct_get_account_meta() To get the account's to value
- * @uses fct_get_debit_record_type() To get the debit type id
- * @uses fct_get_credit_record_type() To get the credit type id
- * @uses fct_update_account_meta() To update the account's to value
- * @uses apply_filters() Calls 'fct_bump_account_to_value' with the to value,
- *                               account id, added value, and value type
- * @return int Account to value
+ * @uses fct_get_account_meta() To get the account's end value
+ * @uses fct_get_debit_record_type_id() To get the debit type id
+ * @uses fct_get_credit_record_type_id() To get the credit type id
+ * @uses fct_update_account_meta() To update the account's end value
+ * @uses apply_filters() Calls 'fct_bump_account_value_end' with the end value,
+ *                               account id, added amount, and record type
+ * @return float Account end value
  */
-function fct_bump_account_to_value( $account_id = 0, $add_value = 0, $value_type = '' ) {
+function fct_bump_account_value_end( $account_id = 0, $amount = 0, $record_type = '' ) {
 
 	// Bail if no valid params
-	if ( empty( $add_value ) || ! in_array( $value_type, array( fct_get_debit_record_type(), fct_get_credit_record_type() ) ) )
+	if ( empty( $amount ) || ! in_array( $record_type, array_keys( fct_get_record_types() ) ) )
 		return false;
 
 	// If it's a record, then get the parent (account id)
@@ -183,23 +182,23 @@ function fct_bump_account_to_value( $account_id = 0, $add_value = 0, $value_type
 		$account_id = fct_get_account_id( $account_id );
 	}
 
-	// Get to values
-	$to_value     = fct_get_account_meta( $account_id, 'to_value' );
-	$new_to_value = (int) $to_value;
+	// Get end value
+	$value_end     = fct_get_account_meta( $account_id, 'value_end' );
+	$new_value_end = (float) $value_end;
 
 	// Value less debit
-	if ( $value_type == fct_get_debit_record_type() ) {
-		$new_to_value= (int) $add_value;
+	if ( $record_type == fct_get_debit_record_type_id() ) {
+		$new_value_end -= (float) $amount;
 
 	// Value plus credit
-	} elseif ( $value_type == fct_get_credit_record_type() ) {
-		$new_to_value += (int) $add_value;
+	} elseif ( $record_type == fct_get_credit_record_type_id() ) {
+		$new_value_end += (float) $amount;
 	}
 
-	// Update this account id's to value
-	fct_update_account_meta( $account_id, 'to_value', (int) $new_to_value );
+	// Update this account's end value
+	fct_update_account_meta( $account_id, 'value_end', (float) $new_value_end );
 
-	return (int) apply_filters( 'fct_bump_account_to_value', (int) $new_to_value, $account_id, (int) $value, $value_type );
+	return (float) apply_filters( 'fct_bump_account_value_end', (float) $new_value_end, $account_id, (float) $value, $record_type );
 }
 
 /** Account Updaters ************************************************************/
@@ -281,17 +280,17 @@ function fct_check_ledger_id( $account_id, $ledger_id ) {
 }
 
 /**
- * Update the account's account type
+ * Update the account's type
  *
  * @param int $account_id Optional. Account id to update
  * @param int $account_type Required. Ledger id
  * @uses fct_get_account_id() To get the account id
- * @uses fct_update_account_meta() To update the account account type meta
- * @uses apply_filters() Calls 'fct_update_account_account_type' with the account type
+ * @uses fct_update_account_meta() To update the account type meta
+ * @uses apply_filters() Calls 'fct_update_account_type' with the type
  *                        and account id
  * @return int Account type
  */
-function fct_update_account_account_type( $account_id = 0, $account_type = '' ) {
+function fct_update_account_type( $account_id = 0, $account_type = '' ) {
 	$account_id = fct_get_account_id( $account_id );
 
 	// Only update if param given
@@ -299,12 +298,12 @@ function fct_update_account_account_type( $account_id = 0, $account_type = '' ) 
 		return false;
 
 	// Bail if no valid param
-	if ( ! in_array( $account_type, array( fct_get_result_account_type(), fct_get_asset_account_type() ) ) )
+	if ( ! in_array( $account_type, array_keys( fct_get_account_types() ) ) )
 		return false;
 
 	fct_update_account_meta( $account_id, 'account_type', $account_type );
 
-	return apply_filters( 'fct_update_account_account_type', $account_type, $account_id );
+	return apply_filters( 'fct_update_account_type', $account_type, $account_id );
 }
 
 /**
@@ -353,14 +352,14 @@ function fct_update_account_record_count( $account_id = 0, $record_count = 0 ) {
  * @uses fct_get_account_id() To get the account id
  * @uses fct_get_public_child_ids() To get the account's records
  * @uses fct_get_account_meta() To get the account's to value
- * @uses fct_get_debit_record_type() To get the debit type id
- * @uses fct_get_credit_record_type() To get the credit type id
+ * @uses fct_get_debit_record_type_id() To get the debit type id
+ * @uses fct_get_credit_record_type_id() To get the credit type id
  * @uses fct_update_record_meta() To update the record's to value and value type
- * @uses apply_filters() Calls 'fct_update_account_to_value' with the to value
+ * @uses apply_filters() Calls 'fct_update_account_value_end' with the to value
  *                               and account id
  * @return int Account to value
  */
-function fct_update_account_to_value( $account_id = 0, $to_value = false ) {
+function fct_update_account_value_end( $account_id = 0, $value_end = false ) {
 
 	// If it's a record, then get the parent (account id)
 	if ( fct_is_record( $account_id ) ) {
@@ -370,33 +369,33 @@ function fct_update_account_to_value( $account_id = 0, $to_value = false ) {
 	}
 
 	// Get value if none given
-	if ( false === $to_value ) {
+	if ( false === $value_end ) {
 
 		// Get records of account
 		$record_ids = fct_get_public_child_ids( $account_id, fct_get_record_post_type() );
 
 		if ( ! empty( $record_ids ) ) {
 
-			// Setup values array
-			$values = array( fct_get_debit_record_type() => 0, fct_get_credit_record_type() => 0 );
+			// Setup amounts array
+			$values = array_map( '__return_zero', fct_get_record_types() );
 
 			// Loop records and add record value to value type
 			foreach ( $record_ids as $record_id ) {
-				$values[ fct_get_record_value_type( $record_id ) ] += fct_get_record_value( $record_id );
+				$values[ fct_get_record_type( $record_id ) ] += fct_get_record_value( $record_id );
 			}
 
 			// Less credit with debit
-			$to_value = $values[ fct_get_credit_record_type() ] - $values[ fct_get_debit_record_type() ];
+			$value_end = $values[ fct_get_credit_record_type_id() ] - $values[ fct_get_debit_record_type_id() ];
 
 		// No records
 		} else {
-			$to_value = 0;
+			$value_end = 0;
 		}
 	}
 
-	fct_update_account_meta( $account_id, 'to_value', (float) $to_value );
+	fct_update_account_meta( $account_id, 'value_end', (float) $value_end );
 
-	return (float) apply_filters( 'fct_update_account_to_value', (float) $to_value, $account_id );
+	return (float) apply_filters( 'fct_update_account_value_end', (float) $value_end, $account_id );
 }
 
 /**
@@ -435,7 +434,7 @@ function fct_update_account_spectators( $account_id = 0, $spectators = false ) {
  * @uses fct_get_year_id() To get the year id
  * @uses fct_get_account_year_id() To get the account year id
  * @uses fct_update_account_year_id() To update the account's year id
- * @uses fct_update_account_account_id() To update the account's account id
+ * @uses fct_update_account_id() To update the account's account id
  * @uses fct_update_account_record_count() To update the account record count
  * @uses fct_update_account_record_count_declined() To udpate the account declined record count
  * @uses fct_update_account_record_count_unapproved() To udpate the account unapproved record count
@@ -447,7 +446,7 @@ function fct_update_account( $args = '' ) {
 		'year_id'      => 0,
 		'ledger_id'    => 0,
 		'account_type' => '',
-		'to_value'     => false,
+		'value_end'    => false,
 		'spectators'   => false,
 		'is_edit'      => true
 	);
@@ -469,7 +468,7 @@ function fct_update_account( $args = '' ) {
 	fct_update_account_year_id( $account_id, $year_id );
 
 	// Account type
-	fct_update_account_account_type( $account_id, $account_type );
+	fct_update_account_type( $account_id, $account_type );
 
 	// Update ledger id
 	fct_update_account_ledger_id( $account_id, $ledger_id );
@@ -485,7 +484,7 @@ function fct_update_account( $args = '' ) {
 		// @todo Move to Control
 		// fct_update_account_record_count_declined  ( $account_id, 0         );
 		// fct_update_account_record_count_unapproved( $account_id, 0         );
-		fct_update_account_to_value               ( $account_id, $to_value );
+		fct_update_account_value_end              ( $account_id, $value_end );
 
 		// Update account year
 		fct_update_year( array( 'year_id' => $year_id ) );
@@ -876,3 +875,66 @@ function fct_check_account_edit() {
 		exit();
 	}
 }
+
+/** Post Status ***************************************************************/
+
+/**
+ * Return all available account statuses
+ *
+ * @since 0.0.5
+ * 
+ * @uses apply_filters() Calls 'fct_get_account_statuses' with the
+ *                        account statuses
+ * @uses fct_get_public_status_id()
+ * @uses fct_get_closed_status_id()
+ * @return array Account statuses as array( status => label )
+ */
+function fct_get_account_statuses() {
+	return apply_filters( 'fct_get_account_statuses', array(
+		fct_get_public_status_id() => __('Open',   'fiscaat'),
+		fct_get_closed_status_id() => __('Closed', 'fiscaat')
+	) );
+}
+
+/** Account Type **************************************************************/
+
+/**
+ * Return the unique id of the revenue type for accounts
+ * 
+ * @since 0.0.1
+ * 
+ * @return string The unique revenue account type id
+ */
+function fct_get_revenue_account_type_id() {
+	return fiscaat()->revenue_type_id;
+}
+
+/**
+ * Return the unique id of the capital type for accounts
+ * 
+ * @since 0.0.1
+ * 
+ * @return string The unique capital account type id
+ */
+function fct_get_capital_account_type_id() {
+	return fiscaat()->capital_type_id;
+}
+
+/**
+ * Return all available account types
+ *
+ * @since 0.0.5
+ *
+ * @uses apply_filters() Calls 'fct_get_account_types' with all
+ *                        availabel account types
+ * @uses fct_get_revenue_account_type_id()
+ * @uses fct_get_capital_account_type_id()
+ * @return array Account types as array( type => label )
+ */
+function fct_get_account_types() {
+	return apply_filters( 'fct_get_account_types', array(
+		fct_get_revenue_account_type_id() => __('Revenue', 'fiscaat'),
+		fct_get_capital_account_type_id() => __('Capital', 'fiscaat'),
+	) );
+}
+

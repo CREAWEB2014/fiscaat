@@ -40,7 +40,7 @@ function fct_get_caps_for_role( $role = '' ) {
 				'fiscaat'                => true,
 
 				// Primary caps
-				'fct_spectate'       => true,
+				'fct_spectate'           => true,
 
 				// Record caps
 				'publish_records'        => true,
@@ -75,7 +75,7 @@ function fct_get_caps_for_role( $role = '' ) {
 			$caps = array(
 
 				// Primary caps
-				'fct_spectate'       => true,
+				'fct_spectate'           => true,
 
 				// Record caps
 				'publish_records'        => false,
@@ -109,7 +109,7 @@ function fct_get_caps_for_role( $role = '' ) {
 			$caps = array(
 
 				// Primary caps
-				'fct_spectate'       => false,
+				'fct_spectate'           => false,
 
 				// Record caps
 				'publish_records'        => false,

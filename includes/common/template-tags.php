@@ -1575,7 +1575,7 @@ function fct_currency( $arg = '' ){
 			$fiscaat->currency = get_option( '_fct_currency', 'USD' );
 		}
 
-		$iso = $fiscaaat->currency;
+		$iso = $fiscaat->currency;
 
 		// Attribute requested
 		if ( ! empty( $attr ) ) {

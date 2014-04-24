@@ -145,3 +145,4 @@ function fct_register_importers() {
 function fct_register_admin_settings() {
 	do_action( 'fct_register_admin_settings' );
 }
+

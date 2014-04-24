@@ -31,46 +31,6 @@ function fct_record_post_type() {
 		return apply_filters( 'fct_get_record_post_type', fiscaat()->record_post_type );
 	}
 
-/** Value Types ***************************************************************/
-
-/**
- * Output the debit record value type id
- *
- * @uses fct_get_debit_record_type() To get the debti value type id
- */
-function fct_debit_record_type() {
-	echo fct_get_debit_record_type();
-}
-	/**
-	 * Return the debit record value type id
-	 *
-	 * @uses apply_filters() Calls 'fct_get_debit_record_type' with the
-	 *                        debit record value type id
-	 * @return string The debit record value type
-	 */
-	function fct_get_debit_record_type() {
-		return apply_filters( 'fct_get_debit_record_type', fiscaat()->debit_type_id );
-	}
-
-/**
- * Output the credit record value type id
- *
- * @uses fct_get_credit_record_type() To get the debti value type id
- */
-function fct_credit_record_type() {
-	echo fct_get_credit_record_type();
-}
-	/**
-	 * Return the credit record value type id
-	 *
-	 * @uses apply_filters() Calls 'fct_get_credit_record_type' with the
-	 *                        credit record value type id
-	 * @return string The credit record value type
-	 */
-	function fct_get_credit_record_type() {
-		return apply_filters( 'fct_get_credit_record_type', fiscaat()->credit_type_id );
-	}
-
 /** Record Loop Functions ******************************************************/
 
 /**
@@ -890,55 +850,55 @@ function fct_record_offset_account( $record_id = 0 ) {
 	}
 
 /**
- * Output the value of a record
+ * Output the amount of a record
  *
  * @param int $record_id Optional. Record id
- * @uses fct_get_record_value() To get the record value
+ * @uses fct_get_record_amount() To get the record amount
  */
-function fct_record_value( $record_id = 0 ) {
-	echo fct_get_record_value( $record_id );
+function fct_record_amount( $record_id = 0 ) {
+	echo fct_get_record_amount( $record_id );
 }
 	/**
-	 * Return the value of a record
+	 * Return the amount of a record
 	 *
 	 * @param int $record_id Optional. Record id
 	 * @uses fct_get_record_id() To get the record id
-	 * @uses fct_get_record_meta() To get the record value
-	 * @uses apply_filters() Calls 'fct_get_record_value' with the year
+	 * @uses fct_get_record_meta() To get the record amount
+	 * @uses apply_filters() Calls 'fct_get_record_amount' with the year
 	 *                        id and record id
-	 * @return int Record's value
+	 * @return int Record's amount
 	 */
-	function fct_get_record_value( $record_id = 0 ) {
+	function fct_get_record_amount( $record_id = 0 ) {
 		$record_id = fct_get_record_id( $record_id );
-		$value     = (float) fct_get_record_meta( $record_id, 'value' );
+		$amount    = (float) fct_get_record_meta( $record_id, 'amount' );
 
-		return (float) apply_filters( 'fct_get_record_value', $value, $record_id );
+		return (float) apply_filters( 'fct_get_record_amount', $amount, $record_id );
 	}
 
 /**
- * Output the value type of a record
+ * Output the type of a record
  *
  * @param int $record_id Optional. Record id
- * @uses fct_get_record_value() To get the record value type
+ * @uses fct_get_record_amount() To get the record type
  */
-function fct_record_value_type( $record_id = 0 ) {
-	echo fct_get_record_value_type( $record_id );
+function fct_record_type( $record_id = 0 ) {
+	echo fct_get_record_type( $record_id );
 }
 	/**
-	 * Return the value type of a record
+	 * Return the type of a record
 	 *
 	 * @param int $record_id Optional. Record id
 	 * @uses fct_get_record_id() To get the record id
-	 * @uses fct_get_record_meta() To get the record value type
-	 * @uses apply_filters() Calls 'fct_get_record_value_type' with the year
+	 * @uses fct_get_record_meta() To get the record type
+	 * @uses apply_filters() Calls 'fct_get_record_type' with the year
 	 *                        id and record id
-	 * @return int Record's value type
+	 * @return int Record's type
 	 */
-	function fct_get_record_value_type( $record_id = 0 ) {
-		$record_id  = fct_get_record_id( $record_id );
-		$value_type = fct_get_record_meta( $record_id, 'value_type' );
+	function fct_get_record_type( $record_id = 0 ) {
+		$record_id = fct_get_record_id( $record_id );
+		$type      = fct_get_record_meta( $record_id, 'record_type' );
 
-		return apply_filters( 'fct_get_record_value_type', $value_type, $record_id );
+		return apply_filters( 'fct_get_record_type', $type, $record_id );
 	}
 
 /** Record Admin Links *********************************************************/
@@ -1405,10 +1365,7 @@ function fct_form_record_status_dropdown( $record_id = 0 ) {
 	function fct_get_form_record_status_dropdown( $record_id = 0 ) {
 		$record_id     = fct_get_record_id( $record_id );
 		$record_status = fct_get_record_status( $record_id );
-		$statuses      = apply_filters( 'fct_record_statuses', array(
-			fct_get_public_status_id() => __('Open',   'fiscaat'),
-			fct_get_closed_status_id() => __('Closed', 'fiscaat')
-		) );
+		$statuses      = fct_get_record_statuses();
 
 		$disabled = disabled( apply_filters( 'fct_record_status_dropdown_disable', current_user_can( 'fiscaat' ) ), true, false );
 		$status_output = '<select name="fct_record_status" id="fct_record_status" ' . $disabled . '>' . "\n";
@@ -1428,10 +1385,10 @@ function fct_form_record_status_dropdown( $record_id = 0 ) {
  * 
  * @param int $record_id Optional. Record id
  * @param bool $disable Optional. Whether to disable the value type select
- * @uses fct_get_form_record_value_type_select()
+ * @uses fct_get_form_record_amount_type_select()
  */
-function fct_form_record_value_type_select( $record_id = 0 ) {
-	echo fct_get_form_record_value_type_select( $record_id );
+function fct_form_record_amount_type_select( $record_id = 0 ) {
+	echo fct_get_form_record_amount_type_select( $record_id );
 }
 	/**
 	 * Return the record's value type select
@@ -1439,30 +1396,30 @@ function fct_form_record_value_type_select( $record_id = 0 ) {
 	 * @param int $record_id. Optional. Record id
 	 * @param bool $disable Optional. Whether to disable the value type select
 	 * @uses fct_get_record_id()
-	 * @uses fct_get_record_value_type()
-	 * @uses fct_get_debit_record_type()
-	 * @uses fct_get_credit_record_type()
-	 * @uses apply_filters() Calls 'fct_get_form_record_value_type_select' with
+	 * @uses fct_get_record_amount_type()
+	 * @uses fct_get_debit_record_type_id()
+	 * @uses fct_get_credit_record_type_id()
+	 * @uses apply_filters() Calls 'fct_get_form_record_amount_type_select' with
 	 *                        the record's value type select, record id, and value types
 	 * @return string Record value type select
 	 */
-	function fct_get_form_record_value_type_select( $record_id = 0 ) {
+	function fct_get_form_record_amount_type_select( $record_id = 0 ) {
 		$record_id  = fct_get_record_id( $record_id );
-		$value_type = fct_get_record_value_type( $record_id );
-		$types      = apply_filters( 'fct_record_value_types', array(
-			fct_get_debit_record_type()  => __('Debit',  'fiscaat'),
-			fct_get_credit_record_type() => __('Credit', 'fiscaat'),
+		$value_type = fct_get_record_amount_type( $record_id );
+		$types      = apply_filters( 'fct_record_amount_types', array(
+			fct_get_debit_record_type_id()  => __('Debit',  'fiscaat'),
+			fct_get_credit_record_type_id() => __('Credit', 'fiscaat'),
 		) );
 
 		// Disable select
 		$disable = fct_is_control_active() && ! current_user_can( 'fiscaat' );
 
-		$type_output = '<select name="fct_record_value_type" id="fct_record_value_type" '. disabled( $disable, true, false ) .'>' . "\n";
+		$type_output = '<select name="fct_record_amount_type" id="fct_record_amount_type" '. disabled( $disable, true, false ) .'>' . "\n";
 
 		foreach( $types as $value => $label )
 			$type_output .= "\t" . '<option value="' . $value . '"' . selected( $value_type, $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
 
 		$type_output .= '</select>';
 
-		return apply_filters( 'fct_get_form_record_value_type_select', $type_output, $record_id, $types );
+		return apply_filters( 'fct_get_form_record_amount_type_select', $type_output, $record_id, $types );
 	}

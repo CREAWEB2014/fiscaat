@@ -248,8 +248,8 @@ class Fiscaat_Records_List_Table extends WP_List_Table {
 				?>
 
 					<td <?php echo $attributes; ?>>
-						<input name="fct_new_record[debit][]"  class="fct_record_debit_value small-text"  type="text" value="<?php if ( fct_get_debit_record_type()  == $post->fct_value_type ){ fct_currency_format( $post->fct_value ); } ?>" disabled="disabled" tabindex="<?php fct_tab_index(); ?>" />
-						<input name="fct_new_record[credit][]" class="fct_record_credit_value small-text" type="text" value="<?php if ( fct_get_credit_record_type() == $post->fct_value_type ){ fct_currency_format( $post->fct_value ); } ?>" disabled="disabled" tabindex="<?php fct_tab_index(); ?>" />
+						<input name="fct_new_record[debit][]"  class="fct_record_debit_value small-text"  type="text" value="<?php if ( fct_get_debit_record_type_id()  == $post->fct_value_type ){ fct_currency_format( $post->fct_value ); } ?>" disabled="disabled" tabindex="<?php fct_tab_index(); ?>" />
+						<input name="fct_new_record[credit][]" class="fct_record_credit_value small-text" type="text" value="<?php if ( fct_get_credit_record_type_id() == $post->fct_value_type ){ fct_currency_format( $post->fct_value ); } ?>" disabled="disabled" tabindex="<?php fct_tab_index(); ?>" />
 					</td>
 
 				<?php

@@ -320,7 +320,7 @@ function fct_admin_setting_callback_currency() {
  * @uses fct_get_form_option() To get the option value
  * @uses fct_get_amount() To get a currency value representation
  */
-function fct_admin_setting_callback_currency() {
+function fct_admin_setting_callback_currency_position() {
 
 	// Build options
 	$options = array(

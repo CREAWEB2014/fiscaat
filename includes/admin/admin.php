@@ -202,7 +202,7 @@ class Fiscaat_Admin {
 				__( 'Balance', 'fiscaat' ),
 				__( 'Balance', 'fiscaat' ),
 				$this->minimum_capability,
-				'fiscaat-balance',
+				'fct-balance',
 				'fct_admin_balance'
 			);
 
@@ -212,17 +212,17 @@ class Fiscaat_Admin {
 				__( 'Reports', 'fiscaat' ),
 				__( 'Reports', 'fiscaat' ),
 				$this->minimum_capability,
-				'fiscaat-reports',
+				'fct-reports',
 				'fct_admin_reports'
 			);
 
 			// Are settings enabled?
 			if ( current_user_can( 'fct_settings_page' ) ) {
 				add_submenu_page(
-					__( 'Fiscaat',  'fiscaat' ),
-					__( 'Fiscaat',  'fiscaat' ),
+					__( 'Settings',  'fiscaat' ),
+					__( 'Settings',  'fiscaat' ),
 					$this->minimum_capability,
-					'fiscaat',
+					'fct-settings',
 					'fct_admin_settings'
 				);
 			}
@@ -278,13 +278,13 @@ class Fiscaat_Admin {
 	}
 
 	/**
-	 * If this is a new installation or no years exist, create some initial Fiscaat content.
+	 * If this is a new installation or no years exists, create some initial Fiscaat content
 	 *
 	 * @uses fct_has_open_year() To check if an open year exists
 	 * @uses fct_create_initial_content() To create initial Fiscaat content
 	 */
 	public static function new_install() {
-		if ( fct_has_open_year() )
+		if ( ! fct_is_install() )
 			return;
 
 		fct_create_initial_content();
@@ -810,9 +810,9 @@ endif; // class_exists check
  * Setup Fiscaat Admin
  *
  * @uses Fiscaat_Admin
+ * @uses Fiscaat_Converter
  */
 function fct_admin() {
 	fiscaat()->admin = new Fiscaat_Admin();
-
 	fiscaat()->admin->converter = new Fiscaat_Converter();
 }

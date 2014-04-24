@@ -22,9 +22,9 @@ function fct_get_record_default_meta(){
 	return apply_filters( 'fct_get_record_default_meta', array(
 		'year_id'        => fct_get_current_year_id(), // Year
 		'account_id'     => 0,                         // Account
-		'offset_account' => 0,                         // Account received from or send to
-		'value'          => 0,                         // Value
-		'value_type'     => '',                        // 'debit', 'credit'
+		'record_type'    => '',                        // 'debit' or 'credit'
+		'amount'         => 0,                         // Amount
+		'offset_account' => '',                        // External account received from or sent to
 	) );
 }
 
@@ -71,7 +71,7 @@ function fct_delete_record_meta( $record_id, $meta_key ){
  * A wrapper for wp_insert_post() that also includes the necessary meta values
  * for the record to function properly.
  *
- * @since Fiscaat (r3349)
+ * @since 0.0.1
  *
  * @uses fct_parse_args()
  * @uses fct_get_record_post_type()
@@ -125,7 +125,7 @@ function fct_insert_record( $record_data = array(), $record_meta = array() ) {
 /**
  * Update the record with its year id it is in
  *
- * @since Fiscaat (r2855)
+ * @since 0.0.1
  *
  * @param int $record_id Optional. Record id to update
  * @param int $year_id Optional. Year id
@@ -174,7 +174,7 @@ function fct_update_record_year_id( $record_id = 0, $year_id = 0 ) {
 /**
  * Update the record with its account id it is in
  *
- * @since Fiscaat (r2855)
+ * @since 0.0.1
  *
  * @param int $record_id Optional. Record id to update
  * @param int $account_id Optional. Account id
@@ -251,43 +251,47 @@ function fct_update_record_offset_account( $record_id = 0, $offset_account = 0 )
 }
 
 /**
- * Adjust the value of a record
+ * Adjust the amount of a record
  *
- * NOTE: A record can never have it's value adjusted! This function
- * therefor always returns false.
+ * NOTE: A record should never have it's amount adjusted! This 
+ * function therefore should always returns false.
  *
  * @param int $record_id Optional. Record id
- * @param int $value Optional. Record value
+ * @param int $amount Optional. Record amount
  * @return boolean False
  */
-function fct_update_record_value( $record_id = 0, $value = 0 ) {
+function fct_update_record_amount( $record_id = 0, $amount = 0 ) {
+	return false;
+
 	$record_id = fct_get_record_id( $record_id );
 	
-	fct_update_record_meta( $record_id, 'value', (float) $value );
+	fct_update_record_meta( $record_id, 'amount', (float) $amount );
 
-	return apply_filters( 'fct_update_record_value', (float) $value, $record_id );
+	return apply_filters( 'fct_update_record_amount', (float) $amount, $record_id );
 }
 
 /**
- * Adjust the value type of a record
+ * Adjust the type of a record
  *
- * NOTE: A record can never have it's value type adjusted! This function
- * therefor always returns false.
+ * NOTE: A record should never have it's type adjusted! This 
+ * function therefore should always returns false.
  *
  * @param int $record_id Optional. Record id
- * @param int $value_type Optional. Record value type
+ * @param int $record_type Optional. Record type
  * @return boolean False
  */
-function fct_update_record_value_type( $record_id = 0, $value_type = '' ) {
+function fct_update_record_type( $record_id = 0, $record_type = '' ) {
+	return false;
+
 	$record_id = fct_get_record_id( $record_id );
 
 	// Bail if no valid param
-	if ( ! in_array( $value_type, array( fct_get_debit_record_type(), fct_get_credit_record_type() ) ) )
+	if ( ! in_array( $record_type, array_keys( fct_get_record_types() ) ) )
 		return false;
 
-	fct_update_record_meta( $record_id, 'value_type', $value_type );
+	fct_update_record_meta( $record_id, 'record_type', $record_type );
 
-	return apply_filters( 'fct_update_record_value_type', $value_type, $record_id );
+	return apply_filters( 'fct_update_record_type', $record_type, $record_id );
 }
 
 /**
@@ -307,13 +311,7 @@ function fct_update_record_value_type( $record_id = 0, $value_type = '' ) {
  * @uses fct_get_record_account_id() To get the record account id
  * @uses fct_get_account_year_id() To get the account year id
  * @uses update_post_meta() To update the record metas
- * @uses set_transient() To update the flood check transient for the ip
  * @uses fct_update_user_last_posted() To update the users last posted time
- * @uses fct_is_subscriptions_active() To check if the subscriptions feature is
- *                                      activated or not
- * @uses fct_is_user_subscribed() To check if the user is subscribed
- * @uses fct_remove_user_subscription() To remove the user's subscription
- * @uses fct_add_user_subscription() To add the user's subscription
  * @uses fct_update_record_year_id() To update the record year id
  * @uses fct_update_record_account_id() To update the record account id
  */
@@ -322,9 +320,9 @@ function fct_update_record( $args = '' ) {
 		'record_id'      => 0,
 		'account_id'     => 0,
 		'year_id'        => 0,
+		'record_type'    => 0,
+		'amount'         => 0,
 		'offset_account' => 0,
-		'value_type'     => 0,
-		'value'          => 0,
 		'is_edit'        => false
 	);
 	$r = fct_parse_args( $args, $defaults, 'update_record' );
@@ -352,11 +350,11 @@ function fct_update_record( $args = '' ) {
 	fct_update_record_account_id( $record_id, $account_id );
 
 	// Update offset account
-	fct_update_record_offset_account     ( $record_id, $offset_account      );
+	fct_update_record_offset_account( $record_id, $offset_account );
 
-	// Value & Type. Will return false, because once created, never editable
-	fct_update_record_value     ( $record_id, $value      );
-	fct_update_record_value_type( $record_id, $value_type );
+	// Type and Amount. Should return false, because once created, never editable
+	fct_update_record_type  ( $record_id, $record_type );
+	fct_update_record_amount( $record_id, $amount      );
 
 	// Update associated account values if this is a new record
 	if ( empty( $is_edit ) ) {
@@ -365,7 +363,6 @@ function fct_update_record( $args = '' ) {
 		fct_update_account( array( 'account_id' => $account_id, 'year_id' => $year_id ) );
 	}
 }
-
 
 /** Record Actions *************************************************************/
 
@@ -558,3 +555,62 @@ function fct_check_record_edit() {
 		exit();
 	}
 }
+
+/** Post Status ***************************************************************/
+
+/**
+ * Return all available record statuses
+ *
+ * @since 0.0.5
+ * 
+ * @uses apply_filters() Calls 'fct_get_record_statuses' with the
+ *                        record statuses
+ * @uses fct_get_public_status_id()
+ * @uses fct_get_closed_status_id()
+ * @return array Record statuses as array( status => label )
+ */
+function fct_get_record_statuses() {
+	return apply_filters( 'fct_get_record_statuses', array(
+		fct_get_public_status_id() => __('Open',   'fiscaat'),
+		fct_get_closed_status_id() => __('Closed', 'fiscaat')
+	) );
+}
+
+/** Record Types **************************************************************/
+
+/**
+ * Return the debit record value type id
+ *
+ * @return string The debit record value type
+ */
+function fct_get_debit_record_type_id() {
+	return fiscaat()->debit_type_id;
+}
+
+/**
+ * Return the credit record value type id
+ *
+ * @return string The credit record value type
+ */
+function fct_get_credit_record_type_id() {
+	return fiscaat()->credit_type_id;
+}
+
+/**
+ * Return all record types
+ *
+ * @since 0.0.5
+ * 
+ * @uses apply_filters() Calls 'fct_get_record_types' with the
+ *                        record types
+ * @uses fct_get_debit_record_type_id()
+ * @uses fct_get_credit_record_type_id()
+ * @return array Record types as array( type => label )
+ */
+function fct_get_record_types() {
+	return apply_filters( 'fct_get_record_types', array(
+		fct_get_debit_record_type_id()  => __( 'Debit',  'fiscaat' );
+		fct_get_credit_record_type_id() => __( 'Credit', 'fiscaat' );
+	) );
+}
+

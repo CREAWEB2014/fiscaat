@@ -10,7 +10,7 @@
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-if ( !class_exists( 'Fiscaat_Users_Admin' ) ) :
+if ( ! class_exists( 'Fiscaat_Users_Admin' ) ) :
 
 /**
  * Loads Fiscaat users admin area
@@ -100,37 +100,6 @@ class Fiscaat_Users_Admin {
 					</td>
 				</tr>
 
-				<tr>
-					<th><label for="fisaat-global-spectator"><?php _e( 'Global Spectator', 'fisaat' ); ?></label></th>
-					<td>
-
-						<?php $disable = user_can( $profileuser->ID, 'fiscaat' ) || user_can( $profileuser->ID, 'control' ); ?>
-
-						<?php wp_nonce_field( 'fct_global_spectator', 'fct_global_spectator_nonce' ); ?>
-
-						<input name="fiscaat-global-spectator" id="fiscaat-global-spectator" type="checkbox" value="1" <?php checked( fct_user_can_view_all( $profileuser->ID ) ); ?> <?php disabled( $disable ); ?> />
-						<label for="fiscaat-global-spectator"><?php _e('Give this user the ability to view all Fiscaat data.', 'fiscaat'); ?></label>
-
-						<?php if ( $disable ) : ?>
-
-							<p class="description"><?php _e( "This user already can view everything based on it's capabilities.", 'fiscaat' ); ?></p>
-
-						<?php endif; ?>
-					</td>
-				</tr>
-
-				<tr>
-					<th><label for="fisaat-block-commenter"><?php _e( 'Block Commenter', 'fisaat' ); ?></label></th>
-					<td>
-
-						<?php wp_nonce_field( 'fct_block_commenter', 'fct_block_commenter_nonce' ); ?>
-
-						<input name="fiscaat-block-commenter" id="fiscaat-block-commenter" type="checkbox" value="1" <?php checked( ! fct_user_can_comment( $profileuser->ID ) ); ?> />
-						<label for="fiscaat-block-commenter"><?php _e('Block this user from commenting in Fiscaat.', 'fiscaat'); ?></label>
-
-					</td>
-				</tr>
-
 				<?php do_action( 'fct_user_options_after', $profileuser ); ?>
 
 			</tbody>
@@ -147,7 +116,7 @@ class Fiscaat_Users_Admin {
 	 * @return array $columns
 	 */
 	public static function user_role_column( $columns = array() ) {
-		$columns['role']              = __( 'Site Role',    'fiscaat' );
+		$columns['role']          = __( 'Site Role',    'fiscaat' );
 		$columns['fct_user_role'] = __( 'Fiscaat Role', 'fiscaat' );
 
 		return $columns;

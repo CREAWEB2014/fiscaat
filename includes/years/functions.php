@@ -20,10 +20,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 function fct_get_year_default_meta(){
 	return (array) apply_filters( 'fct_get_year_default_meta', array(
-		'closed'                  => 0, // Year date closed
-		'account_count'           => 0, // Total year account count
-		'record_count'            => 0, // Total record count
-		'to_balance'              => 0, // Current result to balance
+		'closed'        => 0, // Year date closed
+		'account_count' => 0, // Total year account count
+		'record_count'  => 0, // Total record count
+		'value_end'     => 0, // Current year end value
 	) );
 }
 
@@ -403,15 +403,15 @@ function fct_update_year_record_count( $year_id = 0 ) {
 }
 
 /**
- * Adjust the total to balance value of a year
+ * Adjust the total end value of a year
  * 
  * @param int $year_id Optional. Year id or record id. It is checked whether it
  *                       is a record or a year. If it's a record, its grandparent,
  *                       i.e. the year is automatically retrieved.
- * @param int $to_balance Optional. The to balance value
- * @return int Year total to balance value
+ * @param int $value_end Optional. The end value
+ * @return int Year total end value
  */
-function fct_update_year_to_balance( $year_id = 0, $to_balance = 0 ) {
+function fct_update_year_value_end( $year_id = 0, $value_end = 0 ) {
 	
 	// If record_id was passed as $year_id, then get its year
 	if ( fct_is_record( $year_id ) ) {
@@ -424,23 +424,23 @@ function fct_update_year_to_balance( $year_id = 0, $to_balance = 0 ) {
 	}
 
 	// Get total result records for this year
-	$records = (array) fct_year_query_result_record_ids( $year_id );
+	$records = (array) fct_year_query_revenue_record_ids( $year_id );
 
 	// Has records and value isn't given
-	if ( ! empty( $records ) && empty( $to_balance ) ){
+	if ( ! empty( $records ) && empty( $value_end ) ){
 
 		// Loop all records and add the result value
 		foreach ( $records as $record_id ){
-			$to_balance += fct_get_debit_record_type() == fct_get_record_value_type( $record_id )
+			$value_end += fct_get_debit_record_type_id() == fct_get_record_type( $record_id )
 				? fct_get_record_value( $record_id ) * -1
 				: fct_get_record_value( $record_id );
 		}
 	}
 
 	// Update the value
-	fct_update_year_meta( $year_id, 'to_balance', (float) $to_balance );
+	fct_update_year_meta( $year_id, 'value_end', (float) $value_end );
 
-	return (float) apply_filters( 'fct_update_year_to_balance', (float) $to_balance, $year_id );
+	return (float) apply_filters( 'fct_update_year_value_end', (float) $value_end, $year_id );
 }
 
 /**
@@ -452,8 +452,8 @@ function fct_update_year_to_balance( $year_id = 0, $to_balance = 0 ) {
  *
  * @param mixed $args Supports these arguments:
  *  - year_id: Year id
- *  - to_balance: To balance value
- * @uses fct_update_year_to_balance() To update the year to balance value
+ *  - value_end: To balance value
+ * @uses fct_update_year_value_end() To update the year to balance value
  * @uses fct_update_year_account_count() To update the year account count
  * @uses fct_update_year_record_count() To update the year record count
  * @uses fct_update_year_record_count_declined() To update the declined record count
@@ -461,8 +461,8 @@ function fct_update_year_to_balance( $year_id = 0, $to_balance = 0 ) {
  */
 function fct_update_year( $args = '' ) {
 	$defaults = array(
-		'year_id'    => 0,
-		'to_balance' => 0
+		'year_id'   => 0,
+		'value_end' => 0
 	);
 	$r = fct_parse_args( $args, $defaults, 'update_year' );
 	extract( $r );
@@ -471,7 +471,7 @@ function fct_update_year( $args = '' ) {
 	$year_id = fct_get_year_id( $year_id );
 
 	// Update year to balance
-	fct_update_year_to_balance( $year_id, $to_balance );
+	fct_update_year_value_end( $year_id, $value_end );
 
 	// Counts
 	fct_update_year_account_count          ( $year_id );
@@ -493,7 +493,8 @@ function fct_update_year( $args = '' ) {
  */
 function fct_has_open_year() {
 	$counts = wp_count_posts( fct_get_year_post_type() );
-	$retval = (bool) $counts->publish;
+	$status = fct_get_public_status_id();
+	$retval = (bool) $counts->$status;
 
 	return (bool) apply_filters( 'fct_has_open_year', $retval );
 }
@@ -522,8 +523,7 @@ function fct_year_has_records( $year_id = 0 ) {
  *
  * @param int $year_id Year id
  * @param string $account_type Optional. Account type restriction
- * @uses fct_get_result_account_type()
- * @uses fct_get_asset_account_type()
+ * @uses fct_get_account_types() To get all account types
  * @uses fct_get_account_post_type() To get the account post type
  * @uses fct_get_public_child_ids() To get the account ids
  * @uses apply_filters() Calls 'fct_year_query_account_ids' with the account ids
@@ -532,7 +532,7 @@ function fct_year_has_records( $year_id = 0 ) {
 function fct_year_query_account_ids( $year_id, $account_type = '' ) {
 
 	// Handle account types
-	if ( in_array( $account_type, array( fct_get_result_account_type(), fct_get_asset_account_type() ) ) ) {
+	if ( in_array( $account_type, array_keys( fct_get_account_types() ) ) ) {
 
 		// Run query
 		$query = new WP_Query( array(
@@ -553,25 +553,25 @@ function fct_year_query_account_ids( $year_id, $account_type = '' ) {
 }
 
 /**
- * Returns the year's result account ids
+ * Returns the year's revenue account ids
  * 
  * @param int $year_id Year id
  * @uses fct_get_account_post_type() To get the account post type
- * @uses fct_get_result_account_type() To get the result account type
+ * @uses fct_get_revenue_account_type_id() To get the revenue account type
  */
-function fct_year_query_result_account_ids( $year_id ) {
-	return fct_year_query_account_ids( $year_id, fct_get_result_account_type() );
+function fct_year_query_revenue_account_ids( $year_id ) {
+	return fct_year_query_account_ids( $year_id, fct_get_revenue_account_type_id() );
 }
 
 /**
- * Returns the year's asset account ids
+ * Returns the year's capital account ids
  * 
  * @param int $year_id Year id
  * @uses fct_get_account_post_type() To get the account post type
- * @uses fct_get_asset_account_type() To get the asset account type
+ * @uses fct_get_capital_account_type_id() To get the capital account type
  */
-function fct_year_query_asset_account_ids( $year_id ) {
-	return fct_year_query_account_ids( $year_id, fct_get_asset_account_type() );
+function fct_year_query_capital_account_ids( $year_id ) {
+	return fct_year_query_account_ids( $year_id, fct_get_capital_account_type_id() );
 }
 
 /**
@@ -597,42 +597,42 @@ function fct_year_query_record_ids( $year_id ) {
  * Records with all statuses are returned.
  *
  * @param int $year_id Year id
- * @uses fct_get_result_child_ids() To get the year result account ids
+ * @uses fct_get_revenue_child_ids() To get the year result account ids
  * @uses fct_get_record_post_type() To get the year post type
- * @uses apply_filters() Calls 'fct_year_query_result_record_ids' with the record
+ * @uses apply_filters() Calls 'fct_year_query_revenue_record_ids' with the record
  *                        ids and year id
  */
-function fct_year_query_result_record_ids( $year_id ) {
-	$account_ids = fct_year_query_result_account_ids( $year_id );
+function fct_year_query_revenue_record_ids( $year_id ) {
+	$account_ids = fct_year_query_revenue_account_ids( $year_id );
 	$record_ids  = array();
 
 	// Get all account record ids
 	foreach ( $account_ids as $account_id )
 		$record_ids = array_merge( $record_ids, fct_get_public_child_ids( $account_id, fct_get_record_post_type() ) );
 
-	return apply_filters( 'fct_year_query_result_record_ids', $record_ids, $year_id );
+	return apply_filters( 'fct_year_query_revenue_record_ids', $record_ids, $year_id );
 }
 
 /**
- * Returns the year's asset record ids
+ * Returns the year's capital record ids
  *
  * Records with all statuses are returned.
  *
  * @param int $year_id Year id
- * @uses fct_get_asset_child_ids() To get the year asset account ids
+ * @uses fct_get_capital_child_ids() To get the year capital account ids
  * @uses fct_get_record_post_type() To get the year post type
- * @uses apply_filters() Calls 'fct_year_query_asset_record_ids' with the record
+ * @uses apply_filters() Calls 'fct_year_query_capital_record_ids' with the record
  *                        ids and year id
  */
-function fct_year_query_asset_record_ids( $year_id ) {
-	$account_ids = fct_year_query_asset_account_ids( $year_id );
+function fct_year_query_capital_record_ids( $year_id ) {
+	$account_ids = fct_year_query_capital_account_ids( $year_id );
 	$record_ids  = array();
 
 	// Get all account record ids
 	foreach ( $account_ids as $account_id )
 		$record_ids = array_merge( $record_ids, fct_get_public_child_ids( $account_id, fct_get_record_post_type() ) );
 
-	return apply_filters( 'fct_year_query_asset_record_ids', $record_ids, $year_id );
+	return apply_filters( 'fct_year_query_capital_record_ids', $record_ids, $year_id );
 }
 
 /** Permissions ***************************************************************/
@@ -649,11 +649,11 @@ function fct_year_query_asset_record_ids( $year_id ) {
 function fct_check_year_edit() {
 
 	// Bail if not editing a year
-	if ( !fct_is_year_edit() )
+	if ( ! fct_is_year_edit() )
 		return;
 
 	// User cannot edit year, so redirect back to year
-	if ( !current_user_can( 'edit_year', fct_get_year_id() ) ) {
+	if ( ! current_user_can( 'edit_year', fct_get_year_id() ) ) {
 		wp_safe_redirect( fct_get_year_permalink() );
 		exit();
 	}
@@ -901,3 +901,21 @@ function fct_untrashed_year( $year_id = 0 ) {
 
 	do_action( 'fct_untrashed_year', $year_id );
 }
+
+/** Post Status ***************************************************************/
+
+/**
+ * Return all availabel year post statuses
+ *
+ * @since 0.0.5
+ * 
+ * @uses apply_filters() Calls 'fct_get_year_statuses' with the year statuses
+ * @return array Year statuses as array( status => label )
+ */
+function fct_get_year_statuses() {
+	return apply_filters( 'fct_get_year_statuses', array(
+		fct_get_public_status_id() => _x( 'Open',   'Year Status', 'fiscaat' ),
+		fct_get_closed_status_id() => _x( 'Closed', 'Year Status', 'fiscaat' )
+	) );
+}
+

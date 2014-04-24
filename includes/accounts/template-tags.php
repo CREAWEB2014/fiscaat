@@ -15,6 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /**
  * Output the unique id of the custom post type for accounts
  *
+ * @since 0.0.1
+ *  
  * @uses fct_get_account_post_type() To get the account post type
  */
 function fct_account_post_type() {
@@ -22,53 +24,15 @@ function fct_account_post_type() {
 }
 	/**
 	 * Return the unique id of the custom post type for accounts
-	 *
+	 * 
+	 * @since 0.0.1
+	 * 
 	 * @uses apply_filters() Calls 'fct_get_account_post_type' with the account
 	 *                        post type id
 	 * @return string The unique account post type id
 	 */
 	function fct_get_account_post_type() {
 		return apply_filters( 'fct_get_account_post_type', fiscaat()->account_post_type );
-	}
-
-/** Account Type **************************************************************/
-
-/**
- * Output the unique id of the result type for accounts
- *
- * @uses fct_get_result_account_type() To get the account result type
- */
-function fct_result_account_type() {
-	return fct_get_result_account_type();
-}
-	/**
-	 * Return the unique id of the result type for accounts
-	 *
-	 * @uses apply_filters() Calls 'fct_get_result_account_type' with the result
-	 *                         account type id
-	 * @return string The unique result account type id
-	 */
-	function fct_get_result_account_type() {
-		return apply_filters( 'fct_get_result_account_type', fiscaat()->result_type_id );
-	}
-
-/**
- * Output the unique id of the asset type for accounts
- *
- * @uses fct_get_asset_account_type() To get the account asset type
- */
-function fct_asset_account_type() {
-	return fct_get_asset_account_type();
-}
-	/**
-	 * Return the unique id of the asset type for accounts
-	 *
-	 * @uses apply_filters() Calls 'fct_get_asset_account_type' with the asset
-	 *                         account type id
-	 * @return string The unique asset account type id
-	 */
-	function fct_get_asset_account_type() {
-		return apply_filters( 'fct_get_asset_account_type', fiscaat()->asset_type_id );
 	}
 
 /** Account Loop ****************************************************************/
@@ -607,7 +571,7 @@ function fct_account_status( $account_id = 0 ) {
  * @return bool True if open, false if closed.
  */
 function fct_is_account_open( $account_id = 0 ) {
-	return !fct_is_account_closed( $account_id );
+	return ! fct_is_account_closed( $account_id );
 }
 
 	/**
@@ -773,78 +737,78 @@ function fct_account_ledger_id( $account_id = 0 ) {
  * Output the account type of an account
  *
  * @param int $account_id Optional. Account id
- * @uses fct_get_account_account_type()
+ * @uses fct_get_account_type()
  */
-function fct_account_account_type( $account_id = 0 ) {
-	echo fct_get_account_account_type( $account_id );
+function fct_account_type( $account_id = 0 ) {
+	echo fct_get_account_type( $account_id );
 }
 	/**
 	 * Return the account type of an account
 	 *
 	 * @param int $account_id Optional. Account id
 	 * @uses fct_get_account_id() To get account id
-	 * @uses fct_get_account_meta() To retrieve get account's account type meta
-	 * @uses apply_filters() Calls 'fct_get_account_account_type' with the year
+	 * @uses fct_get_account_meta() To retrieve get account's type meta
+	 * @uses apply_filters() Calls 'fct_get_account_type' with the year
 	 *                        id and account id
 	 * @return int Account's account type
 	 */
-	function fct_get_account_account_type( $account_id = 0 ) {
+	function fct_get_account_type( $account_id = 0 ) {
 		$account_id   = fct_get_account_id( $account_id );
 		$account_type = fct_get_account_meta( $account_id, 'account_type' );
 
-		return apply_filters( 'fct_get_account_account_type', $account_type, $account_id );
+		return apply_filters( 'fct_get_account_type', $account_type, $account_id );
 	}
 
 /**
- * Output the from value of an account
+ * Output the start value of an account
  *
  * @param int $account_id Optional. Account id
- * @uses fct_get_account_from_value()
+ * @uses fct_get_account_value_start()
  */
-function fct_account_from_value( $account_id = 0 ) {
-	echo fct_get_account_from_value( $account_id );
+function fct_account_value_start( $account_id = 0 ) {
+	echo fct_get_account_value_start( $account_id );
 }
 	/**
-	 * Return the from value of an account
+	 * Return the start value of an account
 	 *
 	 * @param int $account_id Optional. Account id
 	 * @uses fct_get_account_id() To get account id
-	 * @uses fct_get_account_meta() To retrieve get account's from value meta
-	 * @uses apply_filters() Calls 'fct_get_account_from_value' with the year
+	 * @uses fct_get_account_meta() To retrieve get account's start value meta
+	 * @uses apply_filters() Calls 'fct_get_account_value_start' with the year
 	 *                        id and account id
-	 * @return int Account's from value
+	 * @return int Account's start value
 	 */
-	function fct_get_account_from_value( $account_id = 0 ) {
-		$account_id = fct_get_account_id( $account_id );
-		$from_value = (float) fct_get_account_meta( $account_id, 'from_value' );
+	function fct_get_account_value_start( $account_id = 0 ) {
+		$account_id  = fct_get_account_id( $account_id );
+		$value_start = (float) fct_get_account_meta( $account_id, 'value_start' );
 
-		return (float) apply_filters( 'fct_get_account_from_value', $from_value, $account_id );
+		return (float) apply_filters( 'fct_get_account_value_start', $value_start, $account_id );
 	}
 
 /**
- * Output the to value of an account
+ * Output the end value of an account
  *
  * @param int $account_id Optional. Account id
- * @uses fct_get_account_to_value()
+ * @uses fct_get_account_value_end()
  */
-function fct_account_to_value( $account_id = 0 ) {
-	echo fct_get_account_to_value( $account_id );
+function fct_account_value_end( $account_id = 0 ) {
+	echo fct_get_account_value_end( $account_id );
 }
 	/**
-	 * Return the to value of an account
+	 * Return the end value of an account
 	 *
 	 * @param int $account_id Optional. Account id
 	 * @uses fct_get_account_id() To get account id
-	 * @uses fct_get_account_meta() To retrieve get account's to value meta
-	 * @uses apply_filters() Calls 'fct_get_account_to_value' with the year
+	 * @uses fct_get_account_meta() To retrieve get account's end value meta
+	 * @uses apply_filters() Calls 'fct_get_account_value_end' with the year
 	 *                        id and account id
-	 * @return int Account's to value
+	 * @return int Account's end value
 	 */
-	function fct_get_account_to_value( $account_id = 0 ) {
+	function fct_get_account_value_end( $account_id = 0 ) {
 		$account_id = fct_get_account_id( $account_id );
-		$to_value   = (float) fct_get_account_meta( $account_id, 'to_value' );
+		$value_end  = (float) fct_get_account_meta( $account_id, 'value_end' );
 
-		return (float) apply_filters( 'fct_get_account_to_value', $to_value, $account_id );
+		return (float) apply_filters( 'fct_get_account_value_end', $value_end, $account_id );
 	}
 
 /**
@@ -1046,7 +1010,7 @@ function fct_account_admin_links( $args = '' ) {
 	 */
 	function fct_get_account_admin_links( $args = '' ) {
 
-		if ( !fct_is_single_account() )
+		if ( ! fct_is_single_account() )
 			return;
 
 		$defaults = array (
@@ -1058,7 +1022,7 @@ function fct_account_admin_links( $args = '' ) {
 		);
 		$r = fct_parse_args( $args, $defaults, 'get_account_admin_links' );
 
-		if ( !current_user_can( 'edit_account', $r['id'] ) )
+		if ( ! current_user_can( 'edit_account', $r['id'] ) )
 			return;
 
 		if ( empty( $r['links'] ) ) {
@@ -1107,7 +1071,7 @@ function fct_account_edit_link( $args = '' ) {
 	/**
 	 * Return the edit link of the account
 	 *
-	 * @since Fiscaat (r2727)
+	 * @since 0.0.1
 	 *
 	 * @param mixed $args This function supports these args:
 	 *  - id: Optional. Account id
@@ -1159,7 +1123,7 @@ function fct_account_edit_link( $args = '' ) {
 /**
  * Output URL to the account edit page
  *
- * @since Fiscaat (r2753)
+ * @since 0.0.1
  *
  * @param int $account_id Optional. Account id
  * @uses fct_get_account_edit_url() To get the account edit url
@@ -1170,7 +1134,7 @@ function fct_account_edit_url( $account_id = 0 ) {
 	/**
 	 * Return URL to the account edit page
 	 *
-	 * @since Fiscaat (r2753)
+	 * @since 0.0.1
 	 *
 	 * @param int $account_id Optional. Account id
 	 * @uses fct_get_account_id() To get the account id
@@ -1211,7 +1175,7 @@ function fct_account_edit_url( $account_id = 0 ) {
 /**
  * Output the close link of the account
  *
- * @since Fiscaat (r2727)
+ * @since 0.0.1
  *
  * @param mixed $args See {@link fct_get_account_close_link()}
  * @uses fct_get_account_close_link() To get the account close link
@@ -1223,7 +1187,7 @@ function fct_account_close_link( $args = '' ) {
 	/**
 	 * Return the close link of the account
 	 *
-	 * @since Fiscaat (r2727)
+	 * @since 0.0.1
 	 *
 	 * @param mixed $args This function supports these args:
 	 *  - id: Optional. Account id
@@ -1256,7 +1220,7 @@ function fct_account_close_link( $args = '' ) {
 
 		$account = fct_get_account( fct_get_account_id( (int) $id ) );
 
-		if ( empty( $account ) || !current_user_can( 'moderate', $account->ID ) )
+		if ( empty( $account ) || ! current_user_can( 'edit_account', $account->ID ) )
 			return;
 
 		$display = fct_is_account_open( $account->ID ) ? $close_text : $open_text;
@@ -1272,7 +1236,7 @@ function fct_account_close_link( $args = '' ) {
 /**
  * Output the pagination count
  *
- * @since Fiscaat (r2519)
+ * @since 0.0.1
  *
  * @uses fct_get_year_pagination_count() To get the year pagination count
  */
@@ -1282,7 +1246,7 @@ function fct_year_pagination_count() {
 	/**
 	 * Return the pagination count
 	 *
-	 * @since Fiscaat (r2519)
+	 * @since 0.0.1
 	 *
 	 * @uses fct_number_format() To format the number value
 	 * @uses apply_filters() Calls 'fct_get_year_pagination_count' with the
@@ -1318,7 +1282,7 @@ function fct_year_pagination_count() {
 /**
  * Output pagination links
  *
- * @since Fiscaat (r2519)
+ * @since 0.0.1
  *
  * @uses fct_get_year_pagination_links() To get the pagination links
  */
@@ -1328,7 +1292,7 @@ function fct_year_pagination_links() {
 	/**
 	 * Return pagination links
 	 *
-	 * @since Fiscaat (r2519)
+	 * @since 0.0.1
 	 *
 	 * @uses Fiscaat::account_query::pagination_links To get the links
 	 * @return string Pagination links
@@ -1348,7 +1312,7 @@ function fct_year_pagination_links() {
  * Output a fancy description of the current account, including total accounts,
  * total records, and last activity.
  *
- * @since Fiscaat (r2860)
+ * @since 0.0.1
  *
  * @param array $args See {@link fct_get_single_account_description()}
  * @uses fct_get_single_account_description() Return the eventual output
@@ -1360,7 +1324,7 @@ function fct_single_account_description( $args = '' ) {
 	 * Return a fancy description of the current account, including total accounts,
 	 * total records, and last activity.
 	 *
-	 * @since Fiscaat (r2860)
+	 * @since 0.0.1
 	 *
 	 * @param mixed $args This function supports these arguments:
 	 *  - account_id: Account id
@@ -1541,42 +1505,38 @@ function fct_form_account_year() {
  * Output the account's account type select
  * 
  * @param int $account_id Optional. Account id
- * @uses fct_get_form_account_account_type_select()
+ * @uses fct_get_form_account_type_select()
  */
-function fct_form_account_account_type_select( $account_id = 0 ) {
-	echo fct_get_form_account_account_type_select( $account_id );
+function fct_form_account_type_select( $account_id = 0 ) {
+	echo fct_get_form_account_type_select( $account_id );
 }
 	/**
 	 * Return the account's account type select
 	 * 
 	 * @param int $account_id Optional. Account id
 	 * @uses fct_get_account_type()
-	 * @uses fct_get_account_account_type()
-	 * @uses fct_get_result_account_type()
-	 * @uses fct_get_asset_account_type()
-	 * @uses apply_filters() Calls 'fct_get_form_account_account_type_select' with
+	 * @uses fct_get_account_types()
+	 * @uses apply_filters() Calls 'fct_get_form_account_type_select' with
 	 *                        account account type select, account id, and account types
 	 * @return string Account's account type select
 	 */
-	function fct_get_form_account_account_type_select( $account_id = 0 ) {
+	function fct_get_form_account_type_select( $account_id = 0 ) {
 		$account_id   = fct_get_account_id( $account_id );
-		$account_type = fct_get_account_account_type( $account_id );
-		$types        = apply_filters( 'fct_account_account_types', array(
-			fct_get_result_account_type() => __('Result',          'fiscaat'),
-			fct_get_asset_account_type()  => __('Asset/Liability', 'fiscaat'),
-		) );
+		$account_type = fct_get_account_type( $account_id );
+		$types        = fct_get_account_types();
 
 		// Disable select
 		$disable = fct_is_account_closed() ? true : false;
 
-		$type_output = '<select name="fct_account_account_type" id="fct_account_account_type" '. disabled( $disable, true, false ) .'>' . "\n";
+		$type_output = '<select name="fct_account_type" id="fct_account_type" '. disabled( $disable, true, false ) .'>' . "\n";
 
-		foreach( $types as $value => $label )
-			$type_output .= "\t" . '<option value="' . $value . '"' . selected( $account_type, $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
+		foreach( $types as $type => $label ) {
+			$type_output .= "\t" . '<option value="' . $type . '"' . selected( $account_type, $type, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
+		}
 
 		$type_output .= '</select>';
 
-		return apply_filters( 'fct_get_form_account_account_type_select', $type_output, $account_id, $types );
+		return apply_filters( 'fct_get_form_account_type_select', $type_output, $account_id, $types );
 	}
 
 /** Dropdowns *****************************************************************/

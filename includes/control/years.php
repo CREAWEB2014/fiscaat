@@ -4,13 +4,13 @@
  * Fiscaat Control Years Functions
  *
  * @package Fiscaat
- * @subpackage Functions
+ * @subpackage Control
  */
 
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-/** Year Actions ***************************************************************/
+/** Filters ********************************************************************/
 
 /**
  * Add control year default meta
@@ -28,6 +28,26 @@ function fct_ctrl_get_year_default_meta( $meta ) {
 
 	return $meta;
 }
+
+/**
+ * Return whether to bail before closing a year
+ *
+ * Bail year closing if it has unapproved records.
+ * 
+ * @param bool $bail Whether to bail
+ * @param object $year Year object
+ * @return bool Bail
+ */
+function fct_ctrl_no_close_year( $bail, $year ) {
+
+	// Get unapproved records of year
+	$unapproved = fct_get_year_record_count_unapproved( $year->ID );
+	
+	// Bail if year has unapproved records
+	return ! empty( $unapproved );
+}
+
+/** Records ********************************************************************/
 
 /**
  * Bump the total declined record count of a year
@@ -157,23 +177,5 @@ function fct_update_year_record_count_unapproved( $year_id = 0, $record_count = 
 	fct_update_year_meta( $year_id, 'record_count_unapproved', (int) $record_count );
 
 	return (int) apply_filters( 'fct_update_year_record_count_unapproved', (int) $record_count, $year_id );
-}
-
-/**
- * Return whether to bail before closing a year
- *
- * Bail year closing if it has unapproved records.
- * 
- * @param bool $bail Whether to bail
- * @param object $year Year object
- * @return bool Bail
- */
-function fct_ctrl_no_close_year( $bail, $year ) {
-
-	// Get unapproved records of year
-	$unapproved = fct_get_year_meta( $year->ID, 'record_count_unapproved' );
-	
-	// Bail if year has unapproved records
-	return ! empty( $unapproved );
 }
 

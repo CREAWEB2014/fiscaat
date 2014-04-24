@@ -25,8 +25,7 @@ add_filter( 'fct_no_close_account',         'fct_ctrl_no_close_account'         
 // fct_get_single_account_description
 
 // Records
-add_filter( 'fct_no_close_record', 'fct_ctrl_no_close_record' );
-
+add_filter( 'fct_no_close_record',                       'fct_ctrl_no_close_record'                       );
 add_filter( 'fct_record_statuses',                       'fct_ctrl_record_statuses'                       );
 add_filter( 'fct_record_status_dropdown_disable',        'fct_ctrl_record_status_dropdown_disable'        );
 add_filter( 'fct_record_status_dropdown_option_disable', 'fct_ctrl_record_status_dropdown_option_disable' );
@@ -34,3 +33,12 @@ add_filter( 'fct_record_status_dropdown_option_disable', 'fct_ctrl_record_status
 // Statistics
 add_filter( 'fct_before_get_statistics_parse_args', 'fct_ctrl_get_statistics_default_args'   );
 add_filter( 'fct_get_statistics',                   'fct_ctrl_get_statistics',         10, 2 );
+
+// Admin
+add_filter( 'fct_admin_years_column_headers',      'fct_ctrl_admin_years_column_headers'      );
+add_filter( 'fct_admin_years_sortable_columns',    'fct_ctrl_admin_years_sortable_columns'    );
+add_filter( 'fct_admin_years_request',             'fct_ctrl_admin_years_request'             );
+add_filter( 'fct_admin_accounts_column_headers',   'fct_ctrl_admin_accounts_column_headers'   );
+add_filter( 'fct_admin_accounts_sortable_columns', 'fct_ctrl_admin_accounts_sortable_columns' );
+add_filter( 'fct_admin_accounts_request',          'fct_ctrl_admin_accounts_request'          );
+

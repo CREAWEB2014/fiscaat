@@ -23,7 +23,7 @@ function fct_map_primary_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 
 	// What capability is being checked?
 	switch ( $cap ) {
-		case 'comment_fiscaat' :
+		case 'fct_comment' :
 
 			// Do not allow those who are not allowed
 			if ( ! fct_user_can_comment( $user_id ) ) {

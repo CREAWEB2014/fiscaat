@@ -4,7 +4,7 @@
  * Fiscaat Control Template Tags
  *
  * @package Fiscaat
- * @subpackage TemplateTags
+ * @subpackage Control
  *
  * @todo fct_get_record_admin_links()
  */
@@ -209,8 +209,8 @@ function fct_record_approve_link( $args = '' ) {
 		if ( empty( $record ) || ! current_user_can( 'control', $record->ID ) )
 			return;
 
-		$uri      = add_query_arg( array( 'action' => 'fct_toggle_record_approval', 'record_id' => $record->ID ) );
-		$uri      = esc_url( wp_nonce_url( $uri, 'approval-record_' . $record->ID ) );
+		$uri      = add_query_arg( array( 'action' => 'fct_toggle_record_approve', 'record_id' => $record->ID ) );
+		$uri      = esc_url( wp_nonce_url( $uri, 'approve-record_' . $record->ID ) );
 		$retval   = $link_before . '<a href="' . $uri . '">' . $approve_text . '</a>' . $link_after;
 
 		return apply_filters( 'fct_get_record_approve_link', $retval, $args );

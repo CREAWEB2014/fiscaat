@@ -50,35 +50,35 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 	 */
 	public function setup_actions() {
 
-		// Redirect record post-new.php
-		add_action( 'fct_admin_head', array( $this, 'remove_submenu' )     );
-		add_action( 'load-post-new.php',  array( $this, 'redirect'       ), -1 );
+		// Redirect from record post-new.php
+		add_action( 'fct_admin_head',             array( $this, 'remove_submenu' )     );
+		add_action( 'fct_records_admin_load_new', array( $this, 'redirect'       ), -1 );
 
 		// Page load hooks
 		add_filter( 'fct_records_list_table_custom_query', array( $this, 'return_true'    ) );
 		add_filter( 'fct_records_list_table_items',        array( $this, 'prepare_items'  ) );
-		add_filter( $this->args->hook_prefix .'_submit',       array( $this, 'submit_records' ) );
+		add_filter( $this->args->hook_prefix .'_submit',   array( $this, 'submit_records' ) );
 
 		// Page head hooks
 		add_action( $this->args->hook_prefix .'_head', array( $this, 'enqueue_page_scripts' ) );
 		add_action( $this->args->hook_prefix .'_head', array( $this, 'page_head'            ) );
 
 		// Table hooks
-		add_filter( 'fct_records_list_table_class',        array( $this, 'list_table_class'    ) );
-		add_action( 'fct_records_list_table_tablenav',     array( $this, 'add_num_rows_select' ) );
-		add_action( $this->args->hook_prefix .'_title_append', array( $this, 'import_button'       ) );
+		add_filter( 'fct_records_list_table_class',          array( $this, 'list_table_class'    ) );
+		add_action( 'fct_records_list_table_tablenav',       array( $this, 'add_num_rows_select' ) );
+		add_filter( $this->args->hook_prefix .'_page_title', array( $this, 'import_button'       ) );
 
 		// Column hooks
 		add_action( 'fct_records_posts_columns', array( $this, 'remove_column_cb' ) );
 
 		// Form hooks
-		add_action( $this->args->hook_prefix .'_form_after',   array( $this, 'new_default_row' ) );
+		add_action( $this->args->hook_prefix .'_form_after', array( $this, 'new_default_row' ) );
 
 
 		// New Records
-		// add_filter( 'the_posts',             array( $this, 'new_records_items'                 ), 9  );
-		// add_action( 'load-edit.php',         array( $this, 'new_records_insert_records'        )     );
-		// add_action( 'admin_notices',         array( $this, 'new_records_display_admin_notice'  )     );
+		// add_filter( 'the_posts',                   array( $this, 'new_records_items'                 ), 9  );
+		// add_action( 'fct_records_admin_load_edit', array( $this, 'new_records_insert_records'        )     );
+		// add_action( 'admin_notices',               array( $this, 'new_records_display_admin_notice'  )     );
 
 		// Messages
 		// add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
@@ -95,10 +95,6 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 	 * Redirect users from post-new.php to new record page
 	 */
 	public function redirect() {
-
-		// Bail
-		if ( $this->bail( false ) ) 
-			return;
 
 		// Safely redirect
 		wp_safe_redirect( add_query_arg( array( 'post_type' => $this->post_type, 'page' => $this->args->page ), admin_url( 'edit.php' ) ) );
@@ -165,12 +161,10 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 	}
 
 	/**
-	 * Output demo import button
+	 * Append demo import button to page title
 	 */
-	public function import_button() {
-	?>
-		<a href="#" class="add-new-h2"><?php _e('Import Records', 'fiscaat'); ?></a>
-	<?php
+	public function import_button( $title ) {
+		return $title .' <a href="#" class="add-new-h2">'. __('Import Records', 'fiscaat') .'</a>';
 	}
 
 	/**
@@ -387,8 +381,8 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 	 *
 	 * @uses self::new_records_required_fields()
 	 * @uses fct_float_format()
-	 * @uses fct_get_debit_record_type()
-	 * @uses fct_get_credit_record_type()
+	 * @uses fct_get_debit_record_type_id()
+	 * @uses fct_get_credit_record_type_id()
 	 * @uses fct_insert_record()
 	 * @uses fct_get_record_post_type()
 	 * @uses wp_safe_redirect() To redirect the user
@@ -490,10 +484,10 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 			// Handle types
 			if ( $record['debit'] ) {
 				$value      = fct_float_format( $record['debit'] );
-				$value_type = fct_get_debit_record_type();
+				$value_type = fct_get_debit_record_type_id();
 			} elseif ( $record['credit' ] ) {
 				$value      = fct_float_format( $record['credit'] );
-				$value_type = fct_get_credit_record_type();
+				$value_type = fct_get_credit_record_type_id();
 			} else {
 				$value      = false;
 				$value_type = false;
@@ -657,10 +651,10 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 				? sprintf( __('Records approved. %d records were approved.', 'fiscaat'), (int) $_GET['record_count'] )
 				: __('Records approved.', 'fiscaat'),
 
-			// Records disapproved
+			// Records declined
 			6 => isset( $_GET['record_count'] )
-				? sprintf( __('Records disapproved. %d records were disapproved.', 'fiscaat'), (int) $_GET['record_count'] )
-				: __('Records disapproved.', 'fiscaat'),
+				? sprintf( __('Records declined. %d records were declined.', 'fiscaat'), (int) $_GET['record_count'] )
+				: __('Records declined.', 'fiscaat'),
 
 			// Records closed
 			7 => isset( $_GET['record_count'] )

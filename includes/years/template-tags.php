@@ -439,29 +439,29 @@ function fct_year_closed( $year_id = 0 ) {
 	}
 
 /**
- * Output the years to balance value
+ * Output the year's end value
  *
- * @uses fct_get_year_to_balance() To get the year's to balance value
+ * @uses fct_get_year_value_end() To get the year's end value
  * @param int $year_id Optional. Year id
  */
-function fct_year_to_balance( $year_id = 0 ) {
-	echo fct_get_year_to_balance( $year_id );
+function fct_year_value_end( $year_id = 0 ) {
+	echo fct_get_year_value_end( $year_id );
 }
 	/**
-	 * Return the years to balance value
+	 * Return the year's end value
 	 *
 	 * @param int $year_id Optional. Year id
 	 * @uses fct_get_year_id() To get the year id
-	 * @uses fct_get_year_meta() To get the year's to balance value
-	 * @uses apply_filters() Calls 'fct_get_year_to_balance' with
-	 *                        the to balance value and year id
-	 * @return int Year's to balance value
+	 * @uses fct_get_year_meta() To get the year's end value
+	 * @uses apply_filters() Calls 'fct_get_year_value_end' with
+	 *                        the end value and year id
+	 * @return float Year's end value
 	 */
-	function fct_get_year_to_balance( $year_id = 0 ) {
-		$year_id    = fct_get_year_id( $year_id );
-		$to_balance = (float) fct_get_year_meta( $year_id, 'to_balance' );
+	function fct_get_year_value_end( $year_id = 0 ) {
+		$year_id   = fct_get_year_id( $year_id );
+		$value_end = (float) fct_get_year_meta( $year_id, 'value_end' );
 
-		return (float) apply_filters( 'fct_get_year_to_balance', $to_balance, $year_id );
+		return (float) apply_filters( 'fct_get_year_value_end', $value_end, $year_id );
 	}
 
 /** Year Counts **************************************************************/
@@ -595,7 +595,7 @@ function fct_year_status( $year_id = 0 ) {
  * @return bool Whether the year is open or not
  */
 function fct_is_year_open( $year_id = 0 ) {
-	return !fct_is_year_closed( $year_id );
+	return ! fct_is_year_closed( $year_id );
 }
 
 	/**
@@ -834,6 +834,7 @@ function fct_form_year_status_dropdown( $year_id = 0 ) {
 	 * @param bool $disable Optional. Whether to disable the dropdown
 	 * @uses fct_get_year_id() To check the year id
 	 * @uses fct_get_year_status() To get the year status
+	 * @uses fct_get_year_statuses() To get all year statuses
 	 * @uses apply_filters() Calls 'fct_get_form_year_status_dropdown' with the
 	 *                        status dropdown, year id, and year statuses
 	 * @return string HTML select list for selecting year status
@@ -841,10 +842,7 @@ function fct_form_year_status_dropdown( $year_id = 0 ) {
 	function fct_get_form_year_status_dropdown( $year_id = 0 ) {
 		$year_id     = fct_get_year_id( $year_id );
 		$year_status = fct_get_year_status( $year_id );
-		$statuses    = apply_filters( 'fct_year_statuses', array(
-			fct_get_public_status_id() => _x( 'Open',   'Year Status', 'fiscaat' ),
-			fct_get_closed_status_id() => _x( 'Closed', 'Year Status', 'fiscaat' )
-		) );
+		$statuses    = fct_get_year_statuses();
 
 		// Disable dropdown
 		$disable = fct_is_control_active() && ! current_user_can( 'fiscaat' ) ? true : false;

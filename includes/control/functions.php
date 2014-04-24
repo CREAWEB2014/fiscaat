@@ -10,6 +10,8 @@
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+/** Post Status ***************************************************************/
+
 /**
  * Return the approved post status ID
  *
@@ -66,15 +68,15 @@ function fct_ctrl_register_post_statuses() {
  * @param array $options
  * @return array
  */
-function fct_ctrl_record_statuses( $options ) {
+function fct_ctrl_record_statuses( $statuses ) {
 
-	// Insert options after 'publish' and before 'close'
-	$options = array_splice( $options, 1, 0, array(
-		fct_get_approved_status_id() => __('Approved', 'fiscaat'),
+	// Insert statuses after 'publish' and before 'close'
+	$statuses = array_splice( $statuses, 1, 0, array(
 		fct_get_declined_status_id() => __('Declined', 'fiscaat'),
+		fct_get_approved_status_id() => __('Approved', 'fiscaat'),
 	) );
 
-	return $options;
+	return $statuses;
 }
 
 /**
@@ -121,23 +123,7 @@ function fct_ctrl_record_status_dropdown_option_disable( $disable, $option ) {
 	return $disable;
 }
 
-/**
- * Get the total number of controllers on Fiscaat
- *
- * @uses count_users() To execute our query and get the var back
- * @uses apply_filters() Calls 'fct_get_total_controllers' with number of controllers
- * @return int Total number of controllers
- */
-function fct_get_total_controllers() {
-	$user_count = count_users();
-	$role       = fct_get_controller_role();
-
-	// Check for Controllers
-	if ( ! isset( $user_count['avail_roles'][$role] ) )
-		return 0;
-
-	return (int) apply_filters( 'fct_get_total_controllers', (int) $user_count['avail_roles'][$role] );
-}
+/** Statistics ****************************************************************/
 
 /**
  * Add record post status counts to default Fiscaat statistics args
@@ -221,28 +207,7 @@ function fct_ctrl_get_statistics( $stats, $args ) {
 	return $stats;
 }
 
-/**
- * Output the dashboard widget right now control content
- *
- * @uses fct_get_total_controllers()
- */
-function fct_ctrl_dashboard_widget_right_now_content() {
-
-	// Get controller count
-	$controller_count = fct_get_total_controllers(); ?>
-
-		<tr>
-			<?php
-				$num  = $controller_count;
-				$text = _n( 'Controller', 'Controllers', $controller_count, 'fiscaat' );
-			?>
-
-			<td class="first b b-users"><?php echo $num; ?></td>
-			<td class="t users"><?php echo $text; ?></td>
-		</tr>
-
-	<?php	
-}
+/** Admin Bar *****************************************************************/
 
 /**
  * Add control admin bar menu items

@@ -114,18 +114,18 @@ function fct_dashboard_widget_right_now() {
 		<table>
 			<tr class="first">
 				<?php
-					$num  = fct_get_currency_format( $current_to_balance, true );
+					$num  = fct_get_currency_format( $current_value_end, true );
 					$text = __( 'To Balance', 'fiscaat' );
 					if ( current_user_can( 'fct_spectate' ) ) {
 						$link = add_query_arg( array( 'post_type' => fct_get_account_post_type(), 'fct_year_id' => fct_get_current_year_id() ), get_admin_url( null, 'edit.php' ) );
-						$class = $current_to_balance < 0 ? ' class="spam"' : ''; // Coloring
+						$class = $current_value_end < 0 ? ' class="spam"' : ''; // Coloring
 						$num  = '<a'. $class .' href="' . $link . '">' . $num  . '</a>';
 						$text = '<a href="' . $link . '">' . $text . '</a>';
 					}
 				?>
 
-				<td class="b b-to_balance"><span class="total-count"><?php echo $num; ?></span></td>
-				<td class="last t to_balance"><?php echo $text; ?></td>
+				<td class="b b-value_end"><span class="total-count"><?php echo $num; ?></span></td>
+				<td class="last t value_end"><?php echo $text; ?></td>
 			</tr>
 
 			<tr>
@@ -156,8 +156,8 @@ function fct_dashboard_widget_right_now() {
 					}
 				?>
 
-				<td class="b b-to_balance"><span class="total-count"><?php echo $num; ?></span></td>
-				<td class="last t to_balance"><?php echo $text; ?></td>
+				<td class="b b-value_end"><span class="total-count"><?php echo $num; ?></span></td>
+				<td class="last t value_end"><?php echo $text; ?></td>
 			</tr>
 
 			<?php endif; ?>
@@ -267,7 +267,7 @@ function fct_account_metabox() {
 		<strong class="label"><?php _e( 'Number:', 'fiscaat' ); ?></strong>
 		<label class="screen-reader-text" for="fct_account_ledger_id"><?php _e( 'Account Number', 'fiscaat' ); ?></label>
 		<input name="fct_account_ledger_id" id="fct_account_ledger_id" type="text" value="<?php echo esc_attr( fct_get_account_ledger_id( $post_id ) ); ?>" <?php disabled( ! current_user_can( 'fiscaat' ) || fct_is_account_closed( $post_id ) ); ?> />
-		<img class="ajax-loading" src="<?php echo admin_url(); ?>images/wpspin_light.gif" />
+		<img class="ajax-loading" src="<?php echo admin_url(); ?>images/spinner.gif" />
 	</p>
 
 	<?php
@@ -278,8 +278,8 @@ function fct_account_metabox() {
 	
 	<p>
 		<strong class="label"><?php _e( 'Type:', 'fiscaat' ); ?></strong>
-		<label class="screen-reader-text" for="fct_account_account_type"><?php _e( 'Account Type', 'fiscaat' ); ?></label>
-		<?php fct_form_account_account_type_select( $post_id ); ?>
+		<label class="screen-reader-text" for="fct_account_type"><?php _e( 'Account Type', 'fiscaat' ); ?></label>
+		<?php fct_form_account_type_select( $post_id ); ?>
 	</p>
 
 	<?php
@@ -383,26 +383,26 @@ function fct_record_metabox() {
 
 	<?php
 
-	/** Value *****************************************************************/
+	/** Amount ****************************************************************/
 
 	?>
 	
 	<p>
-		<strong class="label"><?php _e( 'Value:', 'fiscaat' ); ?></strong>
-		<label class="screen-reader-text" for="fct_record_value"><?php _e( 'Value', 'fiscaat' ); ?></label>
-		<input name="fct_record_value" id="fct_record_value" type="text" value="<?php echo esc_attr( fct_get_record_value( $post_id ) ); ?>" disabled="disabled" />
+		<strong class="label"><?php _e( 'Amount:', 'fiscaat' ); ?></strong>
+		<label class="screen-reader-text" for="fct_record_amount"><?php _e( 'Amount', 'fiscaat' ); ?></label>
+		<input name="fct_record_amount" id="fct_record_amount" type="text" value="<?php echo esc_attr( fct_get_record_amount( $post_id ) ); ?>" disabled="disabled" />
 	</p>
 
 	<?php
 
-	/** Value type ************************************************************/
+	/** Record type ***********************************************************/
 
 	?>
 	
 	<p>
-		<strong class="label"><?php _e( 'Type:', 'fiscaat' ); ?></strong>
-		<label class="screen-reader-text" for="fct_record_value_type"><?php _e( 'Value Type', 'fiscaat' ); ?></label>
-		<?php fct_form_record_value_type_select( $post_id, true ); ?>
+		<strong class="label"><?php _ex( 'Type:', 'Record type input label', 'fiscaat' ); ?></strong>
+		<label class="screen-reader-text" for="fct_record_type"><?php _e( 'Record Type', 'fiscaat' ); ?></label>
+		<?php fct_form_record_type_select( $post_id, true ); ?>
 	</p>
 
 	<?php
@@ -434,7 +434,3 @@ function fct_record_metabox() {
 	do_action( 'fiscaat_record_metabox', $post_id );
 }
 
-/** Comments ******************************************************************/
-
-
-/** Spectators ****************************************************************/

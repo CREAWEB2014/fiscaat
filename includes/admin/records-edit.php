@@ -39,7 +39,7 @@ class Fiscaat_Admin_Records_Edit extends Fiscaat_Admin_Records {
 			'menu_title' => $post_type_object->labels->edit_items,
 			'page_title' => $post_type_object->labels->edit_items,
 			'cap'        => $post_type_object->cap->edit_posts
-			) );
+		) );
 	}
 
 	/**
@@ -206,8 +206,8 @@ class Fiscaat_Admin_Records_Edit extends Fiscaat_Admin_Records {
 	 *
 	 * @uses self::new_records_required_fields()
 	 * @uses fct_float_format()
-	 * @uses fct_get_debit_record_type()
-	 * @uses fct_get_credit_record_type()
+	 * @uses fct_get_debit_record_type_id()
+	 * @uses fct_get_credit_record_type_id()
 	 * @uses fct_insert_record()
 	 * @uses fct_get_record_post_type()
 	 * @uses wp_safe_redirect() To redirect the user
@@ -305,10 +305,10 @@ class Fiscaat_Admin_Records_Edit extends Fiscaat_Admin_Records {
 			// Handle types
 			if ( $record['debit'] ) {
 				$value      = fct_float_format( $record['debit'] );
-				$value_type = fct_get_debit_record_type();
+				$value_type = fct_get_debit_record_type_id();
 			} elseif ( $record['credit' ] ) {
 				$value      = fct_float_format( $record['credit'] );
-				$value_type = fct_get_credit_record_type();
+				$value_type = fct_get_credit_record_type_id();
 			} else {
 				$value      = false;
 				$value_type = false;
