@@ -94,7 +94,7 @@ class Fiscaat_Records_Admin {
 
 		// Add ability to filter accounts and records per year
 		add_filter( 'restrict_manage_posts',     array( $this, 'filter_dropdown'             )        );
-		add_filter( 'fct_admin_records_request', array( $this, 'filter_post_rows'            )        );
+		add_filter( 'fct_records_admin_request', array( $this, 'filter_post_rows'            )        );
 
 		// 
 		add_filter( 'the_posts',             array( $this, 'records_add_item_attributes' ), 99    );
@@ -155,14 +155,14 @@ class Fiscaat_Records_Admin {
 	 * 
 	 * @since 0.0.5
 	 *
-	 * @uses apply_fitlers() Calls 'fct_admin_records_request' with
+	 * @uses apply_fitlers() Calls 'fct_records_admin_request' with
 	 *                        query vars
 	 */
 	public function request_records( $query_vars ) {
 		if ( $this->bail() )
 			return $query_vars;
 
-		return apply_filters( 'fct_admin_records_request', $query_vars );
+		return apply_filters( 'fct_records_admin_request', $query_vars );
 	}
 
 	/** Contextual Help *******************************************************/

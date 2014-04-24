@@ -70,18 +70,21 @@ class Fiscaat_Accounts_Admin {
 		add_action( 'save_post',                    array( $this, 'attributes_metabox_save' ) );
 
 		// Account columns (in post row)
-		add_action( 'manage_' . $this->post_type . '_posts_custom_column', array( $this, 'accounts_column_data'      ), 10, 2 );
+		add_action( 'manage_' . $this->post_type . '_posts_custom_column', array( $this, 'accounts_column_data' ), 10, 2 );
 
 		// Check if there are any fct_toggle_account_* requests on admin_init, also have a message displayed
-		add_action( 'fct_admin_accounts_load_edit', array( $this, 'toggle_account'          ) );
+		add_action( 'fct_accounts_admin_load_edit', array( $this, 'toggle_account'          ) );
 		add_action( 'admin_notices',                array( $this, 'toggle_account_notice'   ) );
 
 		// Contextual Help
-		add_action( 'fct_admin_accounts_load_edit', array( $this, 'edit_help'               ) );
-		add_action( 'fct_admin_accounts_load_new',  array( $this, 'new_help'                ) );
+		add_action( 'fct_accounts_admin_load_edit', array( $this, 'edit_help'               ) );
+		add_action( 'fct_accounts_admin_load_new',  array( $this, 'new_help'                ) );
 
 		// Fiscaat requires
-		add_action( 'fct_admin_accounts_load_new',  array( $this, 'no_year_redirect'        ) );
+		add_action( 'fct_accounts_admin_load_new',  array( $this, 'no_year_redirect'        ) );
+		
+		// Records page title
+		add_action( 'fct_accounts_admin_load_edit', array( $this, 'accounts_page_title'     ) );
 
 		/** Ajax **************************************************************/
 		
@@ -94,19 +97,16 @@ class Fiscaat_Accounts_Admin {
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
 		// Account column headers and columns (in post row)
-		add_filter( 'manage_'      . $this->post_type . '_posts_columns',       array( $this, 'accounts_column_headers' ) );
-		add_filter( 'manage_edit-' . $this->post_type . '_sortable_columns',    array( $this, 'accounts_sortable_columns' ), 10, 2 );
-		add_filter( 'post_row_actions',                                         array( $this, 'accounts_row_actions'      ), 10, 2 );
+		add_filter( 'manage_'      . $this->post_type . '_posts_columns',    array( $this, 'accounts_column_headers'   )        );
+		add_filter( 'manage_edit-' . $this->post_type . '_sortable_columns', array( $this, 'accounts_sortable_columns' ), 10, 2 );
+		add_filter( 'post_row_actions',                                      array( $this, 'accounts_row_actions'      ), 10, 2 );
 
 		// Add ability to filter accounts and records per year
 		add_filter( 'restrict_manage_posts',      array( $this, 'filter_dropdown'  ) );
-		add_filter( 'fct_admin_accounts_request', array( $this, 'filter_post_rows' ) );
+		add_filter( 'fct_accounts_admin_request', array( $this, 'filter_post_rows' ) );
 
 		// Account records view link
 		// add_filter( 'get_edit_post_link', array( $this, 'accounts_edit_post_link' ), 10, 3 ); // Uncontrolled behavior
-		
-		// Records page title
-		add_filter( 'fct_admin_accounts_load_edit', array( $this, 'accounts_page_title' ) );
 	}
 
 	/**
@@ -137,8 +137,8 @@ class Fiscaat_Accounts_Admin {
 	 * 
 	 * @since 0.0.5
 	 *
-	 * @uses do_action() Calls 'fct_admin_accounts_load_new'
-	 * @uses do_action() Calls 'fct_admin_accounts_load_edit'
+	 * @uses do_action() Calls 'fct_accounts_admin_load_new'
+	 * @uses do_action() Calls 'fct_accounts_admin_load_edit'
 	 */
 	public function load_accounts() {
 		if ( $this->bail() )
@@ -146,11 +146,11 @@ class Fiscaat_Accounts_Admin {
 
 		// Load new accounts
 		if ( doing_action( 'load-post-new.php' ) ) {
-			do_action( 'fct_admin_accounts_load_new' );
+			do_action( 'fct_accounts_admin_load_new' );
 
 		// Load edit accounts
 		} elseif ( doing_action( 'load-edit.php' ) ) {
-			do_action( 'fct_admin_accounts_load_edit' );
+			do_action( 'fct_accounts_admin_load_edit' );
 		}
 	}
 
@@ -159,14 +159,14 @@ class Fiscaat_Accounts_Admin {
 	 * 
 	 * @since 0.0.5
 	 *
-	 * @uses apply_fitlers() Calls 'fct_admin_accounts_request' with
+	 * @uses apply_fitlers() Calls 'fct_accounts_admin_request' with
 	 *                        query vars
 	 */
 	public function request_accounts( $query_vars ) {
 		if ( $this->bail() )
 			return $query_vars;
 
-		return apply_filters( 'fct_admin_accounts_request', $query_vars );
+		return apply_filters( 'fct_accounts_admin_request', $query_vars );
 	}
 
 	/** Contextual Help *******************************************************/
