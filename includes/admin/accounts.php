@@ -145,11 +145,11 @@ class Fiscaat_Accounts_Admin {
 			return;
 
 		// Load new accounts
-		if ( current_filter( 'load-post-new.php' ) ) {
+		if ( doing_action( 'load-post-new.php' ) ) {
 			do_action( 'fct_admin_accounts_load_new' );
 
 		// Load edit accounts
-		} elseif ( current_filter( 'load-edit.php' ) ) {
+		} elseif ( doing_action( 'load-edit.php' ) ) {
 			do_action( 'fct_admin_accounts_load_edit' );
 		}
 	}

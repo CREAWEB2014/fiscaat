@@ -123,11 +123,11 @@ class Fiscaat_Years_Admin {
 			return;
 
 		// Load new years
-		if ( current_filter( 'load-post-new.php' ) ) {
+		if ( doing_action( 'load-post-new.php' ) ) {
 			do_action( 'fct_years_admin_load_new' );
 
 		// Load edit years
-		} elseif ( current_filter( 'load-edit.php' ) ) {
+		} elseif ( doing_action( 'load-edit.php' ) ) {
 			do_action( 'fct_years_admin_load_edit' );
 		}
 	}
