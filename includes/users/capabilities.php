@@ -88,7 +88,9 @@ function fct_set_user_role( $user_id = 0, $new_role = '' ) {
 }
 
 /**
- * Return a user's main role
+ * Return a user's forums role
+ *
+ * @since 0.0.1
  *
  * @param int $user_id
  * @uses fct_get_user_id() To get the user id
@@ -99,21 +101,69 @@ function fct_set_user_role( $user_id = 0, $new_role = '' ) {
 function fct_get_user_role( $user_id = 0 ) {
 
 	// Validate user id
-	$user_id = fct_get_user_id( $user_id, false, false );
+	$user_id = fct_get_user_id( $user_id );
+	$user    = get_userdata( $user_id );
+	$role    = false;
+
+	// User has roles so look for a Fiscaat one
+	if ( ! empty( $user->roles ) ) {
+
+		// Look for a Fiscaat role
+		$roles = array_intersect(
+			array_values( $user->roles ),
+			array_keys( fct_get_dynamic_roles() )
+		);
+
+		// If there's a role in the array, use the first one. This isn't very
+		// smart, but since roles aren't exactly hierarchical, and Fiscaat
+		// does not yet have a UI for multiple user roles, it's fine for now.
+		if ( !empty( $roles ) ) {
+			$role = array_shift( $roles );
+		}
+	}
+
+	return apply_filters( 'fct_get_user_role', $role, $user_id, $user );
+}
+
+/**
+ * Return a user's blog role
+ *
+ * @since 0.0.6
+ *
+ * @param int $user_id
+ * @uses fct_get_user_id() To get the user id
+ * @uses get_userdata() To get the user data
+ * @uses apply_filters() Calls 'fct_get_user_blog_role' with the role and user id
+ * @return string
+ */
+function fct_get_user_blog_role( $user_id = 0 ) {
+
+	// Add Fiscaat roles (returns $wp_roles global)
+	fct_add_fiscaat_roles();
+
+	// Validate user id
+	$user_id = fct_get_user_id( $user_id );
 	$user    = get_userdata( $user_id );
 	$role    = false;
 
 	// User has roles so lets
 	if ( ! empty( $user->roles ) ) {
-		$roles = array_intersect( array_values( $user->roles ), array_keys( fct_get_dynamic_roles() ) );
 
-		// If there's a role in the array, use the first one
+		// Look for a non Fiscaat role
+		$roles     = array_intersect(
+			array_values( $user->roles ),
+			array_keys( fct_get_blog_roles() )
+		);
+
+		// If there's a role in the array, use the first one. This isn't very
+		// smart, but since roles aren't exactly hierarchical, and WordPress
+		// does not yet have a UI for multiple user roles, it's fine for now.
 		if ( !empty( $roles ) ) {
-			$role = array_shift( array_values( $roles ) );
+			$role = array_shift( $roles );
 		}
 	}
 
-	return apply_filters( 'fct_get_user_role', $role, $user_id, $user );
+	return apply_filters( 'fct_get_user_blog_role', $role, $user_id, $user );
 }
 
 /**

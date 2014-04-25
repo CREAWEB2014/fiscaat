@@ -70,71 +70,19 @@ function fct_get_caps_for_role( $role = '' ) {
 
 			break;
 
-		// Controller
+		// Spectator
 		case fct_get_spectator_role() :
 			$caps = array(
 
 				// Primary caps
 				'fct_spectate'           => true,
-
-				// Record caps
-				'publish_records'        => false,
-				'edit_records'           => false,
-				'edit_others_records'    => false,
-				'delete_records'         => false,
-				'delete_others_records'  => false,
-				'read_private_records'   => false,
-
-				// Account caps
-				'publish_accounts'       => false,
-				'edit_accounts'          => false,
-				'edit_others_accounts'   => false,
-				'delete_accounts'        => false,
-				'delete_others_accounts' => false,
-				'read_private_accounts'  => false,
-
-				// Year caps
-				'publish_years'          => false,
-				'edit_years'             => false,
-				'edit_others_years'      => false,
-				'delete_years'           => false,
-				'delete_others_years'    => false,
-				'read_private_years'     => false
 			);
 
 			break;
 
 		// Default
 		default :
-			$caps = array(
-
-				// Primary caps
-				'fct_spectate'           => false,
-
-				// Record caps
-				'publish_records'        => false,
-				'edit_records'           => false,
-				'edit_others_records'    => false,
-				'delete_records'         => false,
-				'delete_others_records'  => false,
-				'read_private_records'   => false,
-
-				// Account caps
-				'publish_accounts'       => false,
-				'edit_accounts'          => false,
-				'edit_others_accounts'   => false,
-				'delete_accounts'        => false,
-				'delete_others_accounts' => false,
-				'read_private_accounts'  => false,
-
-				// Year caps
-				'publish_years'          => false,
-				'edit_years'             => false,
-				'edit_others_years'      => false,
-				'delete_years'           => false,
-				'delete_others_years'    => false,
-				'read_private_years'     => false
-			);
+			$caps = array();
 
 			break;
 	}
@@ -188,14 +136,37 @@ function fct_get_wp_roles() {
 	return $wp_roles;
 }
 
-/** Year Roles ***************************************************************/
+/**
+ * Get the available roles minus Fiscaat's dynamic roles
+ *
+ * @since 0.0.6
+ *
+ * @uses fct_get_wp_roles() To load and get the $wp_roles global
+ * @return array
+ */
+function fct_get_blog_roles() {
+
+	// Get WordPress's roles (returns $wp_roles global)
+	$wp_roles  = fct_get_wp_roles();
+
+	// Apply the WordPress 'editable_roles' filter to let plugins ride along.
+	//
+	// We use this internally via fct_filter_blog_editable_roles() to remove
+	// any custom Fiscaat roles that are added to the global.
+	$the_roles = isset( $wp_roles->roles ) ? $wp_roles->roles : false;
+	$all_roles = apply_filters( 'editable_roles', $the_roles );
+
+	return apply_filters( 'fct_get_blog_roles', $all_roles, $wp_roles );
+}
+
+/** Fiscaat Roles ************************************************************/
 
 /**
  * Add the Fiscaat roles to the $wp_roles global.
  *
  * We do this to avoid adding these values to the database.
  */
-function fct_add_roles() {
+function fct_add_fiscaat_roles() {
 	$wp_roles = fct_get_wp_roles();
 
 	foreach( fct_get_dynamic_roles() as $role_id => $details ) {
@@ -242,7 +213,7 @@ function _fct_reinit_dynamic_roles( $roles = array() ) {
 	foreach( fct_get_dynamic_roles() as $role_id => $details ) {
 		$roles[$role_id] = $details;
 	}
-		return $roles;
+	return $roles;
 }
 
 /**
@@ -276,6 +247,21 @@ function fct_get_dynamic_roles() {
 		)
 
 	) );
+}
+
+/**
+ * Gets a translated role name from a role ID
+ *
+ * @since bbPress 0.0.6
+ *
+ * @param string $role_id
+ * @return string Translated role name
+ */
+function fct_get_dynamic_role_name( $role_id = '' ) {
+	$roles = fct_get_dynamic_roles();
+	$role  = isset( $roles[$role_id] ) ? $roles[$role_id]['name'] : '';
+
+	return apply_filters( 'fct_get_dynamic_role_name', $role, $role_id, $roles );
 }
 
 /**
@@ -316,7 +302,7 @@ function fct_get_fiscus_role() {
 }
 
 /**
- * The spectator role for registered user that can view financial accounts
+ * The spectator role for registered user that can view financial data
  *
  * @uses apply_filters() Allow override of hardcoded spectator role
  * @return string

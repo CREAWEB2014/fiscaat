@@ -44,7 +44,7 @@ add_filter( 'map_meta_cap',            'fct_map_meta_caps',      10, 4 );
 add_filter( 'redirect_canonical',      'fct_redirect_canonical', 10    );
 add_filter( 'plugin_locale',           'fct_plugin_locale',      10, 2 );
 
-// Remove years roles from list of all roles
+// Remove Fiscaat roles from list of all roles
 add_filter( 'editable_roles', 'fct_filter_blog_editable_roles' );
 
 // Links

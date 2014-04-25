@@ -79,12 +79,17 @@ add_action( 'fct_init', 'fct_add_rewrite_tags', 20  );
 add_action( 'fct_init', 'fct_ready',            999 );
 
 /**
- * There is no action API for roles to use, so hook in immediately after the
- * $wp_roles global is set, which is the 'setup_theme' action.
+ * There is no action API for roles to use, so hook in immediately after
+ * everything is included (including the theme's functions.php. This is after
+ * the $wp_roles global is set but before $wp->init().
+ *
+ * If it's hooked in any sooner, role names may not be translated correctly.
+ *
+ * @link http://bbpress.trac.wordpress.org/ticket/2219
  *
  * This is kind of lame, but is all we have for now.
  */
-add_action( 'fct_setup_theme', 'fct_add_roles', 1 );
+add_action( 'fct_after_setup_theme', 'fct_add_fiscaat_roles', 1 );
 
 /**
  * When switching to a new blog, a users mapped role will get wiped out by
