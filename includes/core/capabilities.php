@@ -254,7 +254,7 @@ function fct_get_dynamic_roles() {
 /**
  * Gets a translated role name from a role ID
  *
- * @since bbPress 0.0.6
+ * @since 0.0.6
  *
  * @param string $role_id
  * @return string Translated role name

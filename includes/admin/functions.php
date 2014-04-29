@@ -213,7 +213,7 @@ function fct_tools_admin_tabs( $active_tab = '' ) {
 /**
  * Return the admin page type
  *
- * @since 0.0.6
+ * @since 0.0.7
  *
  * @return string The admin page type
  */
@@ -224,7 +224,7 @@ function fct_admin_get_page_type() {
 /**
  * Return the admin page post type
  *
- * @since 0.0.6
+ * @since 0.0.7
  *
  * @uses fct_admin_get_page_type()
  * @uses fct_get_record_post_type()
@@ -244,7 +244,7 @@ function fct_admin_get_page_post_type() {
 /**
  * Setup and return a posts list table
  *
- * @since 0.0.6
+ * @since 0.0.7
  *
  * @param string $class The type of the list table, which is the class name.
  * @param array $args Optional. Arguments to pass to the class.
@@ -269,7 +269,7 @@ function fct_get_list_table( $class, $args = array() ) {
 				require_once( fiscaat()->admin->includes_dir . 'class-' . $required . '-list-table.php' );
 
 			// Load custom list table
-			} elseif ( $file = apply_filters( 'fct_get_list_table_custom_class', false ) && file_exists( $file ) ) {
+			} elseif ( $file = apply_filters( 'fct_get_list_table_custom_class', false, $required ) && file_exists( $file ) ) {
 				require_once( $file );
 			}
 		}
@@ -290,7 +290,7 @@ function fct_get_list_table( $class, $args = array() ) {
 /**
  * Display admin list table for posts page
  *
- * @since 0.0.6
+ * @since 0.0.7
  *
  * @uses fct_admin_get_page_type()
  * @uses fct_admin_page_title()
@@ -328,7 +328,7 @@ function fct_admin_posts_page() {
 /**
  * Output the admin page title
  *
- * @since 0.0.6
+ * @since 0.0.7
  * 
  * @uses fct_admin_get_page_title()
  */
@@ -338,7 +338,7 @@ function fct_admin_page_title() {
 	/**
 	 * Return the admin page title
 	 *
-	 * @since 0.0.6
+	 * @since 0.0.7
 	 *
 	 * @uses fct_admin_get_page_type()
 	 * @uses apply_filters() Calls 'fct_admin_{$type}s_page_title' with

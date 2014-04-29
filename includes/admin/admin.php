@@ -165,7 +165,7 @@ class Fiscaat_Admin {
 	/**
 	 * Return the Fiscaat admin page type
 	 *
-	 * @since 0.0.6
+	 * @since 0.0.7
 	 * 
 	 * @return string Page type. Either empty, 'record', 'account' or 'year'
 	 */
@@ -333,7 +333,7 @@ class Fiscaat_Admin {
 	/**
 	 * Setup posts list table page globals
 	 *
-	 * @since 0.0.6
+	 * @since 0.0.7
 	 *
 	 * @uses fct_admin_get_page_type()
 	 * @uses fct_admin_get_page_post_type()

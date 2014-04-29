@@ -5,7 +5,7 @@
  *
  * @package Fiscaat
  * @subpackage List_Table
- * @since 0.0.6
+ * @since 0.0.7
  * @access private
  */
 
