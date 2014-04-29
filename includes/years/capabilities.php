@@ -17,6 +17,7 @@
  */
 function fct_get_year_caps() {
 	return apply_filters( 'fct_get_year_caps', array (
+		'create_posts'        => 'create_years',
 		'edit_posts'          => 'edit_years',
 		'edit_others_posts'   => 'edit_others_years',
 		'publish_posts'       => 'publish_years',

@@ -963,19 +963,19 @@ function fct_converter_settings() {
 
 		<h2 class="nav-tab-wrapper"><?php fct_tools_admin_tabs( __( 'Import Years', 'fiscaat' ) ); ?></h2>
 
-		<form action="#" method="post" id="fiscaat-converter-settings">
+		<form action="#" method="post" id="fct-converter-settings">
 
 			<?php settings_fields( 'fct_converter' ); ?>
 
 			<?php do_settings_sections( 'fct_converter' ); ?>
 
 			<p class="submit">
-				<input type="button" name="submit" class="button-primary" id="fiscaat-converter-start" value="<?php esc_attr_e( 'Start', 'fiscaat' ); ?>" onclick="bbconverter_start()" />
-				<input type="button" name="submit" class="button-primary" id="fiscaat-converter-stop" value="<?php esc_attr_e( 'Stop', 'fiscaat' ); ?>" onclick="bbconverter_stop()" />
-				<img id="fiscaat-converter-progress" src="">
+				<input type="button" name="submit" class="button-primary" id="fct-converter-start" value="<?php esc_attr_e( 'Start', 'fiscaat' ); ?>" onclick="bbconverter_start()" />
+				<input type="button" name="submit" class="button-primary" id="fct-converter-stop" value="<?php esc_attr_e( 'Stop', 'fiscaat' ); ?>" onclick="bbconverter_stop()" />
+				<img id="fct-converter-progress" src="">
 			</p>
 
-			<div class="fiscaat-converter-updated" id="fiscaat-converter-message"></div>
+			<div class="fct-converter-updated" id="fct-converter-message"></div>
 		</form>
 	</div>
 

@@ -157,21 +157,19 @@ function fct_admin_tools_feedback( $message, $class = false ) {
  */
 function fct_admin_repair_list() {
 	$repair_list = array(
-		0  => array( 'fiscaat-sync-account-meta',        __( 'Recalculate the parent account for each post',          'fiscaat' ), 'fct_admin_repair_account_meta'               ),
-		5  => array( 'fiscaat-sync-year-meta',        __( 'Recalculate the parent year for each post',          'fiscaat' ), 'fct_admin_repair_year_meta'               ),
-		10 => array( 'fiscaat-sync-year-visibility',  __( 'Recalculate private and hidden years',               'fiscaat' ), 'fct_admin_repair_year_visibility'         ),
-		15 => array( 'fiscaat-sync-all-accounts-years', __( 'Recalculate last activity in each account and year',   'fiscaat' ), 'fct_admin_repair_freshness'                ),
-		20 => array( 'fiscaat-group-years',           __( 'Repair BuddyPress Group Year relationships',         'fiscaat' ), 'fct_admin_repair_group_year_relationship' ),
-		25 => array( 'fiscaat-year-accounts',           __( 'Count accounts in each year',                          'fiscaat' ), 'fct_admin_repair_year_account_count'        ),
-		30 => array( 'fiscaat-year-records',          __( 'Count records in each year',                         'fiscaat' ), 'fct_admin_repair_year_record_count'        ),
-		35 => array( 'fiscaat-account-records',          __( 'Count records in each account',                         'fiscaat' ), 'fct_admin_repair_account_record_count'        ),
-		40 => array( 'fiscaat-account-voices',           __( 'Count voices in each account',                          'fiscaat' ), 'fct_admin_repair_account_voice_count'        ),
-		45 => array( 'fiscaat-account-hidden-records',   __( 'Count spammed & trashed records in each account',       'fiscaat' ), 'fct_admin_repair_account_hidden_record_count' ),
-		50 => array( 'fiscaat-user-records',           __( 'Count accounts for each user',                          'fiscaat' ), 'fct_admin_repair_user_account_count'         ),
-		55 => array( 'fiscaat-user-accounts',            __( 'Count records for each user',                         'fiscaat' ), 'fct_admin_repair_user_record_count'         ),
-		60 => array( 'fiscaat-user-favorites',         __( 'Remove trashed accounts from user favorites',           'fiscaat' ), 'fct_admin_repair_user_favorites'           ),
-		65 => array( 'fiscaat-user-subscriptions',     __( 'Remove trashed accounts from user subscriptions',       'fiscaat' ), 'fct_admin_repair_user_subscriptions'       ),
-		70 => array( 'fiscaat-user-role-map',          __( 'Remap existing users to default year roles',         'fiscaat' ), 'fct_admin_repair_user_roles'               )
+		0  => array( 'fct-sync-account-meta',       __( 'Recalculate the parent account for each post',       'fiscaat' ), 'fct_admin_repair_account_meta'               ),
+		5  => array( 'fct-sync-year-meta',          __( 'Recalculate the parent year for each post',          'fiscaat' ), 'fct_admin_repair_year_meta'                   ),
+		10 => array( 'fct-sync-year-visibility',    __( 'Recalculate private and hidden years',               'fiscaat' ), 'fct_admin_repair_year_visibility'             ),
+		15 => array( 'fct-sync-all-accounts-years', __( 'Recalculate last activity in each account and year', 'fiscaat' ), 'fct_admin_repair_freshness'                   ),
+		25 => array( 'fct-year-accounts',           __( 'Count accounts in each year',                        'fiscaat' ), 'fct_admin_repair_year_account_count'          ),
+		30 => array( 'fct-year-records',            __( 'Count records in each year',                         'fiscaat' ), 'fct_admin_repair_year_record_count'           ),
+		35 => array( 'fct-account-records',         __( 'Count records in each account',                      'fiscaat' ), 'fct_admin_repair_account_record_count'        ),
+		45 => array( 'fct-account-hidden-records',  __( 'Count spammed & trashed records in each account',    'fiscaat' ), 'fct_admin_repair_account_hidden_record_count' ),
+		50 => array( 'fct-user-records',            __( 'Count accounts for each user',                       'fiscaat' ), 'fct_admin_repair_user_account_count'          ),
+		55 => array( 'fct-user-accounts',           __( 'Count records for each user',                        'fiscaat' ), 'fct_admin_repair_user_record_count'           ),
+		60 => array( 'fct-user-favorites',          __( 'Remove trashed accounts from user favorites',        'fiscaat' ), 'fct_admin_repair_user_favorites'              ),
+		65 => array( 'fct-user-subscriptions',      __( 'Remove trashed accounts from user subscriptions',    'fiscaat' ), 'fct_admin_repair_user_subscriptions'          ),
+		70 => array( 'fct-user-role-map',           __( 'Remap existing users to default Fiscaat roles',      'fiscaat' ), 'fct_admin_repair_user_roles'                  )
 	);
 	ksort( $repair_list );
 
@@ -222,49 +220,6 @@ function fct_admin_repair_account_record_count() {
 }
 
 /**
- * Recount account voices
- *
- * @since Fiscaat (r2613)
- *
- * @uses fct_get_record_post_type() To get the record post type
- * @uses wpdb::query() To run our recount sql queries
- * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
- * @return array An array of the status code and the message
- */
-function fct_admin_repair_account_voice_count() {
-	global $wpdb;
-
-	$statement = __( 'Counting the number of voices in each account&hellip; %s', 'fiscaat' );
-	$result    = __( 'Failed!', 'fiscaat' );
-
-	$sql_delete = "DELETE FROM `{$wpdb->postmeta}` WHERE `meta_key` = '_fct_voice_count';";
-	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
-		return array( 1, sprintf( $statement, $result ) );
-
-	// Post types and status
-	$tpt = fct_get_account_post_type();
-	$rpt = fct_get_record_post_type();
-	$pps = fct_get_public_status_id();
-	$cps = fct_get_closed_status_id();
-
-	$sql = "INSERT INTO `{$wpdb->postmeta}` (`post_id`, `meta_key`, `meta_value`) (
-			SELECT `postmeta`.`meta_value`, '_fct_voice_count', COUNT(DISTINCT `post_author`) as `meta_value`
-				FROM `{$wpdb->posts}` AS `posts`
-				LEFT JOIN `{$wpdb->postmeta}` AS `postmeta`
-					ON `posts`.`ID` = `postmeta`.`post_id`
-					AND `postmeta`.`meta_key` = '_fct_account_id'
-				WHERE `posts`.`post_type` IN ( '{$tpt}', '{$rpt}' )
-					AND `posts`.`post_status` IN ( '{$pps}', '{$cps}' )
-					AND `posts`.`post_author` != '0'
-				GROUP BY `postmeta`.`meta_value`);";
-
-	if ( is_wp_error( $wpdb->query( $sql ) ) )
-		return array( 2, sprintf( $statement, $result ) );
-
-	return array( 0, sprintf( $statement, __( 'Complete!', 'fiscaat' ) ) );
-}
-
-/**
  * Recount account hidden records (spammed/trashed)
  *
  * @since Fiscaat (r2747)
@@ -288,101 +243,6 @@ function fct_admin_repair_account_hidden_record_count() {
 		return array( 2, sprintf( $statement, $result ) );
 
 	return array( 0, sprintf( $statement, __( 'Complete!', 'fiscaat' ) ) );
-}
-
-/**
- * Repair group year ID mappings after a Fiscaat 1.1 to Fiscaat 2.2 conversion
- *
- * @since Fiscaat (r4395)
- *
- * @global WPDB $wpdb
- * @return If a wp_error() occurs and no converted years are found
- */
-function fct_admin_repair_group_year_relationship() {
-	global $wpdb;
-
-	$statement = __( 'Repairing BuddyPress group-year relationships&hellip; %s', 'fiscaat' );
-	$g_count     = 0;
-	$f_count     = 0;
-
-	// Copy the BuddyPress filter here, incase BuddyPress is not active
-	$prefix    = apply_filters( 'bp_core_get_table_prefix', $wpdb->base_prefix );
-	$tablename = $prefix . 'bp_groups_groupmeta';
-
-	// Get the converted year IDs
-	$year_ids = $wpdb->query( "SELECT `year`.`ID`, `yearmeta`.`meta_value`
-								FROM `{$wpdb->posts}` AS `year`
-									LEFT JOIN `{$wpdb->postmeta}` AS `yearmeta`
-										ON `year`.`ID` = `yearmeta`.`post_id`
-										AND `yearmeta`.`meta_key` = '_fct_old_year_id'
-								WHERE `year`.`post_type` = 'year'
-								GROUP BY `year`.`ID`;" );
-
-	// Bail if year IDs returned an error
-	if ( is_wp_error( $year_ids ) || empty( $wpdb->last_result ) )
-		return array( 2, sprintf( $statement, __( 'Failed!', 'fiscaat' ) ) );
-
-	// Stash the last results
-	$results = $wpdb->last_result;
-
-	// Update each group year
-	foreach ( $results as $group_years ) {
-
-		// Only update if is a converted year
-		if ( ! isset( $group_years->meta_value ) )
-			continue;
-
-		// Attempt to update group meta
-		$updated = $wpdb->query( "UPDATE `{$tablename}` SET `meta_value` = '{$group_years->ID}' WHERE `meta_key` = 'year_id' AND `meta_value` = '{$group_years->meta_value}';" );
-
-		// Bump the count
-		if ( ! empty( $updated ) && ! is_wp_error( $updated ) ) {
-			++$g_count;
-		}
-
-		// Update group's year metadata
-		$group_id = (int) $wpdb->get_var( "SELECT `group_id` FROM `{$tablename}` WHERE `meta_key` = 'year_id' AND `meta_value` = '{$group_years->ID}';" );
-		if ( ! empty( $group_id ) ) {
-			update_post_meta( $group_years->ID, '_fct_group_ids', array( $group_id ) );
-			++$f_count;
-		}
-	}
-
-	// Make some logical guesses at the old group root year
-	if ( function_exists( 'bp_years_parent_year_id' ) ) {
-		$old_default_year_id = bp_years_parent_year_id();
-	} elseif ( defined( 'BP_FORUMS_PARENT_FORUM_ID' ) ) {
-		$old_default_year_id = (int) BP_FORUMS_PARENT_FORUM_ID;
-	} else {
-		$old_default_year_id = 1;
-	}
-
-	// Try to get the group root year
-	$posts = get_posts( array(
-		'post_type'   => fct_get_year_post_type(),
-		'meta_key'    => '_fct_old_year_id',
-		'meta_value'  => $old_default_year_id,
-		'numberposts' => 1
-	) );
-
-	// Found the group root year
-	if ( ! empty( $posts ) ) {
-
-		// Rename 'Default Year'  since it's now visible in sitewide years
-		if ( 'Default Year' == $posts[0]->post_title ) {
-			wp_update_post( array(
-				'ID'         => $posts[0]->ID,
-				'post_title' => __( 'Group Years', 'fiscaat' ),
-			) );
-		}
-
-		// Update the group years root metadata
-		update_option( '_fct_group_years_root_id', $posts[0]->ID );
-	}
-
-	// Complete results
-	$result = sprintf( __( 'Complete! %s groups updated; %s years updated.', 'fiscaat' ), fct_number_format( $g_count ), fct_number_format( $f_count ) );
-	return array( 0, sprintf( $statement, $result ) );
 }
 
 /**
@@ -900,14 +760,13 @@ function fct_admin_reset() {
 					<tr valign="top">
 						<th scope="row"><?php _e( 'The following data will be removed:', 'fiscaat' ) ?></th>
 						<td>
-							<?php _e( 'All Years',           'fiscaat' ); ?><br />
-							<?php _e( 'All Accounts',           'fiscaat' ); ?><br />
+							<?php _e( 'All Years',            'fiscaat' ); ?><br />
+							<?php _e( 'All Accounts',         'fiscaat' ); ?><br />
 							<?php _e( 'All Records',          'fiscaat' ); ?><br />
-							<?php _e( 'All Account Tags',       'fiscaat' ); ?><br />
 							<?php _e( 'Related Meta Data',    'fiscaat' ); ?><br />
-							<?php _e( 'Year Settings',       'fiscaat' ); ?><br />
-							<?php _e( 'Year Activity',       'fiscaat' ); ?><br />
-							<?php _e( 'Year User Roles',     'fiscaat' ); ?><br />
+							<?php _e( 'Fiscaat Settings',     'fiscaat' ); ?><br />
+							<?php _e( 'Fiscaat Activity',     'fiscaat' ); ?><br />
+							<?php _e( 'Fiscaat User Roles',   'fiscaat' ); ?><br />
 							<?php _e( 'Importer Helper Data', 'fiscaat' ); ?><br />
 						</td>
 					</tr>

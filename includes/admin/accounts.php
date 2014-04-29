@@ -84,7 +84,7 @@ class Fiscaat_Accounts_Admin {
 		add_action( 'fct_accounts_admin_load_new',  array( $this, 'no_year_redirect'        ) );
 		
 		// Records page title
-		add_action( 'fct_accounts_admin_load_edit', array( $this, 'accounts_page_title'     ) );
+		add_action( 'fct_admin_accounts_page_title', array( $this, 'accounts_page_title'     ) );
 
 		/** Ajax **************************************************************/
 		
@@ -654,12 +654,12 @@ class Fiscaat_Accounts_Admin {
 
 		$columns = array(
 			'cb'                           => '<input type="checkbox" />',
-			'fct_account_year'             => __( 'Year',        'fiscaat' ),
-			'fct_account_ledger_id'        => __( 'Number',      'fiscaat' ),
-			'title'                        => __( 'Account',     'fiscaat' ),
-			'fct_account_type'             => __( 'Type',        'fiscaat' ),
-			'fct_account_record_count'     => __( 'Records',     'fiscaat' ),
-			'fct_account_value'            => __( 'Value',       'fiscaat' ),
+			'fct_account_year'             => __( 'Year',                         'fiscaat' ),
+			'fct_account_ledger_id'        => _x( 'No.', 'Account number column', 'fiscaat' ),
+			'title'                        => __( 'Account',                      'fiscaat' ),
+			'fct_account_type'             => __( 'Type',                         'fiscaat' ),
+			'fct_account_record_count'     => __( 'Records',                      'fiscaat' ),
+			'fct_account_value'            => __( 'Value',                        'fiscaat' ),
 		);
 
 		// Hide year column if not required
@@ -1039,37 +1039,24 @@ class Fiscaat_Accounts_Admin {
 	/** Page Title ************************************************************/
 
 	/**
-	 * Modify the post type name label for account edit page
+	 * Manipulate the accounts posts page title
 	 * 
 	 * @uses fct_get_year_title() To get the year title
-	 * @uses apply_filters() Calls 'fct_records_page_title' with the
-	 *                        new label name, and account id
 	 * @return array Modified arguments
 	 */
-	public function accounts_page_title() {
-		global $wp_post_types;
+	public function accounts_page_title( $title ) {
 
-		// Get post type labels
-		$labels = $wp_post_types[fct_get_account_post_type()]->labels;
-
-		// Setup default title
-		$title  = $labels->name;
-
-		// Modify post type name if year is set
+		// Year accounts
 		if ( isset( $_GET['fct_year_id'] ) && ! empty( $_GET['fct_year_id'] ) ) {
 
 			// Check year id
-			$year_id = isset( $_GET['fct_year_id'] ) ? (int) $_GET['fct_year_id'] : fct_get_current_year_id();
+			$year_id = fct_get_year_id( $_GET['fct_year_id'] );
 
-			// Create new label
+			// Format: {title} -- {year title}
 			$title .= ' &mdash; '. fct_get_year_title( $year_id );
 		}
 
-		// Modify label
-		$labels->name = apply_filters( 'fct_admin_accounts_page_title', $title );
-
-		// Set post type labels
-		$wp_post_types[fct_get_account_post_type()]->labels = $labels;
+		return $title;
 	}
 
 }

@@ -47,9 +47,16 @@ class Fiscaat_Admin {
 	/** Capability ************************************************************/
 
 	/**
-	 * @var bool Minimum capability to access Fiscaat pages
+	 * @var string Minimum capability to access Fiscaat pages
 	 */
 	public $minimum_capability = 'fct_spectate';
+
+	/** Page Type *************************************************************/
+
+	/**
+	 * @var string Current admin page object type
+	 */
+	private $_page_type = null;
 
 	/** Functions *************************************************************/
 
@@ -73,10 +80,21 @@ class Fiscaat_Admin {
 	 */
 	private function setup_globals() {
 		$fiscaat = fiscaat();
-		$this->admin_dir  = trailingslashit( $fiscaat->includes_dir . 'admin'  ); // Admin path
-		$this->admin_url  = trailingslashit( $fiscaat->includes_url . 'admin'  ); // Admin url
-		$this->images_url = trailingslashit( $this->admin_url       . 'images' ); // Admin images URL
-		$this->styles_url = trailingslashit( $this->admin_url       . 'styles' ); // Admin styles URL
+
+		/** Paths *************************************************************/
+
+		$this->admin_dir    = trailingslashit( $fiscaat->includes_dir . 'admin'    ); // Admin path
+		$this->admin_url    = trailingslashit( $fiscaat->includes_url . 'admin'    ); // Admin url
+
+		$this->includes_dir = trailingslashit( $this->admin_dir       . 'includes' ); // Admin includes path
+		$this->includes_url = trailingslashit( $this->admin_url       . 'includes' ); // Admin includes url
+
+		$this->images_url   = trailingslashit( $this->admin_url       . 'images'   ); // Admin images URL
+		$this->styles_url   = trailingslashit( $this->admin_url       . 'styles'   ); // Admin styles URL
+
+		/** Pages *************************************************************/
+
+		$this->get_page_type();
 	}
 
 	/**
@@ -145,6 +163,40 @@ class Fiscaat_Admin {
 	}
 
 	/**
+	 * Return the Fiscaat admin page type
+	 *
+	 * @since 0.0.6
+	 * 
+	 * @return string Page type. Either empty, 'record', 'account' or 'year'
+	 */
+	public function get_page_type() {
+
+		// Set page type if unknown
+		if ( null === $this->_page_type ) {
+			$type = false;
+
+			// Only for Fiscaat admin post pages
+			if ( isset( $_REQUEST['page'] ) ) {
+				switch ( $_REQUEST['page'] ) {
+					case 'fct-records' :
+						$type = 'record';
+						break;
+					case 'fct-accounts' :
+						$type = 'account';
+						break;
+					case 'fct-years' :
+						$type = 'year';
+						break;
+				}
+			}
+
+			$this->_page_type = $type;
+		}
+
+		return $this->_page_type;
+	}
+
+	/**
 	 * Add the admin menus
 	 *
 	 * @uses add_management_page() To add the Recount page in Tools section
@@ -164,37 +216,49 @@ class Fiscaat_Admin {
 				__( 'Fiscaat', 'fiscaat' ),
 				$this->minimum_capability,
 				'fiscaat',
-				'',
+				'fct_admin_page',
 				'dashicons-vault',
 				333333
 			);
 
 			// Accounts
-			add_submenu_page(
+			$hooks[] = add_submenu_page(
 				'fiscaat',
 				__( 'General Ledger', 'fiscaat' ),
 				__( 'General Ledger', 'fiscaat' ),
 				$this->minimum_capability,
-				'edit.php?post_type=' . fct_get_account_post_type()
+				'fct-accounts',
+				'fct_admin_posts_page'
 			);
 
 			// Records
-			add_submenu_page(
+			$hooks[] = add_submenu_page(
 				'fiscaat',
 				__( 'Manage Records', 'fiscaat' ),
 				__( 'Manage Records', 'fiscaat' ),
 				$this->minimum_capability,
-				'edit.php?post_type=' . fct_get_record_post_type()
+				'fct-records',
+				'fct_admin_posts_page'
 			);
 
 			// Years
-			add_submenu_page(
+			$hooks[] = add_submenu_page(
 				'fiscaat',
 				__( 'Fiscaat Years', 'fiscaat' ),
-				__( 'View Years', 'fiscaat' ),
+				__( 'All Years',     'fiscaat' ),
 				$this->minimum_capability,
-				'edit.php?post_type=' . fct_get_year_post_type()
+				'fct-years',
+				'fct_admin_posts_page'
 			);
+
+			// Setup page specific hooks
+			foreach ( $hooks as $hook ) {
+				add_action( "load-$hook",       array( $this, 'setup_post_page_globals' ),   0 );
+				// add_action( "admin_head-$hook", array( $this, 'admin_head_post_page'    )      );
+			}
+
+			// Empty array
+			$hooks = array();
 
 			// Reports
 			add_submenu_page(
@@ -264,7 +328,52 @@ class Fiscaat_Admin {
 				'fct_admin_repair'
 			);
 		}
+	}
 
+	/**
+	 * Setup posts list table page globals
+	 *
+	 * @since 0.0.6
+	 *
+	 * @uses fct_admin_get_page_type()
+	 * @uses fct_admin_get_page_post_type()
+	 * @uses get_post_type_object()
+	 * @uses add_action() Calls 'fct_admin_load_{$type}s_page' on the
+	 *                     current action, where $type is the page type
+	 * @uses current_filter()
+	 */
+	public function setup_post_page_globals() {
+		global $post_type, $post_type_object, $post_new_file, $wp_list_table;
+
+		// Get the current page type. Bail if empty
+		$type = fct_admin_get_page_type();
+		if ( empty( $type ) )
+			return;
+
+		// Set globals
+		$post_type        = fct_admin_get_page_post_type();
+		$post_type_object = get_post_type_object( $post_type );
+		$post_new_file    = "post-new.php?post_type=$post_type";
+
+		/**
+		 * set_current_screen() ran previous to this moment without a
+		 * correct $typenow variable, so here we run it again. This sets
+		 * the $typenow global, among others.
+		 */
+		set_current_screen( $post_type );
+
+		// Setup page type list table
+		$table_class   = sprintf( 'FCT_%s_List_Table', ucfirst( $type . 's' ) );
+		$wp_list_table = fct_get_list_table( $table_class, array( 'screen' => get_current_screen() ) );
+
+		// Setup type specific load hook
+		add_action( current_filter(), "fct_admin_load_{$type}s_page" );
+
+		// Prepare items at the end of load hook
+		add_action( current_filter(), array( $wp_list_table, 'prepare_items' ), 90 );
+
+		// Display list views
+		add_action( 'fct_admin_before_posts_page_form', array( $wp_list_table, 'views' ), 20 );
 	}
 
 	/**
@@ -329,8 +438,6 @@ class Fiscaat_Admin {
 	 * @param string $cap Capability name
 	 * @param int $user_id User id
 	 * @param mixed $args Arguments
-	 * @uses get_post() To get the post
-	 * @uses get_post_type_object() To get the post type object
 	 * @uses apply_filters() Calls 'fct_map_meta_caps' with caps, cap, user id and
 	 *                        args
 	 * @return array Actual capabilities for meta capability
@@ -436,7 +543,7 @@ class Fiscaat_Admin {
 	public static function modify_plugin_action_links( $links, $file ) {
 
 		// Return normal links if not Fiscaat
-		if ( plugin_basename( fiscaat()->file ) != $file )
+		if ( fiscaat()->basename != $file )
 			return $links;
 
 		// Add a few links to the existing links array
@@ -471,28 +578,17 @@ class Fiscaat_Admin {
 	 */
 	public function admin_head() {
 
+		// Remove the individual edit post type menus.
+		// They are redirected to their respective Fiscaat pages
+		remove_menu_page( 'edit.php?post_type=' . fct_get_record_post_type()  );
+		remove_menu_page( 'edit.php?post_type=' . fct_get_account_post_type() );
+		remove_menu_page( 'edit.php?post_type=' . fct_get_year_post_type()    );
+
 		// Remove the individual recount and converter menus.
 		// They are grouped together by h2 tabs
 		remove_submenu_page( 'tools.php', 'fct-repair'    );
 		remove_submenu_page( 'tools.php', 'fct-converter' );
 		remove_submenu_page( 'tools.php', 'fct-reset'     );
-
-		// The /wp-admin/images/ folder
-		$wp_admin_url     = admin_url( 'images/' );
-
-		// Icons for top level admin menus
-		$version          = fct_get_version();
-		$menu_icon_url    = $this->images_url . 'menu.png?ver='       . $version;
-		$icon32_url       = $this->images_url . 'icons32.png?ver='    . $version;
-		$menu_icon_url_2x = $this->images_url . 'menu-2x.png?ver='    . $version;
-		$icon32_url_2x    = $this->images_url . 'icons32-2x.png?ver=' . $version;
-
-		// The image size changed in WordPress 3.5
-		if ( function_exists( 'wp_enqueue_media' ) ) {
-			$icon32_size = '756px 45px';
-		} else {
-			$icon32_size = '708px 45px';
-		}
 
 		// Top level menu classes
 		$year_class    = sanitize_html_class( fct_get_year_post_type() );
@@ -671,94 +767,6 @@ class Fiscaat_Admin {
 					float: left;
 					clear: left;
 				}
-
-			/* Icon 32 */
-			#icon-edit.icon32-posts-<?php echo $year_class; ?>,
-			#icon-edit.icon32-posts-<?php echo $account_class; ?>,
-			#icon-edit.icon32-posts-<?php echo $record_class; ?> {
-				background: url('<?php echo $icon32_url; ?>');
-				background-repeat: no-repeat;
-			}
-
-			/* Icon Positions */
-			#icon-edit.icon32-posts-<?php echo $year_class; ?> {
-				background-position: -4px 0px;
-			}
-
-			#icon-edit.icon32-posts-<?php echo $account_class; ?> {
-				background-position: -4px -90px;
-			}
-
-			#icon-edit.icon32-posts-<?php echo $record_class; ?> {
-				background-position: -4px -180px;
-			}
-
-			/* Icon 32 2x */
-			@media only screen and (-webkit-min-device-pixel-ratio: 1.5) {
-				#icon-edit.icon32-posts-<?php echo $year_class; ?>,
-				#icon-edit.icon32-posts-<?php echo $account_class; ?>,
-				#icon-edit.icon32-posts-<?php echo $record_class; ?> {
-					background-image: url('<?php echo $icon32_url_2x; ?>');
-					background-size: 45px 255px;
-				}
-			}
-
-			/* Menu */
-			#menu-posts-<?php echo $year_class; ?> .wp-menu-image,
-			#menu-posts-<?php echo $account_class; ?> .wp-menu-image,
-			#menu-posts-<?php echo $record_class; ?> .wp-menu-image,
-
-			#menu-posts-<?php echo $year_class; ?>:hover .wp-menu-image,
-			#menu-posts-<?php echo $account_class; ?>:hover .wp-menu-image,
-			#menu-posts-<?php echo $record_class; ?>:hover .wp-menu-image,
-
-			#menu-posts-<?php echo $year_class; ?>.wp-has-current-submenu .wp-menu-image,
-			#menu-posts-<?php echo $account_class; ?>.wp-has-current-submenu .wp-menu-image,
-			#menu-posts-<?php echo $record_class; ?>.wp-has-current-submenu .wp-menu-image {
-				background: url('<?php echo $menu_icon_url; ?>');
-				background-repeat: no-repeat;
-			}
-
-			/* Menu Positions */
-			#menu-posts-<?php echo $year_class; ?> .wp-menu-image {
-				background-position: 0px -32px;
-			}
-			#menu-posts-<?php echo $year_class; ?>:hover .wp-menu-image,
-			#menu-posts-<?php echo $year_class; ?>.wp-has-current-submenu .wp-menu-image {
-				background-position: 0px 0px;
-			}
-			#menu-posts-<?php echo $account_class; ?> .wp-menu-image {
-				background-position: -70px -32px;
-			}
-			#menu-posts-<?php echo $account_class; ?>:hover .wp-menu-image,
-			#menu-posts-<?php echo $account_class; ?>.wp-has-current-submenu .wp-menu-image {
-				background-position: -70px 0px;
-			}
-			#menu-posts-<?php echo $record_class; ?> .wp-menu-image {
-				background-position: -35px -32px;
-			}
-			#menu-posts-<?php echo $record_class; ?>:hover .wp-menu-image,
-			#menu-posts-<?php echo $record_class; ?>.wp-has-current-submenu .wp-menu-image {
-				background-position:  -35px 0px;
-			}
-
-			/* Menu 2x */
-			@media only screen and (-webkit-min-device-pixel-ratio: 1.5) {
-				#menu-posts-<?php echo $year_class; ?> .wp-menu-image,
-				#menu-posts-<?php echo $account_class; ?> .wp-menu-image,
-				#menu-posts-<?php echo $record_class; ?> .wp-menu-image,
-
-				#menu-posts-<?php echo $year_class; ?>:hover .wp-menu-image,
-				#menu-posts-<?php echo $account_class; ?>:hover .wp-menu-image,
-				#menu-posts-<?php echo $record_class; ?>:hover .wp-menu-image,
-
-				#menu-posts-<?php echo $year_class; ?>.wp-has-current-submenu .wp-menu-image,
-				#menu-posts-<?php echo $account_class; ?>.wp-has-current-submenu .wp-menu-image,
-				#menu-posts-<?php echo $record_class; ?>.wp-has-current-submenu .wp-menu-image {
-					background-image: url('<?php echo $menu_icon_url_2x; ?>');
-					background-size: 100px 64px;
-				}
-			}
 
 		/*]]>*/
 		</style>

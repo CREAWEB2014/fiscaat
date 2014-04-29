@@ -31,14 +31,14 @@ class Fiscaat_Converter {
 
 			// Converter is converting
 			case 'POST' :
-				if ( ( empty( $_POST['action'] ) || ( 'bbconverter_process' !=  $_POST['action'] ) ) )
+				if ( ( empty( $_POST['action'] ) || ( 'fct_converter_process' !=  $_POST['action'] ) ) )
 					return;
 
 				break;
 
 			// Some other admin page
 			case 'GET'  :
-				if ( ( empty( $_GET['page'] ) || ( 'fiscaat-converter' !=  $_GET['page'] ) ) )
+				if ( ( empty( $_GET['page'] ) || ( 'fct-converter' !=  $_GET['page'] ) ) )
 					return;
 
 				break;
@@ -57,13 +57,13 @@ class Fiscaat_Converter {
 	private function setup_actions() {
 
 		// Attach to the admin head with our ajax requests cycle and css
-		add_action( 'fct_admin_head',              array( $this, 'admin_head'              ) );
+		add_action( 'fct_admin_head',                array( $this, 'admin_head'              ) );
 
 		// Attach the bbConverter admin settings action to the WordPress admin init action.
-		add_action( 'fct_register_admin_settings', array( $this, 'register_admin_settings' ) );
+		add_action( 'fct_register_admin_settings',   array( $this, 'register_admin_settings' ) );
 
 		// Attach to the admin ajax request to process cycles
-		add_action( 'wp_ajax_bbconverter_process', array( $this, 'process_callback'        ) );
+		add_action( 'wp_ajax_fct_converter_process', array( $this, 'process_callback'        ) );
 	}
 
 	/**
@@ -141,15 +141,15 @@ class Fiscaat_Converter {
 		<style type="text/css" media="screen">
 			/*<![CDATA[*/
 
-			div.fiscaat-converter-updated,
-			div.fiscaat-converter-warning {
+			div.fct-converter-updated,
+			div.fct-converter-warning {
 				border-radius: 3px 3px 3px 3px;
 				border-style: solid;
 				border-width: 1px;
 				padding: 5px 5px 5px 5px;
 			}
 
-			div.fiscaat-converter-updated {
+			div.fct-converter-updated {
 				height: 300px;
 				overflow: auto;
 				display: none;
@@ -159,25 +159,25 @@ class Fiscaat_Converter {
 				font-weight: bold;
 			}
 
-			div.fiscaat-converter-updated p {
+			div.fct-converter-updated p {
 				margin: 0.5em 0;
 				padding: 2px;
 				float: left;
 				clear: left;
 			}
 
-			div.fiscaat-converter-updated p.loading {
+			div.fct-converter-updated p.loading {
 				padding: 2px 20px 2px 2px;
 				background-image: url('<?php echo admin_url(); ?>images/wpspin_light.gif');
 				background-repeat: no-repeat;
 				background-position: center right;
 			}
 
-			#fiscaat-converter-stop {
+			#fct-converter-stop {
 				display:none;
 			}
 
-			#fiscaat-converter-progress {
+			#fct-converter-progress {
 				display:none;
 			}
 
@@ -192,7 +192,7 @@ class Fiscaat_Converter {
 
 			function bbconverter_grab_data() {
 				var values = {};
-				jQuery.each(jQuery('#fiscaat-converter-settings').serializeArray(), function(i, field) {
+				jQuery.each(jQuery('#fct-converter-settings').serializeArray(), function(i, field) {
 					values[field.name] = field.value;
 				});
 
@@ -204,7 +204,7 @@ class Fiscaat_Converter {
 					bbconverter_delay_time = values['_fct_converter_delay_time'] * 1000;
 				}
 
-				values['action'] = 'bbconverter_process';
+				values['action'] = 'fct_converter_process';
 				values['_ajax_nonce'] = '<?php echo  wp_create_nonce( 'fct_converter_process' ); ?>';
 
 				return values;
@@ -213,9 +213,9 @@ class Fiscaat_Converter {
 			function bbconverter_start() {
 				if( false == bbconverter_is_running ) {
 					bbconverter_is_running = true;
-					jQuery('#fiscaat-converter-start').hide();
-					jQuery('#fiscaat-converter-stop').show();
-					jQuery('#fiscaat-converter-progress').show();
+					jQuery('#fct-converter-start').hide();
+					jQuery('#fct-converter-stop').show();
+					jQuery('#fct-converter-progress').show();
 					bbconverter_log( '<p class="loading"><?php _e( 'Starting Conversion', 'fiscaat' ); ?></p>' );
 					bbconverter_run();
 				}
@@ -230,10 +230,10 @@ class Fiscaat_Converter {
 			}
 
 			function bbconverter_stop() {
-				jQuery('#fiscaat-converter-start').show();
-				jQuery('#fiscaat-converter-stop').hide();
-				jQuery('#fiscaat-converter-progress').hide();
-				jQuery('#fiscaat-converter-message p').removeClass( 'loading' );
+				jQuery('#fct-converter-start').show();
+				jQuery('#fct-converter-stop').hide();
+				jQuery('#fct-converter-progress').hide();
+				jQuery('#fct-converter-message p').removeClass( 'loading' );
 				bbconverter_is_running = false;
 				clearTimeout( bbconverter_run_timer );
 			}
@@ -245,7 +245,7 @@ class Fiscaat_Converter {
 					bbconverter_log('<p>Repair any missing information: <a href="<?php echo admin_url(); ?>tools.php?page=fiscaat-repair">Continue</a></p>');
 					bbconverter_stop();
 				} else if( bbconverter_is_running ) { // keep going
-					jQuery('#fiscaat-converter-progress').show();
+					jQuery('#fct-converter-progress').show();
 					clearTimeout( bbconverter_run_timer );
 					bbconverter_run_timer = setTimeout( 'bbconverter_run()', bbconverter_delay_time );
 				} else {
@@ -254,12 +254,12 @@ class Fiscaat_Converter {
 			}
 
 			function bbconverter_log(text) {
-				if ( jQuery('#fiscaat-converter-message').css('display') == 'none' ) {
-					jQuery('#fiscaat-converter-message').show();
+				if ( jQuery('#fct-converter-message').css('display') == 'none' ) {
+					jQuery('#fct-converter-message').show();
 				}
 				if ( text ) {
-					jQuery('#fiscaat-converter-message p').removeClass( 'loading' );
-					jQuery('#fiscaat-converter-message').prepend( text );
+					jQuery('#fct-converter-message p').removeClass( 'loading' );
+					jQuery('#fct-converter-message').prepend( text );
 				}
 			}
 

@@ -146,3 +146,37 @@ function fct_register_admin_settings() {
 	do_action( 'fct_register_admin_settings' );
 }
 
+/** Post Pages ****************************************************************/
+
+/**
+ * Dedicated action to load the accounts posts page
+ *
+ * @since 0.0.6
+ *
+ * @uses do_action() Calls 'fct_admin_load_accounts_page'
+ */
+function fct_admin_load_accounts_page() {
+	do_action( 'fct_admin_load_accounts_page' );
+}
+
+/**
+ * Dedicated action to load the records posts page
+ *
+ * @since 0.0.6
+ *
+ * @uses do_action() Calls 'fct_admin_load_records_page'
+ */
+function fct_admin_load_records_page() {
+	do_action( 'fct_admin_load_records_page' );
+}
+
+/**
+ * Dedicated action to load the years posts page
+ *
+ * @since 0.0.6
+ *
+ * @uses do_action() Calls 'fct_admin_load_years_page'
+ */
+function fct_admin_load_years_page() {
+	do_action( 'fct_admin_load_years_page' );
+}

@@ -193,7 +193,7 @@ function fct_year_id( $year_id = 0 ) {
 		elseif ( fct_is_single_account() )
 			$fct_year_id = fct_get_account_year_id();
 
-		// Fallback
+		// Fallback to current year
 		else
 			$fct_year_id = fct_get_current_year_id();
 

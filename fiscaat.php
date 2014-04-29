@@ -437,8 +437,8 @@ final class Fiscaat {
 				'exclude_from_search' => true,
 				'show_in_nav_menus'   => false,
 				'public'              => true,
-				'show_ui'             => false, // Show later
-				'can_export'          => true,
+				'show_ui'             => true,
+				'can_export'          => false,
 				'hierarchical'        => false,
 				'query_var'           => true,
 				'menu_icon'           => ''
@@ -491,8 +491,8 @@ final class Fiscaat {
 				'exclude_from_search' => true,
 				'show_in_nav_menus'   => false,
 				'public'              => true,
-				'show_ui'             => false, // Show later
-				'can_export'          => true,
+				'show_ui'             => true,
+				'can_export'          => false,
 				'hierarchical'        => false,
 				'query_var'           => true,
 				'menu_icon'           => ''
@@ -544,8 +544,8 @@ final class Fiscaat {
 				'exclude_from_search' => true,
 				'show_in_nav_menus'   => false,
 				'public'              => true,
-				'show_ui'             => false, // Show later
-				'can_export'          => true,
+				'show_ui'             => true,
+				'can_export'          => false,
 				'hierarchical'        => false,
 				'query_var'           => true,
 				'menu_icon'           => ''

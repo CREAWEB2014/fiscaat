@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 function fct_ctrl_map_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 
-	// For Controllers only
+	// Bail if user is not a Controller
 	if ( ! user_can( $user_id, 'fct_control' ) )
 		return $caps;
 
@@ -84,28 +84,8 @@ function fct_ctrl_get_caps_for_role( $caps, $role ) {
 			'fct_spectate'           => true,
 
 			// Record caps
-			'publish_records'        => false,
-			'edit_records'           => true,
-			'edit_others_records'    => true,
-			'delete_records'         => false,
-			'delete_others_records'  => false,
-			'read_private_records'   => false,
-
-			// Account caps
-			'publish_accounts'       => false,
-			'edit_accounts'          => false,
-			'edit_others_accounts'   => false,
-			'delete_accounts'        => false,
-			'delete_others_accounts' => false,
-			'read_private_accounts'  => false,
-
-			// Year caps. Controllers only
-			'publish_years'          => false,
-			'edit_years'             => false,
-			'edit_others_years'      => false,
-			'delete_years'           => false,
-			'delete_others_years'    => false,
-			'read_private_years'     => false
+			'edit_records'           => true, // Conditionally
+			'edit_others_records'    => true, // Conditionally
 		);
 	}
 

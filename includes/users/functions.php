@@ -320,26 +320,18 @@ function fct_admin_bar_menu( $wp_admin_bar ) {
 
 		// General Ledger
 		'fct-general-ledger' => array(
+			'parent' => 'fiscaat',
 			'title'  =>  __('General Ledger', 'fiscaat'),
-			'parent' => 'fiscaat',
 			'href'   => add_query_arg( array( 'post_type' => fct_get_account_post_type() ), admin_url( 'edit.php' ) ),
-			'meta'   => array()
-		),
-
-		// Balance
-		'fct-balance' => array(
-			'title'  =>  __('Balance', 'fiscaat'),
-			'parent' => 'fiscaat',
-			'href'   => add_query_arg( array( 'page' => 'fct-balance' ), admin_url() ),
 			'meta'   => array()
 		)
 	);
 
 	// New records node
 	if ( current_user_can( 'create_records' ) ) {
-		$nodes['fct-new-records'] = array(
-			'title'  => __('Manage Records', 'fiscaat'),
+		$nodes['fct-add-records'] = array(
 			'parent' => 'fiscaat',
+			'title'  => __('Manage Records', 'fiscaat'),
 			'href'   => add_query_arg( array( 'post_type' => fct_get_record_post_type() ), admin_url( 'post-new.php' ) ),
 			'meta'   => array()
 		);
@@ -347,9 +339,9 @@ function fct_admin_bar_menu( $wp_admin_bar ) {
 
 	// New account node
 	if ( current_user_can( 'create_accounts' ) ) {
-		$nodes['fct-new-account'] = array(
-			'title'  => __('Add Account', 'fiscaat'),
+		$nodes['fct-add-account'] = array(
 			'parent' => 'fiscaat',
+			'title'  => __('Add Account', 'fiscaat'),
 			'href'   => add_query_arg( array( 'post_type' => fct_get_account_post_type() ), admin_url( 'post-new.php' ) ),
 			'meta'   => array()
 		);
@@ -358,8 +350,8 @@ function fct_admin_bar_menu( $wp_admin_bar ) {
 	// Tools page
 	if ( current_user_can( 'fct_tools_page' ) ) {
 		$nodes['fct-tools'] = array(
-			'title'  => __('Tools', 'fiscaat'),
 			'parent' => 'fiscaat',
+			'title'  => __('Tools', 'fiscaat'),
 			'href'   => add_query_arg( array( 'page' => 'fct-repair' ), admin_url( 'tools.php' ) ),
 			'meta'   => array()
 		);
@@ -368,8 +360,8 @@ function fct_admin_bar_menu( $wp_admin_bar ) {
 	// Settings page
 	if ( current_user_can( 'fct_settings_page' ) ) {
 		$nodes['fct-settings'] = array(
-			'title'  => __('Settings', 'fiscaat'),
 			'parent' => 'fiscaat',
+			'title'  => __('Settings', 'fiscaat'),
 			'href'   => add_query_arg( array( 'page' => 'fct-settings' ), admin_url() ),
 			'meta'   => array()
 		);

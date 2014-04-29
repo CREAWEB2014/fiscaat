@@ -17,6 +17,7 @@
  */
 function fct_get_record_caps() {
 	return apply_filters( 'fct_get_record_caps', array(
+		'create_posts'        => 'create_records',
 		'edit_posts'          => 'edit_records',
 		'edit_others_posts'   => 'edit_others_records',
 		'publish_posts'       => 'publish_records',

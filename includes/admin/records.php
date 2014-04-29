@@ -80,7 +80,7 @@ class Fiscaat_Records_Admin {
 		add_action( 'fct_records_admin_load_new',  array( $this, 'new_help'                       ) );
 
 		// Alter page title
-		add_action( 'fct_records_admin_load_edit', array( $this, 'records_page_title'             ) );
+		add_action( 'fct_admin_records_page_title', array( $this, 'records_page_title'             ) );
 
 		/** Filters ***********************************************************/
 
@@ -647,11 +647,11 @@ class Fiscaat_Records_Admin {
 			'cb'                           => '<input type="checkbox" />',
 			'fct_record_status'            => __( 'Status',                                              'fiscaat' ),
 			'fct_record_created'           => __( 'Date',                                                'fiscaat' ),
-			'fct_record_account_ledger_id' => _x( 'No.',            'Ledger ID column name',             'fiscaat' ),
+			'fct_record_account_ledger_id' => _x( 'No.',            'Account number column name',        'fiscaat' ),
 			'fct_record_account'           => __( 'Account',                                             'fiscaat' ),
 			'fct_record_description'       => __( 'Description',                                         'fiscaat' ),
 			'fct_record_offset_account'    => __( 'Offset Account',                                      'fiscaat' ),
-			'fct_record_amount'            => _x( 'Dr &mdash; Cr',  'Amount column name (debit/credit)', 'fiscaat' ),
+			'fct_record_amount'            => _x( 'Amount',         'Amount column name (debit/credit)', 'fiscaat' ),
 			'comments'                     => __( 'Comments',                                            'fiscaat' ),
 		);
 
@@ -1455,48 +1455,39 @@ class Fiscaat_Records_Admin {
 	/** Page Title ************************************************************/
 
 	/**
-	 * Modify the post type name label for record edit page
+	 * Manipulate the records posts page title
 	 *
-	 * @uses fct_get_record_post_type()
 	 * @uses fct_get_account_ledger_id()
 	 * @uses fct_get_account_title() To get the account title
-	 * @uses apply_filters() Calls 'fct_records_page_title' with the
-	 *                        new label name, and account id
+	 * @uses fct_get_year_title() To get the account title
 	 * @return array Modified arguments
 	 */
-	public function records_page_title() {
-		global $wp_post_types;
+	public function records_page_title( $title ) {
 
-		// Get post type labels
-		$labels = $wp_post_types[fct_get_record_post_type()]->labels;
-
-		// Modify post type name for account records
-		if ( isset( $_GET['fct_account_id'] ) && ! empty( $_GET['fct_account_id'] ) ) {
+		// Account records
+		if ( isset( $_REQUEST['fct_account_id'] ) && ! empty( $_REQUEST['fct_account_id'] ) ) {
 
 			// Fetch account id
-			$account_id = (int) $_GET['fct_account_id'];
+			$account_id = fct_get_account_id( $_REQUEST['fct_account_id'] );
 
-			// Create new label = post type - account number. account title
-			$title = $labels->name .' &mdash; '. fct_get_account_ledger_id( $account_id ) .'. '. fct_get_account_title( $account_id );
+			if ( ! empty( $account_id ) ) {
 
-			// Modify label
-			$labels->name = apply_filters( 'fct_account_records_page_title', $title, $account_id );
-
-		// Modify post type name for year records
-		} elseif ( isset( $_GET['fct_year_id'] ) && ! empty( $_GET['fct_year_id'] ) ) {
-			
-			// Fetch year id
-			$year_id = (int) $_GET['fct_year_id'];
-
-			// Create new label = post type - account number. account title
-			$title = $labels->name .' &mdash; '. fct_get_year_title( $year_id );
-
-			// Modify label
-			$labels->name = apply_filters( 'fct_year_records_page_title', $title, $year_id );
+				// Format: {title} -- {account number}. {account title}
+				$title .= ' &mdash; '. fct_get_account_ledger_id( $account_id ) .'. '. fct_get_account_title( $account_id );
+			}
 		}
 
-		// Set post type labels
-		$wp_post_types[fct_get_record_post_type()]->labels = $labels;
+		// Year records
+		if ( isset( $_REQUEST['fct_year_id'] ) && ! empty( $_REQUEST['fct_year_id'] ) ) {
+			
+			// Fetch year id
+			$year_id = fct_get_year_id( $_REQUEST['fct_year_id'] );
+
+			// Format: {title} -- {year title}
+			$title .= ' &mdash; '. fct_get_year_title( $year_id );
+		}
+
+		return $title;
 	}
 
 }

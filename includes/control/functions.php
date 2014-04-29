@@ -217,24 +217,47 @@ function fct_ctrl_get_statistics( $stats, $args ) {
  */
 function fct_ctrl_admin_bar_menu( $menu_items ) {
 
-	// Unapproved records node
+	// Count bubble template
+	$bubble = '<span class="update-plugins count-%1$s" title="%2$s"><span class="update-count">%3$s</span></span>';
+
+	// Unapproved Records
 	if ( current_user_can( 'fct_control' ) ) {	
-		$menu_items['fiscaat-control'] = array(
-			'title'  => sprintf( __('Unapproved Records (%d)', 'fiscaat'), fct_get_year_record_count_unapproved( fct_get_current_year_id() ) ),
-			'parent' => 'fiscaat',
-			'href'   => add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'approval' => 0 ), admin_url( 'edit.php' ) ),
-			'meta'   => array()
-		);
+		$count = fct_get_year_record_count_unapproved( fct_get_current_year_id() );
+		
+		// Create node with unapproved records
+		if ( ! empty( $count ) ) {
+			$menu_items['fiscaat-control'] = array(
+				'parent' => 'fiscaat',
+				'title'  => sprintf( __( 'Unapproved %s', 'fiscaat' ), sprintf( 
+					$bubble, 
+					$count, 
+					sprintf( __( '%d Unapproved Records', 'fiscaat' ), number_format_i18n( $count ) ), 
+					number_format_i18n( $count ) 
+				) ),
+				'href'   => add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'approval' => 0 ), admin_url( 'edit.php' ) ),
+				'meta'   => array()
+			);
+		}
 	}
 
-	// Declined records node, only if there are any
-	if ( ( current_user_can( 'fiscaat' ) || current_user_can( 'fct_control' ) ) && 0 != fct_get_year_record_count_declined( fct_get_current_year_id() ) {
-		$menu_items['fiscaat-declined'] = array(
-			'title'  => sprintf( __('Declined Records (%d)', 'fiscaat'), fct_get_year_record_count_declined( fct_get_current_year_id() ) ),
-			'parent' => 'fiscaat',
-			'href'   => add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'approval' => 2 ), admin_url( 'edit.php' ) ),
-			'meta'   => array()
-		);
+	// Declined Records
+	if ( current_user_can( 'fiscaat' ) || current_user_can( 'fct_control' ) ) {
+		$count = fct_get_year_record_count_declined( fct_get_current_year_id() );
+		
+		// Create node with declined records
+		if ( ! empty( $count ) ) {
+			$menu_items['fiscaat-declined'] = array(
+				'parent' => 'fiscaat',
+				'title'  => sprintf( __( 'Declined %s', 'fiscaat' ), sprintf( 
+					$bubble, 
+					$count, 
+					sprintf( __( '%d Declined Records', 'fiscaat' ), number_format_i18n( $count ) ), 
+					number_format_i18n( $count ) 
+				) ),
+				'href'   => add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'approval' => 2 ), admin_url( 'edit.php' ) ),
+				'meta'   => array()
+			);
+		}
 	}
 
 	return $menu_items;

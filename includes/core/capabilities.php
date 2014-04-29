@@ -43,6 +43,7 @@ function fct_get_caps_for_role( $role = '' ) {
 				'fct_spectate'           => true,
 
 				// Record caps
+				'create_records'         => true,
 				'publish_records'        => true,
 				'edit_records'           => true,
 				'edit_others_records'    => true,
@@ -51,7 +52,7 @@ function fct_get_caps_for_role( $role = '' ) {
 				'read_private_records'   => true,
 
 				// Account caps
-				'manage_accounts'        => true,
+				'create_accounts'        => true,
 				'publish_accounts'       => true,
 				'edit_accounts'          => true,
 				'edit_others_accounts'   => true,
@@ -60,6 +61,7 @@ function fct_get_caps_for_role( $role = '' ) {
 				'read_private_accounts'  => true,
 
 				// Year caps
+				'create_years'           => true,
 				'publish_years'          => true,
 				'edit_years'             => true,
 				'edit_others_years'      => true,
