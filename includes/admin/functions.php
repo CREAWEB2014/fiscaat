@@ -208,7 +208,7 @@ function fct_tools_admin_tabs( $active_tab = '' ) {
 		return $tabs_html;
 	}
 
-/** Posts *****************************************************************/
+/** Edit Pages ************************************************************/
 
 /**
  * Return the admin page type
@@ -293,7 +293,7 @@ function fct_admin_get_post_new_file( $_post_type = '' ) {
 	}
 
 	if ( fct_get_record_post_type() == $_post_type ) {
-		$file = 'admin.php?page=fct-records&mode=' . fct_admin_get_records_mode_post();
+		$file = 'admin.php?page=fct-records&mode=' . fct_admin_get_records_mode_new();
 	} else {
 		$file = "post-new.php?post_type=$post_type";
 	}

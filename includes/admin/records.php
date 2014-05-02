@@ -77,6 +77,10 @@ class Fiscaat_Records_Admin {
 		add_action( 'fct_admin_records_page_title', array( $this, 'records_page_title'    ) );
 		add_action( 'fct_admin_records_page_title', array( $this, 'add_new_button'        ) );
 
+		/** Redirect **********************************************************/
+
+		add_action( 'load-post-new.php', array( $this, 'redirect_post_new_page' ), 0 );
+
 		/** Filters ***********************************************************/
 
 		// Messages
@@ -1368,25 +1372,20 @@ class Fiscaat_Records_Admin {
 	/** Redirect **************************************************************/
 
 	/**
-	 * Redirect from post-new.php to Fiscaat's own post record page
+	 * Redirect from post-new.php to Fiscaat's own new records page
 	 *
 	 * @since 0.0.8
 	 *
-	 * @uses fct_get_year_post_type() To get the year post type
-	 * @uses fct_get_account_post_type() To get the account post type
-	 * @uses fct_get_record_post_type() To get the record post type
 	 * @uses fct_admin_get_post_type_type()
 	 * @uses wp_redirect()
 	 */
 	public function redirect_post_new_page() {
-
-		// Bail if not a Fiscaat post type
-		if ( ! isset( $_GET['post_type'] ) || fct_get_record_post_type() != $_GET['post_type'] )
+		if ( $this->bail() )
 			return;
 
 		$args = array( 
 			'page' => 'fct-records', 
-			'mode' => fct_admin_get_records_mode_post() 
+			'mode' => fct_admin_get_records_mode_new() 
 		);
 		wp_redirect( add_query_arg( $args, admin_url( 'admin.php' ) ) );
 		exit;

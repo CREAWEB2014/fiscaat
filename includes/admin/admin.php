@@ -154,11 +154,8 @@ class Fiscaat_Admin {
 
 		/** Filters ***********************************************************/
 
-		// Modify Fiscaat's admin links
-		add_filter( 'plugin_action_links', array( $this, 'modify_plugin_action_links' ), 10, 2 );
-
-		// Map settings capabilities
-		add_filter( 'fct_map_meta_caps',   array( $this, 'map_settings_meta_caps'     ), 10, 4 );
+		add_filter( 'plugin_action_links', array( $this, 'modify_plugin_action_links' ), 10, 2 ); // Modify Fiscaat's admin links
+		add_filter( 'fct_map_meta_caps',   array( $this, 'map_settings_meta_caps'     ), 10, 4 ); // Map settings capabilities
 
 		/** Dependencies ******************************************************/
 
