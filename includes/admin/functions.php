@@ -101,7 +101,7 @@ function fct_tools_modify_menu_highlight() {
 	global $plugin_page, $submenu_file;
 
 	// This tweaks the Tools subnav menu to only show one Fiscaat menu item
-	if ( ! in_array( $plugin_page, array( 'fiscaat-settings' ) ) )
+	if ( ! in_array( $plugin_page, array( 'fct-settings' ) ) )
 		$submenu_file = 'fct-repair';
 }
 
@@ -234,11 +234,71 @@ function fct_admin_get_page_type() {
  */
 function fct_admin_get_page_post_type() {
 	$type = fct_admin_get_page_type();
+
+	// Return Fiscaat post type
 	if ( function_exists( "fct_get_{$type}_post_type" ) ) {
 		return call_user_func( "fct_get_{$type}_post_type" );
+
+	// Default to usable 'post'
 	} else {
-		return false;
+		return 'post';
 	}
+}
+
+/**
+ * Return the Fiscaat object type from the post type
+ *
+ * @since 0.0.8
+ *
+ * @uses fct_get_record_post_type()
+ * @uses fct_get_account_post_type()
+ * @uses fct_get_year_post_type()
+ * @param string $post_type Post type
+ * @return string Fiscaat object type
+ */
+function fct_admin_get_post_type_type( $post_type ) {
+
+	// Match an existing type
+	switch ( $post_type ) {
+		case fct_get_record_post_type() :
+			return 'record';
+			break;
+		case fct_get_account_post_type() :
+			return 'account';
+			break;
+		case fct_get_year_post_type() :
+			return 'year';
+			break;
+	}
+
+	return '';
+}
+
+/**
+ * Return the post new file for the current post type
+ *
+ * @since 0.0.8
+ *
+ * @uses fct_get_record_post_type()
+ * @uses fct_admin_get_records_mode_new()
+ * @param string $_post_type Optional. Post type name
+ * @return string Post new file
+ */
+function fct_admin_get_post_new_file( $_post_type = '' ) {
+
+	// Fallback to global post type
+	if ( empty( $post_type ) ) {
+		global $post_type;
+		$_post_type = $post_type;
+	}
+
+	if ( fct_get_record_post_type() == $_post_type ) {
+		$file = 'admin.php?page=fct-records&mode=' . fct_admin_get_records_mode_post();
+	} else {
+		$file = "post-new.php?post_type=$post_type";
+	}
+
+	return $file;
 }
 
 /**
@@ -252,9 +312,9 @@ function fct_admin_get_page_post_type() {
  */
 function fct_get_list_table( $class, $args = array() ) {
 	$classes = apply_filters( 'fct_get_list_table_classes', array(
-		'FCT_Records_List_Table'  => array( 'wp-posts', 'fct-posts', 'fct-records'  ),
-		'FCT_Accounts_List_Table' => array( 'wp-posts', 'fct-posts', 'fct-accounts' ),
-		'FCT_Years_List_Table'    => array( 'wp-posts', 'fct-posts', 'fct-years'    ),
+		'FCT_Records_List_Table'  => array( 'fct-posts', 'fct-records'  ),
+		'FCT_Accounts_List_Table' => array( 'fct-posts', 'fct-accounts' ),
+		'FCT_Years_List_Table'    => array( 'fct-posts', 'fct-years'    ),
 	) );
 
 	if ( isset( $classes[ $class ] ) ) {
@@ -269,7 +329,7 @@ function fct_get_list_table( $class, $args = array() ) {
 				require_once( fiscaat()->admin->includes_dir . 'class-' . $required . '-list-table.php' );
 
 			// Load custom list table
-			} elseif ( $file = apply_filters( 'fct_get_list_table_custom_class', false, $required ) && file_exists( $file ) ) {
+			} elseif ( $file = apply_filters( 'fct_get_list_table_file', $required, $class, $args ) && file_exists( $file ) ) {
 				require_once( $file );
 			}
 		}
@@ -350,5 +410,24 @@ function fct_admin_page_title() {
 		$type = fct_admin_get_page_type();
 
 		// Filter object page specific 
-		return apply_filters( "fct_admin_{$type}s_page_title", $post_type_object->labels->name );
+		return apply_filters( "fct_admin_{$type}s_page_title", esc_html( $post_type_object->labels->name ) );
 	}
+
+/**
+ * Append add-new post button to the posts page title
+ *
+ * @since 0.0.8
+ *
+ * @param string $titel Page title
+ * @return string Page title
+ */
+function fct_admin_page_title_add_new( $title ) {
+	global $post_type_object, $post_new_file;
+
+	// Only if user can create posts
+	if ( current_user_can( $post_type_object->cap->create_posts ) ) {
+		$title .= ' <a href="'. esc_url( admin_url( $post_new_file ) ) . '" class="add-new-h2">' . esc_html( $post_type_object->labels->add_new ) . '</a>';
+	}
+
+	return $title;
+}

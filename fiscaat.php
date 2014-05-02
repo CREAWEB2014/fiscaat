@@ -190,9 +190,10 @@ final class Fiscaat {
 
 		// Status identifiers
 		$this->public_status_id    = apply_filters( 'fct_public_post_status',   'publish'  );
+		$this->closed_status_id    = apply_filters( 'fct_closed_post_status',   'closed'   );
+		// @todo Move to Control
 		$this->approved_status_id  = apply_filters( 'fct_approved_post_status', 'approved' );
 		$this->declined_status_id  = apply_filters( 'fct_declined_post_status', 'declined' );
-		$this->closed_status_id    = apply_filters( 'fct_closed_post_status',   'closed'   );
 
 		// Account type identifiers
 		$this->revenue_type_id     = apply_filters( 'fct_revenue_acccount_type', 'revenue' );

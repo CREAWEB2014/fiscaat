@@ -16,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * @return array Filtered option names and values
  */
 function fct_get_default_options() {
+	global $wp_locale;
 
 	// Default options
 	return apply_filters( 'fct_get_default_options', array(
@@ -28,8 +29,8 @@ function fct_get_default_options() {
 
 		'_fct_currency'              => 'USD',        // Currency
 		'_fct_currency_position'     => 'left_space', // Currency Position
-		'_fct_thousand_sep'          => ',',          // Thousand Separator
-		'_fct_decimal_sep'           => '.',          // Decimal Separator
+		'_fct_thousands_sep'         => $wp_locale->number_format['thousands_sep'], // Thousands Separator
+		'_fct_decimal_point'         => $wp_locale->number_format['decimal_point'], // Decimal Point
 		'_fct_num_decimals'          => 2,            // Number of Decimals
 
 		/** Functionality *****************************************************/

@@ -53,35 +53,29 @@ class Fiscaat_Years_Admin {
 	 */
 	private function setup_actions() {
 
-		/** Sub-Actions *******************************************************/
-
-		add_action( 'load-post-new.php', array( $this, 'load_years'    ) );
-		add_action( 'load-edit.php',     array( $this, 'load_years'    ) );
-		add_action( 'fct_request',       array( $this, 'request_years' ) );
-
 		/** Actions ***********************************************************/
 
 		// Add some general styling to the admin area
-		add_action( 'fct_admin_head',            array( $this, 'admin_head'              ) );
+		add_action( 'fct_admin_head', array( $this, 'admin_head' ) );
 
 		// Columns
 		add_action( 'manage_' . $this->post_type . '_posts_custom_column', array( $this, 'column_data' ), 10, 2 );
 
 		// Metabox actions
-		add_action( 'add_meta_boxes',            array( $this, 'attributes_metabox'      ) );
-		add_action( 'save_post',                 array( $this, 'attributes_metabox_save' ) );
+		add_action( 'add_meta_boxes',             array( $this, 'attributes_metabox'      ) );
+		add_action( 'save_post',                  array( $this, 'attributes_metabox_save' ) );
 
 		// Contextual Help
-		add_action( 'fct_years_admin_load_edit', array( $this, 'edit_help'               ) );
-		add_action( 'fct_years_admin_load_new',  array( $this, 'new_help'                ) );
+		add_action( 'fct_admin_years_load_edit',  array( $this, 'edit_help'               ) );
+		add_action( 'fct_admin_years_load_new',   array( $this, 'new_help'                ) );
+
+		// Page title
+		add_action( 'fct_admin_years_page_title', array( $this, 'add_new_button'          ) );
 
 		/** Filters ***********************************************************/
 
 		// Messages
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
-
-		// Column headers
-		add_filter( 'manage_' . $this->post_type . '_posts_columns', array( $this, 'column_headers' ) );
 
 		// Columns (in page row)
 		add_filter( 'page_row_actions', array( $this, 'row_actions' ), 10, 2 );
@@ -108,45 +102,6 @@ class Fiscaat_Years_Admin {
 		$this->post_type = fct_get_year_post_type();
 	}
 
-	/** Sub-Actions ***********************************************************/
-
-	/**
-	 * Dedicated action to load years edit or new admin page
-	 * 
-	 * @since 0.0.5
-	 *
-	 * @uses do_action() Calls 'fct_years_admin_load_new'
-	 * @uses do_action() Calls 'fct_years_admin_load_edit'
-	 */
-	public function load_years() {
-		if ( $this->bail() )
-			return;
-
-		// Load new years
-		if ( doing_action( 'load-post-new.php' ) ) {
-			do_action( 'fct_years_admin_load_new' );
-
-		// Load edit years
-		} elseif ( doing_action( 'load-edit.php' ) ) {
-			do_action( 'fct_years_admin_load_edit' );
-		}
-	}
-
-	/**
-	 * Dedicated filter to request years
-	 * 
-	 * @since 0.0.5
-	 *
-	 * @uses apply_fitlers() Calls 'fct_admin_years_request' with
-	 *                        query vars
-	 */
-	public function request_years( $query_vars ) {
-		if ( $this->bail() )
-			return $query_vars;
-
-		return apply_filters( 'fct_admin_years_request', $query_vars );
-	}
-
 	/** Contextual Help *******************************************************/
 
 	/**
@@ -155,8 +110,8 @@ class Fiscaat_Years_Admin {
 	 * @uses get_current_screen()
 	 */
 	public function edit_help() {
-
-		if ( $this->bail() ) return;
+		if ( $this->bail() ) 
+			return;
 
 		// Overview
 		get_current_screen()->add_help_tab( array(
@@ -216,8 +171,8 @@ class Fiscaat_Years_Admin {
 	 * @uses get_current_screen()
 	 */
 	public function new_help() {
-
-		if ( $this->bail() ) return;
+		if ( $this->bail() ) 
+			return;
 
 		$customize_display = '<p>' . __( 'The title field and the big year editing Area are fixed in place, but you can reposition all the other boxes using drag and drop, and can minimize or expand them by clicking the title bar of each box. Use the Screen Options tab to unhide more boxes (Excerpt, Send Trackbacks, Custom Fields, Discussion, Slug, Author) or to choose a 1- or 2-column layout for this screen.', 'fiscaat' ) . '</p>';
 
@@ -288,8 +243,8 @@ class Fiscaat_Years_Admin {
 	 * @uses do_action() Calls 'fct_year_attributes_metabox'
 	 */
 	public function attributes_metabox() {
-
-		if ( $this->bail() ) return;
+		if ( $this->bail() ) 
+			return;
 
 		add_meta_box (
 			'fct_year_attributes',
@@ -314,8 +269,8 @@ class Fiscaat_Years_Admin {
 	 * @return int Year id
 	 */
 	public function attributes_metabox_save( $year_id ) {
-
-		if ( $this->bail() ) return $year_id;
+		if ( $this->bail() ) 
+			return $year_id;
 
 		// Bail if doing an autosave
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
@@ -355,10 +310,8 @@ class Fiscaat_Years_Admin {
 	 * @uses do_action() Calls 'fct_admin_head'
 	 */
 	public function admin_head() {
-
-		if ( $this->bail() ) return;
-
-		?>
+		if ( $this->bail() ) 
+			return; ?>
 
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
@@ -424,31 +377,6 @@ class Fiscaat_Years_Admin {
 	}
 
 	/**
-	 * Manage the column headers for the years page
-	 *
-	 * @param array $columns The columns
-	 * @uses apply_filters() Calls 'fct_admin_years_column_headers' with
-	 *                        the columns
-	 * @return array $columns Fiscaat year columns
-	 */
-	public function column_headers( $columns ) {
-
-		if ( $this->bail() ) return $columns;
-
-		$columns = array (
-			'cb'                               => '<input type="checkbox" />',
-			'title'                            => __( 'Title',                   'fiscaat' ),
-			'fct_year_started'                 => _x( 'From', 'Year start date', 'fiscaat' ),
-			'fct_year_closed'                  => _x( 'To',   'Year close date', 'fiscaat' ),
-			'fct_year_account_count'           => __( 'Accounts',                'fiscaat' ),
-			'fct_year_record_count'            => __( 'Records',                 'fiscaat' ),
-			'fct_year_value_end'               => __( 'Value',                   'fiscaat' ),
-		);
-
-		return apply_filters( 'fct_admin_years_column_headers', $columns );
-	}
-
-	/**
 	 * Print extra columns for the years page
 	 *
 	 * @param string $column Column
@@ -459,8 +387,8 @@ class Fiscaat_Years_Admin {
 	 *                    column and year id
 	 */
 	public function column_data( $column, $year_id ) {
-
-		if ( $this->bail() ) return;
+		if ( $this->bail() ) 
+			return;
 
 		switch ( $column ) {
 			case 'fct_year_started':
@@ -501,8 +429,8 @@ class Fiscaat_Years_Admin {
 	 * @return array $actions Actions
 	 */
 	public function row_actions( $actions, $year ) {
-
-		if ( $this->bail() ) return $actions;
+		if ( $this->bail() ) 
+			return $actions;
 
 		unset( $actions['inline hide-if-no-js'] );
 
@@ -528,7 +456,8 @@ class Fiscaat_Years_Admin {
 	public function updated_messages( $messages ) {
 		global $post_ID;
 
-		if ( $this->bail() ) return $messages;
+		if ( $this->bail() ) 
+			return $messages;
 
 		// URL for the current year
 		$year_url = fct_get_year_permalink( $post_ID );
@@ -581,7 +510,28 @@ class Fiscaat_Years_Admin {
 
 		return $messages;
 	}
+
+
+	/**
+	 * Append add new button to page title when there's no open year
+	 *
+	 * @since 0.0.8
+	 *
+	 * @uses fct_has_open_year()
+	 * @uses fct_admin_page_title_add_new()
+	 * @param string $title Page title
+	 * @return string Page title
+	 */
+	public function add_new_button( $title ) {
+
+		if ( ! fct_has_open_year() ) {
+			$title = fct_admin_page_title_add_new( $title );
+		}
+
+		return $title;
+	}
 }
+
 endif; // class_exists check
 
 /**

@@ -144,9 +144,13 @@ class Fiscaat_Admin {
 		add_action( 'admin_enqueue_scripts',       array( $this, 'enqueue_scripts'            ) ); // Add enqueued JS and CSS
 		add_action( 'wp_dashboard_setup',          array( $this, 'dashboard_widget_right_now' ) ); // Years 'Right now' Dashboard widget
 
+		/** Redirect **********************************************************/
+
+		add_action( 'load-edit.php',               array( $this, 'redirect_edit_pages' ), 0 );
+
 		/** Ajax **************************************************************/
 
-		add_action( 'wp_ajax_fct_suggest_account', array( $this, 'suggest_account' ) );
+		add_action( 'wp_ajax_fct_suggest_account', array( $this, 'suggest_account'     )    );
 
 		/** Filters ***********************************************************/
 
@@ -164,6 +168,8 @@ class Fiscaat_Admin {
 
 	/**
 	 * Return the Fiscaat admin page type
+	 *
+	 * Sets the page type when unavailable on the fly.
 	 *
 	 * @since 0.0.7
 	 * 
@@ -199,24 +205,23 @@ class Fiscaat_Admin {
 	/**
 	 * Add the admin menus
 	 *
+	 * @uses add_menu_page() To add the Fiscaat Root page
+	 * @uses add_submenu_page() To add the various Fiscaat submenu pages
 	 * @uses add_management_page() To add the Recount page in Tools section
-	 * @uses add_options_page() To add the Years settings page in Settings
-	 *                           section
 	 */
 	public function admin_menus() {
-
 		$hooks = array();
 
-		// Fiscaat menu
+		// Fiscaat pages
 		if ( current_user_can( 'fct_spectate' ) ) {
 
-			// Parent menu item
+			// Fiscaat Core Root
 			add_menu_page(
 				__( 'Fiscaat', 'fiscaat' ),
 				__( 'Fiscaat', 'fiscaat' ),
 				$this->minimum_capability,
 				'fiscaat',
-				'fct_admin_page',
+				'fct_settings_page',
 				'dashicons-vault',
 				333333
 			);
@@ -224,8 +229,8 @@ class Fiscaat_Admin {
 			// Accounts
 			$hooks[] = add_submenu_page(
 				'fiscaat',
-				__( 'General Ledger', 'fiscaat' ),
-				__( 'General Ledger', 'fiscaat' ),
+				__( 'Accounts', 'fiscaat' ),
+				__( 'Accounts', 'fiscaat' ),
 				$this->minimum_capability,
 				'fct-accounts',
 				'fct_admin_posts_page'
@@ -234,8 +239,8 @@ class Fiscaat_Admin {
 			// Records
 			$hooks[] = add_submenu_page(
 				'fiscaat',
-				__( 'Manage Records', 'fiscaat' ),
-				__( 'Manage Records', 'fiscaat' ),
+				__( 'Records', 'fiscaat' ),
+				__( 'Records', 'fiscaat' ),
 				$this->minimum_capability,
 				'fct-records',
 				'fct_admin_posts_page'
@@ -244,21 +249,12 @@ class Fiscaat_Admin {
 			// Years
 			$hooks[] = add_submenu_page(
 				'fiscaat',
-				__( 'Fiscaat Years', 'fiscaat' ),
-				__( 'All Years',     'fiscaat' ),
+				__( 'Years', 'fiscaat' ),
+				__( 'Years', 'fiscaat' ),
 				$this->minimum_capability,
 				'fct-years',
 				'fct_admin_posts_page'
 			);
-
-			// Setup page specific hooks
-			foreach ( $hooks as $hook ) {
-				add_action( "load-$hook",       array( $this, 'setup_post_page_globals' ),   0 );
-				// add_action( "admin_head-$hook", array( $this, 'admin_head_post_page'    )      );
-			}
-
-			// Empty array
-			$hooks = array();
 
 			// Reports
 			add_submenu_page(
@@ -273,12 +269,20 @@ class Fiscaat_Admin {
 			// Are settings enabled?
 			if ( current_user_can( 'fct_settings_page' ) ) {
 				add_submenu_page(
+					'fiscaat',
 					__( 'Settings',  'fiscaat' ),
 					__( 'Settings',  'fiscaat' ),
-					$this->minimum_capability,
+					'fct_settings_page',
 					'fct-settings',
 					'fct_admin_settings'
 				);
+			}
+
+			// Setup page specific hooks
+			foreach ( $hooks as $k => $hook ) {
+				add_action( "load-$hook",        array( $this, 'setup_edit_posts' ), 0 );
+				add_action( "load-post-new.php", array( $this, 'setup_new_posts'  ), 0 );
+				unset( $hooks[ $k ] );
 			}
 		}
 
@@ -288,7 +292,7 @@ class Fiscaat_Admin {
 				$hooks[] = add_management_page(
 					__( 'Repair Fiscaat', 'fiscaat' ),
 					__( 'Fiscaat Repair', 'fiscaat' ),
-					$this->minimum_capability,
+					'fct_tools_repair_page',
 					'fct-repair',
 					'fct_admin_repair'
 				);
@@ -298,7 +302,7 @@ class Fiscaat_Admin {
 				$hooks[] = add_management_page(
 					__( 'Import Fiscaat', 'fiscaat' ),
 					__( 'Fiscaat Import', 'fiscaat' ),
-					$this->minimum_capability,
+					'fct_tools_import_page',
 					'fct-converter',
 					'fct_converter_settings'
 				);
@@ -308,7 +312,7 @@ class Fiscaat_Admin {
 				$hooks[] = add_management_page(
 					__( 'Reset Fiscaat', 'fiscaat' ),
 					__( 'Fiscaat Reset', 'fiscaat' ),
-					$this->minimum_capability,
+					'fct_tools_reset_page',
 					'fct-reset',
 					'fct_admin_reset'
 				);
@@ -323,7 +327,7 @@ class Fiscaat_Admin {
 			add_management_page(
 				__( 'Fiscaat', 'fiscaat' ),
 				__( 'Fiscaat', 'fiscaat' ),
-				$this->minimum_capability,
+				'fct_tools_page',
 				'fct-repair',
 				'fct_admin_repair'
 			);
@@ -331,18 +335,22 @@ class Fiscaat_Admin {
 	}
 
 	/**
-	 * Setup posts list table page globals
+	 * Setup edit posts page, globals, screen, list table, and hooks
 	 *
 	 * @since 0.0.7
 	 *
 	 * @uses fct_admin_get_page_type()
 	 * @uses fct_admin_get_page_post_type()
 	 * @uses get_post_type_object()
-	 * @uses add_action() Calls 'fct_admin_load_{$type}s_page' on the
-	 *                     current action, where $type is the page type
+	 * @uses fct_get_list_table()
+	 * @uses add_action() Hooks 'fct_admin_load_{$type}s_page' on the current
+	 *                     action at priority 10.
+	 * @global $post_type
+	 * @global $post_type_object
+	 * @global $post_new_file
 	 * @uses current_filter()
 	 */
-	public function setup_post_page_globals() {
+	public function setup_edit_posts() {
 		global $post_type, $post_type_object, $post_new_file, $wp_list_table;
 
 		// Get the current page type. Bail if empty
@@ -353,27 +361,53 @@ class Fiscaat_Admin {
 		// Set globals
 		$post_type        = fct_admin_get_page_post_type();
 		$post_type_object = get_post_type_object( $post_type );
-		$post_new_file    = "post-new.php?post_type=$post_type";
+		$post_new_file    = fct_admin_get_post_new_file(); 
 
 		/**
 		 * set_current_screen() ran previous to this moment without a
 		 * correct $typenow variable, so here we run it again. This sets
 		 * the $typenow global, among others.
 		 */
-		set_current_screen( $post_type );
+		set_current_screen( 'edit-' . $post_type );
 
 		// Setup page type list table
-		$table_class   = sprintf( 'FCT_%s_List_Table', ucfirst( $type . 's' ) );
-		$wp_list_table = fct_get_list_table( $table_class, array( 'screen' => get_current_screen() ) );
+		$class         = sprintf( 'FCT_%s_List_Table', ucfirst( $type . 's' ) );
+		$wp_list_table = fct_get_list_table( $class, array( 'screen' => get_current_screen() ) );
 
 		// Setup type specific load hook
-		add_action( current_filter(), "fct_admin_load_{$type}s_page" );
+		add_action( current_filter(), "fct_admin_{$type}s_load_edit" );
 
 		// Prepare items at the end of load hook
 		add_action( current_filter(), array( $wp_list_table, 'prepare_items' ), 90 );
 
 		// Display list views
 		add_action( 'fct_admin_before_posts_page_form', array( $wp_list_table, 'views' ), 20 );
+	}
+
+	/**
+	 * Setup new posts page hooks
+	 *
+	 * @since 0.0.8
+	 * 
+	 * @uses fct_get_year_post_type() To get the year post type
+	 * @uses fct_get_account_post_type() To get the account post type
+	 * @uses fct_get_record_post_type() To get the record post type
+	 * @uses fct_admin_get_post_type_type()
+	 */
+	public function setup_new_posts() {
+
+		// Bail if not a Fiscaat post type
+		if ( ! isset( $_GET['post_type'] ) || ! in_array( $_GET['post_type'], array(
+				fct_get_record_post_type(),
+				fct_get_account_post_type(),
+				fct_get_year_post_type()
+			) ) )
+			return;
+
+		$type = fct_admin_get_post_type_type( $_GET['post_type'] );
+
+		// Setup type specific load hook
+		add_action( current_filter(), "fct_admin_{$type}s_load_new" );
 	}
 
 	/**
@@ -462,20 +496,20 @@ class Fiscaat_Admin {
 				break;
 				
 			// Fisci
-			case 'fct_tools_page'             : // Tools Page
-			case 'fct_tools_repair_page'      : // Tools - Repair Page
-			case 'fct_tools_import_page'      : // Tools - Import Page
-			case 'fct_tools_reset_page'       : // Tools - Reset Page
-			case 'fct_settings_currency'      : // Settings - General
-			case 'fct_settings_functionality' : // Settings - Functionality // Really, Fisci can unset Control?
-			case 'fct_settings_per_page'      : // Settings - Per page
-			case 'fct_settings_accounts'      : // Settings - Accounts
+			case 'fct_tools_page'        : // Tools Page
+			case 'fct_tools_repair_page' : // Tools - Repair Page
+			case 'fct_tools_import_page' : // Tools - Import Page
+			case 'fct_tools_reset_page'  : // Tools - Reset Page
+			case 'fct_settings_currency' : // Settings - General
+			case 'fct_settings_features' : // Settings - Features // Really, Fisci can unset Control?
+			case 'fct_settings_per_page' : // Settings - Per page
+			case 'fct_settings_accounts' : // Settings - Accounts
 				$caps = array( 'fiscaat' );
 				break;
 
 			// Admins
-			case 'fct_settings_root_slugs'    : // Settings - Root slugs
-			case 'fct_settings_single_slugs'  : // Settings - Single slugs
+			case 'fct_settings_root_slugs'   : // Settings - Root slugs
+			case 'fct_settings_single_slugs' : // Settings - Single slugs
 				$caps = array( 'manage_options' );
 				break;
 		}
@@ -534,7 +568,7 @@ class Fiscaat_Admin {
 	}
 
 	/**
-	 * Add Settings link to plugins area
+	 * Add extra links to plugins area
 	 *
 	 * @param array $links Links array in which we would prepend our link
 	 * @param string $file Current plugin basename
@@ -546,10 +580,12 @@ class Fiscaat_Admin {
 		if ( fiscaat()->basename != $file )
 			return $links;
 
-		// Add a few links to the existing links array
-		return array_merge( $links, array(
-			'settings' => '<a href="' . add_query_arg( array( 'page' => 'fiscaat' ), admin_url( 'options-general.php' ) ) . '">' . esc_html__( 'Settings', 'fiscaat' ) . '</a>',
-		) );
+		// Settings
+		if ( current_user_can( 'fct_settings_page' ) ) {
+			$links['settings'] = '<a href="' . add_query_arg( array( 'page' => 'fct-settings' ), admin_url( 'admin.php' ) ) . '">' . esc_html__( 'Settings', 'fiscaat' ) . '</a>';
+		}
+
+		return $links;
 	}
 
 	/**
@@ -569,7 +605,7 @@ class Fiscaat_Admin {
 	}
 
 	/**
-	 * Add some general styling to the admin area
+	 * Setup menu fixes and add some general styling to the admin area
 	 *
 	 * @uses fct_get_year_post_type() To get the year post type
 	 * @uses fct_get_account_post_type() To get the account post type
@@ -577,12 +613,25 @@ class Fiscaat_Admin {
 	 * @uses sanitize_html_class() To sanitize the classes
 	 */
 	public function admin_head() {
+		global $post_type, $parent_file, $submenu_file;
 
 		// Remove the individual edit post type menus.
 		// They are redirected to their respective Fiscaat pages
-		remove_menu_page( 'edit.php?post_type=' . fct_get_record_post_type()  );
-		remove_menu_page( 'edit.php?post_type=' . fct_get_account_post_type() );
-		remove_menu_page( 'edit.php?post_type=' . fct_get_year_post_type()    );
+		$post_types = array( fct_get_record_post_type(), fct_get_account_post_type(), fct_get_year_post_type() );
+		foreach ( $post_types as $_post_type ) {
+			remove_menu_page( 'edit.php?post_type=' . $_post_type );
+
+			// This tells WP to highlight Fiscaat's toplevel menu and matching posts menu 
+			// item, associating any page (post-new.php) with the relevant post type.
+			if ( isset( $post_type ) && $post_type == $_post_type ) {
+				$parent_file  = 'fiscaat'; // @todo Fix not showing toplevel menu
+				$submenu_file = 'fct-' . fct_admin_get_post_type_type( $post_type ) . 's';
+			}
+		}
+
+		// Remove the Fiscaat submenu
+		// It is of no further use.
+		remove_submenu_page( 'fiscaat', 'fiscaat' );
 
 		// Remove the individual recount and converter menus.
 		// They are grouped together by h2 tabs
@@ -616,10 +665,10 @@ class Fiscaat_Admin {
 				];
 
 				$.each( dropdowns, function( i ){
-					var other = ( i == 1 ) ? 0 : 1;
+					var other_dd = ( i == 1 ) ? 0 : 1;
 
 					this.change( function(){
-						dropdowns[other].find( 'option[value='+ this.value +']' ).attr( 'selected', true );
+						dropdowns[other_dd].find( 'option[value='+ this.value +']' ).attr( 'selected', true );
 					});
 				});
 			});
@@ -772,6 +821,34 @@ class Fiscaat_Admin {
 		</style>
 
 		<?php
+	}
+
+	/** Redirect **************************************************************/
+
+	/**
+	 * Redirect from edit.php to Fiscaat's own post type page
+	 *
+	 * @since 0.0.8
+	 *
+	 * @uses fct_get_year_post_type() To get the year post type
+	 * @uses fct_get_account_post_type() To get the account post type
+	 * @uses fct_get_record_post_type() To get the record post type
+	 * @uses fct_admin_get_post_type_type()
+	 * @uses wp_redirect()
+	 */
+	public function redirect_edit_pages() {
+
+		// Bail if not a Fiscaat post type
+		if ( ! isset( $_GET['post_type'] ) || ! in_array( $_GET['post_type'], array(
+				fct_get_record_post_type(),
+				fct_get_account_post_type(),
+				fct_get_year_post_type()
+			) ) )
+			return;
+
+		$type = fct_admin_get_post_type_type( $_GET['post_type'] );
+		wp_redirect( add_query_arg( 'page', "fct-{$type}s", admin_url( 'admin.php' ) ) );
+		exit;
 	}
 
 	/** Ajax ******************************************************************/

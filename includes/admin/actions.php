@@ -149,34 +149,67 @@ function fct_register_admin_settings() {
 /** Post Pages ****************************************************************/
 
 /**
- * Dedicated action to load the accounts posts page
+ * Dedicated action to load the edit accounts page
  *
  * @since 0.0.7
  *
- * @uses do_action() Calls 'fct_admin_load_accounts_page'
+ * @uses do_action() Calls 'fct_admin_accounts_load_edit'
  */
-function fct_admin_load_accounts_page() {
-	do_action( 'fct_admin_load_accounts_page' );
+function fct_admin_accounts_load_edit() {
+	do_action( 'fct_admin_accounts_load_edit' );
 }
 
 /**
- * Dedicated action to load the records posts page
+ * Dedicated action to load the edit records page
  *
  * @since 0.0.7
  *
- * @uses do_action() Calls 'fct_admin_load_records_page'
+ * @uses do_action() Calls 'fct_admin_records_load_edit'
  */
-function fct_admin_load_records_page() {
-	do_action( 'fct_admin_load_records_page' );
+function fct_admin_records_load_edit() {
+	do_action( 'fct_admin_records_load_edit' );
 }
 
 /**
- * Dedicated action to load the years posts page
+ * Dedicated action to load the edit years page
  *
  * @since 0.0.7
  *
- * @uses do_action() Calls 'fct_admin_load_years_page'
+ * @uses do_action() Calls 'fct_admin_years_load_edit'
  */
-function fct_admin_load_years_page() {
-	do_action( 'fct_admin_load_years_page' );
+function fct_admin_years_load_edit() {
+	do_action( 'fct_admin_years_load_edit' );
+}
+
+/**
+ * Dedicated action to load the account's post-new.php page
+ *
+ * @since 0.0.8
+ *
+ * @uses do_action() Calls 'fct_admin_accounts_load_new'
+ */
+function fct_admin_accounts_load_new() {
+	do_action( 'fct_admin_accounts_load_new' );
+}
+
+/**
+ * Dedicated action to load the record's post-new.php page
+ *
+ * @since 0.0.8
+ *
+ * @uses do_action() Calls 'fct_admin_records_load_new'
+ */
+function fct_admin_records_load_new() {
+	do_action( 'fct_admin_records_load_new' );
+}
+
+/**
+ * Dedicated action to load the year's post-new.php page
+ *
+ * @since 0.0.8
+ *
+ * @uses do_action() Calls 'fct_admin_years_load_new'
+ */
+function fct_admin_years_load_new() {
+	do_action( 'fct_admin_years_load_new' );
 }

@@ -83,17 +83,17 @@ function fct_admin_get_settings_fields() {
 			),
 
 			// Thousand separator
-			'_fct_thousand_sep' => array(
-				'title'             => __( 'Thousand Separator', 'fiscaat' ),
-				'callback'          => 'fct_admin_setting_callback_thousand_sep',
+			'_fct_thousands_sep' => array(
+				'title'             => __( 'Thousands Separator', 'fiscaat' ),
+				'callback'          => 'fct_admin_setting_callback_thousands_sep',
 				'sanitize_callback' => '',
 				'args'              => array()
 			),
 
 			// Decimal separator
-			'_fct_decimal_sep' => array(
-				'title'             => __( 'Decimal Separator', 'fiscaat' ),
-				'callback'          => 'fct_admin_setting_callback_decimal_sep',
+			'_fct_decimal_point' => array(
+				'title'             => __( 'Decimal Point', 'fiscaat' ),
+				'callback'          => 'fct_admin_setting_callback_decimal_point',
 				'sanitize_callback' => '',
 				'args'              => array()
 			),
@@ -108,7 +108,7 @@ function fct_admin_get_settings_fields() {
 
 		),
 
-		/** Functionality Section *********************************************/
+		/** Features Section **************************************************/
 
 		'fct_settings_features' => array(
 
@@ -305,13 +305,11 @@ function fct_admin_setting_callback_currency_section() {
  * @uses fct_maybe_admin_setting_disabled()
  */
 function fct_admin_setting_callback_currency() {
-
 	fct_currency_dropdown( array( 
 		'select_id' => '_fct_currency',
 		'selected'  => fct_get_currency(),
 		'disabled'  => fct_maybe_admin_setting_disabled( '_fct_currency' )
 	) );
-
 }
 
 /**
@@ -321,14 +319,7 @@ function fct_admin_setting_callback_currency() {
  * @uses fct_get_amount() To get a currency value representation
  */
 function fct_admin_setting_callback_currency_position() {
-
-	// Build options
-	$options = array(
-		'left'        => __('Left',             'fiscaat'),
-		'right'       => __('Right',            'fiscaat'),
-		'left_space'  => __('Left with space',  'fiscaat'),
-		'right_space' => __('Right with space', 'fiscaat')
-	); ?>
+	$options = fct_get_currency_positions(); ?>
 
 	<select id="_fct_currency_position" name="_fct_currency_position" <?php fct_maybe_admin_setting_disabled( '_fct_currency_position' ); ?>>
 
@@ -349,10 +340,10 @@ function fct_admin_setting_callback_currency_position() {
  *
  * @uses fct_form_option() To get the option value
  */
-function fct_admin_setting_callback_thousand_sep() {
-?>
+function fct_admin_setting_callback_thousands_sep() {
+	global $wp_locale; ?>
 
-	<input name="_fct_thousand_sep" type="text" id="_fct_thousand_sep" value="<?php fct_form_option( '_fct_thousand_sep', '15' ); ?>" class="small-text" <?php fct_maybe_admin_setting_disabled( '_fct_thousand_sep' ); ?> />
+	<input name="_fct_thousands_sep" type="text" id="_fct_thousands_sep" value="<?php fct_form_option( '_fct_thousands_sep', $wp_locale->number_format['thousands_sep'] ); ?>" class="small-text" <?php fct_maybe_admin_setting_disabled( '_fct_thousands_sep' ); ?> />
 
 <?php
 }
@@ -362,10 +353,10 @@ function fct_admin_setting_callback_thousand_sep() {
  *
  * @uses fct_form_option() To get the option value
  */
-function fct_admin_setting_callback_decimal_sep() {
-?>
+function fct_admin_setting_callback_decimal_point() {
+	global $wp_locale; ?>
 
-	<input name="_fct_decimal_sep" type="text" id="_fct_decimal_sep" value="<?php fct_form_option( '_fct_decimal_sep', '15' ); ?>" class="small-text" <?php fct_maybe_admin_setting_disabled( '_fct_decimal_sep' ); ?> />
+	<input name="_fct_decimal_point" type="text" id="_fct_decimal_point" value="<?php fct_form_option( '_fct_decimal_point', $wp_locale->number_format['decimal_point'] ); ?>" class="small-text" <?php fct_maybe_admin_setting_disabled( '_fct_decimal_point' ); ?> />
 
 <?php
 }
@@ -378,7 +369,7 @@ function fct_admin_setting_callback_decimal_sep() {
 function fct_admin_setting_callback_num_decimals() {
 ?>
 
-	<input name="_fct_num_decimals" type="number" id="_fct_num_decimals" value="<?php fct_form_option( '_fct_num_decimals', '15' ); ?>" class="small-text" <?php fct_maybe_admin_setting_disabled( '_fct_num_decimals' ); ?> />
+	<input name="_fct_num_decimals" type="number" id="_fct_num_decimals" value="<?php fct_form_option( '_fct_num_decimals', '2' ); ?>" class="small-text" <?php fct_maybe_admin_setting_disabled( '_fct_num_decimals' ); ?> />
 
 <?php
 }
@@ -405,7 +396,7 @@ function fct_admin_setting_callback_enable_control() {
 ?>
 
 	<input id="_fct_enable_control" name="_fct_enable_control" type="checkbox" value="1" <?php checked( fct_is_control_active() ); fct_maybe_admin_setting_disabled( '_fct_enable_control' ); ?> />
-	<label for="_fct_enable_control"><?php _e( 'Enable the control feature and the Controller role.', 'fiscaat' ); ?></label>
+	<label for="_fct_enable_control"><?php _e( 'Enable controlling functions and the Controller role.', 'fiscaat' ); ?></label>
 
 <?php
 }

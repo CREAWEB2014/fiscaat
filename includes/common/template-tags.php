@@ -1622,7 +1622,7 @@ function fct_currency_format( $number = 0, $curr_pos = false ) {
 
 		// Parse currency format		
 		$format = fct_the_currency_format();
-		$retval = number_format( $number, $format['decimals'], $format['decimal_sep'], $format['thousand_sep'] );
+		$retval = number_format( $number, $format['decimals'], $format['decimal_point'], $format['thousands_sep'] );
 
 		// Prepend currency symbol
 		if ( ! empty( $curr_pos ) ) {

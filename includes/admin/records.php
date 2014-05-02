@@ -53,12 +53,6 @@ class Fiscaat_Records_Admin {
 	 */
 	private function setup_actions() {
 
-		/** Sub-Actions *******************************************************/
-
-		add_action( 'load-post-new.php', array( $this, 'load_records'    ) );
-		add_action( 'load-edit.php',     array( $this, 'load_records'    ) );
-		add_filter( 'fct_request',       array( $this, 'request_records' ) );
-
 		/** Actions ***********************************************************/
 
 		// Add some general styling to the admin area
@@ -72,15 +66,16 @@ class Fiscaat_Records_Admin {
 		add_action( 'save_post',         array( $this, 'record_attributes_metabox_save' ) );
 
 		// Check if there are any fct_toggle_record_* requests on admin_init, also have a message displayed
-		add_action( 'fct_records_admin_load_edit', array( $this, 'toggle_record'                  ) );
-		add_action( 'admin_notices',               array( $this, 'toggle_record_notice'           ) );
+		add_action( 'fct_admin_records_load_edit',  array( $this, 'toggle_record'         ) );
+		add_action( 'fct_admin_notices',            array( $this, 'toggle_record_notice'  ) );
 
 		// Contextual Help
-		add_action( 'fct_records_admin_load_edit', array( $this, 'edit_help'                      ) );
-		add_action( 'fct_records_admin_load_new',  array( $this, 'new_help'                       ) );
+		add_action( 'fct_admin_records_load_edit',  array( $this, 'edit_help'             ) );
+		add_action( 'fct_admin_records_load_new',   array( $this, 'new_help'              ) );
 
 		// Alter page title
-		add_action( 'fct_admin_records_page_title', array( $this, 'records_page_title'             ) );
+		add_action( 'fct_admin_records_page_title', array( $this, 'records_page_title'    ) );
+		add_action( 'fct_admin_records_page_title', array( $this, 'add_new_button'        ) );
 
 		/** Filters ***********************************************************/
 
@@ -88,15 +83,15 @@ class Fiscaat_Records_Admin {
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
 		// Record columns (in post row)
-		add_filter( 'manage_'      . $this->post_type . '_posts_columns',    array( $this, 'records_column_headers'   )        );
-		add_filter( 'manage_edit-' . $this->post_type . '_sortable_columns', array( $this, 'records_sortable_columns' ), 10    );
-		add_filter( 'post_row_actions',                                      array( $this, 'records_row_actions'      ), 10, 2 );
+		add_filter( 'fct_admin_records_get_columns', array( $this, 'records_column_headers' )        );
+		add_filter( 'post_row_actions',              array( $this, 'records_row_actions'    ), 10, 2 );
 
 		// Add ability to filter accounts and records per year
-		add_filter( 'restrict_manage_posts',     array( $this, 'filter_dropdown'             )        );
-		add_filter( 'fct_records_admin_request', array( $this, 'filter_post_rows'            )        );
+		add_filter( 'restrict_manage_posts', array( $this, 'filter_dropdown'             )        );
+		add_filter( 'fct_request',           array( $this, 'filter_post_rows'            )        );
 
-		// 
+		// Rows
+		// @todo Move to FCT_Records_List_Table
 		add_filter( 'the_posts',             array( $this, 'records_add_item_attributes' ), 99    );
 		add_filter( 'the_posts',             array( $this, 'records_add_rows'            ), 99    );
 		add_filter( 'post_class',            array( $this, 'row_post_class'              ), 10, 3 );
@@ -124,45 +119,6 @@ class Fiscaat_Records_Admin {
 	 */
 	private function setup_globals() {
 		$this->post_type = fct_get_record_post_type();
-	}
-
-	/** Sub-Actions ***********************************************************/
-
-	/**
-	 * Dedicated action to load records edit or new admin page
-	 * 
-	 * @since 0.0.5
-	 *
-	 * @uses do_action() Calls 'fct_records_admin_load_new'
-	 * @uses do_action() Calls 'fct_records_admin_load_edit'
-	 */
-	public function load_records() {
-		if ( $this->bail() )
-			return;
-
-		// Load new records
-		if ( doing_action( 'load-post-new.php' ) ) {
-			do_action( 'fct_records_admin_load_new' );
-
-		// Load edit records
-		} elseif ( doing_action( 'load-edit.php' ) ) {
-			do_action( 'fct_records_admin_load_edit' );
-		}
-	}
-
-	/**
-	 * Dedicated filter to request records
-	 * 
-	 * @since 0.0.5
-	 *
-	 * @uses apply_fitlers() Calls 'fct_records_admin_request' with
-	 *                        query vars
-	 */
-	public function request_records( $query_vars ) {
-		if ( $this->bail() )
-			return $query_vars;
-
-		return apply_filters( 'fct_records_admin_request', $query_vars );
 	}
 
 	/** Contextual Help *******************************************************/
@@ -353,7 +309,7 @@ class Fiscaat_Records_Admin {
 			return $record_id;
 
 		// Get the record meta post values
-		$account_id = ! empty( $_POST['parent_id'] )              ? (int) $_POST['parent_id'] : 0;
+		$account_id = ! empty( $_POST['parent_id'] )          ? (int) $_POST['parent_id'] : 0;
 		$year_id    = ! empty( $_POST['fct_record_year_id'] ) ? (int) $_POST['fct_record_year_id'] : fct_get_account_year_id( $account_id );
 
 		// Formally update the record
@@ -361,9 +317,11 @@ class Fiscaat_Records_Admin {
 			'record_id'      => $record_id, 
 			'account_id'     => $account_id,
 			'year_id'        => $year_id,
-			'value'          => ! empty( $_POST['fct_record_amount'] )          ? $_POST['fct_record_amount']          : 0,
-			'value_type'     => ! empty( $_POST['fct_record_type'] )     ? $_POST['fct_record_type']     : '',
+			'amount'         => ! empty( $_POST['fct_record_amount'] )         ? $_POST['fct_record_amount']         : 0,
+			'record_type'    => ! empty( $_POST['fct_record_type'] )           ? $_POST['fct_record_type']           : '',
 			'offset_account' => ! empty( $_POST['fct_record_offset_account'] ) ? $_POST['fct_record_offset_account'] : '',
+
+			// @todo Move to Control
 			'status'         => ! empty( $_POST['fct_record_status'] )         ? $_POST['fct_record_status']         : '',
 		) );
 
@@ -383,8 +341,8 @@ class Fiscaat_Records_Admin {
 	 * @uses do_action() Calls 'fct_admin_head'
 	 */
 	public function admin_head() {
-
-		if ( $this->bail() ) return; ?>
+		if ( $this->bail() ) 
+			return; ?>
 
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
@@ -586,10 +544,12 @@ class Fiscaat_Records_Admin {
 	 * @uses esc_html() To sanitize the record title
 	 * @uses apply_filters() Calls 'fct_toggle_record_notice_admin' with
 	 *                        message, record id, notice and is it a failure
+	 *
+	 * @todo Move to Control
 	 */
 	public function toggle_record_notice() {
-
-		if ( $this->bail() ) return;
+		if ( $this->bail() ) 
+			return;
 
 		// Only proceed if GET is a record toggle action
 		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_GET['fct_record_toggle_notice'] ) && in_array( $_GET['fct_record_toggle_notice'], array( 'spammed', 'unspammed' ) ) && ! empty( $_GET['record_id'] ) ) {
@@ -635,64 +595,17 @@ class Fiscaat_Records_Admin {
 	 * Manage the column headers for the records page
 	 *
 	 * @param array $columns The columns
-	 * @uses apply_filters() Calls 'fct_admin_records_column_headers' with
-	 *                        the columns
 	 * @return array $columns Fiscaat record columns
 	 */
 	public function records_column_headers( $columns ) {
 		if ( $this->bail() ) 
 			return $columns;
 
-		$columns = array(
-			'cb'                           => '<input type="checkbox" />',
-			'fct_record_status'            => __( 'Status',                                              'fiscaat' ),
-			'fct_record_created'           => __( 'Date',                                                'fiscaat' ),
-			'fct_record_account_ledger_id' => _x( 'No.',            'Account number column name',        'fiscaat' ),
-			'fct_record_account'           => __( 'Account',                                             'fiscaat' ),
-			'fct_record_description'       => __( 'Description',                                         'fiscaat' ),
-			'fct_record_offset_account'    => __( 'Offset Account',                                      'fiscaat' ),
-			'fct_record_amount'            => _x( 'Amount',         'Amount column name (debit/credit)', 'fiscaat' ),
-			'comments'                     => __( 'Comments',                                            'fiscaat' ),
-		);
-
-		// Control
-		if ( ! fct_is_control_active() )
-			unset( $columns['fct_record_status'] );
-
-		// Comment section
-		if ( ! fct_is_comments_active() )
-			unset( $columns['comments'] );
-
-		// Account records page doesn't need account details
+		// Account records pages do not need account details
 		if ( isset( $_GET['fct_account_id'] ) && ! empty( $_GET['fct_account_id'] ) )
 			unset( $columns['fct_record_account_ledger_id'], $columns['fct_record_account'] );
 
-		return apply_filters( 'fct_admin_records_column_headers', $columns );
-	}
-
-	/**
-	 * Make records columns sortable
-	 * 
-	 * @param array $columns Sortable columns
-	 * @return array Sortable records columns
-	 */
-	public function records_sortable_columns( $columns ) {
-		if ( $this->bail() ) 
-			return $columns;
-
-		// Make status column sortable
-		$columns['fct_record_status'] = 'post_status';
-
-		// Make date column sortable
-		$columns['fct_record_created'] = 'record_created';
-
-		// Make offset account column sortable
-		$columns['fct_record_offset_account'] = 'record_offset_account';
-
-		// Make debit/credit column sortable
-		$columns['fct_record_amount'] = 'record_amount';
-
-		return apply_filters( 'fct_records_sortable_columns', $columns );
+		return $columns;
 	}
 
 	/**
@@ -745,7 +658,7 @@ class Fiscaat_Records_Admin {
 
 					// Output ledger ID
 					if ( ! empty( $account_id ) )
-						fct_account_records_admin_link( $account_id, true );
+						fct_account_admin_records_link( $account_id, true );
 
 					break;
 
@@ -756,7 +669,7 @@ class Fiscaat_Records_Admin {
 					if ( ! empty( $account_id ) ) {
 
 						// Account Title
-						$account_title = fct_get_account_records_admin_link( $account_id );
+						$account_title = fct_get_account_admin_records_link( $account_id );
 						if ( empty( $account_title ) ) {
 							$account_title = __( 'No Account', 'fiscaat' );
 						}
@@ -1452,15 +1365,45 @@ class Fiscaat_Records_Admin {
 		return $messages;
 	}
 
+	/** Redirect **************************************************************/
+
+	/**
+	 * Redirect from post-new.php to Fiscaat's own post record page
+	 *
+	 * @since 0.0.8
+	 *
+	 * @uses fct_get_year_post_type() To get the year post type
+	 * @uses fct_get_account_post_type() To get the account post type
+	 * @uses fct_get_record_post_type() To get the record post type
+	 * @uses fct_admin_get_post_type_type()
+	 * @uses wp_redirect()
+	 */
+	public function redirect_post_new_page() {
+
+		// Bail if not a Fiscaat post type
+		if ( ! isset( $_GET['post_type'] ) || fct_get_record_post_type() != $_GET['post_type'] )
+			return;
+
+		$args = array( 
+			'page' => 'fct-records', 
+			'mode' => fct_admin_get_records_mode_post() 
+		);
+		wp_redirect( add_query_arg( $args, admin_url( 'admin.php' ) ) );
+		exit;
+	}
+
 	/** Page Title ************************************************************/
 
 	/**
 	 * Manipulate the records posts page title
 	 *
+	 * @uses fct_get_account_id()
 	 * @uses fct_get_account_ledger_id()
 	 * @uses fct_get_account_title() To get the account title
+	 * @uses fct_get_year_id()
 	 * @uses fct_get_year_title() To get the account title
-	 * @return array Modified arguments
+	 * @param string $title Page title
+	 * @return string Page title
 	 */
 	public function records_page_title( $title ) {
 
@@ -1471,7 +1414,6 @@ class Fiscaat_Records_Admin {
 			$account_id = fct_get_account_id( $_REQUEST['fct_account_id'] );
 
 			if ( ! empty( $account_id ) ) {
-
 				// Format: {title} -- {account number}. {account title}
 				$title .= ' &mdash; '. fct_get_account_ledger_id( $account_id ) .'. '. fct_get_account_title( $account_id );
 			}
@@ -1483,13 +1425,35 @@ class Fiscaat_Records_Admin {
 			// Fetch year id
 			$year_id = fct_get_year_id( $_REQUEST['fct_year_id'] );
 
-			// Format: {title} -- {year title}
-			$title .= ' &mdash; '. fct_get_year_title( $year_id );
+			if ( ! empty( $year_id ) ) {
+				// Format: {title} -- {year title}
+				$title .= ' &mdash; '. fct_get_year_title( $year_id );
+			}
 		}
 
 		return $title;
 	}
 
+	/**
+	 * Append add new button to page title when there's no open year
+	 *
+	 * @since 0.0.8
+	 *
+	 * @uses fct_has_open_account()
+	 * @uses fct_has_open_year()
+	 * @uses fct_admin_page_title_add_new()
+	 * @param string $title Page title
+	 * @return string Page title
+	 */
+	public function add_new_button( $title ) {
+
+		// Require open year and account
+		if ( fct_has_open_year() && fct_has_open_account() ) {
+			$title = fct_admin_page_title_add_new( $title );
+		}
+
+		return $title;
+	}
 }
 
 endif; // class_exists check

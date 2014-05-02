@@ -24,13 +24,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *                        number and display decimals bool
  * @return string Formatted string
  */
-function fct_number_format( $number = 0, $decimals = false, $decimal_sep = '.', $thousand_sep = ',' ) {
+function fct_number_format( $number = 0, $decimals = false, $decimal_point = '.', $thousands_sep = ',' ) {
 
 	// If empty, set $number to (int) 0
 	if ( ! is_numeric( $number ) )
 		$number = 0;
 
-	return apply_filters( 'fct_number_format', number_format( $number, $decimals, $decimal_sep, $thousand_sep ), $number, $decimals, $decimal_sep, $thousand_sep );
+	return apply_filters( 'fct_number_format', number_format( $number, $decimals, $decimal_point, $thousands_sep ), $number, $decimals, $decimal_point, $thousands_sep );
 }
 
 /**
@@ -70,10 +70,10 @@ function fct_float_format( $value = '' ) {
 	$value = str_replace( fct_get_currency( 'symbol' ), '', $value );
 
 	// Remove thousands separators
-	$value = str_replace( $format['thousand_sep'], '', $value );
+	$value = str_replace( $format['thousands_sep'], '', $value );
 
 	// Change decimal separator to dot
-	$value = str_replace( $format['decimal_sep'], '.', $value );
+	$value = str_replace( $format['decimal_point'], '.', $value );
 
 	// Remove whitespace
 	$value = trim( $value );
@@ -1000,15 +1000,11 @@ function fct_get_currencies( $currency = '' ){
  * @return array Currency format
  */
 function fct_the_currency_format(){
-
-	// Get the currency settings
-	$format = array(
-		'thousand_sep' => get_option( '_fct_thousand_sep' ),
-		'decimal_sep'  => get_option( '_fct_decimal_sep'  ),
-		'decimals'     => get_option( '_fct_num_decimals' ),
-	);
-
-	return apply_filters( 'fct_the_currency_format', $format );
+	return apply_filters( 'fct_the_currency_format', array(
+		'thousands_sep' => get_option( '_fct_thousands_sep' ),
+		'decimal_point' => get_option( '_fct_decimal_point' ),
+		'decimals'      => get_option( '_fct_num_decimals'  ),
+	) );
 }
 
 /**
@@ -1020,5 +1016,33 @@ function fct_the_currency_format(){
  */
 function fct_sanitize_currency( $input = '' ) {
 	return in_array( $input, array_keys( fct_get_currencies() ) ) ? $input : 'USD';
+}
+
+/**
+ * Return the available currency positions
+ *
+ * @since 0.0.8
+ *
+ * @uses apply_filters() Calls 'fct_get_currency_positions'
+ * @return array Positions as array( key => description )
+ */
+function fct_get_currency_positions() {
+	return apply_filters( 'fct_get_currency_positions', array(
+		'left'        => __('Left',             'fiscaat'),
+		'right'       => __('Right',            'fiscaat'),
+		'left_space'  => __('Left with space',  'fiscaat'),
+		'right_space' => __('Right with space', 'fiscaat')
+	) );
+}
+
+/**
+ * Sanitize currency position input
+ * 
+ * @param string $input Currency input
+ * @uses fct_get_currencies() To get available currencies
+ * @return string Sanitized currency
+ */
+function fct_sanitize_currency_position( $input = '' ) {
+	return in_array( $input, array_keys( fct_get_currency_positions() ) ) ? $input : 'left_space';
 }
 

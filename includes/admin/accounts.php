@@ -54,56 +54,50 @@ class Fiscaat_Accounts_Admin {
 	 */
 	private function setup_actions() {
 
-		/** Sub-Actions *******************************************************/
-
-		add_action( 'load-post-new.php', array( $this, 'load_accounts'    ) );
-		add_action( 'load-edit.php',     array( $this, 'load_accounts'    ) );
-		add_filter( 'fct_request',       array( $this, 'request_accounts' ) );
-
 		/** Actions ***********************************************************/
 
 		// Add some general styling to the admin area
-		add_action( 'fct_admin_head',               array( $this, 'admin_head'              ) );
+		add_action( 'fct_admin_head', array( $this, 'admin_head'              ) );
 
 		// Account metabox actions
-		add_action( 'add_meta_boxes',               array( $this, 'attributes_metabox'      ) );
-		add_action( 'save_post',                    array( $this, 'attributes_metabox_save' ) );
+		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox'      ) );
+		add_action( 'save_post',      array( $this, 'attributes_metabox_save' ) );
 
 		// Account columns (in post row)
 		add_action( 'manage_' . $this->post_type . '_posts_custom_column', array( $this, 'accounts_column_data' ), 10, 2 );
 
 		// Check if there are any fct_toggle_account_* requests on admin_init, also have a message displayed
-		add_action( 'fct_accounts_admin_load_edit', array( $this, 'toggle_account'          ) );
-		add_action( 'admin_notices',                array( $this, 'toggle_account_notice'   ) );
+		add_action( 'fct_admin_accounts_load_edit',  array( $this, 'toggle_account'         ) );
+		add_action( 'fct_admin_notices',             array( $this, 'toggle_account_notice'  ) );
 
 		// Contextual Help
-		add_action( 'fct_accounts_admin_load_edit', array( $this, 'edit_help'               ) );
-		add_action( 'fct_accounts_admin_load_new',  array( $this, 'new_help'                ) );
+		add_action( 'fct_admin_accounts_load_edit',  array( $this, 'edit_help'              ) );
+		add_action( 'fct_admin_accounts_load_new',   array( $this, 'new_help'               ) );
 
 		// Fiscaat requires
-		add_action( 'fct_accounts_admin_load_new',  array( $this, 'no_year_redirect'        ) );
+		add_action( 'fct_admin_accounts_load_new',   array( $this, 'no_year_redirect'       ) );
 		
-		// Records page title
-		add_action( 'fct_admin_accounts_page_title', array( $this, 'accounts_page_title'     ) );
+		// Page title
+		add_action( 'fct_admin_accounts_page_title', array( $this, 'accounts_page_title'    ) );
+		add_action( 'fct_admin_accounts_page_title', array( $this, 'add_new_button'         ) );
 
 		/** Ajax **************************************************************/
 		
 		// Check ledger id
-		add_action( 'wp_ajax_fct_check_ledger_id',  array( $this, 'check_ledger_id'         ) );
+		add_action( 'wp_ajax_fct_check_ledger_id',   array( $this, 'check_ledger_id'        ) );
 
 		/** Filters ***********************************************************/
 		
 		// Messages
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
-		// Account column headers and columns (in post row)
-		add_filter( 'manage_'      . $this->post_type . '_posts_columns',    array( $this, 'accounts_column_headers'   )        );
-		add_filter( 'manage_edit-' . $this->post_type . '_sortable_columns', array( $this, 'accounts_sortable_columns' ), 10, 2 );
-		add_filter( 'post_row_actions',                                      array( $this, 'accounts_row_actions'      ), 10, 2 );
+		// Account columns (in post row)
+		add_filter( 'fct_admin_accounts_get_columns', array( $this, 'accounts_column_headers' )        );
+		add_filter( 'post_row_actions',               array( $this, 'accounts_row_actions'    ), 10, 2 );
 
 		// Add ability to filter accounts and records per year
-		add_filter( 'restrict_manage_posts',      array( $this, 'filter_dropdown'  ) );
-		add_filter( 'fct_accounts_admin_request', array( $this, 'filter_post_rows' ) );
+		add_filter( 'restrict_manage_posts', array( $this, 'filter_dropdown'  ) );
+		add_filter( 'fct_request',           array( $this, 'filter_post_rows' ) );
 
 		// Account records view link
 		// add_filter( 'get_edit_post_link', array( $this, 'accounts_edit_post_link' ), 10, 3 ); // Uncontrolled behavior
@@ -128,45 +122,6 @@ class Fiscaat_Accounts_Admin {
 	 */
 	private function setup_globals() {
 		$this->post_type = fct_get_account_post_type();
-	}
-
-	/** Sub-Actions ***********************************************************/
-
-	/**
-	 * Dedicated action to load accounts edit or new admin page
-	 * 
-	 * @since 0.0.5
-	 *
-	 * @uses do_action() Calls 'fct_accounts_admin_load_new'
-	 * @uses do_action() Calls 'fct_accounts_admin_load_edit'
-	 */
-	public function load_accounts() {
-		if ( $this->bail() )
-			return;
-
-		// Load new accounts
-		if ( doing_action( 'load-post-new.php' ) ) {
-			do_action( 'fct_accounts_admin_load_new' );
-
-		// Load edit accounts
-		} elseif ( doing_action( 'load-edit.php' ) ) {
-			do_action( 'fct_accounts_admin_load_edit' );
-		}
-	}
-
-	/**
-	 * Dedicated filter to request accounts
-	 * 
-	 * @since 0.0.5
-	 *
-	 * @uses apply_fitlers() Calls 'fct_accounts_admin_request' with
-	 *                        query vars
-	 */
-	public function request_accounts( $query_vars ) {
-		if ( $this->bail() )
-			return $query_vars;
-
-		return apply_filters( 'fct_accounts_admin_request', $query_vars );
 	}
 
 	/** Contextual Help *******************************************************/
@@ -644,48 +599,17 @@ class Fiscaat_Accounts_Admin {
 	 * Manage the column headers for the accounts page
 	 *
 	 * @param array $columns The columns
-	 * @uses apply_filters() Calls 'fct_admin_accounts_column_headers' with
-	 *                        the columns
 	 * @return array $columns Fiscaat account columns
 	 */
 	public function accounts_column_headers( $columns ) {
 		if ( $this->bail() ) 
 			return $columns;
 
-		$columns = array(
-			'cb'                           => '<input type="checkbox" />',
-			'fct_account_year'             => __( 'Year',                         'fiscaat' ),
-			'fct_account_ledger_id'        => _x( 'No.', 'Account number column', 'fiscaat' ),
-			'title'                        => __( 'Account',                      'fiscaat' ),
-			'fct_account_type'             => __( 'Type',                         'fiscaat' ),
-			'fct_account_record_count'     => __( 'Records',                      'fiscaat' ),
-			'fct_account_value'            => __( 'Value',                        'fiscaat' ),
-		);
-
-		// Hide year column if not required
+		// Hide year column if showing year accounts
 		if ( isset( $_GET['fct_year_id'] ) && ! empty( $_GET['fct_year_id'] ) )
 			unset( $columns['fct_account_year'] );
 
-		return apply_filters( 'fct_admin_accounts_column_headers', $columns );
-	}
-
-	/**
-	 * Make accounts columns sortable
-	 * 
-	 * @param array $columns Sortable columns
-	 * @return array Sortable accounts columns
-	 */
-	public function accounts_sortable_columns( $columns ) {
-		if ( $this->bail() ) 
-			return $columns;
-
-		// Make account ledger id column sortable
-		$columns['fct_account_ledger_id']    = 'ledger_id';
-
-		// Make account record count column sortable
-		$columns['fct_account_record_count'] = 'record_count';
-
-		return apply_filters( 'fct_admin_accounts_sortable_columns', $columns );
+		return $columns;
 	}
 
 	/**
@@ -1052,13 +976,33 @@ class Fiscaat_Accounts_Admin {
 			// Check year id
 			$year_id = fct_get_year_id( $_GET['fct_year_id'] );
 
-			// Format: {title} -- {year title}
-			$title .= ' &mdash; '. fct_get_year_title( $year_id );
+			if ( ! empty( $year_id ) ) {
+				// Format: {title} -- {year title}
+				$title .= ' &mdash; '. fct_get_year_title( $year_id );
+			}
 		}
 
 		return $title;
 	}
 
+	/**
+	 * Append add new button to page title when there's no open year
+	 *
+	 * @since 0.0.8
+	 *
+	 * @uses fct_has_open_year()
+	 * @uses fct_admin_page_title_add_new()
+	 * @param string $title Page title
+	 * @return string Page title
+	 */
+	public function add_new_button( $title ) {
+
+		if ( fct_has_open_year() ) {
+			$title = fct_admin_page_title_add_new( $title );
+		}
+
+		return $title;
+	}
 }
 
 endif; // class_exists check

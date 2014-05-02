@@ -17,408 +17,82 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @param array $args
 	 */
 	function __construct( $args = array() ) {
-		global $post_type_object, $wpdb;
-
 		parent::__construct( array(
-			'plural' => 'posts',
+			'plural' => 'records',
 			'screen' => isset( $args['screen'] ) ? $args['screen'] : null,
 		) );
 	}
 
-	function ajax_user_can() {
-		return current_user_can( get_post_type_object( $this->screen->post_type )->cap->edit_posts );
-	}
-
+	/**
+	 * Setup posts query and query vars
+	 *
+	 * @since 0.0.8
+	 * 
+	 * @todo Create own version
+	 */
 	function prepare_items() {
-		global $avail_post_stati, $wp_query, $per_page, $mode;
 
-		$avail_post_stati = wp_edit_posts_query();
-
-		$this->hierarchical_display = ( is_post_type_hierarchical( $this->screen->post_type ) && 'menu_order title' == $wp_query->query['orderby'] );
-
-		$total_items = $this->hierarchical_display ? $wp_query->post_count : $wp_query->found_posts;
-
-		$post_type = $this->screen->post_type;
-		$per_page = $this->get_items_per_page( 'edit_' . $post_type . '_per_page' );
- 		$per_page = apply_filters( 'edit_posts_per_page', $per_page, $post_type );
-
-		if ( $this->hierarchical_display )
-			$total_pages = ceil( $total_items / $per_page );
-		else
-			$total_pages = $wp_query->max_num_pages;
-
-		$mode = empty( $_REQUEST['mode'] ) ? 'list' : $_REQUEST['mode'];
-
-		$this->is_trash = isset( $_REQUEST['post_status'] ) && $_REQUEST['post_status'] == 'trash';
-
-		$this->set_pagination_args( array(
-			'total_items' => $total_items,
-			'total_pages' => $total_pages,
-			'per_page' => $per_page
-		) );
+		/**
+		 * Various actions: view, edit, add-new, import
+		 */
+		
+		parent::prepare_items();
 	}
 
-	function has_items() {
-		return have_posts();
+	function _get_bulk_actions() {
+		return array();
 	}
 
-	function no_items() {
-		if ( isset( $_REQUEST['post_status'] ) && 'trash' == $_REQUEST['post_status'] )
-			echo get_post_type_object( $this->screen->post_type )->labels->not_found_in_trash;
-		else
-			echo get_post_type_object( $this->screen->post_type )->labels->not_found;
-	}
-
-	function get_views() {
-		global $locked_post_status, $avail_post_stati;
-
-		$post_type = $this->screen->post_type;
-
-		if ( !empty($locked_post_status) )
-			return array();
-
-		$status_links = array();
-		$num_posts = wp_count_posts( $post_type, 'readable' );
-		$class = '';
-		$allposts = '';
-
-		$current_user_id = get_current_user_id();
-
-		if ( $this->user_posts_count ) {
-			if ( isset( $_GET['author'] ) && ( $_GET['author'] == $current_user_id ) )
-				$class = ' class="current"';
-			$status_links['mine'] = "<a href='edit.php?post_type=$post_type&author=$current_user_id'$class>" . sprintf( _nx( 'Mine <span class="count">(%s)</span>', 'Mine <span class="count">(%s)</span>', $this->user_posts_count, 'posts' ), number_format_i18n( $this->user_posts_count ) ) . '</a>';
-			$allposts = '&all_posts=1';
-		}
-
-		$total_posts = array_sum( (array) $num_posts );
-
-		// Subtract post types that are not included in the admin all list.
-		foreach ( get_post_stati( array('show_in_admin_all_list' => false) ) as $state )
-			$total_posts -= $num_posts->$state;
-
-		$class = empty( $class ) && empty( $_REQUEST['post_status'] ) && empty( $_REQUEST['show_sticky'] ) ? ' class="current"' : '';
-		$status_links['all'] = "<a href='edit.php?post_type=$post_type{$allposts}'$class>" . sprintf( _nx( 'All <span class="count">(%s)</span>', 'All <span class="count">(%s)</span>', $total_posts, 'posts' ), number_format_i18n( $total_posts ) ) . '</a>';
-
-		foreach ( get_post_stati(array('show_in_admin_status_list' => true), 'objects') as $status ) {
-			$class = '';
-
-			$status_name = $status->name;
-
-			if ( !in_array( $status_name, $avail_post_stati ) )
-				continue;
-
-			if ( empty( $num_posts->$status_name ) )
-				continue;
-
-			if ( isset($_REQUEST['post_status']) && $status_name == $_REQUEST['post_status'] )
-				$class = ' class="current"';
-
-			$status_links[$status_name] = "<a href='edit.php?post_status=$status_name&amp;post_type=$post_type'$class>" . sprintf( translate_nooped_plural( $status->label_count, $num_posts->$status_name ), number_format_i18n( $num_posts->$status_name ) ) . '</a>';
-		}
-
-		if ( ! empty( $this->sticky_posts_count ) ) {
-			$class = ! empty( $_REQUEST['show_sticky'] ) ? ' class="current"' : '';
-
-			$sticky_link = array( 'sticky' => "<a href='edit.php?post_type=$post_type&amp;show_sticky=1'$class>" . sprintf( _nx( 'Sticky <span class="count">(%s)</span>', 'Sticky <span class="count">(%s)</span>', $this->sticky_posts_count, 'posts' ), number_format_i18n( $this->sticky_posts_count ) ) . '</a>' );
-
-			// Sticky comes after Publish, or if not listed, after All.
-			$split = 1 + array_search( ( isset( $status_links['publish'] ) ? 'publish' : 'all' ), array_keys( $status_links ) );
-			$status_links = array_merge( array_slice( $status_links, 0, $split ), $sticky_link, array_slice( $status_links, $split ) );
-		}
-
-		return $status_links;
-	}
-
-	function get_bulk_actions() {
-		$actions = array();
-
-		if ( $this->is_trash )
-			$actions['untrash'] = __( 'Restore' );
-		else
-			$actions['edit'] = __( 'Edit' );
-
-		if ( $this->is_trash || !EMPTY_TRASH_DAYS )
-			$actions['delete'] = __( 'Delete Permanently' );
-		else
-			$actions['trash'] = __( 'Move to Trash' );
-
-		return $actions;
-	}
-
-	function extra_tablenav( $which ) {
-		global $cat;
-?>
-		<div class="alignleft actions">
-<?php
-		if ( 'top' == $which && !is_singular() ) {
-
-			$this->months_dropdown( $this->screen->post_type );
-
-			if ( is_object_in_taxonomy( $this->screen->post_type, 'category' ) ) {
-				$dropdown_options = array(
-					'show_option_all' => __( 'View all categories' ),
-					'hide_empty' => 0,
-					'hierarchical' => 1,
-					'show_count' => 0,
-					'orderby' => 'name',
-					'selected' => $cat
-				);
-				wp_dropdown_categories( $dropdown_options );
-			}
-			do_action( 'restrict_manage_posts' );
-			submit_button( __( 'Filter' ), 'button', false, false, array( 'id' => 'post-query-submit' ) );
-		}
-
-		if ( $this->is_trash && current_user_can( get_post_type_object( $this->screen->post_type )->cap->edit_others_posts ) ) {
-			submit_button( __( 'Empty Trash' ), 'apply', 'delete_all', false );
-		}
-?>
-		</div>
-<?php
-	}
-
-	function current_action() {
-		if ( isset( $_REQUEST['delete_all'] ) || isset( $_REQUEST['delete_all2'] ) )
-			return 'delete_all';
-
-		return parent::current_action();
-	}
-
-	function pagination( $which ) {
-		global $mode;
-
-		parent::pagination( $which );
-
-		if ( 'top' == $which && ! is_post_type_hierarchical( $this->screen->post_type ) )
-			$this->view_switcher( $mode );
-	}
-
-	function get_table_classes() {
-		return array( 'widefat', 'fixed', is_post_type_hierarchical( $this->screen->post_type ) ? 'pages' : 'posts' );
-	}
-
-	function get_columns() {
-		$post_type = $this->screen->post_type;
-
-		$posts_columns = array();
-
-		$posts_columns['cb'] = '<input type="checkbox" />';
-
-		/* translators: manage posts column name */
-		$posts_columns['title'] = _x( 'Title', 'column name' );
-
-		if ( post_type_supports( $post_type, 'author' ) )
-			$posts_columns['author'] = __( 'Author' );
-
-		$taxonomies = array();
-
-		$taxonomies = get_object_taxonomies( $post_type, 'objects' );
-		$taxonomies = wp_filter_object_list( $taxonomies, array( 'show_admin_column' => true ), 'and', 'name' );
-
-		$taxonomies = apply_filters( "manage_taxonomies_for_{$post_type}_columns", $taxonomies, $post_type );
-		$taxonomies = array_filter( $taxonomies, 'taxonomy_exists' );
-
-		foreach ( $taxonomies as $taxonomy ) {
-			if ( 'category' == $taxonomy )
-				$column_key = 'categories';
-			elseif ( 'post_tag' == $taxonomy )
-				$column_key = 'tags';
-			else
-				$column_key = 'taxonomy-' . $taxonomy;
-
-			$posts_columns[ $column_key ] = get_taxonomy( $taxonomy )->labels->name;
-		}
-
-		$post_status = !empty( $_REQUEST['post_status'] ) ? $_REQUEST['post_status'] : 'all';
-		if ( post_type_supports( $post_type, 'comments' ) && !in_array( $post_status, array( 'pending', 'draft', 'future' ) ) )
-			$posts_columns['comments'] = '<span class="vers"><div title="' . esc_attr__( 'Comments' ) . '" class="comment-grey-bubble"></div></span>';
-
-		$posts_columns['date'] = __( 'Date' );
-
-		if ( 'page' == $post_type )
-			$posts_columns = apply_filters( 'manage_pages_columns', $posts_columns );
-		else
-			$posts_columns = apply_filters( 'manage_posts_columns', $posts_columns, $post_type );
-		$posts_columns = apply_filters( "manage_{$post_type}_posts_columns", $posts_columns );
-
-		return $posts_columns;
-	}
-
-	function get_sortable_columns() {
+	/**
+	 * Return dedicated record columns
+	 *
+	 * @since 0.0.8
+	 * 
+	 * @return array Columns
+	 */
+	function _get_columns() {
 		return array(
-			'title'    => 'title',
-			'parent'   => 'parent',
-			'comments' => 'comment_count',
-			'date'     => array( 'date', true )
+			'cb'                           => '<input type="checkbox" />',
+			'fct_record_created'           => __( 'Date' ),
+			'fct_record_account_ledger_id' => _x( 'No.',            'Account number column name',        'fiscaat' ),
+			'fct_record_account'           => __( 'Account',                                             'fiscaat' ),
+			'fct_record_description'       => __( 'Description',                                         'fiscaat' ),
+			'fct_record_offset_account'    => __( 'Offset Account',                                      'fiscaat' ),
+			'fct_record_amount'            => _x( 'Amount',         'Amount column name (debit/credit)', 'fiscaat' ),
+		);
+	}
+
+	/**
+	 * Return which columns are sortable
+	 *
+	 * @since 0.0.8
+	 *
+	 * @return array Sortable columns as array( column => sort key )
+	 */
+	function _get_sortable_columns() {
+		return array(
+			'fct_record_created'           => 'record_created',
+			'fct_record_account_ledger_id' => 'record_account_ledger_id',
+			'fct_record_account'           => 'record_account',
+			'fct_record_offset_account'    => 'record_offset_account',
+			'fct_record_amount'            => 'record_amount',
 		);
 	}
 
 	function display_rows( $posts = array(), $level = 0 ) {
-		global $wp_query, $per_page;
+		global $wp_query;
 
 		if ( empty( $posts ) )
 			$posts = $wp_query->posts;
 
 		add_filter( 'the_title', 'esc_html' );
 
-		if ( $this->hierarchical_display ) {
-			$this->_display_rows_hierarchical( $posts, $this->get_pagenum(), $per_page );
-		} else {
-			$this->_display_rows( $posts, $level );
-		}
+		$this->_display_rows( $posts, $level );
 	}
 
 	function _display_rows( $posts, $level = 0 ) {
-		global $mode;
-
-		// Create array of post IDs.
-		$post_ids = array();
-
-		foreach ( $posts as $a_post )
-			$post_ids[] = $a_post->ID;
-
-		$this->comment_pending_count = get_pending_comments_num( $post_ids );
-
 		foreach ( $posts as $post )
 			$this->single_row( $post, $level );
-	}
-
-	function _display_rows_hierarchical( $pages, $pagenum = 1, $per_page = 20 ) {
-		global $wpdb;
-
-		$level = 0;
-
-		if ( ! $pages ) {
-			$pages = get_pages( array( 'sort_column' => 'menu_order' ) );
-
-			if ( ! $pages )
-				return false;
-		}
-
-		/*
-		 * arrange pages into two parts: top level pages and children_pages
-		 * children_pages is two dimensional array, eg.
-		 * children_pages[10][] contains all sub-pages whose parent is 10.
-		 * It only takes O( N ) to arrange this and it takes O( 1 ) for subsequent lookup operations
-		 * If searching, ignore hierarchy and treat everything as top level
-		 */
-		if ( empty( $_REQUEST['s'] ) ) {
-
-			$top_level_pages = array();
-			$children_pages = array();
-
-			foreach ( $pages as $page ) {
-
-				// catch and repair bad pages
-				if ( $page->post_parent == $page->ID ) {
-					$page->post_parent = 0;
-					$wpdb->update( $wpdb->posts, array( 'post_parent' => 0 ), array( 'ID' => $page->ID ) );
-					clean_post_cache( $page );
-				}
-
-				if ( 0 == $page->post_parent )
-					$top_level_pages[] = $page;
-				else
-					$children_pages[ $page->post_parent ][] = $page;
-			}
-
-			$pages = &$top_level_pages;
-		}
-
-		$count = 0;
-		$start = ( $pagenum - 1 ) * $per_page;
-		$end = $start + $per_page;
-
-		foreach ( $pages as $page ) {
-			if ( $count >= $end )
-				break;
-
-			if ( $count >= $start ) {
-				echo "\t";
-				$this->single_row( $page, $level );
-			}
-
-			$count++;
-
-			if ( isset( $children_pages ) )
-				$this->_page_rows( $children_pages, $count, $page->ID, $level + 1, $pagenum, $per_page );
-		}
-
-		// if it is the last pagenum and there are orphaned pages, display them with paging as well
-		if ( isset( $children_pages ) && $count < $end ){
-			foreach ( $children_pages as $orphans ){
-				foreach ( $orphans as $op ) {
-					if ( $count >= $end )
-						break;
-
-					if ( $count >= $start ) {
-						echo "\t";
-						$this->single_row( $op, 0 );
-					}
-
-					$count++;
-				}
-			}
-		}
-	}
-
-	/**
-	 * Given a top level page ID, display the nested hierarchy of sub-pages
-	 * together with paging support
-	 *
-	 * @since 3.1.0 (Standalone function exists since 2.6.0)
-	 *
-	 * @param array $children_pages
-	 * @param int $count
-	 * @param int $parent
-	 * @param int $level
-	 * @param int $pagenum
-	 * @param int $per_page
-	 */
-	function _page_rows( &$children_pages, &$count, $parent, $level, $pagenum, $per_page ) {
-
-		if ( ! isset( $children_pages[$parent] ) )
-			return;
-
-		$start = ( $pagenum - 1 ) * $per_page;
-		$end = $start + $per_page;
-
-		foreach ( $children_pages[$parent] as $page ) {
-
-			if ( $count >= $end )
-				break;
-
-			// If the page starts in a subtree, print the parents.
-			if ( $count == $start && $page->post_parent > 0 ) {
-				$my_parents = array();
-				$my_parent = $page->post_parent;
-				while ( $my_parent ) {
-					$my_parent = get_post( $my_parent );
-					$my_parents[] = $my_parent;
-					if ( !$my_parent->post_parent )
-						break;
-					$my_parent = $my_parent->post_parent;
-				}
-				$num_parents = count( $my_parents );
-				while ( $my_parent = array_pop( $my_parents ) ) {
-					echo "\t";
-					$this->single_row( $my_parent, $level - $num_parents );
-					$num_parents--;
-				}
-			}
-
-			if ( $count >= $start ) {
-				echo "\t";
-				$this->single_row( $page, $level );
-			}
-
-			$count++;
-
-			$this->_page_rows( $children_pages, $count, $page->ID, $level + 1, $pagenum, $per_page );
-		}
-
-		unset( $children_pages[$parent] ); //required in order to keep track of orphans
 	}
 
 	function single_row( $post, $level = 0 ) {
