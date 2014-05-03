@@ -13,6 +13,30 @@
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+/** Post **********************************************************************/
+
+/**
+ * Calls a post callback
+ *
+ * Enables post-type agnostic callbacks, with an interchangable
+ * post type object element, like fct_get_{object}_post_type
+ * 
+ * @since 0.0.8
+ * 
+ * @param $callback Callback with post placeholder
+ * @param string $post_type Optional. Post type name
+ * @return mixed Callback response, False if callback is not valid
+ */
+function fct_post_callback( $callback, $post_type = '' ) {
+	$type = fct_get_post_type_type( $post_type );
+	$callback = sprintf( $callback, $type );
+	if ( ! empty( $type ) && function_exists( $callback ) ) {
+		return call_user_func( $callback );
+	} else {
+		return false;
+	}
+}
+
 /** Formatting ****************************************************************/
 
 /**
@@ -315,7 +339,7 @@ function fct_get_paged() {
  *  - count_current_records: Count records of current year? If set to false,
  *                           diapproved, unapproved, approved and closed records 
  *                           are also not counted.
- *  - count_value_end: Count to balance value of the current year?
+ *  - count_end_value: Count to balance value of the current year?
  *  - count_current_comments: Count comments of the current year?
  * @uses fct_count_users() To count the number of registered users
  * @uses fct_get_year_post_type() To get the year post type
@@ -336,7 +360,7 @@ function fct_get_statistics( $args = '' ) {
 		'count_accounts'           => true,
 		'count_records'            => true,
 		'count_current_records'    => true,
-		'count_value_end'         => true,
+		'count_end_value'         => true,
 		'count_comments'           => true
 	);
 	$r = fct_parse_args( $args, $defaults, 'get_statistics' );
@@ -377,8 +401,8 @@ function fct_get_statistics( $args = '' ) {
 	}
 
 	// To Balance
-	if ( ! empty( $count_value_end ) ) {
-		$current_value_end = fct_get_year_value_end( fct_get_current_year_id() );
+	if ( ! empty( $count_end_value ) ) {
+		$current_end_value = fct_get_year_end_value( fct_get_current_year_id() );
 	}
 
 	// Comments
@@ -393,9 +417,9 @@ function fct_get_statistics( $args = '' ) {
 	$stats = array_map( 'absint',             $stats );
 	$stats = array_map( 'number_format_i18n', $stats );
 
-	// Add the value_end title attribute strings because we don't need to run the math functions on these (see above)
-	if ( isset( $current_value_end ) )
-		$stats['current_value_end'] = $current_value_end;
+	// Add the end_value title attribute strings because we don't need to run the math functions on these (see above)
+	if ( isset( $current_end_value ) )
+		$stats['current_end_value'] = $current_end_value;
 
 	return apply_filters( 'fct_get_statistics', $stats, $r );
 }

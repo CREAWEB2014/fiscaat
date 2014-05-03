@@ -14,12 +14,25 @@
  *
  * @since 0.0.7
  *
- * @see WP_Posts_List_Table
+ * @see WP_List_Table
  */
 class FCT_Posts_List_Table extends WP_List_Table {
 
+	/**
+	 * Holds the table row alternate value. Originally static, this
+	 * variable is now also used outside WP_List_Table::single_row()
+	 *
+	 * @since 0.0.8
+	 * @var string
+	 */
+	var $alternate;
+
 	function __construct( $args = array() ) {
 		parent::__construct( $args );
+
+		if ( method_exists( $this, '_column_content' ) ) {
+			add_action( "manage_{$this->screen->post_type}_posts_custom_column", array( $this, '_column_content' ), 10, 2 );
+		}
 	}
 
 	function ajax_user_can() {
@@ -32,6 +45,12 @@ class FCT_Posts_List_Table extends WP_List_Table {
 		// Setup post query. Post type is never given in $_GET params
 		$query_args = array( 'post_type' => $this->screen->post_type );
 		$avail_post_stati = wp_edit_posts_query( wp_parse_args( $query_args, $_GET ) );
+		
+		// Calls fct_has_{post}s
+		// @todo Does not return avail_post_stati
+		// $has_posts = fct_has_posts();
+		// var_dump( $has_posts );
+		// $avail_post_stati = array();
 
 		$total_items = $wp_query->found_posts;
 
@@ -115,6 +134,14 @@ class FCT_Posts_List_Table extends WP_List_Table {
 
 					$this->months_dropdown( $this->screen->post_type );
 
+					/**
+					 * Fires before the Filter button on the Posts and Pages list tables.
+					 *
+					 * The Filter button allows sorting by date and/or category on the
+					 * Posts list table, and sorting by date on the Pages list table.
+					 *
+					 * @since 2.1.0
+					 */
 					do_action( 'restrict_manage_posts' );
 					submit_button( __( 'Filter' ), 'button', false, false, array( 'id' => 'post-query-submit' ) );
 				}
@@ -143,6 +170,17 @@ class FCT_Posts_List_Table extends WP_List_Table {
 		$taxonomies = get_object_taxonomies( $post_type, 'objects' );
 		$taxonomies = wp_filter_object_list( $taxonomies, array( 'show_admin_column' => true ), 'and', 'name' );
 
+		/**
+		 * Filter the taxonomy columns in the Posts list table.
+		 *
+		 * The dynamic portion of the hook name, $post_type, refers to the post
+		 * type slug.
+		 *
+		 * @since 3.5.0
+		 *
+		 * @param array  $taxonomies Array of taxonomies to show columns for.
+		 * @param string $post_type  The post type.
+		 */
 		$taxonomies = apply_filters( "manage_taxonomies_for_{$post_type}_columns", $taxonomies, $post_type );
 		$taxonomies = array_filter( $taxonomies, 'taxonomy_exists' );
 
@@ -162,23 +200,32 @@ class FCT_Posts_List_Table extends WP_List_Table {
 		if ( post_type_supports( $post_type, 'comments' ) && ! in_array( $post_status, array( 'pending', 'draft', 'future' ) ) )
 			$posts_columns['comments'] = '<span class="vers"><div title="' . esc_attr__( 'Comments' ) . '" class="comment-grey-bubble"></div></span>';
 
-		// Apply WP core filters
+		/**
+		 * Filter the columns displayed in the Posts list table.
+		 *
+		 * @since 1.5.0
+		 *
+		 * @param array  $posts_columns An array of column names.
+		 * @param string $post_type     The post type slug.
+		 */
 		$posts_columns = apply_filters( 'manage_posts_columns', $posts_columns, $post_type );
+
+		/**
+		 * Filter the columns displayed in the Posts list table for a specific post type.
+		 *
+		 * The dynamic portion of the hook name, $post_type, refers to the post type slug.
+		 *
+		 * @since 3.0.0
+		 *
+		 * @param array $post_columns An array of column names.
+		 */
 		$posts_columns = apply_filters( "manage_{$post_type}_posts_columns", $posts_columns );
 
 		return apply_filters( "fct_admin_{$this->_args['plural']}_get_columns", $posts_columns );
 	}
 
-	function _get_columns() {
-		return array();
-	}
-
 	function get_sortable_columns() {
 		return apply_filters( "fct_admin_{$this->_args['plural']}_get_sortable_columns", $this->_get_sortable_columns() );
-	}
-
-	function _get_sortable_columns() {
-		return array();
 	}
 
 	function display_rows( $posts = array(), $level = 0 ) {
@@ -197,16 +244,20 @@ class FCT_Posts_List_Table extends WP_List_Table {
 		foreach ( $posts as $post ) {
 			$this->single_row( $post, $level );
 		}
+		
+		// while ( fct_posts() ) {
+		// 	$this->single_row( fct_the_post(), $level );
+		// }
 	}
 
 	function single_row( $post, $level = 0 ) {
 		global $mode;
-		static $alternate;
+		$alternate =& $this->alternate;
 
 		$global_post = get_post();
 		$GLOBALS['post'] = $post;
 		setup_postdata( $post );
-
+		
 		$edit_link = get_edit_post_link( $post->ID );
 		$title = _draft_or_post_title();
 		$post_type_object = get_post_type_object( $post->post_type );
@@ -263,27 +314,6 @@ class FCT_Posts_List_Table extends WP_List_Table {
 
 			case 'title':
 				$attributes = 'class="post-title page-title column-title"' . $style;
-				if ( $this->hierarchical_display ) {
-					if ( 0 == $level && (int) $post->post_parent > 0 ) {
-						//sent level 0 by accident, by default, or because we don't know the actual level
-						$find_main_page = (int) $post->post_parent;
-						while ( $find_main_page > 0 ) {
-							$parent = get_post( $find_main_page );
-
-							if ( is_null( $parent ) )
-								break;
-
-							$level++;
-							$find_main_page = (int) $parent->post_parent;
-
-							if ( !isset( $parent_name ) ) {
-								/** This filter is documented in wp-includes/post-template.php */
-								$parent_name = apply_filters( 'the_title', $parent->post_title, $parent->ID );
-							}
-						}
-					}
-				}
-
 				$pad = str_repeat( '&#8212; ', $level );
 				echo "<td $attributes><strong>";
 
@@ -316,9 +346,6 @@ class FCT_Posts_List_Table extends WP_List_Table {
 					echo '<div class="locked-info"><span class="locked-avatar">' . $locked_avatar . '</span> <span class="locked-text">' . $locked_text . "</span></div>\n";
 				}
 
-				if ( ! $this->hierarchical_display && 'excerpt' == $mode && current_user_can( 'read_post', $post->ID ) )
-						the_excerpt();
-
 				$actions = array();
 				if ( $can_edit_post && 'trash' != $post->post_status ) {
 					$actions['edit'] = '<a href="' . get_edit_post_link( $post->ID, true ) . '" title="' . esc_attr( __( 'Edit this item' ) ) . '">' . __( 'Edit' ) . '</a>';
@@ -341,10 +368,21 @@ class FCT_Posts_List_Table extends WP_List_Table {
 					}
 				}
 
-				$actions = apply_filters( is_post_type_hierarchical( $post->post_type ) ? 'page_row_actions' : 'post_row_actions', $actions, $post );
+				/**
+				 * Filter the array of row action links on the Posts list table.
+				 *
+				 * The filter is evaluated only for non-hierarchical post types.
+				 *
+				 * @since 2.8.0
+				 *
+				 * @param array   $actions An array of row action links. Defaults are
+				 *                         'Edit', 'Quick Edit', 'Restore, 'Trash',
+				 *                         'Delete Permanently', 'Preview', and 'View'.
+				 * @param WP_Post $post    The post object.
+				 */
+				$actions = apply_filters( 'post_row_actions', $actions, $post );
 				echo $this->row_actions( $actions );
 
-				get_inline_data( $post );
 				echo '</td>';
 			break;
 
@@ -366,10 +404,23 @@ class FCT_Posts_List_Table extends WP_List_Table {
 				}
 
 				echo '<td ' . $attributes . '>';
-				if ( 'excerpt' == $mode )
-					echo apply_filters( 'post_date_column_time', $t_time, $post, $column_name, $mode );
-				else
-					echo '<abbr title="' . $t_time . '">' . apply_filters( 'post_date_column_time', $h_time, $post, $column_name, $mode ) . '</abbr>';
+
+				/**
+				 * Filter the published time of the post.
+				 *
+				 * If $mode equals 'excerpt', the published time and date are both displayed.
+				 * If $mode equals 'list' (default), the publish date is displayed, with the
+				 * time and date together available as an abbreviation definition.
+				 *
+				 * @since 2.5.1
+				 *
+				 * @param array   $t_time      The published time.
+				 * @param WP_Post $post        Post object.
+				 * @param string  $column_name The column name.
+				 * @param string  $mode        The list display mode ('excerpt' or 'list').
+				 */
+				echo '<abbr title="' . $t_time . '">' . apply_filters( 'post_date_column_time', $h_time, $post, $column_name, $mode ) . '</abbr>';
+
 				echo '<br />';
 				if ( 'publish' == $post->post_status ) {
 					_e( 'Published' );
@@ -448,10 +499,30 @@ class FCT_Posts_List_Table extends WP_List_Table {
 				}
 			?>
 			<td <?php echo $attributes ?>><?php
-				if ( is_post_type_hierarchical( $post->post_type ) )
-					do_action( 'manage_pages_custom_column', $column_name, $post->ID );
-				else
-					do_action( 'manage_posts_custom_column', $column_name, $post->ID );
+
+				/**
+				 * Fires in each custom column in the Posts list table.
+				 *
+				 * This hook only fires if the current post type is non-hierarchical,
+				 * such as posts.
+				 *
+				 * @since 1.5.0
+				 *
+				 * @param string $column_name The name of the column to display.
+				 * @param int    $post_id     The current post ID.
+				 */
+				do_action( 'manage_posts_custom_column', $column_name, $post->ID );
+
+				/**
+				 * Fires for each custom column of a specific post type in the Posts list table.
+				 *
+				 * The dynamic portion of the hook name, $post->post_type, refers to the post type.
+				 *
+				 * @since 3.1.0
+				 *
+				 * @param string $column_name The name of the column to display.
+				 * @param int    $post_id     The current post ID.
+				 */
 				do_action( "manage_{$post->post_type}_posts_custom_column", $column_name, $post->ID );
 			?></td>
 			<?php

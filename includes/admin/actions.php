@@ -47,12 +47,12 @@ add_action( 'custom_menu_order',       'fct_admin_custom_menu_order'       );
 add_action( 'menu_order',              'fct_admin_menu_order'              );
 
 // Hook on to admin_init
-add_action( 'fct_admin_init', 'fct_admin_years'                 );
-add_action( 'fct_admin_init', 'fct_admin_accounts'              );
-add_action( 'fct_admin_init', 'fct_admin_records'               );
-add_action( 'fct_admin_init', 'fct_setup_updater',          999 );
-add_action( 'fct_admin_init', 'fct_register_importers'          );
-add_action( 'fct_admin_init', 'fct_register_admin_settings'     );
+add_action( 'fct_admin_init',          'fct_admin_years'                   );
+add_action( 'fct_admin_init',          'fct_admin_accounts'                );
+add_action( 'fct_admin_init',          'fct_admin_records'                 );
+add_action( 'fct_admin_init',          'fct_setup_updater',            999 );
+add_action( 'fct_admin_init',          'fct_register_importers'            );
+add_action( 'fct_admin_init',          'fct_register_admin_settings'       );
 
 // Initialize the admin area
 add_action( 'fct_init', 'fct_admin' );
@@ -153,10 +153,10 @@ function fct_register_admin_settings() {
  *
  * @since 0.0.7
  *
- * @uses do_action() Calls 'fct_admin_accounts_load_edit'
+ * @uses do_action() Calls 'fct_admin_load_edit_accounts'
  */
-function fct_admin_accounts_load_edit() {
-	do_action( 'fct_admin_accounts_load_edit' );
+function fct_admin_load_edit_accounts() {
+	do_action( 'fct_admin_load_edit_accounts' );
 }
 
 /**
@@ -164,10 +164,10 @@ function fct_admin_accounts_load_edit() {
  *
  * @since 0.0.7
  *
- * @uses do_action() Calls 'fct_admin_records_load_edit'
+ * @uses do_action() Calls 'fct_admin_load_edit_records'
  */
-function fct_admin_records_load_edit() {
-	do_action( 'fct_admin_records_load_edit' );
+function fct_admin_load_edit_records() {
+	do_action( 'fct_admin_load_edit_records' );
 }
 
 /**
@@ -175,10 +175,10 @@ function fct_admin_records_load_edit() {
  *
  * @since 0.0.7
  *
- * @uses do_action() Calls 'fct_admin_years_load_edit'
+ * @uses do_action() Calls 'fct_admin_load_edit_years'
  */
-function fct_admin_years_load_edit() {
-	do_action( 'fct_admin_years_load_edit' );
+function fct_admin_load_edit_years() {
+	do_action( 'fct_admin_load_edit_years' );
 }
 
 /**
@@ -186,10 +186,10 @@ function fct_admin_years_load_edit() {
  *
  * @since 0.0.8
  *
- * @uses do_action() Calls 'fct_admin_accounts_load_new'
+ * @uses do_action() Calls 'fct_admin_load_new_accounts'
  */
-function fct_admin_accounts_load_new() {
-	do_action( 'fct_admin_accounts_load_new' );
+function fct_admin_load_new_accounts() {
+	do_action( 'fct_admin_load_new_accounts' );
 }
 
 /**
@@ -197,10 +197,10 @@ function fct_admin_accounts_load_new() {
  *
  * @since 0.0.8
  *
- * @uses do_action() Calls 'fct_admin_records_load_new'
+ * @uses do_action() Calls 'fct_admin_load_new_records'
  */
-function fct_admin_records_load_new() {
-	do_action( 'fct_admin_records_load_new' );
+function fct_admin_load_new_records() {
+	do_action( 'fct_admin_load_new_records' );
 }
 
 /**
@@ -208,8 +208,8 @@ function fct_admin_records_load_new() {
  *
  * @since 0.0.8
  *
- * @uses do_action() Calls 'fct_admin_years_load_new'
+ * @uses do_action() Calls 'fct_admin_load_new_years'
  */
-function fct_admin_years_load_new() {
-	do_action( 'fct_admin_years_load_new' );
+function fct_admin_load_new_years() {
+	do_action( 'fct_admin_load_new_years' );
 }

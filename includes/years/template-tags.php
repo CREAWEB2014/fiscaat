@@ -43,35 +43,20 @@ function fct_year_post_type() {
  * @uses fct_get_year_post_type() To get the year post type id
  * @uses fct_get_year_id() To get the year id
  * @uses get_option() To get the years per page option
- * @uses current_user_can() To check if the current user is capable of editing
- *                           others' years
  * @uses apply_filters() Calls 'fct_has_years' with
- *                        bbPres::year_query::have_posts()
- *                        and bbPres::year_query
+ *                        Fiscaat::year_query::have_posts()
+ *                        and Fiscaat::year_query
  * @return object Multidimensional array of year information
  */
 function fct_has_years( $args = '' ) {
 	$fiscaat = fiscaat();
 
-	// Setup possible post__not_in array
-	$post_stati[] = fct_get_public_status_id();
-
-	// Check if user can read private years
-	if ( current_user_can( 'read_private_years' ) )
-		$post_stati[] = fct_get_private_status_id();
-
-	// Check if user can read hidden years
-	if ( current_user_can( 'read_hidden_years' ) )
-		$post_stati[] = fct_get_hidden_status_id();
-
 	// The default year query for most circumstances
 	$defaults = array (
 		'post_type'      => fct_get_year_post_type(),
-		'post_parent'    => fct_is_year_archive() ? 0 : fct_get_year_id() ,
-		'post_status'    => implode( ',', $post_stati ),
-		'posts_per_page' => get_option( '_fct_years_per_page', 50 ),
-		'orderby'        => 'menu_order',
-		'order'          => 'ASC'
+		'posts_per_page' => get_option( '_fct_years_per_page', 25 ),
+		'orderby'        => 'post_date',
+		'order'          => 'DESC'
 	);
 	$fct_f = fct_parse_args( $args, $defaults, 'has_years' );
 
@@ -441,11 +426,11 @@ function fct_year_closed( $year_id = 0 ) {
 /**
  * Output the year's end value
  *
- * @uses fct_get_year_value_end() To get the year's end value
+ * @uses fct_get_year_end_value() To get the year's end value
  * @param int $year_id Optional. Year id
  */
-function fct_year_value_end( $year_id = 0 ) {
-	echo fct_get_year_value_end( $year_id );
+function fct_year_end_value( $year_id = 0 ) {
+	echo fct_get_year_end_value( $year_id );
 }
 	/**
 	 * Return the year's end value
@@ -453,15 +438,15 @@ function fct_year_value_end( $year_id = 0 ) {
 	 * @param int $year_id Optional. Year id
 	 * @uses fct_get_year_id() To get the year id
 	 * @uses fct_get_year_meta() To get the year's end value
-	 * @uses apply_filters() Calls 'fct_get_year_value_end' with
+	 * @uses apply_filters() Calls 'fct_get_year_end_value' with
 	 *                        the end value and year id
 	 * @return float Year's end value
 	 */
-	function fct_get_year_value_end( $year_id = 0 ) {
+	function fct_get_year_end_value( $year_id = 0 ) {
 		$year_id   = fct_get_year_id( $year_id );
-		$value_end = (float) fct_get_year_meta( $year_id, 'value_end' );
+		$end_value = (float) fct_get_year_meta( $year_id, 'end_value' );
 
-		return (float) apply_filters( 'fct_get_year_value_end', $value_end, $year_id );
+		return (float) apply_filters( 'fct_get_year_end_value', $end_value, $year_id );
 	}
 
 /** Year Counts **************************************************************/

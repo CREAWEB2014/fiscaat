@@ -16,7 +16,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * @return array Filtered option names and values
  */
 function fct_get_default_options() {
-	global $wp_locale;
 
 	// Default options
 	return apply_filters( 'fct_get_default_options', array(
@@ -29,8 +28,8 @@ function fct_get_default_options() {
 
 		'_fct_currency'              => 'USD',        // Currency
 		'_fct_currency_position'     => 'left_space', // Currency Position
-		'_fct_thousands_sep'         => $wp_locale->number_format['thousands_sep'], // Thousands Separator
-		'_fct_decimal_point'         => $wp_locale->number_format['decimal_point'], // Decimal Point
+		'_fct_thousands_sep'         => '.',          // Thousands Separator
+		'_fct_decimal_point'         => ',',          // Decimal Point
 		'_fct_num_decimals'          => 2,            // Number of Decimals
 
 		/** Functionality *****************************************************/
@@ -52,7 +51,8 @@ function fct_get_default_options() {
 
 		/** Per Page **********************************************************/
 
-		'_fct_accounts_per_page'     => 15,           // Accounts per page
+		'_fct_years_per_page'        => 15,           // Years per page
+		'_fct_accounts_per_page'     => 25,           // Accounts per page
 		'_fct_records_per_page'      => 50,           // Records per page
 
 		/** Slugs Section *****************************************************/

@@ -63,23 +63,20 @@ class Fiscaat_Accounts_Admin {
 		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox'      ) );
 		add_action( 'save_post',      array( $this, 'attributes_metabox_save' ) );
 
-		// Account columns (in post row)
-		add_action( 'manage_' . $this->post_type . '_posts_custom_column', array( $this, 'accounts_column_data' ), 10, 2 );
-
 		// Check if there are any fct_toggle_account_* requests on admin_init, also have a message displayed
-		add_action( 'fct_admin_accounts_load_edit',  array( $this, 'toggle_account'         ) );
+		add_action( 'fct_admin_load_edit_accounts',  array( $this, 'toggle_account'         ) );
 		add_action( 'fct_admin_notices',             array( $this, 'toggle_account_notice'  ) );
 
 		// Contextual Help
-		add_action( 'fct_admin_accounts_load_edit',  array( $this, 'edit_help'              ) );
-		add_action( 'fct_admin_accounts_load_new',   array( $this, 'new_help'               ) );
+		add_action( 'fct_admin_load_edit_accounts',  array( $this, 'edit_help'              ) );
+		add_action( 'fct_admin_load_new_accounts',   array( $this, 'new_help'               ) );
 
 		// Fiscaat requires
-		add_action( 'fct_admin_accounts_load_new',   array( $this, 'no_year_redirect'       ) );
+		add_action( 'fct_admin_load_new_accounts',   array( $this, 'no_year_redirect'       ) );
 		
 		// Page title
 		add_action( 'fct_admin_accounts_page_title', array( $this, 'accounts_page_title'    ) );
-		add_action( 'fct_admin_accounts_page_title', array( $this, 'add_new_button'         ) );
+		add_action( 'fct_admin_accounts_page_title', array( $this, 'post_new_link'          ) );
 
 		/** Ajax **************************************************************/
 		
@@ -104,6 +101,15 @@ class Fiscaat_Accounts_Admin {
 	}
 
 	/**
+	 * Setup default admin class globals
+	 *
+	 * @access private
+	 */
+	private function setup_globals() {
+		$this->post_type = fct_get_account_post_type();
+	}
+
+	/**
 	 * Should we bail out of this method?
 	 *
 	 * @return boolean
@@ -115,15 +121,6 @@ class Fiscaat_Accounts_Admin {
 		return false;
 	}
 
-	/**
-	 * Admin globals
-	 *
-	 * @access private
-	 */
-	private function setup_globals() {
-		$this->post_type = fct_get_account_post_type();
-	}
-
 	/** Contextual Help *******************************************************/
 
 	/**
@@ -132,8 +129,8 @@ class Fiscaat_Accounts_Admin {
 	 * @uses get_current_screen()
 	 */
 	public function edit_help() {
-
-		if ( $this->bail() ) return;
+		if ( $this->bail() ) 
+			return;
 
 		// Overview
 		get_current_screen()->add_help_tab( array(
@@ -196,8 +193,8 @@ class Fiscaat_Accounts_Admin {
 	 * @uses get_current_screen()
 	 */
 	public function new_help() {
-
-		if ( $this->bail() ) return;
+		if ( $this->bail() ) 
+			return;
 
 		$customize_display = '<p>' . __( 'The title field and the big account editing Area are fixed in place, but you can reposition all the other boxes using drag and drop, and can minimize or expand them by clicking the title bar of each box. Use the Screen Options tab to unhide more boxes (Excerpt, Send Trackbacks, Custom Fields, Discussion, Slug, Author) or to choose a 1- or 2-column layout for this screen.', 'fiscaat' ) . '</p>';
 
@@ -326,8 +323,7 @@ class Fiscaat_Accounts_Admin {
 			'account_id'   => $account_id, 
 			'year_id'      => $year_id,
 			'ledger_id'    => $ledger_id,
-			'account_type' => ! empty( $_POST['fct_account_type'] ) ? $_POST['fct_account_type']       : '',
-			// 'spectators'   => ! empty( $_POST['fct_account_spectators'] )   ? (array) $_POST['fct_account_spectators'] : false,
+			'account_type' => ! empty( $_POST['fct_account_type'] ) ? $_POST['fct_account_type'] : '',
 		) );
 
 		// Allow other fun things to happen
@@ -385,14 +381,6 @@ class Fiscaat_Accounts_Admin {
 				background-color: #eaeaea;
 			}
 
-			.status-declined {
-				background-color: #faeaea;
-			}
-
-			.status-approved {
-				background-color: #eafeaf;
-			}
-
 			#fct_account_attributes .ajax-loading {
 				vertical-align: middle;
 			}
@@ -438,14 +426,14 @@ class Fiscaat_Accounts_Admin {
 	 *
 	 * @uses get_posts()
 	 * @uses fct_get_account_post_type()
-	 * @uses fct_get_account_id()
-	 * @uses fct_get_account_title()
+	 * @uses fct_get_account_year_id()
 	 */
 	public function check_ledger_id() {
 
-		// Try to get some accounts
+		// Find any matching ledger id in the account's year
 		$accounts = get_posts( array(
 			'post_type'    => fct_get_account_post_type(),
+			'post_parent'  => fct_get_account_year_id( $_REQUEST['account_id'] ),
 			'meta_key'     => '_fct_ledger_id',
 			'meta_key'     => (int) like_escape( $_REQUEST['ledger_id'] ),
 			'post__not_in' => array( (int) $_REQUEST['account_id'] ),
@@ -457,16 +445,12 @@ class Fiscaat_Accounts_Admin {
 		// If we found an account, report to user
 		if ( ! empty( $accounts ) ) {
 			foreach ( (array) $accounts as $account ) {
-
-				// Return json?
-				echo 'error.png';
+				echo 'error.png'; // Return json?
 			}
 
-		// Report okay
+		// Report no match
 		} else {
-
-			// Return json?
-			echo 'okay.png';
+			echo 'okay.png'; // Return json?
 		}
 
 		die();
@@ -610,91 +594,6 @@ class Fiscaat_Accounts_Admin {
 			unset( $columns['fct_account_year'] );
 
 		return $columns;
-	}
-
-	/**
-	 * Print extra columns for the accounts page
-	 *
-	 * @param string $column Column
-	 * @param int $account_id Account id
-	 * @uses fct_get_account_year_id() To get the year id of the account
-	 * @uses fct_get_year_title() To output the account's year title
-	 * @uses admin_url() To get the admin url of post.php
-	 * @uses add_query_arg() To add custom args to the url
-	 * @uses fct_account_record_count() To output the account record count
-	 * @uses fct_account_author_display_name() To output the account author name
-	 * @uses get_the_date() Get the account creation date
-	 * @uses get_the_time() Get the account creation time
-	 * @uses esc_attr() To sanitize the account creation time
-	 * @uses do_action() Calls 'fct_admin_accounts_column_data' with the
-	 *                    column and account id
-	 */
-	function accounts_column_data( $column, $account_id ) {
-		if ( $this->bail() ) 
-			return;
-
-		// Get account year ID
-		$year_id = fct_get_account_year_id( $account_id );
-
-		// Populate column data
-		switch ( $column ) {
-
-			// Ledger ID
-			case 'fct_account_ledger_id' :
-				fct_account_ledger_id( $account_id );
-				break;
-
-			// Account type
-			case 'fct_account_type' :
-				switch ( fct_get_account_type( $account_id ) ) {
-
-					case fct_get_revenue_account_type_id() :
-						_ex( 'R', 'Revenue account type', 'fiscaat' );
-						break;
-
-					case fct_get_capital_account_type_id() :
-						_ex( 'C', 'Capital account type', 'fiscaat' );
-						break;
-				}
-
-				break;
-
-			// Record Count
-			case 'fct_account_record_count' :
-				fct_account_record_count( $account_id );
-				break;
-
-			// Value
-			case 'fct_account_value' :
-				fct_currency_format( fct_get_account_value_end( $account_id ), true );
-				break;
-
-			// Year
-			case 'fct_account_year' :
-
-				// Output year name
-				if ( ! empty( $year_id ) ) {
-
-					// Year Title
-					$year_title = fct_get_year_title( $year_id );
-					if ( empty( $year_title ) ) {
-						$year_title = __( 'No Year', 'fiscaat' );
-					}
-
-					// Output the title
-					echo $year_title;
-
-				} else {
-					_e( '(No Year)', 'fiscaat' );
-				}
-
-				break;
-
-			// Do an action for anything else
-			default :
-				do_action( 'fct_admin_accounts_column_data', $column, $account_id );
-				break;
-		}
 	}
 
 	/**
@@ -986,7 +885,7 @@ class Fiscaat_Accounts_Admin {
 	}
 
 	/**
-	 * Append add new button to page title when there's no open year
+	 * Append post-new link to page title
 	 *
 	 * @since 0.0.8
 	 *
@@ -995,8 +894,9 @@ class Fiscaat_Accounts_Admin {
 	 * @param string $title Page title
 	 * @return string Page title
 	 */
-	public function add_new_button( $title ) {
+	public function post_new_link( $title ) {
 
+		// Require open year
 		if ( fct_has_open_year() ) {
 			$title = fct_admin_page_title_add_new( $title );
 		}

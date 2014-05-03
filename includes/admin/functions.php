@@ -246,54 +246,24 @@ function fct_admin_get_page_post_type() {
 }
 
 /**
- * Return the Fiscaat object type from the post type
- *
- * @since 0.0.8
- *
- * @uses fct_get_record_post_type()
- * @uses fct_get_account_post_type()
- * @uses fct_get_year_post_type()
- * @param string $post_type Post type
- * @return string Fiscaat object type
- */
-function fct_admin_get_post_type_type( $post_type ) {
-
-	// Match an existing type
-	switch ( $post_type ) {
-		case fct_get_record_post_type() :
-			return 'record';
-			break;
-		case fct_get_account_post_type() :
-			return 'account';
-			break;
-		case fct_get_year_post_type() :
-			return 'year';
-			break;
-	}
-
-	return '';
-}
-
-/**
  * Return the post new file for the current post type
  *
  * @since 0.0.8
  *
  * @uses fct_get_record_post_type()
- * @uses fct_admin_get_records_mode_new()
- * @param string $_post_type Optional. Post type name
+ * @uses fct_admin_get_new_records_mode()
+ * @param string $post_type Optional. Post type name
  * @return string Post new file
  */
-function fct_admin_get_post_new_file( $_post_type = '' ) {
+function fct_admin_get_post_new_file( $post_type = '' ) {
 
 	// Fallback to global post type
-	if ( empty( $post_type ) ) {
-		global $post_type;
-		$_post_type = $post_type;
+	if ( empty( $post_type ) && isset( $GLOBALS['post_type'] ) ) {
+		$post_type = $GLOBALS['post_type'];
 	}
 
-	if ( fct_get_record_post_type() == $_post_type ) {
-		$file = 'admin.php?page=fct-records&mode=' . fct_admin_get_records_mode_new();
+	if ( fct_get_record_post_type() == $post_type ) {
+		$file = 'admin.php?page=fct-records&mode=' . fct_admin_get_new_records_mode();
 	} else {
 		$file = "post-new.php?post_type=$post_type";
 	}
@@ -430,4 +400,106 @@ function fct_admin_page_title_add_new( $title ) {
 	}
 
 	return $title;
+}
+
+/** Records Mode **********************************************************/
+
+/**
+ * Return the current records mode
+ * 
+ * @since 0.0.8
+ *
+ * @uses get_current_screen()
+ * @uses fct_admin_get_new_records_mode()
+ * @uses fct_admin_get_edit_records_mode()
+ * @uses fct_admin_get_view_records_mode()
+ * @return string Records mode. Either 'post', 'edit', 'view' or empty
+ */
+function fct_admin_get_records_mode() {
+
+	// Page has record's post type and is in mode
+	if ( isset( get_current_screen()->post_type ) && ( fct_get_record_post_type() == get_current_screen()->post_type ) 
+		&& isset( $_GET['mode'] ) && in_array( $_GET['mode'], array( 
+			fct_admin_get_new_records_mode(), 
+			fct_admin_get_edit_records_mode(), 
+			fct_admin_get_view_records_mode() 
+	) ) ) {
+		$mode = $_GET['mode'];
+
+	// Default empty
+	} else {
+		$mode = '';
+	}
+
+	return $mode;
+}
+
+/**
+ * Return the post-new records mode
+ *
+ * @since 0.0.8
+ * 
+ * @return string Records post-new mode
+ */
+function fct_admin_get_new_records_mode() {
+	return apply_filters( 'fct_admin_get_new_records_mode', 'post' );
+}
+
+/**
+ * Return the edit records mode
+ *
+ * @since 0.0.8
+ * 
+ * @return string Records edit mode
+ */
+function fct_admin_get_edit_records_mode() {
+	return apply_filters( 'fct_admin_get_edit_records_mode', 'edit' );
+}
+
+/**
+ * Return the view records mode
+ *
+ * @since 0.0.8
+ * 
+ * @return string Records view mode
+ */
+function fct_admin_get_view_records_mode() {
+	return apply_filters( 'fct_admin_get_view_records_mode', 'view' );
+}
+
+/**
+ * Return whether the current page is the records post-new mode
+ *
+ * @since 0.0.8
+ *
+ * @uses fct_admin_get_new_records_mode()
+ * @uses fct_admin_get_records_mode()
+ * @return bool Page is records post-new mode
+ */
+function fct_admin_is_new_records() {
+	return fct_admin_get_new_records_mode() == fct_admin_get_records_mode();
+}
+
+/**
+ * Return whether the current page is the records edit mode
+ *
+ * @since 0.0.8
+ * 
+ * @return bool Page is records edit mode
+ */
+function fct_admin_is_edit_records() {
+	return fct_admin_get_edit_records_mode() == fct_admin_get_records_mode();
+}
+
+/**
+ * Return whether the current page is the records edit mode
+ *
+ * @since 0.0.8
+ * 
+ * @uses fct_admin_is_new_records()
+ * @uses fct_admin_is_edit_records()
+ * @return bool Page is records edit mode
+ */
+function fct_admin_is_view_records() {
+	return ! fct_admin_is_new_records() && ! fct_admin_is_edit_records();
 }

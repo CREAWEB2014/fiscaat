@@ -23,8 +23,8 @@ function fct_get_account_default_meta(){
 		'ledger_id'    => 0,                         // Account ledger id
 		'account_type' => '',                        // 'revenue' or 'capital'
 		'record_count' => 0,                         // Record count
-		'value_start'  => 0,                         // Balance value at start
-		'value_end'    => 0,                         // Balance value at end
+		'start_value'  => 0,                         // Balance value at start
+		'end_value'    => 0,                         // Balance value at end
 	) );
 }
 
@@ -165,11 +165,11 @@ function fct_bump_account_record_count( $account_id = 0, $difference = 1 ) {
  * @uses fct_get_debit_record_type_id() To get the debit type id
  * @uses fct_get_credit_record_type_id() To get the credit type id
  * @uses fct_update_account_meta() To update the account's end value
- * @uses apply_filters() Calls 'fct_bump_account_value_end' with the end value,
+ * @uses apply_filters() Calls 'fct_bump_account_end_value' with the end value,
  *                               account id, added amount, and record type
  * @return float Account end value
  */
-function fct_bump_account_value_end( $account_id = 0, $amount = 0, $record_type = '' ) {
+function fct_bump_account_end_value( $account_id = 0, $amount = 0, $record_type = '' ) {
 
 	// Bail if no valid params
 	if ( empty( $amount ) || ! in_array( $record_type, array_keys( fct_get_record_types() ) ) )
@@ -183,22 +183,22 @@ function fct_bump_account_value_end( $account_id = 0, $amount = 0, $record_type 
 	}
 
 	// Get end value
-	$value_end     = fct_get_account_meta( $account_id, 'value_end' );
-	$new_value_end = (float) $value_end;
+	$end_value     = fct_get_account_meta( $account_id, 'end_value' );
+	$new_end_value = (float) $end_value;
 
 	// Value less debit
 	if ( $record_type == fct_get_debit_record_type_id() ) {
-		$new_value_end -= (float) $amount;
+		$new_end_value -= (float) $amount;
 
 	// Value plus credit
 	} elseif ( $record_type == fct_get_credit_record_type_id() ) {
-		$new_value_end += (float) $amount;
+		$new_end_value += (float) $amount;
 	}
 
 	// Update this account's end value
-	fct_update_account_meta( $account_id, 'value_end', (float) $new_value_end );
+	fct_update_account_meta( $account_id, 'end_value', (float) $new_end_value );
 
-	return (float) apply_filters( 'fct_bump_account_value_end', (float) $new_value_end, $account_id, (float) $value, $record_type );
+	return (float) apply_filters( 'fct_bump_account_end_value', (float) $new_end_value, $account_id, (float) $value, $record_type );
 }
 
 /** Account Updaters ************************************************************/
@@ -355,11 +355,11 @@ function fct_update_account_record_count( $account_id = 0, $record_count = 0 ) {
  * @uses fct_get_debit_record_type_id() To get the debit type id
  * @uses fct_get_credit_record_type_id() To get the credit type id
  * @uses fct_update_record_meta() To update the record's to value and value type
- * @uses apply_filters() Calls 'fct_update_account_value_end' with the to value
+ * @uses apply_filters() Calls 'fct_update_account_end_value' with the to value
  *                               and account id
  * @return int Account to value
  */
-function fct_update_account_value_end( $account_id = 0, $value_end = false ) {
+function fct_update_account_end_value( $account_id = 0, $end_value = false ) {
 
 	// If it's a record, then get the parent (account id)
 	if ( fct_is_record( $account_id ) ) {
@@ -369,7 +369,7 @@ function fct_update_account_value_end( $account_id = 0, $value_end = false ) {
 	}
 
 	// Get value if none given
-	if ( false === $value_end ) {
+	if ( false === $end_value ) {
 
 		// Get records of account
 		$record_ids = fct_get_public_child_ids( $account_id, fct_get_record_post_type() );
@@ -385,17 +385,17 @@ function fct_update_account_value_end( $account_id = 0, $value_end = false ) {
 			}
 
 			// Less credit with debit
-			$value_end = $values[ fct_get_credit_record_type_id() ] - $values[ fct_get_debit_record_type_id() ];
+			$end_value = $values[ fct_get_credit_record_type_id() ] - $values[ fct_get_debit_record_type_id() ];
 
 		// No records
 		} else {
-			$value_end = 0;
+			$end_value = 0;
 		}
 	}
 
-	fct_update_account_meta( $account_id, 'value_end', (float) $value_end );
+	fct_update_account_meta( $account_id, 'end_value', (float) $end_value );
 
-	return (float) apply_filters( 'fct_update_account_value_end', (float) $value_end, $account_id );
+	return (float) apply_filters( 'fct_update_account_end_value', (float) $end_value, $account_id );
 }
 
 /**
@@ -446,7 +446,7 @@ function fct_update_account( $args = '' ) {
 		'year_id'      => 0,
 		'ledger_id'    => 0,
 		'account_type' => '',
-		'value_end'    => false,
+		'end_value'    => false,
 		'spectators'   => false,
 		'is_edit'      => true
 	);
@@ -484,7 +484,7 @@ function fct_update_account( $args = '' ) {
 		// @todo Move to Control
 		// fct_update_account_record_count_declined  ( $account_id, 0         );
 		// fct_update_account_record_count_unapproved( $account_id, 0         );
-		fct_update_account_value_end              ( $account_id, $value_end );
+		fct_update_account_end_value              ( $account_id, $end_value );
 
 		// Update account year
 		fct_update_year( array( 'year_id' => $year_id ) );

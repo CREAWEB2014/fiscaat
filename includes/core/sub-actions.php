@@ -178,7 +178,7 @@ function fct_enqueue_scripts() {
 }
 
 /**
- * Add the bbPress-specific rewrite tags
+ * Add the Fiscaats-specific rewrite tags
  *
  * @uses do_action() Calls 'fct_add_rewrite_tags'
  */
@@ -265,7 +265,7 @@ function fct_request( $query_vars = array() ) {
 }
 
 /**
- * Generate bbPress-specific rewrite rules
+ * Generate Fiscaats-specific rewrite rules
  *
  * @param WP_Rewrite $wp_rewrite
  * @uses do_action() Calls 'fct_generate_rewrite_rules' with {@link WP_Rewrite}

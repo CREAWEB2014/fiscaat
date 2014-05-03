@@ -53,15 +53,15 @@ function fct_record_post_type() {
  * @uses apply_filters() Calls 'fct_records_pagination' with the pagination args
  * @uses paginate_links() To paginate the links
  * @uses apply_filters() Calls 'fct_has_records' with
- *                        bbPres::record_query::have_posts()
- *                        and bbPres::record_query
+ *                        Fiscaat::record_query::have_posts()
+ *                        and Fiscaat::record_query
  * @return object Multidimensional array of record information
  */
 function fct_has_records( $args = '' ) {
 	global $wp_rewrite;
 
 	// What are the default allowed statuses (based on user caps)
-	$post_statuses = array( fct_get_public_status_id(), fct_get_declined_status_id(), fct_get_approved_status_id(), fct_get_closed_status_id() );
+	$post_statuses = array( fct_get_public_status_id(), fct_get_closed_status_id() );
 
 	$default_record_search = ! empty( $_REQUEST['rs'] ) ? $_REQUEST['rs'] : false;
 	$default_post_parent   = ( fct_is_single_account() ) ? fct_get_account_id() : 'any';
@@ -70,14 +70,14 @@ function fct_has_records( $args = '' ) {
 
 	// Default query args
 	$default = array(
-		'post_type'      => $default_post_type,             // Only records
-		'post_parent'    => $default_post_parent,           // Of this account
-		'post_status'    => $default_post_status,           // Of this status
+		'post_type'      => $default_post_type,         // Only records
+		'post_parent'    => $default_post_parent,       // Of this account
+		'post_status'    => $default_post_status,       // Of this status
 		'posts_per_page' => fct_get_records_per_page(), // This many
 		'paged'          => fct_get_paged(),            // On this page
-		'orderby'        => 'date',                         // Sorted by date
-		'order'          => 'ASC',                          // Oldest to newest
-		's'              => $default_record_search,         // Maybe search
+		'orderby'        => 'date',                     // Sorted by date
+		'order'          => 'ASC',                      // Oldest to newest
+		's'              => $default_record_search,     // Maybe search
 	);
 
 	// Set up account variables

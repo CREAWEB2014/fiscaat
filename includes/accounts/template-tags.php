@@ -55,8 +55,8 @@ function fct_account_post_type() {
  * @uses apply_filters() Calls 'fct_accounts_pagination' with the pagination args
  * @uses paginate_links() To paginate the links
  * @uses apply_filters() Calls 'fct_has_accounts' with
- *                        bbPres::account_query::have_posts()
- *                        and bbPres::account_query
+ *                        Fiscaat::account_query::have_posts()
+ *                        and Fiscaat::account_query
  * @return object Multidimensional array of account information
  */
 function fct_has_accounts( $args = '' ) {
@@ -763,10 +763,10 @@ function fct_account_type( $account_id = 0 ) {
  * Output the start value of an account
  *
  * @param int $account_id Optional. Account id
- * @uses fct_get_account_value_start()
+ * @uses fct_get_account_start_value()
  */
-function fct_account_value_start( $account_id = 0 ) {
-	echo fct_get_account_value_start( $account_id );
+function fct_account_start_value( $account_id = 0 ) {
+	echo fct_get_account_start_value( $account_id );
 }
 	/**
 	 * Return the start value of an account
@@ -774,25 +774,25 @@ function fct_account_value_start( $account_id = 0 ) {
 	 * @param int $account_id Optional. Account id
 	 * @uses fct_get_account_id() To get account id
 	 * @uses fct_get_account_meta() To retrieve get account's start value meta
-	 * @uses apply_filters() Calls 'fct_get_account_value_start' with the year
+	 * @uses apply_filters() Calls 'fct_get_account_start_value' with the year
 	 *                        id and account id
 	 * @return int Account's start value
 	 */
-	function fct_get_account_value_start( $account_id = 0 ) {
+	function fct_get_account_start_value( $account_id = 0 ) {
 		$account_id  = fct_get_account_id( $account_id );
-		$value_start = (float) fct_get_account_meta( $account_id, 'value_start' );
+		$start_value = (float) fct_get_account_meta( $account_id, 'start_value' );
 
-		return (float) apply_filters( 'fct_get_account_value_start', $value_start, $account_id );
+		return (float) apply_filters( 'fct_get_account_start_value', $start_value, $account_id );
 	}
 
 /**
  * Output the end value of an account
  *
  * @param int $account_id Optional. Account id
- * @uses fct_get_account_value_end()
+ * @uses fct_get_account_end_value()
  */
-function fct_account_value_end( $account_id = 0 ) {
-	echo fct_get_account_value_end( $account_id );
+function fct_account_end_value( $account_id = 0 ) {
+	echo fct_get_account_end_value( $account_id );
 }
 	/**
 	 * Return the end value of an account
@@ -800,15 +800,15 @@ function fct_account_value_end( $account_id = 0 ) {
 	 * @param int $account_id Optional. Account id
 	 * @uses fct_get_account_id() To get account id
 	 * @uses fct_get_account_meta() To retrieve get account's end value meta
-	 * @uses apply_filters() Calls 'fct_get_account_value_end' with the year
+	 * @uses apply_filters() Calls 'fct_get_account_end_value' with the year
 	 *                        id and account id
 	 * @return int Account's end value
 	 */
-	function fct_get_account_value_end( $account_id = 0 ) {
+	function fct_get_account_end_value( $account_id = 0 ) {
 		$account_id = fct_get_account_id( $account_id );
-		$value_end  = (float) fct_get_account_meta( $account_id, 'value_end' );
+		$end_value  = (float) fct_get_account_meta( $account_id, 'end_value' );
 
-		return (float) apply_filters( 'fct_get_account_value_end', $value_end, $account_id );
+		return (float) apply_filters( 'fct_get_account_end_value', $end_value, $account_id );
 	}
 
 /**

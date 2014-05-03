@@ -142,6 +142,14 @@ function fct_admin_get_settings_fields() {
 
 		'fct_settings_per_page' => array(
 
+			// Years per page setting
+			'_fct_years_per_page' => array(
+				'title'             => __( 'Years', 'fiscaat' ),
+				'callback'          => 'fct_admin_setting_callback_years_per_page',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
 			// Accounts per page setting
 			'_fct_accounts_per_page' => array(
 				'title'             => __( 'Accounts', 'fiscaat' ),
@@ -538,6 +546,20 @@ function fct_admin_setting_callback_per_page_section() {
 ?>
 
 	<p><?php _e( 'How many accounts and records to show per page', 'fiscaat' ); ?></p>
+
+<?php
+}
+
+/**
+ * Years per page setting field
+ *
+ * @uses fct_form_option() To output the option value
+ */
+function fct_admin_setting_callback_years_per_page() {
+?>
+
+	<input name="_fct_years_per_page" type="number" min="1" step="1" id="_fct_years_per_page" value="<?php fct_form_option( '_fct_years_per_page', '15' ); ?>" class="small-text" <?php fct_maybe_admin_setting_disabled( '_fct_years_per_page' ); ?> />
+	<label for="_fct_years_per_page"><?php _e( 'per page', 'fiscaat' ); ?></label>
 
 <?php
 }

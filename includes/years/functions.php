@@ -23,7 +23,7 @@ function fct_get_year_default_meta(){
 		'closed'        => 0, // Year date closed
 		'account_count' => 0, // Total year account count
 		'record_count'  => 0, // Total record count
-		'value_end'     => 0, // Current year end value
+		'end_value'     => 0, // Current year end value
 	) );
 }
 
@@ -408,10 +408,10 @@ function fct_update_year_record_count( $year_id = 0 ) {
  * @param int $year_id Optional. Year id or record id. It is checked whether it
  *                       is a record or a year. If it's a record, its grandparent,
  *                       i.e. the year is automatically retrieved.
- * @param int $value_end Optional. The end value
+ * @param int $end_value Optional. The end value
  * @return int Year total end value
  */
-function fct_update_year_value_end( $year_id = 0, $value_end = 0 ) {
+function fct_update_year_end_value( $year_id = 0, $end_value = 0 ) {
 	
 	// If record_id was passed as $year_id, then get its year
 	if ( fct_is_record( $year_id ) ) {
@@ -427,20 +427,20 @@ function fct_update_year_value_end( $year_id = 0, $value_end = 0 ) {
 	$records = (array) fct_year_query_revenue_record_ids( $year_id );
 
 	// Has records and value isn't given
-	if ( ! empty( $records ) && empty( $value_end ) ){
+	if ( ! empty( $records ) && empty( $end_value ) ){
 
 		// Loop all records and add the result value
 		foreach ( $records as $record_id ){
-			$value_end += fct_get_debit_record_type_id() == fct_get_record_type( $record_id )
+			$end_value += fct_get_debit_record_type_id() == fct_get_record_type( $record_id )
 				? fct_get_record_value( $record_id ) * -1
 				: fct_get_record_value( $record_id );
 		}
 	}
 
 	// Update the value
-	fct_update_year_meta( $year_id, 'value_end', (float) $value_end );
+	fct_update_year_meta( $year_id, 'end_value', (float) $end_value );
 
-	return (float) apply_filters( 'fct_update_year_value_end', (float) $value_end, $year_id );
+	return (float) apply_filters( 'fct_update_year_end_value', (float) $end_value, $year_id );
 }
 
 /**
@@ -452,8 +452,8 @@ function fct_update_year_value_end( $year_id = 0, $value_end = 0 ) {
  *
  * @param mixed $args Supports these arguments:
  *  - year_id: Year id
- *  - value_end: To balance value
- * @uses fct_update_year_value_end() To update the year to balance value
+ *  - end_value: To balance value
+ * @uses fct_update_year_end_value() To update the year to balance value
  * @uses fct_update_year_account_count() To update the year account count
  * @uses fct_update_year_record_count() To update the year record count
  * @uses fct_update_year_record_count_declined() To update the declined record count
@@ -462,7 +462,7 @@ function fct_update_year_value_end( $year_id = 0, $value_end = 0 ) {
 function fct_update_year( $args = '' ) {
 	$defaults = array(
 		'year_id'   => 0,
-		'value_end' => 0
+		'end_value' => 0
 	);
 	$r = fct_parse_args( $args, $defaults, 'update_year' );
 	extract( $r );
@@ -471,7 +471,7 @@ function fct_update_year( $args = '' ) {
 	$year_id = fct_get_year_id( $year_id );
 
 	// Update year to balance
-	fct_update_year_value_end( $year_id, $value_end );
+	fct_update_year_end_value( $year_id, $end_value );
 
 	// Counts
 	fct_update_year_account_count          ( $year_id );

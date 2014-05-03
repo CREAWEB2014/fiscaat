@@ -17,6 +17,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * 
  * @param int $record_id
  * @return array
+ * @todo  Add record_created arg?
  */
 function fct_get_record_default_meta(){
 	return apply_filters( 'fct_get_record_default_meta', array(

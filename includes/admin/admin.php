@@ -115,7 +115,7 @@ class Fiscaat_Admin {
 		require( $this->admin_dir . 'years.php'     );
 
 		// Record new/edit pages
-		require( $this->admin_dir . 'includes/class-fiscaat-admin-records.php' );
+		// require( $this->admin_dir . 'includes/class-fiscaat-admin-records.php' );
 		// require( $this->admin_dir . 'records-edit.php' );
 		// require( $this->admin_dir . 'records-new.php'  );
 	}
@@ -166,11 +166,11 @@ class Fiscaat_Admin {
 	/**
 	 * Return the Fiscaat admin page type
 	 *
-	 * Sets the page type when unavailable on the fly.
+	 * Based on 'page' query parameter, to identify required post type.
 	 *
 	 * @since 0.0.7
 	 * 
-	 * @return string Page type. Either empty, 'record', 'account' or 'year'
+	 * @return string|bool Page type. Either false, 'record', 'account' or 'year'
 	 */
 	public function get_page_type() {
 
@@ -372,7 +372,7 @@ class Fiscaat_Admin {
 		$wp_list_table = fct_get_list_table( $class, array( 'screen' => get_current_screen() ) );
 
 		// Setup type specific load hook
-		add_action( current_filter(), "fct_admin_{$type}s_load_edit" );
+		add_action( current_filter(), "fct_admin_load_edit_{$type}s" );
 
 		// Prepare items at the end of load hook
 		add_action( current_filter(), array( $wp_list_table, 'prepare_items' ), 90 );
@@ -389,22 +389,16 @@ class Fiscaat_Admin {
 	 * @uses fct_get_year_post_type() To get the year post type
 	 * @uses fct_get_account_post_type() To get the account post type
 	 * @uses fct_get_record_post_type() To get the record post type
-	 * @uses fct_admin_get_post_type_type()
+	 * @uses fct_get_post_type_type()
 	 */
 	public function setup_new_posts() {
 
 		// Bail if not a Fiscaat post type
-		if ( ! isset( $_GET['post_type'] ) || ! in_array( $_GET['post_type'], array(
-				fct_get_record_post_type(),
-				fct_get_account_post_type(),
-				fct_get_year_post_type()
-			) ) )
+		if ( ! isset( $_GET['post_type'] ) || ! $type = fct_get_post_type_type( $_GET['post_type'] ) )
 			return;
 
-		$type = fct_admin_get_post_type_type( $_GET['post_type'] );
-
 		// Setup type specific load hook
-		add_action( current_filter(), "fct_admin_{$type}s_load_new" );
+		add_action( current_filter(), "fct_admin_load_new_{$type}s" );
 	}
 
 	/**
@@ -591,7 +585,9 @@ class Fiscaat_Admin {
 	 * @uses wp_add_dashboard_widget() To add the dashboard widget
 	 */
 	public static function dashboard_widget_right_now() {
-		wp_add_dashboard_widget( 'fiscaat-dashboard-right-now', _x( 'Fiscaat', 'Right now in Fiscaat', 'fiscaat' ), 'fct_dashboard_widget_right_now' );
+		if ( current_user_can( $this->minimum_capability ) ) {
+			wp_add_dashboard_widget( 'fct-dashboard-right-now', _x( 'Fiscaat', 'Right now in Fiscaat', 'fiscaat' ), 'fct_dashboard_widget_right_now' );
+		}
 	}
 
 	/**
@@ -622,7 +618,7 @@ class Fiscaat_Admin {
 			// item, associating any page (post-new.php) with the relevant post type.
 			if ( isset( $post_type ) && $post_type == $_post_type ) {
 				$parent_file  = 'fiscaat'; // @todo Fix not showing toplevel menu
-				$submenu_file = 'fct-' . fct_admin_get_post_type_type( $post_type ) . 's';
+				$submenu_file = 'fct-' . fct_get_post_type_type( $post_type ) . 's';
 			}
 		}
 
@@ -688,20 +684,20 @@ class Fiscaat_Admin {
 				max-width: 193px;
 			}
 
-
-			#fiscaat-dashboard-right-now p.sub,
-			#fiscaat-dashboard-right-now .table,
-			#fiscaat-dashboard-right-now .versions {
+			/* Dashboard widget Right Now */
+			#fct-dashboard-right-now p.sub,
+			#fct-dashboard-right-now .table,
+			#fct-dashboard-right-now .versions {
 				margin: -12px;
 			}
 
-			#fiscaat-dashboard-right-now .inside {
+			#fct-dashboard-right-now .inside {
 				font-size: 12px;
 				padding-top: 20px;
 				margin-bottom: 0;
 			}
 
-			#fiscaat-dashboard-right-now p.sub {
+			#fct-dashboard-right-now p.sub {
 				padding: 5px 0 15px;
 				color: #8f8f8f;
 				font-size: 14px;
@@ -709,107 +705,107 @@ class Fiscaat_Admin {
 				top: -17px;
 				left: 15px;
 			}
-				body.rtl #fiscaat-dashboard-right-now p.sub {
+				body.rtl #fct-dashboard-right-now p.sub {
 					right: 15px;
 					left: 0;
 				}
 
-			#fiscaat-dashboard-right-now .table {
+			#fct-dashboard-right-now .table {
 				margin: 0;
 				padding: 0;
 				position: relative;
 			}
 
-			#fiscaat-dashboard-right-now .table_content {
+			#fct-dashboard-right-now .table_content {
 				float: left;
 				border-top: #ececec 1px solid;
 				width: 45%;
 			}
-				body.rtl #fiscaat-dashboard-right-now .table_content {
+				body.rtl #fct-dashboard-right-now .table_content {
 					float: right;
 				}
 
-			#fiscaat-dashboard-right-now .table_discussion {
+			#fct-dashboard-right-now .table_discussion {
 				float: right;
 				border-top: #ececec 1px solid;
 				width: 45%;
 			}
-				body.rtl #fiscaat-dashboard-right-now .table_discussion {
+				body.rtl #fct-dashboard-right-now .table_discussion {
 					float: left;
 				}
 
-			#fiscaat-dashboard-right-now table td {
+			#fct-dashboard-right-now table td {
 				padding: 3px 0;
 				white-space: nowrap;
 			}
 
-			#fiscaat-dashboard-right-now table tr.first td {
+			#fct-dashboard-right-now table tr.first td {
 				border-top: none;
 			}
 
-			#fiscaat-dashboard-right-now td.b {
+			#fct-dashboard-right-now td.b {
 				padding-right: 6px;
 				text-align: right;
 				font-family: Georgia, "Times New Roman", "Bitstream Charter", Times, serif;
 				font-size: 14px;
 				width: 1%;
 			}
-				body.rtl #fiscaat-dashboard-right-now td.b {
+				body.rtl #fct-dashboard-right-now td.b {
 					padding-left: 6px;
 					padding-right: 0;
 				}
 
-			#fiscaat-dashboard-right-now td.b a {
+			#fct-dashboard-right-now td.b a {
 				font-size: 18px;
 			}
 
-			#fiscaat-dashboard-right-now td.b a:hover {
+			#fct-dashboard-right-now td.b a:hover {
 				color: #d54e21;
 			}
 
-			#fiscaat-dashboard-right-now .t {
+			#fct-dashboard-right-now .t {
 				font-size: 12px;
 				padding-right: 12px;
 				padding-top: 6px;
 				color: #777;
 			}
-				body.rtl #fiscaat-dashboard-right-now .t {
+				body.rtl #fct-dashboard-right-now .t {
 					padding-left: 12px;
 					padding-right: 0;
 				}
 
-			#fiscaat-dashboard-right-now .t a {
+			#fct-dashboard-right-now .t a {
 				white-space: nowrap;
 			}
 
-			#fiscaat-dashboard-right-now .spam {
+			#fct-dashboard-right-now .spam {
 				color: red;
 			}
 
-			#fiscaat-dashboard-right-now .waiting {
+			#fct-dashboard-right-now .waiting {
 				color: #e66f00;
 			}
 
-			#fiscaat-dashboard-right-now .approved {
+			#fct-dashboard-right-now .approved {
 				color: green;
 			}
 
-			#fiscaat-dashboard-right-now .versions {
+			#fct-dashboard-right-now .versions {
 				padding: 6px 10px 12px;
 				clear: both;
 			}
 
-			#fiscaat-dashboard-right-now .versions .b {
+			#fct-dashboard-right-now .versions .b {
 				font-weight: bold;
 			}
 
-			#fiscaat-dashboard-right-now a.button {
+			#fct-dashboard-right-now a.button {
 				float: right;
 				clear: right;
 				position: relative;
 				top: -5px;
 			}
-				body.rtl #fiscaat-dashboard-right-now a.button {
+				body.rtl #fct-dashboard-right-now a.button {
 					float: left;
 					clear: left;
 				}
@@ -830,7 +826,7 @@ class Fiscaat_Admin {
 	 * @uses fct_get_year_post_type() To get the year post type
 	 * @uses fct_get_account_post_type() To get the account post type
 	 * @uses fct_get_record_post_type() To get the record post type
-	 * @uses fct_admin_get_post_type_type()
+	 * @uses fct_get_post_type_type()
 	 * @uses wp_redirect()
 	 */
 	public function redirect_edit_pages() {
@@ -843,7 +839,7 @@ class Fiscaat_Admin {
 			) ) )
 			return;
 
-		$type = fct_admin_get_post_type_type( $_GET['post_type'] );
+		$type = fct_get_post_type_type( $_GET['post_type'] );
 		wp_redirect( add_query_arg( 'page', "fct-{$type}s", admin_url( 'admin.php' ) ) );
 		exit;
 	}

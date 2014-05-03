@@ -114,18 +114,18 @@ function fct_dashboard_widget_right_now() {
 		<table>
 			<tr class="first">
 				<?php
-					$num  = fct_get_currency_format( $current_value_end, true );
+					$num  = fct_get_currency_format( $current_end_value, true );
 					$text = __( 'To Balance', 'fiscaat' );
 					if ( current_user_can( 'fct_spectate' ) ) {
 						$link = add_query_arg( array( 'post_type' => fct_get_account_post_type(), 'fct_year_id' => fct_get_current_year_id() ), get_admin_url( null, 'edit.php' ) );
-						$class = $current_value_end < 0 ? ' class="spam"' : ''; // Coloring
+						$class = $current_end_value < 0 ? ' class="spam"' : ''; // Coloring
 						$num  = '<a'. $class .' href="' . $link . '">' . $num  . '</a>';
 						$text = '<a href="' . $link . '">' . $text . '</a>';
 					}
 				?>
 
-				<td class="b b-value_end"><span class="total-count"><?php echo $num; ?></span></td>
-				<td class="last t value_end"><?php echo $text; ?></td>
+				<td class="b b-end_value"><span class="total-count"><?php echo $num; ?></span></td>
+				<td class="last t end_value"><?php echo $text; ?></td>
 			</tr>
 
 			<tr>
@@ -156,8 +156,8 @@ function fct_dashboard_widget_right_now() {
 					}
 				?>
 
-				<td class="b b-value_end"><span class="total-count"><?php echo $num; ?></span></td>
-				<td class="last t value_end"><?php echo $text; ?></td>
+				<td class="b b-end_value"><span class="total-count"><?php echo $num; ?></span></td>
+				<td class="last t end_value"><?php echo $text; ?></td>
 			</tr>
 
 			<?php endif; ?>

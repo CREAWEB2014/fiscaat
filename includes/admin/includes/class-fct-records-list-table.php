@@ -12,15 +12,46 @@
 class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 	/**
+	 * Holds the parent account id when displaying account records
+	 *
+	 * @since 0.0.8
+	 * @var int|bool
+	 * @access protected
+	 */
+	var $parent_account = false;
+
+	/**
+	 * Holds the debit and credit record amounts
+	 *
+	 * @since 0.0.8
+	 * @var array
+	 * @access protected
+	 */
+	var $amounts;
+
+	/**
 	 * Constructs the posts list table
 	 * 
 	 * @param array $args
 	 */
 	function __construct( $args = array() ) {
 		parent::__construct( array(
-			'plural' => 'records',
-			'screen' => isset( $args['screen'] ) ? $args['screen'] : null,
+			'plural'   => 'records',
+			'singular' => 'record',
+			'screen'   => isset( $args['screen'] ) ? $args['screen'] : null,
 		) );
+
+		// Displaying account records
+		if ( isset( $_GET['fct_account_id'] ) && ! empty( $_GET['fct_account_id'] ) )
+			$this->parent_account = $_GET['fct_account_id'];
+
+		// Setup amounts counter
+		$this->amounts = array( fct_get_debit_record_type_id() => array(), fct_get_credit_record_type_id() => array() );
+
+		// Single row data
+		add_action( 'fct_admin_records_start_row',  array( $this, '_start_or_end_row' ) );
+		add_action( 'fct_admin_records_end_row',    array( $this, '_start_or_end_row' ) );
+		add_action( 'fct_admin_records_total_row',  array( $this, '_total_row'        ) );
 	}
 
 	/**
@@ -33,10 +64,69 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	function prepare_items() {
 
 		/**
-		 * Various actions: view, edit, add-new, import
+		 * Various actions: view, edit, post
 		 */
 		
 		parent::prepare_items();
+	}
+
+	/**
+	 * Return post status views
+	 *
+	 * Use {@link fct_count_posts()} when displaying account's records.
+	 * Additionally append the account id query arg to the views's urls.
+	 *
+	 * @since 0.0.8
+	 *
+	 * @uses fct_count_posts()
+	 * @return array Views
+	 */
+	function get_views() {
+		global $locked_post_status, $avail_post_stati;
+
+		$post_type = $this->screen->post_type;
+
+		if ( ! empty( $locked_post_status ) )
+			return array();
+
+		if ( $this->parent_account ) {
+			$num_posts = fct_count_posts( array( 'type' => $post_type, 'perm' => 'readable', 'parent' => $this->parent_account ) );
+			$parent    = '&fct_account_id=' . $this->parent_account;
+		} else {
+			$num_posts = wp_count_posts( $post_type, 'readable' );
+			$parent    = '';
+		}
+
+		$status_links  = array();
+		$class         = '';
+		$total_posts   = array_sum( (array) $num_posts );
+
+		// Subtract post types that are not included in the admin all list.
+		foreach ( get_post_stati( array( 'show_in_admin_all_list' => false ) ) as $state ) {
+			$total_posts -= $num_posts->$state;
+		}
+
+		$class = empty( $class ) && empty( $_REQUEST['post_status'] ) && empty( $_REQUEST['show_sticky'] ) ? ' class="current"' : '';
+		$status_links['all'] = "<a href='edit.php?post_type=$post_type{$parent}'$class>" . sprintf( _nx( 'All <span class="count">(%s)</span>', 'All <span class="count">(%s)</span>', $total_posts, 'posts' ), number_format_i18n( $total_posts ) ) . '</a>';
+
+		foreach ( get_post_stati( array( 'show_in_admin_status_list' => true ), 'objects' ) as $status ) {
+			$class = '';
+
+			$status_name = $status->name;
+
+			if ( ! in_array( $status_name, $avail_post_stati ) )
+				continue;
+
+			if ( empty( $num_posts->$status_name ) )
+				continue;
+
+			if ( isset( $_REQUEST['post_status'] ) && $status_name == $_REQUEST['post_status'] )
+				$class = ' class="current"';
+
+			$status_links[$status_name] = "<a href='edit.php?post_status=$status_name&amp;post_type=$post_type{$parent}'$class>" . sprintf( translate_nooped_plural( $status->label_count, $num_posts->$status_name ), number_format_i18n( $num_posts->$status_name ) ) . '</a>';
+		}
+
+		return apply_filters( "fct_admin_get_{$this->_args['plural']}_views", $status_links );
 	}
 
 	function _get_bulk_actions() {
@@ -71,7 +161,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 */
 	function _get_sortable_columns() {
 		return array(
-			'fct_record_created'           => 'record_created',
+			'fct_record_created'           => array( 'date', true ),
 			'fct_record_account_ledger_id' => 'record_account_ledger_id',
 			'fct_record_account'           => 'record_account',
 			'fct_record_offset_account'    => 'record_offset_account',
@@ -79,15 +169,85 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		);
 	}
 
+	/**
+	 * Display post rows
+	 *
+	 * When there are items, show account (start, end, total) rows
+	 *
+	 * @since 0.0.8
+	 * 
+	 * @param array $posts Found posts
+	 * @param integer $level Depth
+	 */
 	function display_rows( $posts = array(), $level = 0 ) {
 		global $wp_query;
 
-		if ( empty( $posts ) )
+		if ( empty( $posts ) ) {
 			$posts = $wp_query->posts;
+		}
 
 		add_filter( 'the_title', 'esc_html' );
 
+		// Start account row
+		if ( $this->has_items() && $this->parent_account )
+			$this->_display_single_row( 'start' );
+
 		$this->_display_rows( $posts, $level );
+
+		// End account row
+		if ( $this->has_items() && $this->parent_account )
+			$this->_display_single_row( 'end' );
+
+		// Total sum row
+		if ( $this->has_items() )
+			$this->_display_single_row( 'total' );
+	}
+
+	/**
+	 * Display account's records start row
+	 * 
+	 * @since 0.0.8
+	 *
+	 * @uses do_action() Calls 'fct_admin_records_{$row_name}_row'
+	 * @param string $row_name Unique row name
+	 */
+	function _display_single_row( $row_name = '' ) {
+
+		// Bail if no row name given
+		$row_name = esc_attr( esc_html( $row_name ) );
+		if ( empty( $row_name ) )
+			return;
+
+		// Revenue accounts have no starting value
+		if ( 'start' == $row_name && fct_get_revenue_account_type_id() == fct_get_account_type( $this->parent_account ) )
+			return;
+
+		$alternate =& $this->alternate;
+		$alternate = 'alternate' == $alternate ? '' : 'alternate';
+		$classes = $alternate . ' iedit records-row-' . $row_name;
+
+		list( $columns, $hidden ) = $this->get_column_info(); ?>
+		<tr id="fct-records-<?php echo $row_name; ?>-row" class="<?php echo $classes; ?>" valign="top">
+			
+			<?php foreach ( $columns as $column_name => $column_display_name ) :
+				$class = " class=\"$column_name column-$column_name\"";
+				$style = '';
+	
+				if ( in_array( $column_name, $hidden ) )
+					$style = ' style="display:none;"';
+
+				$attributes = "$class$style"; 
+
+				$el1 = 'cb' == $column_name ? 'th scope="row" class="check-column"' : "td $attributes";
+				$el2 = 'cb' == $column_name ? 'th' : 'td';
+
+				echo "<$el1>";
+				do_action( "fct_admin_records_{$row_name}_row", $column_name );
+				echo "</$el2>";
+			endforeach; ?>
+
+		</tr>
+		<?php
 	}
 
 	function _display_rows( $posts, $level = 0 ) {
@@ -95,642 +255,188 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			$this->single_row( $post, $level );
 	}
 
-	function single_row( $post, $level = 0 ) {
-		global $mode;
-		static $alternate;
+	/**
+	 * Display dedicated column content
+	 *
+	 * @since 0.0.8
+	 *
+	 * @uses fct_get_account_year_id()
+	 * @uses fct_get_year_title()
+	 * @uses fct_account_ledger_id()
+	 * @uses fct_get_account_type()
+	 * @uses fct_get_revenue_account_type_id()
+	 * @uses fct_get_capital_account_type_id()
+	 * @uses fct_account_record_count()
+	 * @uses fct_currency_format()
+	 * @uses fct_get_account_end_value()
+	 * @param string $column_name Column name
+	 * @param int $record_id Record ID
+	 */
+	function _column_content( $column_name, $record_id ) {
+		$account_id = fct_get_record_account_id( $record_id );
 
-		$global_post = get_post();
-		$GLOBALS['post'] = $post;
-		setup_postdata( $post );
+		switch ( $column_name ) {
+			case 'fct_record_created':
+				echo get_the_date();
+				break;
 
-		$edit_link = get_edit_post_link( $post->ID );
-		$title = _draft_or_post_title();
-		$post_type_object = get_post_type_object( $post->post_type );
-		$can_edit_post = current_user_can( 'edit_post', $post->ID );
+			case 'fct_record_account_ledger_id' :
+				if ( ! empty( $account_id ) )
+					fct_account_admin_records_link( $account_id, true );
+				break;
 
-		$alternate = 'alternate' == $alternate ? '' : 'alternate';
-		$classes = $alternate . ' iedit author-' . ( get_current_user_id() == $post->post_author ? 'self' : 'other' );
+			case 'fct_record_account' :
+				if ( ! empty( $account_id ) ) {
+					$account_title = fct_get_account_admin_records_link( $account_id );
+					if ( empty( $account_title ) ) {
+						$account_title = __( 'No Account', 'fiscaat' );
+					}
+					echo $account_title;
 
-		$lock_holder = wp_check_post_lock( $post->ID );
-		if ( $lock_holder ) {
-			$classes .= ' wp-locked';
-			$lock_holder = get_userdata( $lock_holder );
-		}
-
-		if ( $post->post_parent ) {
-		    $count = count( get_post_ancestors( $post->ID ) );
-		    $classes .= ' level-'. $count;
-		} else {
-		    $classes .= ' level-0';
-		}
-	?>
-		<tr id="post-<?php echo $post->ID; ?>" class="<?php echo implode( ' ', get_post_class( $classes, $post->ID ) ); ?>" valign="top">
-	<?php
-
-		list( $columns, $hidden ) = $this->get_column_info();
-
-		foreach ( $columns as $column_name => $column_display_name ) {
-			$class = "class=\"$column_name column-$column_name\"";
-
-			$style = '';
-			if ( in_array( $column_name, $hidden ) )
-				$style = ' style="display:none;"';
-
-			$attributes = "$class$style";
-
-			switch ( $column_name ) {
-
-			case 'cb':
-			?>
-			<th scope="row" class="check-column">
-				<?php
-				if ( $can_edit_post ) {
-
-				?>
-				<label class="screen-reader-text" for="cb-select-<?php the_ID(); ?>"><?php printf( __( 'Select %s' ), $title ); ?></label>
-				<input id="cb-select-<?php the_ID(); ?>" type="checkbox" name="post[]" value="<?php the_ID(); ?>" />
-				<div class="locked-indicator"></div>
-				<?php
+				} else {
+					// _e( 'No Account', 'fiscaat' );
 				}
-				?>
-			</th>
-			<?php
-			break;
+				break;
 
-			case 'title':
-				$attributes = 'class="post-title page-title column-title"' . $style;
-				if ( $this->hierarchical_display ) {
-					if ( 0 == $level && (int) $post->post_parent > 0 ) {
-						//sent level 0 by accident, by default, or because we don't know the actual level
-						$find_main_page = (int) $post->post_parent;
-						while ( $find_main_page > 0 ) {
-							$parent = get_post( $find_main_page );
+			case 'fct_record_description' :
+				fct_record_excerpt( $record_id );
+				break;
 
-							if ( is_null( $parent ) )
-								break;
+			case 'fct_record_offset_account' :
+				fct_record_offset_account( $record_id );
+				break;
 
-							$level++;
-							$find_main_page = (int) $parent->post_parent;
+			case 'fct_record_amount' :
+				$value = fct_get_record_amount( $record_id ); // Always float
+				$rtype = fct_get_record_type(   $record_id );
+				$this->amounts[ $rtype ][] = $value; ?>
 
-							if ( !isset( $parent_name ) ) {
-								/** This filter is documented in wp-includes/post-template.php */
-								$parent_name = apply_filters( 'the_title', $parent->post_title, $parent->ID );
-							}
+				<input id="fct_record_<?php echo $record_id; ?>_debit_amount"  class="fct_record_debit_amount small-text"  type="text" value="<?php if ( fct_get_debit_record_type_id()  == $rtype ){ fct_currency_format( $value ); } ?>" disabled="disabled" />
+				<input id="fct_record_<?php echo $record_id; ?>_credit_amount" class="fct_record_credit_amount small-text" type="text" value="<?php if ( fct_get_credit_record_type_id() == $rtype ){ fct_currency_format( $value ); } ?>" disabled="disabled" />
+
+				<?php
+				break;
+
+			case 'fct_record_author' :
+				fct_record_author_display_name( $record_id );
+				break;
+
+			case 'fct_record_year' :
+				$record_year_id  = fct_get_record_year_id(  $record_id  );
+				$account_year_id = fct_get_account_year_id( $account_id );
+
+				if ( ! empty( $record_year_id ) ) {
+					$year_title = fct_get_year_title( $record_year_id );
+					if ( empty( $year_title ) ) {
+						$year_title = __( 'No Year', 'fiscaat' );
+					}
+
+					// Alert capable users of record year mismatch
+					if ( $record_year_id != $account_year_id ) {
+						if ( current_user_can( 'edit_others_records' ) || current_user_can( 'fiscaat' ) ) {
+							$year_title .= '<div class="attention">' . __( '(Mismatch)', 'fiscaat' ) . '</div>';
 						}
 					}
-				}
+					echo $year_title;
 
-				$pad = str_repeat( '&#8212; ', $level );
-				echo "<td $attributes><strong>";
-
-				if ( $format = get_post_format( $post->ID ) ) {
-					$label = get_post_format_string( $format );
-
-					echo '<a href="' . esc_url( add_query_arg( array( 'post_format' => $format, 'post_type' => $post->post_type ), 'edit.php' ) ) . '" class="post-state-format post-format-icon post-format-' . $format . '" title="' . $label . '">' . $label . ":</a> ";
-				}
-
-				if ( $can_edit_post && $post->post_status != 'trash' ) {
-					echo '<a class="row-title" href="' . $edit_link . '" title="' . esc_attr( sprintf( __( 'Edit &#8220;%s&#8221;' ), $title ) ) . '">' . $pad . $title . '</a>';
 				} else {
-					echo $pad . $title;
+					_e( 'No Year', 'fiscaat' );
 				}
-				_post_states( $post );
-
-				if ( isset( $parent_name ) )
-					echo ' | ' . $post_type_object->labels->parent_item_colon . ' ' . esc_html( $parent_name );
-
-				echo "</strong>\n";
-
-				if ( $can_edit_post && $post->post_status != 'trash' ) {
-					if ( $lock_holder ) {
-						$locked_avatar = get_avatar( $lock_holder->ID, 18 );
-						$locked_text = esc_html( sprintf( __( '%s is currently editing' ), $lock_holder->display_name ) );
-					} else {
-						$locked_avatar = $locked_text = '';
-					}
-
-					echo '<div class="locked-info"><span class="locked-avatar">' . $locked_avatar . '</span> <span class="locked-text">' . $locked_text . "</span></div>\n";
-				}
-
-				if ( ! $this->hierarchical_display && 'excerpt' == $mode && current_user_can( 'read_post', $post->ID ) )
-						the_excerpt();
-
-				$actions = array();
-				if ( $can_edit_post && 'trash' != $post->post_status ) {
-					$actions['edit'] = '<a href="' . get_edit_post_link( $post->ID, true ) . '" title="' . esc_attr( __( 'Edit this item' ) ) . '">' . __( 'Edit' ) . '</a>';
-					$actions['inline hide-if-no-js'] = '<a href="#" class="editinline" title="' . esc_attr( __( 'Edit this item inline' ) ) . '">' . __( 'Quick&nbsp;Edit' ) . '</a>';
-				}
-				if ( current_user_can( 'delete_post', $post->ID ) ) {
-					if ( 'trash' == $post->post_status )
-						$actions['untrash'] = "<a title='" . esc_attr( __( 'Restore this item from the Trash' ) ) . "' href='" . wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $post->ID ) ), 'untrash-post_' . $post->ID ) . "'>" . __( 'Restore' ) . "</a>";
-					elseif ( EMPTY_TRASH_DAYS )
-						$actions['trash'] = "<a class='submitdelete' title='" . esc_attr( __( 'Move this item to the Trash' ) ) . "' href='" . get_delete_post_link( $post->ID ) . "'>" . __( 'Trash' ) . "</a>";
-					if ( 'trash' == $post->post_status || !EMPTY_TRASH_DAYS )
-						$actions['delete'] = "<a class='submitdelete' title='" . esc_attr( __( 'Delete this item permanently' ) ) . "' href='" . get_delete_post_link( $post->ID, '', true ) . "'>" . __( 'Delete Permanently' ) . "</a>";
-				}
-				if ( $post_type_object->public ) {
-					if ( in_array( $post->post_status, array( 'pending', 'draft', 'future' ) ) ) {
-						if ( $can_edit_post )
-							$actions['view'] = '<a href="' . esc_url( apply_filters( 'preview_post_link', set_url_scheme( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) ) ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;' ), $title ) ) . '" rel="permalink">' . __( 'Preview' ) . '</a>';
-					} elseif ( 'trash' != $post->post_status ) {
-						$actions['view'] = '<a href="' . get_permalink( $post->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;' ), $title ) ) . '" rel="permalink">' . __( 'View' ) . '</a>';
-					}
-				}
-
-				$actions = apply_filters( is_post_type_hierarchical( $post->post_type ) ? 'page_row_actions' : 'post_row_actions', $actions, $post );
-				echo $this->row_actions( $actions );
-
-				get_inline_data( $post );
-				echo '</td>';
-			break;
-
-			case 'date':
-				if ( '0000-00-00 00:00:00' == $post->post_date ) {
-					$t_time = $h_time = __( 'Unpublished' );
-					$time_diff = 0;
-				} else {
-					$t_time = get_the_time( __( 'Y/m/d g:i:s A' ) );
-					$m_time = $post->post_date;
-					$time = get_post_time( 'G', true, $post );
-
-					$time_diff = time() - $time;
-
-					if ( $time_diff > 0 && $time_diff < DAY_IN_SECONDS )
-						$h_time = sprintf( __( '%s ago' ), human_time_diff( $time ) );
-					else
-						$h_time = mysql2date( __( 'Y/m/d' ), $m_time );
-				}
-
-				echo '<td ' . $attributes . '>';
-				if ( 'excerpt' == $mode )
-					echo apply_filters( 'post_date_column_time', $t_time, $post, $column_name, $mode );
-				else
-					echo '<abbr title="' . $t_time . '">' . apply_filters( 'post_date_column_time', $h_time, $post, $column_name, $mode ) . '</abbr>';
-				echo '<br />';
-				if ( 'publish' == $post->post_status ) {
-					_e( 'Published' );
-				} elseif ( 'future' == $post->post_status ) {
-					if ( $time_diff > 0 )
-						echo '<strong class="attention">' . __( 'Missed schedule' ) . '</strong>';
-					else
-						_e( 'Scheduled' );
-				} else {
-					_e( 'Last Modified' );
-				}
-				echo '</td>';
-			break;
-
-			case 'comments':
-			?>
-			<td <?php echo $attributes ?>><div class="post-com-count-wrapper">
-			<?php
-				$pending_comments = isset( $this->comment_pending_count[$post->ID] ) ? $this->comment_pending_count[$post->ID] : 0;
-
-				$this->comments_bubble( $post->ID, $pending_comments );
-			?>
-			</div></td>
-			<?php
-			break;
-
-			case 'author':
-			?>
-			<td <?php echo $attributes ?>><?php
-				printf( '<a href="%s">%s</a>',
-					esc_url( add_query_arg( array( 'post_type' => $post->post_type, 'author' => get_the_author_meta( 'ID' ) ), 'edit.php' )),
-					get_the_author()
-				);
-			?></td>
-			<?php
-			break;
-
-			default:
-				if ( 'categories' == $column_name )
-					$taxonomy = 'category';
-				elseif ( 'tags' == $column_name )
-					$taxonomy = 'post_tag';
-				elseif ( 0 === strpos( $column_name, 'taxonomy-' ) )
-					$taxonomy = substr( $column_name, 9 );
-				else
-					$taxonomy = false;
-
-				if ( $taxonomy ) {
-					$taxonomy_object = get_taxonomy( $taxonomy );
-					echo '<td ' . $attributes . '>';
-					if ( $terms = get_the_terms( $post->ID, $taxonomy ) ) {
-						$out = array();
-						foreach ( $terms as $t ) {
-							$posts_in_term_qv = array();
-							if ( 'post' != $post->post_type )
-								$posts_in_term_qv['post_type'] = $post->post_type;
-							if ( $taxonomy_object->query_var ) {
-								$posts_in_term_qv[ $taxonomy_object->query_var ] = $t->slug;
-							} else {
-								$posts_in_term_qv['taxonomy'] = $taxonomy;
-								$posts_in_term_qv['term'] = $t->slug;
-							}
-
-							$out[] = sprintf( '<a href="%s">%s</a>',
-								esc_url( add_query_arg( $posts_in_term_qv, 'edit.php' ) ),
-								esc_html( sanitize_term_field( 'name', $t->name, $t->term_id, $taxonomy, 'display' ) )
-							);
-						}
-						/* translators: used between list items, there is a space after the comma */
-						echo join( __( ', ' ), $out );
-					} else {
-						echo '&#8212;';
-					}
-					echo '</td>';
-					break;
-				}
-			?>
-			<td <?php echo $attributes ?>><?php
-				if ( is_post_type_hierarchical( $post->post_type ) )
-					do_action( 'manage_pages_custom_column', $column_name, $post->ID );
-				else
-					do_action( 'manage_posts_custom_column', $column_name, $post->ID );
-				do_action( "manage_{$post->post_type}_posts_custom_column", $column_name, $post->ID );
-			?></td>
-			<?php
-			break;
-			}
+				break;
 		}
-	?>
-		</tr>
-	<?php
-		$GLOBALS['post'] = $global_post;
 	}
 
 	/**
-	 * Outputs the hidden row displayed when inline editing
+	 * Display contents of either an account's start or end row
+	 * 
+	 * @since 0.0.8
 	 *
-	 * @since 3.1.0
+	 * @uses fct_get_account_id()
+	 * @param string $column Column name
 	 */
-	function inline_edit() {
-		global $mode;
+	function _start_or_end_row( $column ) {
+
+		// Bail if no valid parent account id
+		if ( ! $account_id = fct_get_account_id( $this->parent_account ) )
+			return;
+
+		$start = strpos( current_filter(), 'start' );
+
+		switch ( $column ) {
+			case 'fct_record_created' :
+
+				// Display date of start value
+				if ( $start ) {
+					$account = fct_get_account( $account_id );
+					echo fct_convert_date( $account->post_date,    get_option( 'date_format' ), true );
+
+				// Now
+				} else {
+					echo fct_convert_date( fct_get_current_time(), get_option( 'date_format' ), true );
+				}
+				break;
+
+			case 'fct_record_description' :
+
+				// Capital
+				if ( fct_get_capital_account_type_id() == fct_get_account_type( $account_id ) ) {
+					if ( $start ) {
+						_e( 'Start Balance', 'fiscaat' );
+					} else {
+						_e( 'End Balance',   'fiscaat' );
+					}
+
+				// Revenue
+				} else {
+					if ( ! $start ) 
+						_e( 'To Income Statement', 'fiscaat' );
+				}
+				break;
+
+			case 'fct_record_amount' :
+				$_row  = $start ? 'start' : 'end';
+				$value = call_user_func_array( "fct_get_account_{$_row}_value", array( 'account_id' => $account_id ) ); 
+				$this->amounts[ $value > 1 ? fct_get_debit_record_type_id() : fct_get_credit_record_type_id() ][] = abs( $value ); ?>
+
+				<input id="fct_account_<?php echo $_row; ?>_value_debit"  class="fct_record_debit_amount small-text"  type="text" value="<?php if ( $value > 1 ) { fct_currency_format( abs( $value ) ); } ?>" disabled="disabled" />
+				<input id="fct_account_<?php echo $_row; ?>_value_credit" class="fct_record_credit_amount small-text" type="text" value="<?php if ( $value < 1 ) { fct_currency_format( abs( $value ) ); } ?>" disabled="disabled" />
 
-		$screen = $this->screen;
-
-		$post = get_default_post_to_edit( $screen->post_type );
-		$post_type_object = get_post_type_object( $screen->post_type );
-
-		$taxonomy_names = get_object_taxonomies( $screen->post_type );
-		$hierarchical_taxonomies = array();
-		$flat_taxonomies = array();
-		foreach ( $taxonomy_names as $taxonomy_name ) {
-			$taxonomy = get_taxonomy( $taxonomy_name );
-
-			if ( !$taxonomy->show_ui )
-				continue;
-
-			if ( $taxonomy->hierarchical )
-				$hierarchical_taxonomies[] = $taxonomy;
-			else
-				$flat_taxonomies[] = $taxonomy;
-		}
-
-		$m = ( isset( $mode ) && 'excerpt' == $mode ) ? 'excerpt' : 'list';
-		$can_publish = current_user_can( $post_type_object->cap->publish_posts );
-		$core_columns = array( 'cb' => true, 'date' => true, 'title' => true, 'categories' => true, 'tags' => true, 'comments' => true, 'author' => true );
-
-	?>
-
-	<form method="get" action=""><table style="display: none"><tbody id="inlineedit">
-		<?php
-		$hclass = count( $hierarchical_taxonomies ) ? 'post' : 'page';
-		$bulk = 0;
-		while ( $bulk < 2 ) { ?>
-
-		<tr id="<?php echo $bulk ? 'bulk-edit' : 'inline-edit'; ?>" class="inline-edit-row inline-edit-row-<?php echo "$hclass inline-edit-" . $screen->post_type;
-			echo $bulk ? " bulk-edit-row bulk-edit-row-$hclass bulk-edit-{$screen->post_type}" : " quick-edit-row quick-edit-row-$hclass inline-edit-{$screen->post_type}";
-		?>" style="display: none"><td colspan="<?php echo $this->get_column_count(); ?>" class="colspanchange">
-
-		<fieldset class="inline-edit-col-left"><div class="inline-edit-col">
-			<h4><?php echo $bulk ? __( 'Bulk Edit' ) : __( 'Quick Edit' ); ?></h4>
-	<?php
-
-	if ( post_type_supports( $screen->post_type, 'title' ) ) :
-		if ( $bulk ) : ?>
-			<div id="bulk-title-div">
-				<div id="bulk-titles"></div>
-			</div>
-
-	<?php else : // $bulk ?>
-
-			<label>
-				<span class="title"><?php _e( 'Title' ); ?></span>
-				<span class="input-text-wrap"><input type="text" name="post_title" class="ptitle" value="" /></span>
-			</label>
-
-			<label>
-				<span class="title"><?php _e( 'Slug' ); ?></span>
-				<span class="input-text-wrap"><input type="text" name="post_name" value="" /></span>
-			</label>
-
-	<?php endif; // $bulk
-	endif; // post_type_supports title ?>
-
-	<?php if ( !$bulk ) : ?>
-			<label><span class="title"><?php _e( 'Date' ); ?></span></label>
-			<div class="inline-edit-date">
-				<?php touch_time( 1, 1, 0, 1 ); ?>
-			</div>
-			<br class="clear" />
-	<?php endif; // $bulk
-
-		if ( post_type_supports( $screen->post_type, 'author' ) ) :
-			$authors_dropdown = '';
-
-			if ( is_super_admin() || current_user_can( $post_type_object->cap->edit_others_posts ) ) :
-				$users_opt = array(
-					'hide_if_only_one_author' => false,
-					'who' => 'authors',
-					'name' => 'post_author',
-					'class'=> 'authors',
-					'multi' => 1,
-					'echo' => 0
-				);
-				if ( $bulk )
-					$users_opt['show_option_none'] = __( '&mdash; No Change &mdash;' );
-
-				if ( $authors = wp_dropdown_users( $users_opt ) ) :
-					$authors_dropdown  = '<label class="inline-edit-author">';
-					$authors_dropdown .= '<span class="title">' . __( 'Author' ) . '</span>';
-					$authors_dropdown .= $authors;
-					$authors_dropdown .= '</label>';
-				endif;
-			endif; // authors
-	?>
-
-	<?php if ( !$bulk ) echo $authors_dropdown;
-	endif; // post_type_supports author
-
-	if ( !$bulk ) :
-	?>
-
-			<div class="inline-edit-group">
-				<label class="alignleft">
-					<span class="title"><?php _e( 'Password' ); ?></span>
-					<span class="input-text-wrap"><input type="text" name="post_password" class="inline-edit-password-input" value="" /></span>
-				</label>
-
-				<em style="margin:5px 10px 0 0" class="alignleft">
-					<?php
-					/* translators: Between password field and private checkbox on post quick edit interface */
-					echo __( '&ndash;OR&ndash;' );
-					?>
-				</em>
-				<label class="alignleft inline-edit-private">
-					<input type="checkbox" name="keep_private" value="private" />
-					<span class="checkbox-title"><?php echo __( 'Private' ); ?></span>
-				</label>
-			</div>
-
-	<?php endif; ?>
-
-		</div></fieldset>
-
-	<?php if ( count( $hierarchical_taxonomies ) && !$bulk ) : ?>
-
-		<fieldset class="inline-edit-col-center inline-edit-categories"><div class="inline-edit-col">
-
-	<?php foreach ( $hierarchical_taxonomies as $taxonomy ) : ?>
-
-			<span class="title inline-edit-categories-label"><?php echo esc_html( $taxonomy->labels->name ) ?></span>
-			<input type="hidden" name="<?php echo ( $taxonomy->name == 'category' ) ? 'post_category[]' : 'tax_input[' . esc_attr( $taxonomy->name ) . '][]'; ?>" value="0" />
-			<ul class="cat-checklist <?php echo esc_attr( $taxonomy->name )?>-checklist">
-				<?php wp_terms_checklist( null, array( 'taxonomy' => $taxonomy->name ) ) ?>
-			</ul>
-
-	<?php endforeach; //$hierarchical_taxonomies as $taxonomy ?>
-
-		</div></fieldset>
-
-	<?php endif; // count( $hierarchical_taxonomies ) && !$bulk ?>
-
-		<fieldset class="inline-edit-col-right"><div class="inline-edit-col">
-
-	<?php
-		if ( post_type_supports( $screen->post_type, 'author' ) && $bulk )
-			echo $authors_dropdown;
-
-		if ( post_type_supports( $screen->post_type, 'page-attributes' ) ) :
-
-			if ( $post_type_object->hierarchical ) :
-		?>
-			<label>
-				<span class="title"><?php _e( 'Parent' ); ?></span>
-	<?php
-		$dropdown_args = array(
-			'post_type'         => $post_type_object->name,
-			'selected'          => $post->post_parent,
-			'name'              => 'post_parent',
-			'show_option_none'  => __( 'Main Page (no parent)' ),
-			'option_none_value' => 0,
-			'sort_column'       => 'menu_order, post_title',
-		);
-
-		if ( $bulk )
-			$dropdown_args['show_option_no_change'] =  __( '&mdash; No Change &mdash;' );
-		$dropdown_args = apply_filters( 'quick_edit_dropdown_pages_args', $dropdown_args );
-		wp_dropdown_pages( $dropdown_args );
-	?>
-			</label>
-
-	<?php
-			endif; // hierarchical
-
-			if ( !$bulk ) : ?>
-
-			<label>
-				<span class="title"><?php _e( 'Order' ); ?></span>
-				<span class="input-text-wrap"><input type="text" name="menu_order" class="inline-edit-menu-order-input" value="<?php echo $post->menu_order ?>" /></span>
-			</label>
-
-	<?php	endif; // !$bulk
-
-			if ( 'page' == $screen->post_type ) :
-	?>
-
-			<label>
-				<span class="title"><?php _e( 'Template' ); ?></span>
-				<select name="page_template">
-	<?php	if ( $bulk ) : ?>
-					<option value="-1"><?php _e( '&mdash; No Change &mdash;' ); ?></option>
-	<?php	endif; // $bulk ?>
-					<option value="default"><?php _e( 'Default Template' ); ?></option>
-					<?php page_template_dropdown() ?>
-				</select>
-			</label>
-
-	<?php
-			endif; // page post_type
-		endif; // page-attributes
-	?>
-
-	<?php if ( count( $flat_taxonomies ) && !$bulk ) : ?>
-
-	<?php foreach ( $flat_taxonomies as $taxonomy ) : ?>
-		<?php if ( current_user_can( $taxonomy->cap->assign_terms ) ) : ?>
-			<label class="inline-edit-tags">
-				<span class="title"><?php echo esc_html( $taxonomy->labels->name ) ?></span>
-				<textarea cols="22" rows="1" name="tax_input[<?php echo esc_attr( $taxonomy->name )?>]" class="tax_input_<?php echo esc_attr( $taxonomy->name )?>"></textarea>
-			</label>
-		<?php endif; ?>
-
-	<?php endforeach; //$flat_taxonomies as $taxonomy ?>
-
-	<?php endif; // count( $flat_taxonomies ) && !$bulk  ?>
-
-	<?php if ( post_type_supports( $screen->post_type, 'comments' ) || post_type_supports( $screen->post_type, 'trackbacks' ) ) :
-		if ( $bulk ) : ?>
-
-			<div class="inline-edit-group">
-		<?php if ( post_type_supports( $screen->post_type, 'comments' ) ) : ?>
-			<label class="alignleft">
-				<span class="title"><?php _e( 'Comments' ); ?></span>
-				<select name="comment_status">
-					<option value=""><?php _e( '&mdash; No Change &mdash;' ); ?></option>
-					<option value="open"><?php _e( 'Allow' ); ?></option>
-					<option value="closed"><?php _e( 'Do not allow' ); ?></option>
-				</select>
-			</label>
-		<?php endif; if ( post_type_supports( $screen->post_type, 'trackbacks' ) ) : ?>
-			<label class="alignright">
-				<span class="title"><?php _e( 'Pings' ); ?></span>
-				<select name="ping_status">
-					<option value=""><?php _e( '&mdash; No Change &mdash;' ); ?></option>
-					<option value="open"><?php _e( 'Allow' ); ?></option>
-					<option value="closed"><?php _e( 'Do not allow' ); ?></option>
-				</select>
-			</label>
-		<?php endif; ?>
-			</div>
-
-	<?php else : // $bulk ?>
-
-			<div class="inline-edit-group">
-			<?php if ( post_type_supports( $screen->post_type, 'comments' ) ) : ?>
-				<label class="alignleft">
-					<input type="checkbox" name="comment_status" value="open" />
-					<span class="checkbox-title"><?php _e( 'Allow Comments' ); ?></span>
-				</label>
-			<?php endif; if ( post_type_supports( $screen->post_type, 'trackbacks' ) ) : ?>
-				<label class="alignleft">
-					<input type="checkbox" name="ping_status" value="open" />
-					<span class="checkbox-title"><?php _e( 'Allow Pings' ); ?></span>
-				</label>
-			<?php endif; ?>
-			</div>
-
-	<?php endif; // $bulk
-	endif; // post_type_supports comments or pings ?>
-
-			<div class="inline-edit-group">
-				<label class="inline-edit-status alignleft">
-					<span class="title"><?php _e( 'Status' ); ?></span>
-					<select name="_status">
-	<?php if ( $bulk ) : ?>
-						<option value="-1"><?php _e( '&mdash; No Change &mdash;' ); ?></option>
-	<?php endif; // $bulk ?>
-					<?php if ( $can_publish ) : // Contributors only get "Unpublished" and "Pending Review" ?>
-						<option value="publish"><?php _e( 'Published' ); ?></option>
-						<option value="future"><?php _e( 'Scheduled' ); ?></option>
-	<?php if ( $bulk ) : ?>
-						<option value="private"><?php _e( 'Private' ) ?></option>
-	<?php endif; // $bulk ?>
-					<?php endif; ?>
-						<option value="pending"><?php _e( 'Pending Review' ); ?></option>
-						<option value="draft"><?php _e( 'Draft' ); ?></option>
-					</select>
-				</label>
-
-	<?php if ( 'post' == $screen->post_type && $can_publish && current_user_can( $post_type_object->cap->edit_others_posts ) ) : ?>
-
-	<?php	if ( $bulk ) : ?>
-
-				<label class="alignright">
-					<span class="title"><?php _e( 'Sticky' ); ?></span>
-					<select name="sticky">
-						<option value="-1"><?php _e( '&mdash; No Change &mdash;' ); ?></option>
-						<option value="sticky"><?php _e( 'Sticky' ); ?></option>
-						<option value="unsticky"><?php _e( 'Not Sticky' ); ?></option>
-					</select>
-				</label>
-
-	<?php	else : // $bulk ?>
-
-				<label class="alignleft">
-					<input type="checkbox" name="sticky" value="sticky" />
-					<span class="checkbox-title"><?php _e( 'Make this post sticky' ); ?></span>
-				</label>
-
-	<?php	endif; // $bulk ?>
-
-	<?php endif; // 'post' && $can_publish && current_user_can( 'edit_others_cap' ) ?>
-
-			</div>
-
-	<?php
-
-	if ( $bulk && post_type_supports( $screen->post_type, 'post-formats' ) ) {
-		$all_post_formats = get_post_format_strings();
-
-		?>
-		<label class="alignleft" for="post_format">
-		<span class="title"><?php _ex( 'Format', 'post format' ); ?></span>
-		<select name="post_format">
-			<option value="-1"><?php _e( '&mdash; No Change &mdash;' ); ?></option>
-			<?php
-
-			foreach ( $all_post_formats as $slug => $format ) {
-				?>
-				<option value="<?php echo esc_attr( $slug ); ?>"><?php echo esc_html( $format ); ?></option>
 				<?php
-			}
-
-			?>
-		</select></label>
-	<?php
-
+				break;
+		}
 	}
 
-	?>
+	/**
+	 * Display contents of the records's total row
+	 * 
+	 * @since 0.0.8
+	 *
+	 * @param string $column Column name
+	 * @param array $args
+	 */
+	function _total_row( $column ) {
 
-		</div></fieldset>
+		switch ( $column ) {
+			case 'fct_record_description' :
+				$total_title = _x( 'Total', 'Sum of all records', 'fiscaat' );
 
-	<?php
-		list( $columns ) = $this->get_column_info();
+				// Alert capable users of record year mismatch
+				if ( array_sum( $this->amounts[ fct_get_debit_record_type_id() ] ) != array_sum( $this->amounts[ fct_get_credit_record_type_id() ] ) ) {
+					$total_title .= '<div class="attention">' . __( '(Mismatch)', 'fiscaat' ) . '</div>';
+				}
 
-		foreach ( $columns as $column_name => $column_display_name ) {
-			if ( isset( $core_columns[$column_name] ) )
-				continue;
-			do_action( $bulk ? 'bulk_edit_custom_box' : 'quick_edit_custom_box', $column_name, $screen->post_type );
-		}
-	?>
-		<p class="submit inline-edit-save">
-			<a accesskey="c" href="#inline-edit" class="button-secondary cancel alignleft"><?php _e( 'Cancel' ); ?></a>
-			<?php if ( ! $bulk ) {
-				wp_nonce_field( 'inlineeditnonce', '_inline_edit', false );
+				echo $total_title;
+				break;
+
+			case 'fct_record_amount' :
 				?>
-				<a accesskey="s" href="#inline-edit" class="button-primary save alignright"><?php _e( 'Update' ); ?></a>
-				<span class="spinner"></span>
-			<?php } else {
-				submit_button( __( 'Update' ), 'button-primary alignright', 'bulk_edit', false, array( 'accesskey' => 's' ) );
-			} ?>
-			<input type="hidden" name="post_view" value="<?php echo esc_attr( $m ); ?>" />
-			<input type="hidden" name="screen" value="<?php echo esc_attr( $screen->id ); ?>" />
-			<?php if ( ! $bulk && ! post_type_supports( $screen->post_type, 'author' ) ) { ?>
-				<input type="hidden" name="post_author" value="<?php echo esc_attr( $post->post_author ); ?>" />
-			<?php } ?>
-			<span class="error" style="display:none"></span>
-			<br class="clear" />
-		</p>
-		</td></tr>
-	<?php
-		$bulk++;
+
+				<input id="fct_records_debit_total"  class="fct_record_debit_amount fct_record_total small-text"  type="text" value="<?php fct_currency_format( array_sum( $this->amounts[ fct_get_debit_record_type_id()  ] ) ); ?>" disabled="disabled" />
+				<input id="fct_records_credit_total" class="fct_record_credit_amount fct_record_total small-text" type="text" value="<?php fct_currency_format( array_sum( $this->amounts[ fct_get_credit_record_type_id() ] ) ); ?>" disabled="disabled" />
+
+				<?php
+				break;
 		}
-?>
-		</tbody></table></form>
-<?php
 	}
+
 }

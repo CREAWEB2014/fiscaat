@@ -8,7 +8,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /** Versions ******************************************************************/
 
@@ -108,6 +108,46 @@ function fct_update_year_id( $post_id, $year_id ) {
 
 	// Update the post meta year ID
 	update_post_meta( $post_id, '_fct_year_id', (int) $year_id );
+}
+
+/** Post Type *****************************************************************/
+
+/**
+ * Return the Fiscaat's object type from the post type
+ *
+ * @since 0.0.8
+ *
+ * @uses fct_get_record_post_type()
+ * @uses fct_get_account_post_type()
+ * @uses fct_get_year_post_type()
+ * @param string $post_type Post type
+ * @return string|bool Fiscaat object type or False if not Fiscaat's
+ */
+function fct_get_post_type_type( $post_type = '' ) {
+
+	// Setup local var
+	$type = false;
+	
+	// Default to global post type
+	if ( empty( $post_type ) && isset( $GLOBALS['post_type'] ) ) {
+		$post_type = $GLOBALS['post_type'];
+	}
+
+	switch ( $post_type ) {
+		case fct_get_record_post_type() :
+			$type = 'record';
+			break;
+
+		case fct_get_account_post_type() :
+			$type = 'account';
+			break;
+
+		case fct_get_year_post_type() :
+			$type = 'year';
+			break;
+	}
+
+	return $type;
 }
 
 /** Errors ********************************************************************/

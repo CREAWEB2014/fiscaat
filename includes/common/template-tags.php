@@ -78,6 +78,65 @@ function fct_footer() {
 	do_action( 'fct_footer' );
 }
 
+/** Loop **********************************************************************/
+
+/**
+ * The generic main loop.
+ *
+ * Calls the associated fct_has_{posts} callback
+ *
+ * @since 0.0.8
+ *
+ * @see fct_has_records()
+ * @see fct_has_accounts()
+ * @see fct_has_years()
+ * 
+ * @uses fct_post_callback() To call 'fct_has_{posts}'
+ * @param string $post_type Optional. Post type name
+ * @return bool|object Loop information
+ */
+function fct_has_posts( $post_type = '' ) {
+	return fct_post_callback( 'fct_has_%ss', $post_type );
+}
+
+/**
+ * Whether there are more posts available in the loop
+ *
+ * Calls the associated fct_{posts} callback
+ *
+ * @since 0.0.8
+ *
+ * @see fct_records()
+ * @see fct_accounts()
+ * @see fct_years()
+ * 
+ * @uses fct_post_callback() To call 'fct_{posts}'
+ * @param string $post_type Optional. Post type name
+ * @return object Post information
+ */
+function fct_posts( $post_type = '' ) {
+	return fct_post_callback( 'fct_%ss', $post_type );
+}
+
+/**
+ * Loads up the current post in the loop
+ *
+ * Calls the associated fct_the_{post} callback
+ *
+ * @since 0.0.8
+ *
+ * @see fct_the_record()
+ * @see fct_the_account()
+ * @see fct_the_year()
+ * 
+ * @uses fct_post_callback() To call 'fct_the_{post}'
+ * @param string $post_type Optional. Post type name
+ * @return object|false Post information or False if no valid post type
+ */
+function fct_the_post( $post_type = '' ) {
+	return fct_post_callback( 'fct_the_%s', $post_type );
+}
+
 /** Is Functions **************************************************************/
 
 /**
@@ -515,7 +574,7 @@ function is_fiscaat() {
  * @uses is_singular() To check if it's a singular page
  * @uses fct_get_year_post_type() To get the year post type
  * @uses fct_get_account_post_type() To get the account post type
- * @uses fct_get_record_post_type() TO get the record post type
+ * @uses fct_get_record_post_type() To get the record post type
  * @uses fct_get_account_year_id() To get the account year id
  * @uses fct_get_record_year_id() To get the record year id
  * @uses fct_user_can_spectate() To check if the year is closed or not
@@ -524,7 +583,7 @@ function is_fiscaat() {
 function fct_enforce_404() {
 
 	// Bail if not viewing a single item or if user has caps
-	if ( !is_singular() || current_user_can( 'fiscaat' ) || current_user_can( 'control' ) ) // || is_super_admin() ?
+	if ( ! is_singular() || current_user_can( 'fct_spectate' ) ) // || is_super_admin() ?
 		return;
 
 	global $wp_query;
@@ -1119,18 +1178,6 @@ function fct_reset_query_name() {
 /** Breadcrumbs ***************************************************************/
 
 /**
- * Output the page title as a breadcrumb
- *
- * @param string $sep Separator. Defaults to '&larr;'
- * @param bool $current_page Include the current item
- * @param bool $root Include the root page if one exists
- * @uses fct_get_breadcrumb() To get the breadcrumb
- */
-function fct_title_breadcrumb( $args = array() ) {
-	echo fct_get_breadcrumb( $args );
-}
-
-/**
  * Output a breadcrumb
  *
  * @param string $sep Separator. Defaults to '&larr;'
@@ -1634,12 +1681,15 @@ function fct_currency_format( $number = 0, $curr_pos = false ) {
 				case 'left' : 
 					$retval = $symbol . $retval;
 					break;
+
 				case 'right' : 
 					$retval .= $symbol;
 					break;
+				
 				case 'right_space' : 
 					$retval .= ' ' . $symbol;
 					break;
+				
 				case 'left_space' : 
 				default           :
 					$retval = $symbol . ' ' . $retval;
@@ -1713,7 +1763,7 @@ function fct_currency_dropdown( $args = '' ) {
 
 		// No items found - Display feedback if no custom message was passed
 		} elseif ( empty( $none_found ) ) {
-			$retval = __( 'No currencies available', 'fiscaat' );
+			$retval = __( '&mdash; No Currencies &mdash;', 'fiscaat' );
 		}
 
 		return apply_filters( 'fct_get_currency_dropdown', $retval, $args );
