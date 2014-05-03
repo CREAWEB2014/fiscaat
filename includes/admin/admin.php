@@ -862,7 +862,7 @@ class Fiscaat_Admin {
 				echo sprintf( __( '%s - %s', 'fiscaat' ), fct_get_account_id( $post->ID ), fct_get_account_title( $post->ID ) ) . "\n";
 			}
 		}
-		
+
 		die();
 	}
 }

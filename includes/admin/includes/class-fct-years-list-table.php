@@ -48,12 +48,12 @@ class FCT_Years_List_Table extends FCT_Posts_List_Table {
 	function _get_columns() {
 		return array(
 			'cb'                       => '<input type="checkbox" />',
-			'title'                    => __( 'Title',                   'fiscaat' ),
-			'fct_year_started'         => _x( 'From', 'Year start date', 'fiscaat' ),
-			'fct_year_closed'          => _x( 'To',   'Year close date', 'fiscaat' ),
-			'fct_year_account_count'   => __( 'Accounts',                'fiscaat' ),
-			'fct_year_record_count'    => __( 'Records',                 'fiscaat' ),
-			'fct_year_end_value'       => __( 'Value',                   'fiscaat' ),
+			'title'                    => __( 'Title',                            'fiscaat' ),
+			'fct_year_started'         => _x( 'Opened', 'Start date column name', 'fiscaat' ),
+			'fct_year_closed'          => _x( 'Closed', 'Close date column name', 'fiscaat' ),
+			'fct_year_account_count'   => __( 'Accounts',                         'fiscaat' ),
+			'fct_year_record_count'    => __( 'Records',                          'fiscaat' ),
+			'fct_year_end_value'       => __( 'Value',                            'fiscaat' ),
 		);
 	}
 
