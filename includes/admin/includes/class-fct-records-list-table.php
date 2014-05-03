@@ -18,7 +18,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @var int|bool
 	 * @access protected
 	 */
-	var $parent_account = false;
+	var $account_display = false;
 
 	/**
 	 * Holds the debit and credit record amounts
@@ -43,7 +43,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 		// Displaying account records
 		if ( isset( $_GET['fct_account_id'] ) && ! empty( $_GET['fct_account_id'] ) )
-			$this->parent_account = $_GET['fct_account_id'];
+			$this->account_display = $_GET['fct_account_id'];
 
 		// Setup amounts counter
 		$this->amounts = array( fct_get_debit_record_type_id() => array(), fct_get_credit_record_type_id() => array() );
@@ -89,9 +89,9 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		if ( ! empty( $locked_post_status ) )
 			return array();
 
-		if ( $this->parent_account ) {
-			$num_posts = fct_count_posts( array( 'type' => $post_type, 'perm' => 'readable', 'parent' => $this->parent_account ) );
-			$parent    = '&fct_account_id=' . $this->parent_account;
+		if ( $this->account_display ) {
+			$num_posts = fct_count_posts( array( 'type' => $post_type, 'perm' => 'readable', 'parent' => $this->account_display ) );
+			$parent    = '&fct_account_id=' . $this->account_display;
 		} else {
 			$num_posts = wp_count_posts( $post_type, 'readable' );
 			$parent    = '';
@@ -189,13 +189,13 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		add_filter( 'the_title', 'esc_html' );
 
 		// Start account row
-		if ( $this->has_items() && $this->parent_account )
+		if ( $this->has_items() && $this->account_display )
 			$this->_display_single_row( 'start' );
 
 		$this->_display_rows( $posts, $level );
 
 		// End account row
-		if ( $this->has_items() && $this->parent_account )
+		if ( $this->has_items() && $this->account_display )
 			$this->_display_single_row( 'end' );
 
 		// Total sum row
@@ -219,7 +219,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			return;
 
 		// Revenue accounts have no starting value
-		if ( 'start' == $row_name && fct_get_revenue_account_type_id() == fct_get_account_type( $this->parent_account ) )
+		if ( 'start' == $row_name && fct_get_revenue_account_type_id() == fct_get_account_type( $this->account_display ) )
 			return;
 
 		$alternate =& $this->alternate;
@@ -357,7 +357,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	function _start_or_end_row( $column ) {
 
 		// Bail if no valid parent account id
-		if ( ! $account_id = fct_get_account_id( $this->parent_account ) )
+		if ( ! $account_id = fct_get_account_id( $this->account_display ) )
 			return;
 
 		$start = strpos( current_filter(), 'start' );
