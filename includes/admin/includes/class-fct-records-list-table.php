@@ -377,8 +377,6 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 				break;
 
 			case 'fct_record_description' :
-
-				// Capital
 				if ( fct_get_capital_account_type_id() == fct_get_account_type( $account_id ) ) {
 					if ( $start ) {
 						_e( 'Start Balance', 'fiscaat' );
@@ -386,7 +384,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 						_e( 'End Balance',   'fiscaat' );
 					}
 
-				// Revenue
+				// Revenue accounts have no start value
 				} else {
 					if ( ! $start ) 
 						_e( 'To Income Statement', 'fiscaat' );
@@ -396,10 +394,10 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			case 'fct_record_amount' :
 				$_row  = $start ? 'start' : 'end';
 				$value = call_user_func_array( "fct_get_account_{$_row}_value", array( 'account_id' => $account_id ) ); 
-				$this->amounts[ $value > 1 ? fct_get_debit_record_type_id() : fct_get_credit_record_type_id() ][] = abs( $value ); ?>
+				$this->amounts[ $value > 0 ? fct_get_debit_record_type_id() : fct_get_credit_record_type_id() ][] = abs( $value ); ?>
 
-				<input id="fct_account_<?php echo $_row; ?>_value_debit"  class="fct_record_debit_amount small-text"  type="text" value="<?php if ( $value > 1 ) { fct_currency_format( abs( $value ) ); } ?>" disabled="disabled" />
-				<input id="fct_account_<?php echo $_row; ?>_value_credit" class="fct_record_credit_amount small-text" type="text" value="<?php if ( $value < 1 ) { fct_currency_format( abs( $value ) ); } ?>" disabled="disabled" />
+				<input id="fct_account_<?php echo $_row; ?>_value_debit"  class="fct_record_debit_amount small-text"  type="text" value="<?php if ( $value > 0 ) { fct_currency_format( abs( $value ) ); } ?>" disabled="disabled" />
+				<input id="fct_account_<?php echo $_row; ?>_value_credit" class="fct_record_credit_amount small-text" type="text" value="<?php if ( $value < 0 ) { fct_currency_format( abs( $value ) ); } ?>" disabled="disabled" />
 
 				<?php
 				break;
@@ -420,7 +418,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			case 'fct_record_description' :
 				$total_title = _x( 'Total', 'Sum of all records', 'fiscaat' );
 
-				// Alert capable users of record year mismatch
+				// Alert capable users of debit credit mismatch
 				if ( array_sum( $this->amounts[ fct_get_debit_record_type_id() ] ) != array_sum( $this->amounts[ fct_get_credit_record_type_id() ] ) ) {
 					$total_title .= '<div class="attention">' . __( '(Mismatch)', 'fiscaat' ) . '</div>';
 				}
@@ -428,8 +426,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 				echo $total_title;
 				break;
 
-			case 'fct_record_amount' :
-				?>
+			case 'fct_record_amount' : ?>
 
 				<input id="fct_records_debit_total"  class="fct_record_debit_amount fct_record_total small-text"  type="text" value="<?php fct_currency_format( array_sum( $this->amounts[ fct_get_debit_record_type_id()  ] ) ); ?>" disabled="disabled" />
 				<input id="fct_records_credit_total" class="fct_record_credit_amount fct_record_total small-text" type="text" value="<?php fct_currency_format( array_sum( $this->amounts[ fct_get_credit_record_type_id() ] ) ); ?>" disabled="disabled" />

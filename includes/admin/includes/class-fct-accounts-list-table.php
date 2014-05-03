@@ -130,7 +130,7 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 				break;
 
 			case 'fct_account_end_value' :
-				echo fct_currency_format( fct_get_account_end_value( $account_id ), true );
+				fct_currency_format( fct_get_account_end_value( $account_id ), true );
 				break;
 		}
 	}
