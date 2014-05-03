@@ -474,16 +474,11 @@ class Fiscaat_Admin {
 
 			// Fisci & Admins
 			case 'fct_settings_page' : // Settings Page
-
-				// Fisci
 				if ( user_can( $user_id, 'fiscaat' ) ) {
 					$caps = array( 'fiscaat' );
-				
-				// Admins
 				} else {
 					$caps = array( 'manage_options' );
 				}
-
 				break;
 				
 			// Fisci
@@ -584,7 +579,7 @@ class Fiscaat_Admin {
 	 *
 	 * @uses wp_add_dashboard_widget() To add the dashboard widget
 	 */
-	public static function dashboard_widget_right_now() {
+	public function dashboard_widget_right_now() {
 		if ( current_user_can( $this->minimum_capability ) ) {
 			wp_add_dashboard_widget( 'fct-dashboard-right-now', _x( 'Fiscaat', 'Right now in Fiscaat', 'fiscaat' ), 'fct_dashboard_widget_right_now' );
 		}
@@ -684,7 +679,8 @@ class Fiscaat_Admin {
 				max-width: 193px;
 			}
 
-			/* Dashboard widget Right Now */
+			<?php if ( isset( get_current_screen()->id ) && 'dashboard' == get_current_screen()->id ) : ?>
+
 			#fct-dashboard-right-now p.sub,
 			#fct-dashboard-right-now .table,
 			#fct-dashboard-right-now .versions {
@@ -786,10 +782,6 @@ class Fiscaat_Admin {
 				color: #e66f00;
 			}
 
-			#fct-dashboard-right-now .approved {
-				color: green;
-			}
-
 			#fct-dashboard-right-now .versions {
 				padding: 6px 10px 12px;
 				clear: both;
@@ -809,6 +801,8 @@ class Fiscaat_Admin {
 					float: left;
 					clear: left;
 				}
+
+			<?php endif; // Dashboard ?>
 
 		/*]]>*/
 		</style>
@@ -868,6 +862,7 @@ class Fiscaat_Admin {
 				echo sprintf( __( '%s - %s', 'fiscaat' ), fct_get_account_id( $post->ID ), fct_get_account_title( $post->ID ) ) . "\n";
 			}
 		}
+		
 		die();
 	}
 }
