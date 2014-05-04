@@ -407,7 +407,7 @@ class Fiscaat_Admin {
 		add_action( current_filter(), array( $wp_list_table, 'prepare_items' ), 90 );
 
 		// Display list views
-		add_action( 'fct_admin_before_posts_page_form', array( $wp_list_table, 'views' ), 20 );
+		add_action( 'fct_admin_before_posts_form', array( $wp_list_table, 'views' ), 20 );
 	}
 
 	/**

@@ -208,7 +208,7 @@ function fct_tools_admin_tabs( $active_tab = '' ) {
 		return $tabs_html;
 	}
 
-/** Edit Pages ************************************************************/
+/** Posts Pages ***********************************************************/
 
 /**
  * Return the admin page type
@@ -324,9 +324,8 @@ function fct_get_list_table( $class, $args = array() ) {
  *
  * @uses fct_admin_get_page_type()
  * @uses fct_admin_page_title()
- * @uses do_action() Calls 'fct_admin_pre_page_form'
- * @uses fct_admin_page_form()
- * @uses do_action() Calls 'fct_admin_post_page_form'
+ * @uses do_action() Calls 'fct_admin_pre_posts_form'
+ * @uses do_action() Calls 'fct_admin_post_posts_form'
  */
 function fct_admin_posts_page() { 
 	global $wp_list_table, $post_type_object; ?>
@@ -334,7 +333,7 @@ function fct_admin_posts_page() {
 	<div class="wrap">
 		<h2><?php fct_admin_page_title(); ?></h2>
 
-		<?php do_action( "fct_admin_before_posts_page_form" ); ?>
+		<?php do_action( "fct_admin_before_posts_form" ); ?>
 
 		<form id="posts-filter" action="" method="get">
 
@@ -346,7 +345,7 @@ function fct_admin_posts_page() {
 
 		</form>
 
-		<?php do_action( "fct_admin_after_posts_page_form" ); ?>
+		<?php do_action( "fct_admin_after_posts_form" ); ?>
 
 		<div id="ajax-response"></div>
 		<br class="clear" />
@@ -413,7 +412,7 @@ function fct_admin_page_title_add_new( $title ) {
  * @uses fct_admin_get_new_records_mode()
  * @uses fct_admin_get_edit_records_mode()
  * @uses fct_admin_get_view_records_mode()
- * @return string Records mode. Either 'post', 'edit', 'view' or empty
+ * @return string Records mode. Either new, edit, view or empty
  */
 function fct_admin_get_records_mode() {
 
@@ -439,6 +438,7 @@ function fct_admin_get_records_mode() {
  *
  * @since 0.0.8
  * 
+ * @uses apply_filters() Calls 'fct_admin_get_new_records_mode' with the new mode
  * @return string Records post-new mode
  */
 function fct_admin_get_new_records_mode() {
@@ -450,6 +450,7 @@ function fct_admin_get_new_records_mode() {
  *
  * @since 0.0.8
  * 
+ * @uses apply_filters() Calls 'fct_admin_get_edit_records_mode' with the edit mode
  * @return string Records edit mode
  */
 function fct_admin_get_edit_records_mode() {
@@ -461,6 +462,7 @@ function fct_admin_get_edit_records_mode() {
  *
  * @since 0.0.8
  * 
+ * @uses apply_filters() Calls 'fct_admin_get_view_records_mode' with the view mode
  * @return string Records view mode
  */
 function fct_admin_get_view_records_mode() {
@@ -474,10 +476,11 @@ function fct_admin_get_view_records_mode() {
  *
  * @uses fct_admin_get_new_records_mode()
  * @uses fct_admin_get_records_mode()
+ * @uses current_user_can() To check if the current user can create records
  * @return bool Page is records post-new mode
  */
 function fct_admin_is_new_records() {
-	return fct_admin_get_new_records_mode() == fct_admin_get_records_mode();
+	return fct_admin_get_new_records_mode() == fct_admin_get_records_mode() && current_user_can( 'create_records' );
 }
 
 /**
@@ -485,10 +488,13 @@ function fct_admin_is_new_records() {
  *
  * @since 0.0.8
  * 
+ * @uses fct_admin_get_edit_records_mode()
+ * @uses fct_admin_get_records_mode()
+ * @uses current_user_can() To check if the current user can edit records
  * @return bool Page is records edit mode
  */
 function fct_admin_is_edit_records() {
-	return fct_admin_get_edit_records_mode() == fct_admin_get_records_mode();
+	return fct_admin_get_edit_records_mode() == fct_admin_get_records_mode() && current_user_can( 'edit_records' );
 }
 
 /**

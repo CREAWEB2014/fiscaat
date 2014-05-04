@@ -907,6 +907,7 @@ class Fiscaat_Records_Admin {
 	 *
 	 * @since 0.0.8
 	 *
+	 * @uses fct_admin_get_new_records_mode()
 	 * @uses fct_get_post_type_type()
 	 * @uses wp_redirect()
 	 */
@@ -944,8 +945,8 @@ class Fiscaat_Records_Admin {
 			$account_id = fct_get_account_id( $_REQUEST['fct_account_id'] );
 
 			if ( ! empty( $account_id ) ) {
-				// Format: {title} -- {account number}. {account title}
-				$title = ' &mdash; '. fct_get_account_ledger_id( $account_id ) .'. '. fct_get_account_title( $account_id );
+				// Format: {account number}. {account title}
+				$title = fct_get_account_ledger_id( $account_id ) .'. '. fct_get_account_title( $account_id );
 			}
 		}
 

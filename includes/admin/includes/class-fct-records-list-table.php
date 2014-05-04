@@ -178,20 +178,89 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		);
 	}
 
+	/** Display Rows ******************************************************/
+
+	/**
+	 * Generate the table navigation above or below the table
+	 *
+	 * When editing or creating records enclose the list table in
+	 * a <form> element with method=post to enable proper submitting.
+	 *
+	 * @since 0.0.8
+	 * 
+	 * @uses fct_admin_is_view_records()
+	 * @uses fct_admin_bottom_posts_insert_form()
+	 * @uses fct_admin_top_posts_insert_form()
+	 */
+	function display_tablenav( $which ) {
+		if ( 'top' == $which ) {
+			wp_nonce_field( 'bulk-' . $this->_args['plural'] );
+		}
+
+		// Close posts-insert form before bottom tablenav
+		if ( 'bottom' == $which && ! fct_admin_is_view_records() ) {
+?>
+	<?php do_action( 'fct_admin_bottom_posts_insert_form' ); ?>
+
+</form><!-- #posts-insert -->
+<form id="posts-filter2" action="" method="get">
+
+	<input type="hidden" name="page" class="post_page" value="<?php echo ! empty($_REQUEST['page']) ? esc_attr($_REQUEST['page']) : 'fct-records'; ?>" />
+	<input type="hidden" name="post_status" class="post_status_page" value="<?php echo ! empty($_REQUEST['post_status']) ? esc_attr($_REQUEST['post_status']) : ''; ?>" />
+<?php 
+		}
+
+?>
+	<div class="tablenav <?php echo esc_attr( $which ); ?>">
+
+		<div class="alignleft actions bulkactions">
+			<?php $this->bulk_actions(); ?>
+		</div>
+<?php
+		$this->extra_tablenav( $which );
+		$this->pagination( $which );
+?>
+
+		<br class="clear" />
+	</div>
+<?php
+
+		// Open posts-insert form after top tablenav
+		if ( 'top' == $which && ! fct_admin_is_view_records() ) { 
+?>
+</form><!-- #posts-filter -->
+<form id="posts-insert" action="" method="post">
+
+	<?php do_action( 'fct_admin_top_posts_insert_form' ); ?>
+<?php
+		}
+	}
+
 	/**
 	 * Generate the <tbody> part of the table
 	 *
 	 * @since 0.0.8
+	 *
+	 * @uses fct_admin_is_view_records()
+	 * @uses fct_admin_is_edit_records()
+	 * @uses fct_admin_is_new_records()
+	 * @uses FCT_Records_List_Table::display_rows()
+	 * @uses FCT_Records_List_Table::display_edit_rows()
+	 * @uses FCT_Records_List_Table::display_new_rows()
 	 */
 	function display_rows_or_placeholder() {
 
-		// Do also display rows when none, but displaying account
-		if ( $this->has_items() || $this->account_display ) {
-			$this->display_rows();
+		// Display edit mode, not when displaying account
+		if ( fct_admin_is_edit_records() && $this->has_items() && ! $this->account_display ) {
+			$this->display_edit_rows();
 
 		// Display post-new mode
 		} elseif ( fct_admin_is_new_records() ) {
-			$this->post_new_rows();
+			$this->display_new_rows();
+
+		// Display rows when present, or none but displaying account
+		} elseif ( fct_admin_is_view_records() && ( $this->has_items() || $this->account_display ) ) {
+			$this->display_rows();
 
 		// Placeholder
 		} else {
@@ -202,14 +271,46 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		}
 	}
 
+	/** Edit Rows *********************************************************/
+
 	/**
 	 * Display post-new rows
 	 *
 	 * @since 0.0.8
+	 * 
+	 * @uses FCT_Records_List_Table::_display_rows()
+	 * @uses FCT_Records_List_Table::_display_helper_row()
+	 * @param array $posts Posts
+	 * @param integer $level Depth
 	 */
-	function post_new_rows() {
+	function display_edit_rows( $posts = array(), $level = 0 ) {
+		global $wp_query;
 
-		// Display 10 empty rows
+		if ( empty( $posts ) ) {
+			$posts = $wp_query->posts;
+		}
+
+		add_filter( 'the_title', 'esc_html' );
+
+		$this->_display_rows( $posts, $level );
+
+		// Total sum row
+		$this->_display_helper_row( 'total' );
+	}
+
+	/** New Rows **********************************************************/
+
+	/**
+	 * Display post-new rows
+	 *
+	 * @since 0.0.8
+	 *
+	 * @uses FCT_Records_List_Table::single_new_row()
+	 * @uses FCT_Records_List_Table::_display_helper_row()
+	 */
+	function display_new_rows() {
+
+		// Start with 10 empty rows
 		for ( $i = 0; $i < 10; $i++ ) {
 			$this->single_new_row();
 		}
@@ -222,6 +323,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * Display single post-new row
 	 *
 	 * @since 0.0.8
+	 *
+	 * @uses do_action() Calls 'fct_admin_new_recors_row' with the column name
 	 */
 	function single_new_row() {
 		$alternate =& $this->alternate;
@@ -253,13 +356,77 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	}
 
 	/**
+	 * Display dedicated post-new column content
+	 *
+	 * @since 0.0.8
+	 *
+	 * @uses fct_ledger_dropdown()
+	 * @uses fct_account_dropdown()
+	 * @param string $column_name Column name
+	 */
+	function _new_row( $column_name ) {
+
+		switch ( $column_name ) {
+			case 'fct_record_account_ledger_id' :
+				fct_ledger_dropdown( array(
+					'select_name' => 'records[account_ledger_id][]', 
+					'class'       => 'fct_record_ledger_id',
+					'show_none'   => '&mdash;',
+					'tabindex'    => '',
+				) );
+				break;
+
+			case 'fct_record_account' :
+				fct_account_dropdown( array(
+					'select_name' => 'records[account_id][]',
+					'class'       => 'fct_record_account_id',
+					'show_none'   => __( '&mdash; No Account &mdash;', 'fiscaat' ),
+					'tabindex'    => '',
+				) );
+				break;
+
+			case 'fct_record_description' : ?>
+
+				<textarea name="records[description][]" class="fct_record_description" rows="1" ></textarea>
+
+				<?php
+				break;
+
+			case 'fct_record_offset_account' : ?>
+
+				<input name="records[offset_account][]" type="text" class="fct_record_offset_account medium-text" value="" />
+
+				<?php
+				break;
+
+			case 'fct_record_created': ?>
+
+				<input name="records[created][]" type="text" class="fct_record_created medium-text" value="" />
+
+				<?php
+				break;
+
+			case 'fct_record_amount' : ?>
+
+				<input name="records[amount][debit][]"  class="fct_record_debit_amount small-text"  type="text" value="" />
+				<input name="records[amount][credit][]" class="fct_record_credit_amount small-text" type="text" value="" />
+
+				<?php
+				break;
+		}
+	}
+
+	/** View Rows *********************************************************/
+
+	/**
 	 * Display post rows
 	 *
 	 * When there are items, show account (start, end, total) rows
 	 *
 	 * @since 0.0.8
 	 * 
-	 * @param array $posts Found posts
+	 * @uses FCT_Records_List_Table::_display_helper_row()
+	 * @param array $posts Posts
 	 * @param integer $level Depth
 	 */
 	function display_rows( $posts = array(), $level = 0 ) {
@@ -271,8 +438,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 		add_filter( 'the_title', 'esc_html' );
 
-		// Start account row
-		if ( $this->account_display ) {
+		// Start account row. Revenue accounts have no starting value
+		if ( $this->account_display && fct_get_revenue_account_type_id() != fct_get_account_type( $this->account_display ) ) {
 			$this->_display_helper_row( 'start' );
 		}
 
@@ -288,71 +455,23 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	}
 
 	/**
-	 * Display records's helper row
-	 * 
-	 * @since 0.0.8
-	 *
-	 * @uses do_action() Calls 'fct_admin_records_{$row_name}_row'
-	 * @param string $row_name Unique row name
-	 */
-	function _display_helper_row( $row_name = '' ) {
-
-		// Bail if no row name given
-		$row_name = esc_attr( esc_html( $row_name ) );
-		if ( empty( $row_name ) )
-			return;
-
-		// Revenue accounts have no starting value
-		if ( 'start' == $row_name && fct_get_revenue_account_type_id() == fct_get_account_type( $this->account_display ) )
-			return;
-
-		$alternate =& $this->alternate;
-		$alternate = 'alternate' == $alternate ? '' : 'alternate';
-		$classes = $alternate . ' iedit records-row-' . $row_name;
-
-		list( $columns, $hidden ) = $this->get_column_info(); ?>
-		<tr id="fct-records-<?php echo $row_name; ?>-row" class="<?php echo $classes; ?>" valign="top">
-			
-			<?php foreach ( $columns as $column_name => $column_display_name ) :
-				$class = " class=\"$column_name column-$column_name\"";
-				$style = '';
-	
-				if ( in_array( $column_name, $hidden ) )
-					$style = ' style="display:none;"';
-
-				$attributes = "$class$style"; 
-
-				$el1 = 'cb' == $column_name ? 'th scope="row" class="check-column"' : "td $attributes";
-				$el2 = 'cb' == $column_name ? 'th' : 'td';
-
-				echo "<$el1>";
-				do_action( "fct_admin_records_{$row_name}_row", $column_name );
-				echo "</$el2>";
-			endforeach; ?>
-
-		</tr>
-		<?php
-	}
-
-	function _display_rows( $posts, $level = 0 ) {
-		foreach ( $posts as $post )
-			$this->single_row( $post, $level );
-	}
-
-	/**
 	 * Display dedicated column content
 	 *
 	 * @since 0.0.8
 	 *
+	 * @uses fct_get_record_account_id()
+	 * @uses fct_account_ledger_id()
+	 * @uses fct_get_account_title()
+	 * @uses fct_record_excerpt()
+	 * @uses fct_record_offset_account()
+	 * @uses fct_get_record_amount()
+	 * @uses fct_get_record_type()
+	 * @uses fct_get_debit_record_type()
+	 * @uses fct_get_credit_record_type()
+	 * @uses fct_currency_format()
+	 * @uses fct_get_record_year_id()
 	 * @uses fct_get_account_year_id()
 	 * @uses fct_get_year_title()
-	 * @uses fct_account_ledger_id()
-	 * @uses fct_get_account_type()
-	 * @uses fct_get_revenue_account_type_id()
-	 * @uses fct_get_capital_account_type_id()
-	 * @uses fct_account_record_count()
-	 * @uses fct_currency_format()
-	 * @uses fct_get_account_end_value()
 	 * @param string $column_name Column name
 	 * @param int $record_id Record ID
 	 */
@@ -430,12 +549,59 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		}
 	}
 
+	/** Helper Rows *******************************************************/
+
+	/**
+	 * Display records's helper row
+	 * 
+	 * @since 0.0.8
+	 *
+	 * @uses do_action() Calls 'fct_admin_records_{$which}_row'
+	 * @param string $which The row name
+	 */
+	function _display_helper_row( $which = '' ) {
+
+		// Bail if no row name given
+		$which = esc_attr( esc_html( $which ) );
+		if ( empty( $which ) )
+			return;
+
+		$alternate =& $this->alternate;
+		$alternate = 'alternate' == $alternate ? '' : 'alternate';
+		$classes = $alternate . ' iedit records-row-' . $which;
+
+		list( $columns, $hidden ) = $this->get_column_info(); ?>
+		<tr id="fct-records-<?php echo $which; ?>-row" class="<?php echo $classes; ?>" valign="top">
+			
+			<?php foreach ( $columns as $column_name => $column_display_name ) :
+				$class = " class=\"$column_name column-$column_name\"";
+				$style = '';
+	
+				if ( in_array( $column_name, $hidden ) )
+					$style = ' style="display:none;"';
+
+				$attributes = "$class$style"; 
+
+				$el1 = 'cb' == $column_name ? 'th scope="row" class="check-column"' : "td $attributes";
+				$el2 = 'cb' == $column_name ? 'th' : 'td';
+
+				echo "<$el1>";
+				do_action( "fct_admin_records_{$which}_row", $column_name );
+				echo "</$el2>";
+			endforeach; ?>
+
+		</tr>
+		<?php
+	}
+
 	/**
 	 * Display contents of either an account's start or end row
 	 * 
 	 * @since 0.0.8
 	 *
 	 * @uses fct_get_account_id()
+	 * @uses fct_get_capital_account_type_id()
+	 * @uses fct_get_account_type()
 	 * @uses fct_get_account_start_value()
 	 * @uses fct_get_account_end_value()
 	 * @uses fct_get_debit_record_type_id()
@@ -449,21 +615,24 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		if ( ! $account_id = fct_get_account_id( $this->account_display ) )
 			return;
 
-		$start = strpos( current_filter(), 'start' );
+		$start = false !== strpos( current_filter(), 'start' );
 
 		switch ( $column ) {
 			case 'fct_record_description' :
-				if ( fct_get_capital_account_type_id() == fct_get_account_type( $account_id ) ) {
-					if ( $start ) {
-						_e( 'Start Balance', 'fiscaat' );
-					} else {
-						_e( 'End Balance',   'fiscaat' );
-					}
+				switch ( fct_get_account_type( $account_id ) ) {
+					case fct_get_capital_account_type_id() :
+						if ( $start ) {
+							_e( 'Start Balance', 'fiscaat' );
+						} else {
+							_e( 'End Balance',   'fiscaat' );
+						}
+						break;
 
-				// Revenue accounts have no starting value
-				} else {
-					if ( ! $start ) 
-						_e( 'To Income Statement', 'fiscaat' );
+					case fct_get_revenue_account_type_id() :
+						// Revenue accounts have no starting value
+						if ( ! $start ) 
+							_e( 'To Income Statement', 'fiscaat' );
+						break;
 				}
 				break;
 
@@ -508,67 +677,6 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 				<input id="fct_records_debit_total"  class="fct_record_debit_amount fct_record_total small-text"  type="text" value="<?php fct_currency_format( array_sum( $this->amounts[ fct_get_debit_record_type_id()  ] ) ); ?>" disabled="disabled" />
 				<input id="fct_records_credit_total" class="fct_record_credit_amount fct_record_total small-text" type="text" value="<?php fct_currency_format( array_sum( $this->amounts[ fct_get_credit_record_type_id() ] ) ); ?>" disabled="disabled" />
-
-				<?php
-				break;
-		}
-	}
-
-	/**
-	 * Display dedicated post-new column content
-	 *
-	 * @since 0.0.8
-	 *
-	 * @uses fct_ledger_dropdown()
-	 * @uses fct_account_dropdown()
-	 * @param string $column_name Column name
-	 */
-	function _new_row( $column_name ) {
-
-		switch ( $column_name ) {
-			case 'fct_record_account_ledger_id' :
-				fct_ledger_dropdown( array(
-					'select_name' => 'records[account_ledger_id][]', 
-					'class'       => 'fct_record_ledger_id',
-					'show_none'   => '&mdash;',
-					'tabindex'    => '',
-				) );
-				break;
-
-			case 'fct_record_account' :
-				fct_account_dropdown( array(
-					'select_name' => 'records[account_id][]',
-					'class'       => 'fct_record_account_id',
-					'show_none'   => __( '&mdash; No Account &mdash;', 'fiscaat' ),
-					'tabindex'    => '',
-				) );
-				break;
-
-			case 'fct_record_description' : ?>
-
-				<textarea name="records[description][]" class="fct_record_description" rows="1" ></textarea>
-
-				<?php
-				break;
-
-			case 'fct_record_offset_account' : ?>
-
-				<input name="records[offset_account][]" type="text" class="fct_record_offset_account medium-text" value="" />
-
-				<?php
-				break;
-
-			case 'fct_record_created': ?>
-
-				<input name="records[created][]" type="text" class="fct_record_created medium-text" value="" />
-
-				<?php
-				break;
-
-			case 'fct_record_amount' : ?>
-
-				<input name="records[amount][debit][]"  class="fct_record_debit_amount small-text"  type="text" value="" />
-				<input name="records[amount][credit][]" class="fct_record_credit_amount small-text" type="text" value="" />
 
 				<?php
 				break;
