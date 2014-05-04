@@ -218,7 +218,7 @@ function fct_year_metabox() {
 	if ( 'add' != get_current_screen()->action ) : ?>
 
 	<p>
-		<strong class="label"><?php _e( 'From:', 'Year start date', 'fiscaat' ); ?></strong>
+		<strong class="label"><?php _e( 'Start:', 'Year start date', 'fiscaat' ); ?></strong>
 		<label class="screen-reader-text" for="fct_year_started"><?php _e( 'Start date:', 'fiscaat' ) ?></label>
 		<?php fct_form_year_started( $post_id ); ?>
 	</p>
@@ -230,7 +230,7 @@ function fct_year_metabox() {
 	if ( fct_is_year_closed( $post_id ) ) : ?>
 
 	<p>
-		<strong class="label"><?php _e( 'To:', 'Year close date', 'fiscaat' ); ?></strong>
+		<strong class="label"><?php _e( 'Closed:', 'Year close date', 'fiscaat' ); ?></strong>
 		<label class="screen-reader-text" for="fct_year_closed"><?php _e( 'Close date:', 'fiscaat' ) ?></label>
 		<?php fct_form_year_closed( $post_id ); ?>
 
@@ -264,9 +264,9 @@ function fct_account_metabox() {
 	?>
 	
 	<p>
-		<strong class="label"><?php _e( 'Number:', 'fiscaat' ); ?></strong>
+		<strong class="label"><?php _e( 'No.:', 'fiscaat' ); ?></strong>
 		<label class="screen-reader-text" for="fct_account_ledger_id"><?php _e( 'Account Number', 'fiscaat' ); ?></label>
-		<input name="fct_account_ledger_id" id="fct_account_ledger_id" type="text" value="<?php echo esc_attr( fct_get_account_ledger_id( $post_id ) ); ?>" <?php disabled( ! current_user_can( 'fiscaat' ) || fct_is_account_closed( $post_id ) ); ?> />
+		<input name="fct_account_ledger_id" id="fct_account_ledger_id" type="text" class="medium-text" value="<?php echo esc_attr( fct_get_account_ledger_id( $post_id ) ); ?>" <?php disabled( ! current_user_can( 'fiscaat' ) || fct_is_account_closed( $post_id ) ); ?> />
 		<img class="ajax-loading" src="<?php echo admin_url(); ?>images/spinner.gif" />
 	</p>
 

@@ -921,15 +921,13 @@ function fct_record_admin_links( $args = '' ) {
 	 *             '<span class="fiscaat-admin-links">'
 	 *  - after: HTML after the links. Defaults to '</span>'
 	 *  - sep: Separator. Defaults to ' | '
-	 *  - links: Array of the links to display. By default, edit, trash,
-	 *            spam and account split links are displayed
+	 *  - links: Array of the links to display. By default, edit links
+	 *            are displayed
 	 * @uses fct_is_account() To check if it's the account page
 	 * @uses fct_is_record() To check if it's the record page
 	 * @uses fct_get_record_id() To get the record id
 	 * @uses fct_get_record_edit_link() To get the record edit link
 	 * @uses fct_get_record_trash_link() To get the record trash link
-	 * @uses fct_get_record_spam_link() To get the record spam link
-	 * @uses fct_get_account_split_link() To get the account split link
 	 * @uses current_user_can() To check if the current user can edit or
 	 *                           delete the record
 	 * @uses apply_filters() Calls 'fct_get_record_admin_links' with the

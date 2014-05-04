@@ -376,8 +376,8 @@ class Fiscaat_Years_Admin {
 	/**
 	 * Year Row actions
 	 *
-	 * Remove the quick-edit action link and display the description under
-	 * the year title
+	 * Add the view/accounts/records/close/open/trash/delete action links 
+	 * under the year title
 	 *
 	 * @param array $actions Actions
 	 * @param array $year Year object
@@ -388,11 +388,43 @@ class Fiscaat_Years_Admin {
 		if ( $this->bail() ) 
 			return $actions;
 
-		unset( $actions['inline hide-if-no-js'] );
+		// Show view link if it's not set, the year is trashed and the user can view trashed accounts
+		if ( empty( $actions['view'] ) && ( fct_get_trash_status_id() != $year->post_status ) ) {
+			$actions['view'] = '<a href="' . fct_get_account_permalink( $year->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'fiscaat' ), fct_get_year_title( $year->ID ) ) ) . '" rel="permalink">' . __( 'View', 'fiscaat' ) . '</a>';
+		}
 
-		// simple hack to show the year description under the title
-		// fct_year_excerpt( $year->ID );
-		
+		// Show accounts and records link
+		$actions['accounts'] = '<a href="' . add_query_arg( array( 'page' => 'fct-accounts', 'fct_year_id' => $year->ID ), admin_url( 'admin.php' ) ) .'" title="' . esc_attr( sprintf( __( 'Show all accounts of &#8220;%s&#8221;', 'fiscaat' ), fct_get_year_title( $year->ID ) ) ) . '">' . __( 'Accounts', 'fiscaat' ) . '</a>';
+		$actions['records']  = '<a href="' . add_query_arg( array( 'page' => 'fct-records',  'fct_year_id' => $year->ID ), admin_url( 'admin.php' ) ) .'" title="' . esc_attr( sprintf( __( 'Show all records of &#8220;%s&#8221;',  'fiscaat' ), fct_get_year_title( $year->ID ) ) ) . '">' . __( 'Records',  'fiscaat' ) . '</a>';
+
+		// Show the close and open link
+		if ( current_user_can( 'edit_year', $year->ID ) ) {
+			$toggle_uri = esc_url( wp_nonce_url( add_query_arg( array( 'year_id' => $year->ID, 'action' => 'fct_toggle_year_close' ), remove_query_arg( array( 'fct_year_toggle_notice', 'account_id', 'failed', 'super' ) ) ), 'close-year_' . $year->ID ) );
+			if ( fct_is_year_open( $year->ID ) ) {
+
+				// Show close link if the year has no open accounts
+				if ( ! fct_has_open_account() ) {
+					$actions['closed'] = '<a href="' . $toggle_uri . '" title="' . esc_attr__( 'Close this year', 'fiscaat' ) . '">' . _x( 'Close', 'Close the year', 'fiscaat' ) . '</a>';
+				}
+			} else {
+				$actions['open'] = '<a href="' . $toggle_uri . '" title="' . esc_attr__( 'Open this year',  'fiscaat' ) . '">' . _x( 'Open',  'Open the year',  'fiscaat' ) . '</a>';
+			}
+		}
+
+		// Only show delete links for closed or empty years
+		if ( current_user_can( 'delete_year', $year->ID ) && ( fct_is_year_closed() || ! fct_year_has_records() ) ) {
+			if ( fct_get_trash_status_id() == $year->post_status ) {
+				$post_type_object = get_post_type_object( fct_get_year_post_type() );
+				$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fct_get_year_post_type() ), admin_url( 'edit.php' ) ) ), wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $year->ID ) ), 'untrash-' . $year->post_type . '_' . $year->ID ) ) . "'>" . __( 'Restore', 'fiscaat' ) . "</a>";
+			} elseif ( EMPTY_TRASH_DAYS ) {
+				$actions['trash'] = "<a class='submitdelete' title='" . esc_attr__( 'Move this item to the Trash', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fct_get_year_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $year->ID ) ) . "'>" . __( 'Trash', 'fiscaat' ) . "</a>";
+			}
+
+			if ( fct_get_trash_status_id() == $year->post_status || ! EMPTY_TRASH_DAYS ) {
+				$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fct_get_year_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $year->ID, '', true ) ) . "'>" . __( 'Delete Permanently', 'fiscaat' ) . "</a>";
+			}
+		}
+
 		return $actions;
 	}
 

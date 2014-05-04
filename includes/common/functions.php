@@ -528,7 +528,6 @@ function fct_parse_args( $args, $defaults = '', $filter_key = '' ) {
  *
  * @param int $parent_id Parent id
  * @param string $post_type Post type. Defaults to 'post'
- * @uses fct_get_account_post_type() To get the account post type
  * @uses wp_cache_get() To check if there is a cache of the children count
  * @uses wpdb::prepare() To prepare the query
  * @uses wpdb::get_var() To get the result of the query in a variable
@@ -545,21 +544,12 @@ function fct_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 		return false;
 
 	// The ID of the cached query
-	$cache_id    = 'fct_parent_' . $parent_id . '_type_' . $post_type . '_child_count';
-	$post_status = array( 
-		fct_get_public_status_id(),
-		fct_get_declined_status_id(),
-		fct_get_approved_status_id(),
-		fct_get_closed_status_id()
-	);
-
-	// Join post statuses together
-	$post_status = "'" . join( "', '", $post_status ) . "'";
+	$cache_id = 'fct_parent_' . $parent_id . '_type_' . $post_type . '_child_count';
 
 	// Check for cache and set if needed
 	$child_count = wp_cache_get( $cache_id, 'fiscaat' );
 	if ( empty( $child_count ) ) {
-		$child_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s';", $parent_id, $post_type ) );
+		$child_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_type = '%s';", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_count, 'fiscaat' );
 	}
 
@@ -568,7 +558,7 @@ function fct_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 }
 
 /**
- * Query the DB and get a the child id's of public children
+ * Query the DB and get the child id's of public children
  *
  * @param int $parent_id Parent id
  * @param string $post_type Post type. Defaults to 'post'
@@ -589,21 +579,12 @@ function fct_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 		return false;
 
 	// The ID of the cached query
-	$cache_id    = 'fct_parent_public_' . $parent_id . '_type_' . $post_type . '_child_ids';
-	$post_status = array( 
-		fct_get_public_status_id(),
-		fct_get_declined_status_id(),
-		fct_get_approved_status_id(),
-		fct_get_closed_status_id()
-	);
-
-	// Join post statuses together
-	$post_status = "'" . join( "', '", $post_status ) . "'";
+	$cache_id = 'fct_parent_public_' . $parent_id . '_type_' . $post_type . '_child_ids';
 
 	// Check for cache and set if needed
 	$child_ids = wp_cache_get( $cache_id, 'fiscaat' );
 	if ( empty( $child_ids ) ) {
-		$child_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC;", $parent_id, $post_type ) );
+		$child_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_type = '%s' ORDER BY ID DESC;", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_ids, 'fiscaat' );
 	}
 
@@ -650,9 +631,6 @@ function fct_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 
 		// Record
 		case fct_get_record_post_type() :
-			// @todo Move to Control
-			// $post_status[] = fct_get_declined_status_id();
-			// $post_status[] = fct_get_approved_status_id();
 			$post_status[] = fct_get_closed_status_id();
 			break;
 	}

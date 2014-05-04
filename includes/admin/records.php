@@ -375,7 +375,7 @@ class Fiscaat_Records_Admin {
 			.column-fct_record_offset_account,
 			.column-fct_record_year,
 			.column-fct_record_account {
-				width: 10% !important;
+				width: 15% !important;
 			}
 
 			.column-fct_record_account {
@@ -387,21 +387,17 @@ class Fiscaat_Records_Admin {
 			.wp-list-table td.column-fct_record_account, 
 			.wp-list-table td.column-fct_record_account_ledger_id, 
 			.wp-list-table td.column-fct_record_offset_account {
-				padding: 9px 7px;
+				padding: 11px 10px;
 			}
 
 			.column-fct_record_amount {
-				width: 137px;
-			}
-
-			.column-fct_record_amount.sortable,
-			.column-fct_record_amount.sorted {
 				width: 157px;
 			}
 
 			.column-fct_record_amount .small-text {
 				text-align: right;
 				width: 65px;
+				padding: 3px 5px;
 			}
 
 			.column-fct_record_status {
@@ -432,9 +428,6 @@ class Fiscaat_Records_Admin {
 
 			.widefat tbody th.check-column {
 				padding-top: 10px;
-			}
-
-			.widefat tbody th.check-column {
 				padding-bottom: 0;
 			}
 
@@ -470,7 +463,7 @@ class Fiscaat_Records_Admin {
 				}
 
 			.column-fct_record_account_ledger_id {
-				width: 35px;
+				width: 8% !important;
 			}
 
 		/*]]>*/
@@ -952,7 +945,7 @@ class Fiscaat_Records_Admin {
 
 			if ( ! empty( $account_id ) ) {
 				// Format: {title} -- {account number}. {account title}
-				$title .= ' &mdash; '. fct_get_account_ledger_id( $account_id ) .'. '. fct_get_account_title( $account_id );
+				$title = ' &mdash; '. fct_get_account_ledger_id( $account_id ) .'. '. fct_get_account_title( $account_id );
 			}
 		}
 
@@ -966,6 +959,11 @@ class Fiscaat_Records_Admin {
 				// Format: {title} -- {year title}
 				$title .= ' &mdash; '. fct_get_year_title( $year_id );
 			}
+		}
+
+		// New records
+		if ( fct_admin_is_new_records() ) {
+			$title = get_post_type_object( fct_get_record_post_type() )->labels->add_new;
 		}
 
 		return $title;
@@ -984,8 +982,8 @@ class Fiscaat_Records_Admin {
 	 */
 	public function post_new_link( $title ) {
 
-		// Require open year and account
-		if ( fct_has_open_year() && fct_has_open_account() ) {
+		// Require open year and account, as long as we're not already there
+		if ( fct_has_open_year() && fct_has_open_account() && ! fct_admin_is_new_records() ) {
 			$title = fct_admin_page_title_add_new( $title );
 		}
 

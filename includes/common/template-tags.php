@@ -1014,7 +1014,7 @@ function fct_record_form_fields() {
 
 		<input type="hidden" name="fct_record_title" id="fct_record_title" value="<?php printf( __( 'Record To: %s', 'fiscaat' ), fct_get_account_title() ); ?>" />
 		<input type="hidden" name="fct_record_id"    id="fct_record_id"    value="<?php fct_record_id(); ?>" />
-		<input type="hidden" name="action"          id="fct_post_action" value="fiscaat-edit-record" />
+		<input type="hidden" name="action"           id="fct_post_action"  value="fiscaat-edit-record" />
 
 		<?php if ( current_user_can( 'unfiltered_html' ) )
 			wp_nonce_field( 'fiscaat-unfiltered-html-record_' . fct_get_record_id(), '_fct_unfiltered_html_record', false ); ?>

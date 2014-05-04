@@ -107,8 +107,9 @@ function fct_insert_year( $year_data = array(), $year_meta = array() ) {
 	$year_meta = fct_parse_args( $year_meta, fct_get_year_default_meta(), 'insert_year_meta' );
 
 	// Insert year meta
-	foreach ( $year_meta as $meta_key => $meta_value )
+	foreach ( $year_meta as $meta_key => $meta_value ) {
 		fct_update_year_meta( $year_id, $meta_key, $meta_value );
+	}
 
 	// Return new year ID
 	return $year_id;
@@ -391,10 +392,11 @@ function fct_update_year_record_count( $year_id = 0 ) {
 
 	// Don't count records if the year is empty
 	$record_ids = fct_year_query_record_ids( $year_id );
-	if ( ! empty( $record_ids ) )
+	if ( ! empty( $record_ids ) ) {
 		$record_count = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent IN ( " . join( ',', $record_ids ) . " ) AND post_type = '%s';", fct_get_record_post_type() ) );
-	else
+	} else {
 		$record_count = 0;
+	}
 
 	// Update the count
 	fct_update_year_meta( $year_id, 'record_count', (int) $record_count );
@@ -427,7 +429,7 @@ function fct_update_year_end_value( $year_id = 0, $end_value = 0 ) {
 	$records = (array) fct_year_query_revenue_record_ids( $year_id );
 
 	// Has records and value isn't given
-	if ( ! empty( $records ) && empty( $end_value ) ){
+	if ( ! empty( $records ) && empty( $end_value ) ) {
 
 		// Loop all records and add the result value
 		foreach ( $records as $record_id ){
@@ -452,12 +454,10 @@ function fct_update_year_end_value( $year_id = 0, $end_value = 0 ) {
  *
  * @param mixed $args Supports these arguments:
  *  - year_id: Year id
- *  - end_value: To balance value
+ *  - end_value: Year end value
  * @uses fct_update_year_end_value() To update the year to balance value
  * @uses fct_update_year_account_count() To update the year account count
  * @uses fct_update_year_record_count() To update the year record count
- * @uses fct_update_year_record_count_declined() To update the declined record count
- * @uses fct_update_year_record_count_unapproved() To update the unapproved record count
  */
 function fct_update_year( $args = '' ) {
 	$defaults = array(
@@ -474,8 +474,8 @@ function fct_update_year( $args = '' ) {
 	fct_update_year_end_value( $year_id, $end_value );
 
 	// Counts
-	fct_update_year_account_count          ( $year_id );
-	fct_update_year_record_count           ( $year_id );
+	fct_update_year_account_count( $year_id );
+	fct_update_year_record_count ( $year_id );
 	// @todo Move to Control
 	// fct_update_year_record_count_unapproved( $year_id );
 	// fct_update_year_record_count_declined  ( $year_id );
@@ -500,7 +500,7 @@ function fct_has_open_year() {
 }
 
 /**
- * Returns whether the year has any records
+ * Returns whether the year has any non-closed records
  * 
  * @param int $year_id Year id
  * @uses fct_get_public_child_count()

@@ -200,6 +200,15 @@ function fct_get_closed_status_id() {
 	return fiscaat()->closed_status_id;
 }
 
+/**
+ * Return the trash post status ID
+ *
+ * @return string
+ */
+function fct_get_trash_status_id() {
+	return fiscaat()->trash_status_id;
+}
+
 /** Rewrite IDs ***************************************************************/
 
 /**

@@ -44,17 +44,20 @@ function fct_is_update() {
  * @return bool True if activating Fiscaat, false if not
  */
 function fct_is_activation( $basename = '' ) {
-	$fiscaat = fiscaat();
 
-	$action = false;
-	if ( ! empty( $_REQUEST['action'] ) && ( '-1' != $_REQUEST['action'] ) )
+	$fct = fiscaat();
+	$action  = false;
+
+	if ( ! empty( $_REQUEST['action'] ) && ( '-1' != $_REQUEST['action'] ) ) {
 		$action = $_REQUEST['action'];
-	elseif ( ! empty( $_REQUEST['action2'] ) && ( '-1' != $_REQUEST['action2'] ) )
+	} elseif ( ! empty( $_REQUEST['action2'] ) && ( '-1' != $_REQUEST['action2'] ) ) {
 		$action = $_REQUEST['action2'];
+	}
 
 	// Bail if not activating
-	if ( empty( $action ) || !in_array( $action, array( 'activate', 'activate-selected' ) ) )
+	if ( empty( $action ) || ! in_array( $action, array( 'activate', 'activate-selected' ) ) ) {
 		return false;
+	}
 
 	// The plugin(s) being activated
 	if ( $action == 'activate' ) {
@@ -64,12 +67,14 @@ function fct_is_activation( $basename = '' ) {
 	}
 
 	// Set basename if empty
-	if ( empty( $basename ) && !empty( $fiscaat->basename ) )
-		$basename = $fiscaat->basename;
+	if ( empty( $basename ) && ! empty( $fct->basename ) ) {
+		$basename = $fct->basename;
+	}
 
 	// Bail if no basename
-	if ( empty( $basename ) )
+	if ( empty( $basename ) ) {
 		return false;
+	}
 
 	// Is Fiscaat being activated?
 	return in_array( $basename, $plugins );
@@ -81,17 +86,20 @@ function fct_is_activation( $basename = '' ) {
  * @return bool True if deactivating Fiscaat, false if not
  */
 function fct_is_deactivation( $basename = '' ) {
-	$fiscaat = fiscaat();
 
+	$fct = fiscaat();
 	$action = false;
-	if ( ! empty( $_REQUEST['action'] ) && ( '-1' != $_REQUEST['action'] ) )
+
+	if ( ! empty( $_REQUEST['action'] ) && ( '-1' != $_REQUEST['action'] ) ) {
 		$action = $_REQUEST['action'];
-	elseif ( ! empty( $_REQUEST['action2'] ) && ( '-1' != $_REQUEST['action2'] ) )
+	} elseif ( ! empty( $_REQUEST['action2'] ) && ( '-1' != $_REQUEST['action2'] ) ) {
 		$action = $_REQUEST['action2'];
+	}
 
 	// Bail if not deactivating
-	if ( empty( $action ) || !in_array( $action, array( 'deactivate', 'deactivate-selected' ) ) )
+	if ( empty( $action ) || ! in_array( $action, array( 'deactivate', 'deactivate-selected' ) ) ) {
 		return false;
+	}
 
 	// The plugin(s) being deactivated
 	if ( $action == 'deactivate' ) {
@@ -101,12 +109,14 @@ function fct_is_deactivation( $basename = '' ) {
 	}
 
 	// Set basename if empty
-	if ( empty( $basename ) && !empty( $fiscaat->basename ) )
-		$basename = $fiscaat->basename;
+	if ( empty( $basename ) && ! empty( $fct->basename ) ) {
+		$basename = $fct->basename;
+	}
 
 	// Bail if no basename
-	if ( empty( $basename ) )
+	if ( empty( $basename ) ) {
 		return false;
+	}
 
 	// Is Fiscaat being deactivated?
 	return in_array( $basename, $plugins );
@@ -121,6 +131,22 @@ function fct_is_deactivation( $basename = '' ) {
 function fct_version_bump() {
 	$db_version = fct_get_db_version();
 	update_option( '_fct_db_version', $db_version );
+}
+
+/**
+ * Setup the Fiscaat updater
+ *
+ * @uses fct_is_update()
+ * @uses fct_version_updater()
+ */
+function fct_setup_updater() {
+
+	// Bail if no update needed
+	if ( ! fct_is_update() )
+		return;
+
+	// Call the automated updater
+	fct_version_updater();
 }
 
 /**
@@ -263,28 +289,10 @@ function fct_create_initial_content( $args = array() ) {
 		);
 	}
 
-	update_option( '_fct_activated', fct_get_current_time() );
-
 	return array(
 		'year_id'     => $year_id,
 		'account_ids' => $account_ids,
 	);
-}
-
-/**
- * Setup the Fiscaat updater
- *
- * @uses fct_version_updater()
- * @uses fct_version_bump()
- */
-function fct_setup_updater() {
-
-	// Bail if no update needed
-	if ( ! fct_is_update() )
-		return;
-
-	// Call the automated updater
-	fct_version_updater();
 }
 
 /**
@@ -313,4 +321,51 @@ function fct_version_updater() {
 
 	// Delete rewrite rules to force a flush
 	fct_delete_rewrite_rules();
+}
+
+/**
+ * Hooked to the 'fct_activation' action, this helper function automatically makes
+ * the current user a Fiscus in the site if they just activated Fiscaat,
+ * regardless of the fct_allow_global_access() setting.
+ *
+ * @since 0.0.8
+ *
+ * @internal Used to internally make the current user a fiscus on activation
+ *
+ * @uses current_user_can() To bail if user cannot activate plugins
+ * @uses get_current_user_id() To get the current user ID
+ * @uses get_current_blog_id() To get the current blog ID
+ * @uses is_user_member_of_blog() To bail if the current user does not have a role
+ * @uses fct_get_user_role() To bail if the user already has a Fiscaat role 
+ * @uses fct_set_user_role() To make the current user a fiscus
+ *
+ * @return If user can't activate plugins or is already a fiscus
+ */
+function fct_make_current_user_fiscus() {
+
+	// Bail if the current user can't activate plugins since previous pageload
+	if ( ! current_user_can( 'activate_plugins' ) ) {
+		return;
+	}
+
+	// Get the current user ID
+	$user_id = get_current_user_id();
+	$blog_id = get_current_blog_id();
+
+	// Bail if user is not actually a member of this site
+	if ( ! is_user_member_of_blog( $user_id, $blog_id ) ) {
+		return;
+	}
+
+	// Bail if the current user already has a Fiscaat role to prevent
+	// unexpected role and capability escalation.
+	if ( fct_get_user_role( $user_id ) ) {
+		return;
+	}
+
+	// Make the current user a fiscus
+	fct_set_user_role( $user_id, fct_get_fiscus_role() );
+
+	// Reload the current user so caps apply immediately
+	wp_get_current_user();
 }

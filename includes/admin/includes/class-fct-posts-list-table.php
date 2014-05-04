@@ -100,7 +100,7 @@ class FCT_Posts_List_Table extends WP_List_Table {
 			$total_posts -= $num_posts->$state;
 		}
 
-		$class = empty( $class ) && empty( $_REQUEST['post_status'] ) && empty( $_REQUEST['show_sticky'] ) ? ' class="current"' : '';
+		$class = empty( $class ) && empty( $_REQUEST['post_status'] ) ? ' class="current"' : '';
 		$status_links['all'] = "<a href='edit.php?post_type=$post_type{$allposts}'$class>" . sprintf( _nx( 'All <span class="count">(%s)</span>', 'All <span class="count">(%s)</span>', $total_posts, 'posts' ), number_format_i18n( $total_posts ) ) . '</a>';
 
 		foreach ( get_post_stati( array( 'show_in_admin_status_list' => true ), 'objects' ) as $status ) {
@@ -130,9 +130,7 @@ class FCT_Posts_List_Table extends WP_List_Table {
 	function extra_tablenav( $which ) { ?>
 		<div class="alignleft actions">
 			<?php 
-				if ( 'top' == $which && !is_singular() ) {
-
-					$this->months_dropdown( $this->screen->post_type );
+				if ( 'top' == $which && ! is_singular() ) {
 
 					/**
 					 * Fires before the Filter button on the Posts and Pages list tables.
@@ -349,15 +347,6 @@ class FCT_Posts_List_Table extends WP_List_Table {
 				$actions = array();
 				if ( $can_edit_post && 'trash' != $post->post_status ) {
 					$actions['edit'] = '<a href="' . get_edit_post_link( $post->ID, true ) . '" title="' . esc_attr( __( 'Edit this item' ) ) . '">' . __( 'Edit' ) . '</a>';
-					$actions['inline hide-if-no-js'] = '<a href="#" class="editinline" title="' . esc_attr( __( 'Edit this item inline' ) ) . '">' . __( 'Quick&nbsp;Edit' ) . '</a>';
-				}
-				if ( current_user_can( 'delete_post', $post->ID ) ) {
-					if ( 'trash' == $post->post_status )
-						$actions['untrash'] = "<a title='" . esc_attr( __( 'Restore this item from the Trash' ) ) . "' href='" . wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $post->ID ) ), 'untrash-post_' . $post->ID ) . "'>" . __( 'Restore' ) . "</a>";
-					elseif ( EMPTY_TRASH_DAYS )
-						$actions['trash'] = "<a class='submitdelete' title='" . esc_attr( __( 'Move this item to the Trash' ) ) . "' href='" . get_delete_post_link( $post->ID ) . "'>" . __( 'Trash' ) . "</a>";
-					if ( 'trash' == $post->post_status || !EMPTY_TRASH_DAYS )
-						$actions['delete'] = "<a class='submitdelete' title='" . esc_attr( __( 'Delete this item permanently' ) ) . "' href='" . get_delete_post_link( $post->ID, '', true ) . "'>" . __( 'Delete Permanently' ) . "</a>";
 				}
 				if ( $post_type_object->public ) {
 					if ( in_array( $post->post_status, array( 'pending', 'draft', 'future' ) ) ) {

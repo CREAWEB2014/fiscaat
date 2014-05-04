@@ -160,7 +160,7 @@ final class Fiscaat {
 		/** Versions **********************************************************/
 
 		$this->version       = '0.0.7';
-		$this->db_version    = '001';
+		$this->db_version    = '007';
 
 		/** Paths *************************************************************/
 
@@ -191,6 +191,7 @@ final class Fiscaat {
 		// Status identifiers
 		$this->public_status_id    = apply_filters( 'fct_public_post_status',   'publish'  );
 		$this->closed_status_id    = apply_filters( 'fct_closed_post_status',   'closed'   );
+		$this->trash_status_id     = apply_filters( 'fct_trash_post_status',    'trash'    );
 		// @todo Move to Control
 		$this->approved_status_id  = apply_filters( 'fct_approved_post_status', 'approved' );
 		$this->declined_status_id  = apply_filters( 'fct_declined_post_status', 'declined' );
@@ -323,7 +324,7 @@ final class Fiscaat {
 		// Array of Fiscaat core actions
 		$actions = array(
 			'register_post_types',    // Register post types (record|account|year)
-			'register_post_statuses', // Register post statuses (approved|declined|closed)
+			'register_post_statuses', // Register post statuses (closed)
 			'load_textdomain',        // Load textdomain (fiscaat)
 			'add_rewrite_tags',       // Add rewrite tags (edit)
 			'add_rewrite_rules',      // Add rewrite rules (edit)

@@ -56,7 +56,7 @@ function fct_set_user_role( $user_id = 0, $new_role = '' ) {
 	$user    = get_userdata( $user_id );
 
 	// User exists
-	if ( !empty( $user ) ) {
+	if ( ! empty( $user ) ) {
 
 		// Get users year role
 		$role = fct_get_user_role( $user_id );
@@ -88,7 +88,7 @@ function fct_set_user_role( $user_id = 0, $new_role = '' ) {
 }
 
 /**
- * Return a user's forums role
+ * Return a user's Fiscaat role
  *
  * @since 0.0.1
  *
@@ -150,7 +150,7 @@ function fct_get_user_blog_role( $user_id = 0 ) {
 	if ( ! empty( $user->roles ) ) {
 
 		// Look for a non Fiscaat role
-		$roles     = array_intersect(
+		$roles = array_intersect(
 			array_values( $user->roles ),
 			array_keys( fct_get_blog_roles() )
 		);
@@ -158,7 +158,7 @@ function fct_get_user_blog_role( $user_id = 0 ) {
 		// If there's a role in the array, use the first one. This isn't very
 		// smart, but since roles aren't exactly hierarchical, and WordPress
 		// does not yet have a UI for multiple user roles, it's fine for now.
-		if ( !empty( $roles ) ) {
+		if ( ! empty( $roles ) ) {
 			$role = array_shift( $roles );
 		}
 	}

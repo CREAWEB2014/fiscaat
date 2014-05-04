@@ -15,8 +15,8 @@
  *  - Fiscaat: In {@link Fiscaat::setup_actions()} in fiscaat.php
  *  - Admin: More in {@link Fiscaat_Admin::setup_actions()} in admin.php
  *
- * @see fiscaat-core-actions.php
- * @see fiscaat-core-filters.php
+ * @see fct-core-actions.php
+ * @see fct-core-filters.php
  */
 
 // Exit if accessed directly
@@ -57,15 +57,12 @@ add_action( 'fct_admin_init',          'fct_register_admin_settings'       );
 // Initialize the admin area
 add_action( 'fct_init', 'fct_admin' );
 
-// Initalize record edit/new pages
-// add_action( 'fct_init', 'fct_admin_records_new'  );
-// add_action( 'fct_init', 'fct_admin_records_edit' );
-
 // Reset the menu order
 add_action( 'fct_admin_menu', 'fct_admin_separator' );
 
 // Activation
-add_action( 'fct_activation', 'fct_delete_rewrite_rules'   );
+add_action( 'fct_activation', 'fct_delete_rewrite_rules'     );
+add_action( 'fct_activation', 'fct_make_current_user_fiscus' );
 
 // Deactivation
 add_action( 'fct_deactivation', 'fct_remove_caps'          );

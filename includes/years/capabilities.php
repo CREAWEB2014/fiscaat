@@ -63,37 +63,21 @@ function fct_map_year_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args
 
 		/** Publishing ********************************************************/
 
-		case 'publish_years'  :
-
-			// Publish on install 
-			if ( fct_is_install() ) {
-				$caps = array( 'administrator' );
-
-			// Only Fisci can always edit
-			} else {
-				$caps = array( 'fiscaat' );
-			}
-
+		case 'publish_years' :
+			$caps = array( 'fiscaat' );
 			break;
 
 		/** Editing ***********************************************************/
 
-		case 'edit_years'         :
-		case 'edit_others_years'  :
-
-			// Only Fisci can always edit
+		case 'edit_years'        :
+		case 'edit_others_years' :
 			$caps = array( 'fiscaat' );
-
 			break;
 
 		case 'edit_year' :
 
-			// User cannot edit
-			if ( ! user_can( $user_id, 'fiscaat' ) ) {
-				$caps = array( 'do_not_allow' );
-			
 			// Year is closed
-			} elseif ( fct_is_year_closed( $args[0] ) ) {
+			if ( fct_is_year_closed( $args[0] ) ) {
 				$caps = array( 'do_not_allow' );
 
 			// Fisci can edit

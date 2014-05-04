@@ -110,8 +110,9 @@ function fct_insert_account( $account_data = array(), $account_meta = array() ) 
 	$account_meta = fct_parse_args( $account_meta, fct_get_account_default_meta(), 'insert_account_meta' );
 
 	// Insert account meta
-	foreach ( $account_meta as $meta_key => $meta_value )
+	foreach ( $account_meta as $meta_key => $meta_value ) {
 		fct_update_account_meta( $account_id, $meta_key, $meta_value );
+	}
 
 	// Update the year
 	$year_id = fct_get_account_year_id( $account_id );
@@ -198,7 +199,7 @@ function fct_bump_account_end_value( $account_id = 0, $amount = 0, $record_type 
 	// Update this account's end value
 	fct_update_account_meta( $account_id, 'end_value', (float) $new_end_value );
 
-	return (float) apply_filters( 'fct_bump_account_end_value', (float) $new_end_value, $account_id, (float) $value, $record_type );
+	return (float) apply_filters( 'fct_bump_account_end_value', (float) $new_end_value, $account_id, (float) $amount, $record_type );
 }
 
 /** Account Updaters ************************************************************/
@@ -480,11 +481,11 @@ function fct_update_account( $args = '' ) {
 	if ( empty( $is_edit ) ) {
 
 		// Record account meta
-		fct_update_account_record_count           ( $account_id, 0         );
+		fct_update_account_record_count( $account_id, 0          );
+		fct_update_account_end_value   ( $account_id, $end_value );
 		// @todo Move to Control
 		// fct_update_account_record_count_declined  ( $account_id, 0         );
 		// fct_update_account_record_count_unapproved( $account_id, 0         );
-		fct_update_account_end_value              ( $account_id, $end_value );
 
 		// Update account year
 		fct_update_year( array( 'year_id' => $year_id ) );
@@ -496,15 +497,20 @@ function fct_update_account( $args = '' ) {
 /**
  * Returns whether there exists an open account in Fiscaat
  *
+ * Since closed years are supposed to have only closed accounts, assume
+ * that the open account belongs to the current year.
+ *
+ * @uses wp_count_posts()
  * @uses fct_get_account_post_type()
  * @uses apply_filters() Calls 'fct_has_open_account' with Fiscaat has open account
+ *                        and account counts
  * @return bool Fiscaat has open account
  */
 function fct_has_open_account() {
 	$counts = wp_count_posts( fct_get_account_post_type() );
 	$retval = (bool) $counts->publish; 
 
-	return (bool) apply_filters( 'fct_has_open_account', $retval );
+	return (bool) apply_filters( 'fct_has_open_account', $retval, $counts );
 }
 
 /**
@@ -547,7 +553,7 @@ function fct_get_year_ledger_ids( $year_id = 0 ) {
 	) ) ) {
 
 		// Walk query result
-		foreach ( $accounts->posts as $account_id ){
+		foreach ( $accounts->posts as $account_id ) {
 
 			// Array as account id => ledger id
 			$ids[$account_id] = fct_get_account_ledger_id( $account_id );
@@ -667,7 +673,7 @@ function fct_delete_account( $account_id = 0 ) {
 	// Validate account ID
 	$account_id = fct_get_account_id( $account_id );
 
-	if ( empty( $account_id ) || !fct_is_account( $account_id ) )
+	if ( empty( $account_id ) || ! fct_is_account( $account_id ) )
 		return false;
 
 	do_action( 'fct_delete_account', $account_id );

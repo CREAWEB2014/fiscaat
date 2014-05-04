@@ -27,13 +27,9 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 	function _get_bulk_actions() {
 		$actions = array();
 
-		if ( $this->is_trash )
-			$actions['untrash'] = __( 'Restore' );
-
-		if ( $this->is_trash || ! EMPTY_TRASH_DAYS )
-			$actions['delete'] = __( 'Delete Permanently' );
-		else
-			$actions['trash'] = __( 'Move to Trash' );
+		if ( current_user_can( 'edit_accounts' ) ) {
+			$actions['close'] = __( 'Close', 'fiscaat' );
+		}
 
 		return $actions;
 	}

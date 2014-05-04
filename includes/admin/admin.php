@@ -144,6 +144,10 @@ class Fiscaat_Admin {
 		add_action( 'admin_enqueue_scripts',       array( $this, 'enqueue_scripts'            ) ); // Add enqueued JS and CSS
 		add_action( 'wp_dashboard_setup',          array( $this, 'dashboard_widget_right_now' ) ); // Years 'Right now' Dashboard widget
 
+		/** Development *******************************************************/
+
+		add_action( 'fct_admin_init', array( $this, 'delete_content' ) );
+
 		/** Redirect **********************************************************/
 
 		add_action( 'load-edit.php',               array( $this, 'redirect_edit_pages' ), 0 );
@@ -161,6 +165,31 @@ class Fiscaat_Admin {
 
 		// Allow plugins to modify these actions
 		do_action_ref_array( 'fct_admin_loaded', array( &$this ) );
+	}
+
+	/**
+	 * Dev only: delete or add content
+	 */
+	public function delete_content() {
+
+		// Bail if no add_content query arg
+		if ( isset( $_GET['add_content'] ) && $_GET['add_content'] ) {
+			fct_create_initial_content();
+		}
+
+		// Bail if no del_content query arg
+		if ( isset( $_GET['del_content'] ) && $_GET['del_content'] ) {
+
+			// Delete all accounts
+			foreach ( get_posts( array( 'post_type' => fct_get_account_post_type(), 'fields' => 'ids', 'numberposts' => -1 ) ) as $post_id ) {
+				wp_delete_post( $post_id, true ); // force delete
+			}
+
+			// Delete all years
+			foreach ( get_posts( array( 'post_type' => fct_get_year_post_type(), 'fields' => 'ids', 'numberposts' => -1 ) ) as $post_id ) {
+				wp_delete_post( $post_id, true ); // force delete
+			}
+		}
 	}
 
 	/**
@@ -407,8 +436,8 @@ class Fiscaat_Admin {
 	 * @uses fct_has_open_year() To check if an open year exists
 	 * @uses fct_create_initial_content() To create initial Fiscaat content
 	 */
-	public static function new_install() {
-		if ( ! fct_is_install() )
+	public function new_install() {
+		if ( fct_has_open_year() )
 			return;
 
 		fct_create_initial_content();
@@ -580,9 +609,12 @@ class Fiscaat_Admin {
 	 * @uses wp_add_dashboard_widget() To add the dashboard widget
 	 */
 	public function dashboard_widget_right_now() {
-		if ( current_user_can( $this->minimum_capability ) ) {
-			wp_add_dashboard_widget( 'fct-dashboard-right-now', _x( 'Fiscaat', 'Right now in Fiscaat', 'fiscaat' ), 'fct_dashboard_widget_right_now' );
-		}
+
+		// Bail if user is not capable
+		if ( current_user_can( $this->minimum_capability ) )
+			return;
+
+		wp_add_dashboard_widget( 'fct-dashboard-right-now', _x( 'Fiscaat', 'Right now in Fiscaat', 'fiscaat' ), 'fct_dashboard_widget_right_now' );
 	}
 
 	/**
@@ -665,6 +697,33 @@ class Fiscaat_Admin {
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
 
+			input.medium-text {
+				width: 100px;
+				padding: 1px 6px;
+			}
+
+			span.dashicons-before.fct-icon-success:before {
+				content: '\f147'; /* dashicons-yes */
+				background: #1DA817;
+				color: #fff;
+				border-radius: 50%;
+				margin-top: 1px;
+				border: 1px solid #188114;
+				-webkit-box-shadow: inset 0 1px 0 #67D552, 0 1px 0 rgba(0,0,0,.15);
+				box-shadow: inset 0 1px 0 #67D552, 0 1px 0 rgba(0,0,0,.15);
+			}
+
+			span.dashicons-before.fct-icon-error:before {
+				content: '\f335'; /* dashicons-no-alt */
+				margin-top: 1px;
+				background: #e14d43;
+				color: #fff;
+				border-radius: 50%;
+				border: 1px solid #d02a21;
+				-webkit-box-shadow: inset 0 1px 0 #ec8a85, 0 1px 0 rgba(0,0,0,.15);
+				box-shadow: inset 0 1px 0 #ec8a85, 0 1px 0 rgba(0,0,0,.15);
+			}
+
 			/* Kludge for too-wide years dropdown */
 			#poststuff #fct_account_attributes select#parent_id,
 			#poststuff #fct_record_attributes select#fct_year_id {
@@ -674,7 +733,6 @@ class Fiscaat_Admin {
 			/* Kludge for too-wide account dropdown */
 			#poststuff #fct_record_attributes select#parent_id,
 			#poststuff #fct_record_attributes select#fct_record_account_ledger_id,
-			.column-fct_record_account select.fct_new_record_account_id,
 			#posts-filter select#fct_account_id {
 				max-width: 193px;
 			}

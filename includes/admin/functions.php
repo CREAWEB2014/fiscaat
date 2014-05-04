@@ -338,9 +338,9 @@ function fct_admin_posts_page() {
 
 		<form id="posts-filter" action="" method="get">
 
+			<input type="hidden" name="page" class="post_page" value="<?php echo ! empty($_REQUEST['page']) ? esc_attr($_REQUEST['page']) : 'fiscaat'; ?>" />
+			<input type="hidden" name="post_status" class="post_status_page" value="<?php echo ! empty($_REQUEST['post_status']) ? esc_attr($_REQUEST['post_status']) : ''; ?>" />
 			<?php $wp_list_table->search_box( $post_type_object->labels->search_items, 'post' ); ?>
-			<input type="hidden" name="post_status" class="post_status_page" value="<?php echo !empty($_REQUEST['post_status']) ? esc_attr($_REQUEST['post_status']) : 'all'; ?>" />
-			<input type="hidden" name="page" class="post_page" value="<?php echo !empty($_REQUEST['page']) ? esc_attr($_REQUEST['page']) : 'fiscaat'; ?>" />
 			
 			<?php $wp_list_table->display(); ?>
 

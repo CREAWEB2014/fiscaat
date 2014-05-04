@@ -389,28 +389,35 @@ class Fiscaat_Accounts_Admin {
 		</style>
 
 		<script type="text/javascript">
-			jQuery(document).ready( function(){
+			jQuery(document).ready( function($) {
+				var $ledger_id = $('input#fct_account_ledger_id'),
+				    orig_val   = $ledger_id.attr('value');
+				
+				// On input change (blur)
+				$ledger_id.change( function() {
+					if ( this.value ) {
+						$loader = $ledger_id.siblings('.ajax-loading').css('visibility', 'visible').show();
 
-				var $ledger_id = jQuery('input#fct_account_ledger_id');
-
-				$ledger_id.change( function(){
-					console.log( this, this.value );
-
-					if ( this.value ){
-						$loader = jQuery(this).siblings('.ajax-loading').css('visibility', 'visible').show();
-						console.log( $loader );
-						jQuery.post( 
+						$.post( 
 							ajaxurl, 
 							{
 								action: 'fct_check_ledger_id',
 								account_id: <?php echo get_the_ID(); ?>,
 								ledger_id: this.value
 							}, 
-							function(response){
-								var src = $loader.attr('src');
-								console.log( src );
-								$loader.attr('src', response).delay(800).fadeOut().attr('src', src);
-								if ( response.indexOf('error') !== -1 ) $ledger_id.attr('val', '');
+							function ( response ) {
+								var icon = response.success ? 'fct-icon-success' : 'fct-icon-error',
+								    msg  = response.success ? '' : response.data.post.post_title;
+
+								// Show response icon
+								$('<span class="dashicons-before ' + icon + '" title="' + msg + '"></span>')
+									.appendTo( $loader.hide().parent() ).delay(800).fadeOut( function() {
+										$(this).remove();
+									});
+
+								// Reset original value on error
+								if ( ! response.success ) 
+									$ledger_id.attr('value', orig_val);
 							}
 						);
 					}
@@ -427,34 +434,31 @@ class Fiscaat_Accounts_Admin {
 	 * @uses get_posts()
 	 * @uses fct_get_account_post_type()
 	 * @uses fct_get_account_year_id()
+	 * @uses wp_send_json_error() To return that an account was found
+	 * @uses wp_send_json_success() To return that no account was found
 	 */
 	public function check_ledger_id() {
 
 		// Find any matching ledger id in the account's year
-		$accounts = get_posts( array(
+		$query = get_posts( array(
 			'post_type'    => fct_get_account_post_type(),
 			'post_parent'  => fct_get_account_year_id( $_REQUEST['account_id'] ),
 			'meta_key'     => '_fct_ledger_id',
-			'meta_key'     => (int) like_escape( $_REQUEST['ledger_id'] ),
+			'meta_value'   => (int) like_escape( $_REQUEST['ledger_id'] ),
 			'post__not_in' => array( (int) $_REQUEST['account_id'] ),
 			'numberposts'  => 1
 		) );
 
-		var_dump( $_REQUEST['account_id'] );
-
 		// If we found an account, report to user
-		if ( ! empty( $accounts ) ) {
-			foreach ( (array) $accounts as $account ) {
-				echo 'error.png'; // Return json?
-			}
+		if ( ! empty( $query ) ) {
+			wp_send_json_error( array( 'post' => $query[0] ) );
 
 		// Report no match
 		} else {
-			echo 'okay.png'; // Return json?
+			wp_send_json_success();
 		}
-
-		die();
 	}
+
 	/**
 	 * Toggle account
 	 *
@@ -621,24 +625,18 @@ class Fiscaat_Accounts_Admin {
 	/**
 	 * Account Row actions
 	 *
-	 * Remove the quick-edit action link under the account title and add the
-	 * content and close/stick/spam links
+	 * Add the view/records/close/open/delete action links under the account title
 	 *
 	 * @since 0.0.1
 	 *
 	 * @param array $actions Actions
 	 * @param array $account Account object
 	 * @uses fct_get_account_post_type() To get the account post type
-	 * @uses fct_account_content() To output account content
 	 * @uses fct_get_account_permalink() To get the account link
 	 * @uses fct_get_account_title() To get the account title
 	 * @uses current_user_can() To check if the current user can edit or
 	 *                           delete the account
 	 * @uses fct_is_account_open() To check if the account is open
-	 * @uses fct_is_account_spam() To check if the account is marked as spam
-	 * @uses fct_is_account_sticky() To check if the account is a sticky or a
-	 *                              super sticky
-	 * @uses get_post_type_object() To get the account post type object
 	 * @uses add_query_arg() To add custom args to the url
 	 * @uses remove_query_arg() To remove custom args from the url
 	 * @uses wp_nonce_url() To nonce the url
@@ -649,49 +647,30 @@ class Fiscaat_Accounts_Admin {
 		if ( $this->bail() ) 
 			return $actions;
 
-		unset( $actions['inline hide-if-no-js'] );
-
 		// Show view link if it's not set, the account is trashed and the user can view trashed accounts
-		if ( empty( $actions['view'] ) && ( fct_get_trash_status_id() == $account->post_status ) && current_user_can( 'view_trash' ) )
+		if ( empty( $actions['view'] ) && ( fct_get_trash_status_id() == $account->post_status ) && current_user_can( 'view_trash' ) ) {
 			$actions['view'] = '<a href="' . fct_get_account_permalink( $account->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'fiscaat' ), fct_get_account_title( $account->ID ) ) ) . '" rel="permalink">' . __( 'View', 'fiscaat' ) . '</a>';
+		}
 
-		// Overwrite view link for account records admin page
-		$actions['view'] = '<a href="' . add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'fct_account_id' => $account->ID ), admin_url( 'edit.php' ) ) .'" title="' . esc_attr( __( 'View Records', 'fiscaat' ) ) . '">' . __( 'View Records', 'fiscaat' ) . '</a>';
+		// Show records link
+		if ( current_user_can( 'read_account', $account->ID ) ) {
+			$actions['records'] = '<a href="' . add_query_arg( array( 'page' => 'fct-records', 'fct_account_id' => $account->ID ), admin_url( 'admin.php' ) ) .'" title="' . esc_attr( sprintf( __( 'Show all records of &#8220;%s&#8221;',  'fiscaat' ), fct_get_account_title( $account->ID ) ) ) . '">' . __( 'Records', 'fiscaat' ) . '</a>';
+		}
 
-		// @todo Move to Control
-		// Show open/close link for control
-		if ( fct_is_control_active() && current_user_can( 'control', $account->ID ) ) {
-
-			// Close
-			// Show the 'close' and 'open' link on published and closed posts only
-			if ( in_array( $account->post_status, array( fct_get_public_status_id(), fct_get_closed_status_id() ) ) ) {
-				$close_uri = esc_url( wp_nonce_url( add_query_arg( array( 'account_id' => $account->ID, 'action' => 'fct_toggle_account_close' ), remove_query_arg( array( 'fct_account_toggle_notice', 'account_id', 'failed', 'super' ) ) ), 'close-account_' . $account->ID ) );
-				if ( fct_is_account_open( $account->ID ) ) {
-
-					// Show only text if not all records are approved
-					if ( 0 == fct_get_account_record_count_unapproved( $account->ID ) )
-						$actions['closed'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Close this account', 'fiscaat' ) . '">' . _x( 'Close', 'Close a Account', 'fiscaat' ) . '</a>';
-					else
-						$actions['closed'] = _x( 'Close', 'Close an Account', 'fiscaat' );
-				} else {
-					$actions['closed'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Open this account',  'fiscaat' ) . '">' . _x( 'Open',  'Open a Account',  'fiscaat' ) . '</a>';
-				}
+		// Show the close and open link
+		if ( current_user_can( 'edit_account', $account->ID ) ) {
+			$toggle_uri = esc_url( wp_nonce_url( add_query_arg( array( 'account_id' => $account->ID, 'action' => 'fct_toggle_account_close' ), remove_query_arg( array( 'fct_account_toggle_notice', 'account_id', 'failed', 'super' ) ) ), 'close-account_' . $account->ID ) );
+			if ( fct_is_account_open( $account->ID ) ) {
+				$actions['closed'] = '<a href="' . $toggle_uri . '" title="' . esc_attr__( 'Close this account', 'fiscaat' ) . '">' . _x( 'Close', 'Close the account', 'fiscaat' ) . '</a>';
+			} else {
+				$actions['open'] = '<a href="' . $toggle_uri . '" title="' . esc_attr__( 'Open this account',  'fiscaat' ) . '">' . _x( 'Open',  'Open the account',  'fiscaat' ) . '</a>';
 			}
 		}
 
-		// Do not show trash links for spam accounts, or spam links for trashed accounts
-		// if ( current_user_can( 'delete_account', $account->ID ) ) {
-		// 	if ( fct_get_trash_status_id() == $account->post_status ) {
-		// 		$post_type_object   = get_post_type_object( fct_get_account_post_type() );
-		// 		$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'fiscaat' ) . "' href='" . wp_nonce_url( add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fct_get_account_post_type() ), admin_url( 'edit.php' ) ) ), admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $account->ID ) ) ), 'untrash-' . $account->post_type . '_' . $account->ID ) . "'>" . __( 'Restore', 'fiscaat' ) . "</a>";
-		// 	} elseif ( EMPTY_TRASH_DAYS ) {
-		// 		$actions['trash'] = "<a class='submitdelete' title='" . esc_attr__( 'Move this item to the Trash', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fct_get_account_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $account->ID ) ) . "'>" . __( 'Trash', 'fiscaat' ) . "</a>";
-		// 	}
-
-		// 	if ( fct_get_trash_status_id() == $account->post_status || !EMPTY_TRASH_DAYS ) {
-		// 		$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fct_get_account_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $account->ID, '', true ) ) . "'>" . __( 'Delete Permanently', 'fiscaat' ) . "</a>";
-		// 	}
-		// }
+		// Only show delete links for empty accounts. No trash
+		if ( current_user_can( 'delete_account', $account->ID ) && ! fct_account_has_records() ) {
+			$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fct_get_account_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $account->ID, '', true ) ) . "'>" . __( 'Delete', 'fiscaat' ) . "</a>";
+		}
 
 		return $actions;
 	}
@@ -752,7 +731,6 @@ class Fiscaat_Accounts_Admin {
 	 * Redirect user to record post-new page with correct message id
 	 *
 	 * @uses fct_has_open_year()
-	 * @uses fct_has_open_account()
 	 * @uses fct_get_record_post_type()
 	 * @uses add_query_arg()
 	 * @uses wp_safe_redirect()

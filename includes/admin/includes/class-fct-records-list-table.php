@@ -52,6 +52,9 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		add_action( 'fct_admin_records_start_row',  array( $this, '_start_or_end_row' ) );
 		add_action( 'fct_admin_records_end_row',    array( $this, '_start_or_end_row' ) );
 		add_action( 'fct_admin_records_total_row',  array( $this, '_total_row'        ) );
+
+		// Single post-new row data
+		add_action( 'fct_admin_new_records_row',    array( $this, '_new_row'          ) );
 	}
 
 	/**
@@ -141,15 +144,21 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @return array Columns
 	 */
 	function _get_columns() {
-		return array(
+		$columns = array(
 			'cb'                           => '<input type="checkbox" />',
 			'fct_record_created'           => __( 'Date' ),
-			'fct_record_account_ledger_id' => _x( 'No.',            'Account number column name',        'fiscaat' ),
-			'fct_record_account'           => __( 'Account',                                             'fiscaat' ),
-			'fct_record_description'       => __( 'Description',                                         'fiscaat' ),
-			'fct_record_offset_account'    => __( 'Offset Account',                                      'fiscaat' ),
-			'fct_record_amount'            => _x( 'Amount',         'Amount column name (debit/credit)', 'fiscaat' ),
+			'fct_record_account_ledger_id' => _x( 'No.', 'Account number column name',           'fiscaat' ),
+			'fct_record_account'           => __( 'Account',                                     'fiscaat' ),
+			'fct_record_description'       => __( 'Description',                                 'fiscaat' ),
+			'fct_record_offset_account'    => __( 'Offset Account',                              'fiscaat' ),
+			'fct_record_amount'            => _x( 'Amount', 'Amount column name (debit/credit)', 'fiscaat' ),
 		);
+
+		if ( fct_admin_is_new_records() ) {
+			$columns['cb'] = '<span class="fct-add-row dashicons-before dashicons-plus"></span>';
+		}
+
+		return $columns;
 	}
 
 	/**
@@ -167,6 +176,80 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			'fct_record_offset_account'    => 'record_offset_account',
 			'fct_record_amount'            => 'record_amount',
 		);
+	}
+
+	/**
+	 * Generate the <tbody> part of the table
+	 *
+	 * @since 0.0.8
+	 */
+	function display_rows_or_placeholder() {
+
+		// Do also display rows when none, but displaying account
+		if ( $this->has_items() || $this->account_display ) {
+			$this->display_rows();
+
+		// Display post-new mode
+		} elseif ( fct_admin_is_new_records() ) {
+			$this->post_new_rows();
+
+		// Placeholder
+		} else {
+			list( $columns, $hidden ) = $this->get_column_info();
+			echo '<tr class="no-items"><td class="colspanchange" colspan="' . $this->get_column_count() . '">';
+			$this->no_items();
+			echo '</td></tr>';
+		}
+	}
+
+	/**
+	 * Display post-new rows
+	 *
+	 * @since 0.0.8
+	 */
+	function post_new_rows() {
+
+		// Display 10 empty rows
+		for ( $i = 0; $i < 10; $i++ ) {
+			$this->single_new_row();
+		}
+
+		// Total sum row
+		$this->_display_helper_row( 'total' );
+	}
+
+	/**
+	 * Display single post-new row
+	 *
+	 * @since 0.0.8
+	 */
+	function single_new_row() {
+		$alternate =& $this->alternate;
+		$alternate = 'alternate' == $alternate ? '' : 'alternate';
+		$classes = $alternate . ' iedit new-records-row';
+
+		list( $columns, $hidden ) = $this->get_column_info(); ?>
+		<tr class="<?php echo $classes; ?>" valign="top">
+			
+			<?php foreach ( $columns as $column_name => $column_display_name ) :
+				$class = " class=\"$column_name column-$column_name\"";
+				$style = '';
+	
+				if ( in_array( $column_name, $hidden ) )
+					$style = ' style="display:none;"';
+
+				$attributes = "$class$style"; 
+
+				$el1 = 'cb' == $column_name ? 'th scope="row" class="check-column"' : "td $attributes";
+				$el2 = 'cb' == $column_name ? 'th' : 'td';
+
+				echo "<$el1>";
+				do_action( "fct_admin_new_records_row", $column_name );
+				echo "</$el2>";
+			endforeach; ?>
+
+		</tr>
+		<?php
 	}
 
 	/**
@@ -189,29 +272,30 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		add_filter( 'the_title', 'esc_html' );
 
 		// Start account row
-		if ( $this->has_items() && $this->account_display )
-			$this->_display_single_row( 'start' );
+		if ( $this->account_display ) {
+			$this->_display_helper_row( 'start' );
+		}
 
 		$this->_display_rows( $posts, $level );
 
 		// End account row
-		if ( $this->has_items() && $this->account_display )
-			$this->_display_single_row( 'end' );
+		if ( $this->account_display ) {
+			$this->_display_helper_row( 'end' );
+		}
 
 		// Total sum row
-		if ( $this->has_items() )
-			$this->_display_single_row( 'total' );
+		$this->_display_helper_row( 'total' );
 	}
 
 	/**
-	 * Display account's records start row
+	 * Display records's helper row
 	 * 
 	 * @since 0.0.8
 	 *
 	 * @uses do_action() Calls 'fct_admin_records_{$row_name}_row'
 	 * @param string $row_name Unique row name
 	 */
-	function _display_single_row( $row_name = '' ) {
+	function _display_helper_row( $row_name = '' ) {
 
 		// Bail if no row name given
 		$row_name = esc_attr( esc_html( $row_name ) );
@@ -282,19 +366,19 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 			case 'fct_record_account_ledger_id' :
 				if ( ! empty( $account_id ) )
-					fct_account_admin_records_link( $account_id, true );
+					fct_account_ledger_id( $account_id, true );
 				break;
 
 			case 'fct_record_account' :
 				if ( ! empty( $account_id ) ) {
-					$account_title = fct_get_account_admin_records_link( $account_id );
+					$account_title = fct_get_account_title( $account_id );
 					if ( empty( $account_title ) ) {
 						$account_title = __( 'No Account', 'fiscaat' );
 					}
 					echo $account_title;
 
 				} else {
-					// _e( 'No Account', 'fiscaat' );
+					_e( 'No Account', 'fiscaat' );
 				}
 				break;
 
@@ -352,6 +436,11 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @since 0.0.8
 	 *
 	 * @uses fct_get_account_id()
+	 * @uses fct_get_account_start_value()
+	 * @uses fct_get_account_end_value()
+	 * @uses fct_get_debit_record_type_id()
+	 * @uses fct_get_credit_record_type_id()
+	 * @uses fct_currency_format()
 	 * @param string $column Column name
 	 */
 	function _start_or_end_row( $column ) {
@@ -363,19 +452,6 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		$start = strpos( current_filter(), 'start' );
 
 		switch ( $column ) {
-			case 'fct_record_created' :
-
-				// Display date of start value
-				if ( $start ) {
-					$account = fct_get_account( $account_id );
-					echo fct_convert_date( $account->post_date,    get_option( 'date_format' ), true );
-
-				// Now
-				} else {
-					echo fct_convert_date( fct_get_current_time(), get_option( 'date_format' ), true );
-				}
-				break;
-
 			case 'fct_record_description' :
 				if ( fct_get_capital_account_type_id() == fct_get_account_type( $account_id ) ) {
 					if ( $start ) {
@@ -384,7 +460,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 						_e( 'End Balance',   'fiscaat' );
 					}
 
-				// Revenue accounts have no start value
+				// Revenue accounts have no starting value
 				} else {
 					if ( ! $start ) 
 						_e( 'To Income Statement', 'fiscaat' );
@@ -409,8 +485,10 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * 
 	 * @since 0.0.8
 	 *
+	 * @uses fct_get_debit_record_type_id()
+	 * @uses fct_get_credit_record_type_id()
+	 * @uses fct_currency_format()
 	 * @param string $column Column name
-	 * @param array $args
 	 */
 	function _total_row( $column ) {
 
@@ -436,4 +514,64 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		}
 	}
 
+	/**
+	 * Display dedicated post-new column content
+	 *
+	 * @since 0.0.8
+	 *
+	 * @uses fct_ledger_dropdown()
+	 * @uses fct_account_dropdown()
+	 * @param string $column_name Column name
+	 */
+	function _new_row( $column_name ) {
+
+		switch ( $column_name ) {
+			case 'fct_record_account_ledger_id' :
+				fct_ledger_dropdown( array(
+					'select_name' => 'records[account_ledger_id][]', 
+					'class'       => 'fct_record_ledger_id',
+					'show_none'   => '&mdash;',
+					'tabindex'    => '',
+				) );
+				break;
+
+			case 'fct_record_account' :
+				fct_account_dropdown( array(
+					'select_name' => 'records[account_id][]',
+					'class'       => 'fct_record_account_id',
+					'show_none'   => __( '&mdash; No Account &mdash;', 'fiscaat' ),
+					'tabindex'    => '',
+				) );
+				break;
+
+			case 'fct_record_description' : ?>
+
+				<textarea name="records[description][]" class="fct_record_description" rows="1" ></textarea>
+
+				<?php
+				break;
+
+			case 'fct_record_offset_account' : ?>
+
+				<input name="records[offset_account][]" type="text" class="fct_record_offset_account medium-text" value="" />
+
+				<?php
+				break;
+
+			case 'fct_record_created': ?>
+
+				<input name="records[created][]" type="text" class="fct_record_created medium-text" value="" />
+
+				<?php
+				break;
+
+			case 'fct_record_amount' : ?>
+
+				<input name="records[amount][debit][]"  class="fct_record_debit_amount small-text"  type="text" value="" />
+				<input name="records[amount][credit][]" class="fct_record_credit_amount small-text" type="text" value="" />
+
+				<?php
+				break;
+		}
+	}
 }
