@@ -403,8 +403,8 @@ class Fiscaat_Admin {
 		// Setup type specific load hook
 		add_action( current_filter(), "fct_admin_load_edit_{$type}s" );
 
-		// Prepare items at the end of load hook
-		add_action( current_filter(), array( $wp_list_table, 'prepare_items' ), 90 );
+		// Load up list table items for this specific hook
+		add_action( current_filter(), array( $wp_list_table, 'prepare_items' ), 60 );
 
 		// Display list views
 		add_action( 'fct_admin_before_posts_form', array( $wp_list_table, 'views' ), 20 );

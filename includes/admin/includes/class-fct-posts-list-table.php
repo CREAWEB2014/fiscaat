@@ -127,6 +127,22 @@ class FCT_Posts_List_Table extends WP_List_Table {
 		return apply_filters( "fct_admin_{$this->_args['plural']}_get_bulk_actions", $this->_get_bulk_actions() );
 	}
 
+	/**
+	 * Return whether this table has bulk actions
+	 * 
+	 * @since 0.0.8
+	 * 
+	 * @return bool Table has bulk actions
+	 */
+	function has_bulk_actions() {
+		$no_new_actions = $actions = $this->get_bulk_actions();
+		/** This filter is documented in wp-admin/includes/class-wp-list-table.php */
+		$actions = apply_filters( "bulk_actions-{$this->screen->id}", $actions );
+		$actions = array_intersect_assoc( $this->_actions, $no_new_actions );
+
+		return ! empty( $actions );
+	}
+
 	function extra_tablenav( $which ) { ?>
 		<div class="alignleft actions">
 			<?php 

@@ -24,11 +24,22 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 		) );
 	}
 
+	/**
+	 * Return dedicated bulk actions
+	 *
+	 * @since 0.0.8
+	 * 
+	 * @return array Bulk actions
+	 */
 	function _get_bulk_actions() {
 		$actions = array();
 
 		if ( current_user_can( 'edit_accounts' ) ) {
 			$actions['close'] = __( 'Close', 'fiscaat' );
+		}
+
+		if ( current_user_can( 'delete_accounts' ) ) {
+			$actions['delete'] = __( 'Delete', 'fiscaat' );
 		}
 
 		return $actions;

@@ -24,14 +24,21 @@ class FCT_Years_List_Table extends FCT_Posts_List_Table {
 		) );
 	}
 
+	/**
+	 * Return dedicated bulk actions
+	 *
+	 * @since 0.0.8
+	 * 
+	 * @return array Bulk actions
+	 */
 	function _get_bulk_actions() {
 		$actions = array();
 
-		if ( $this->is_trash ) {
+		if ( $this->is_trash && current_user_can( 'edit_posts' ) ) {
 			$actions['untrash'] = __( 'Restore' );
 		}
 
-		if ( $this->is_trash || ! EMPTY_TRASH_DAYS ) {
+		if ( current_user_can( 'delete_years' ) && ( $this->is_trash || ! EMPTY_TRASH_DAYS ) ) {
 			$actions['delete'] = __( 'Delete Permanently' );
 		} elseif ( current_user_can( 'delete_years' ) ) {
 			$actions['trash'] = __( 'Move to Trash' );

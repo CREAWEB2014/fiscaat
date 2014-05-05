@@ -21,13 +21,13 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	var $account_display = false;
 
 	/**
-	 * Holds the debit and credit record amounts
+	 * Holds the displayed debit and credit record amounts
 	 *
 	 * @since 0.0.8
 	 * @var array
 	 * @access protected
 	 */
-	var $amounts;
+	var $amounts = array();
 
 	/**
 	 * Constructs the posts list table
@@ -76,7 +76,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	/**
 	 * Return post status views
 	 *
-	 * Use {@link fct_count_posts()} when displaying account's records.
+	 * Use {@link fct_count_posts()} when displaying account's records for it
+	 * enables counting posts by parent.
 	 * Additionally append the account id query arg to the views's urls.
 	 *
 	 * @since 0.0.8
@@ -132,6 +133,13 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		return apply_filters( "fct_admin_get_{$this->_args['plural']}_views", $status_links );
 	}
 
+	/**
+	 * Return dedicated bulk actions
+	 *
+	 * @since 0.0.8
+	 * 
+	 * @return array Bulk actions
+	 */
 	function _get_bulk_actions() {
 		return array();
 	}
@@ -155,7 +163,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		);
 
 		if ( fct_admin_is_new_records() ) {
-			$columns['cb'] = '<span class="fct-add-row dashicons-before dashicons-plus"></span>';
+			unset( $columns['cb'] );
 		}
 
 		return $columns;
@@ -189,8 +197,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @since 0.0.8
 	 * 
 	 * @uses fct_admin_is_view_records()
-	 * @uses fct_admin_bottom_posts_insert_form()
-	 * @uses fct_admin_top_posts_insert_form()
+	 * @uses do_action() Calls 'fct_admin_bottom_posts_insert_form's
+	 * @uses do_action() Calls 'fct_admin_top_posts_insert_form'
 	 */
 	function display_tablenav( $which ) {
 		if ( 'top' == $which ) {
@@ -207,16 +215,20 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 	<input type="hidden" name="page" class="post_page" value="<?php echo ! empty($_REQUEST['page']) ? esc_attr($_REQUEST['page']) : 'fct-records'; ?>" />
 	<input type="hidden" name="post_status" class="post_status_page" value="<?php echo ! empty($_REQUEST['post_status']) ? esc_attr($_REQUEST['post_status']) : ''; ?>" />
+	<?php wp_nonce_field( 'bulk-' . $this->_args['plural'] ); ?>
 <?php 
 		}
 
+		// Display tablenav
 ?>
 	<div class="tablenav <?php echo esc_attr( $which ); ?>">
 
+<?php if ( $this->has_bulk_actions() ) : ?>
 		<div class="alignleft actions bulkactions">
 			<?php $this->bulk_actions(); ?>
 		</div>
-<?php
+<?php endif; 
+
 		$this->extra_tablenav( $which );
 		$this->pagination( $which );
 ?>
@@ -231,10 +243,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 </form><!-- #posts-filter -->
 <form id="posts-insert" action="" method="post">
 
-	<?php do_action( 'fct_admin_top_posts_insert_form' ); ?>
-<?php
-		}
-	}
+    <?php do_action( 'fct_admin_top_posts_insert_form' ); ?> <?php         }
+}
 
 	/**
 	 * Generate the <tbody> part of the table
@@ -258,7 +268,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		} elseif ( fct_admin_is_new_records() ) {
 			$this->display_new_rows();
 
-		// Display rows when present, or none but displaying account
+		// Display rows when present or displaying account
 		} elseif ( fct_admin_is_view_records() && ( $this->has_items() || $this->account_display ) ) {
 			$this->display_rows();
 
@@ -324,7 +334,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 *
 	 * @since 0.0.8
 	 *
-	 * @uses do_action() Calls 'fct_admin_new_recors_row' with the column name
+	 * @uses do_action() Calls 'fct_admin_new_records_row' with the column name
 	 */
 	function single_new_row() {
 		$alternate =& $this->alternate;
