@@ -274,7 +274,6 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 		// Placeholder
 		} else {
-			list( $columns, $hidden ) = $this->get_column_info();
 			echo '<tr class="no-items"><td class="colspanchange" colspan="' . $this->get_column_count() . '">';
 			$this->no_items();
 			echo '</td></tr>';
@@ -289,7 +288,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @since 0.0.8
 	 * 
 	 * @uses FCT_Records_List_Table::_display_rows()
-	 * @uses FCT_Records_List_Table::_display_helper_row()
+	 * @uses FCT_Records_List_Table::display_helper_row()
 	 * @param array $posts Posts
 	 * @param integer $level Depth
 	 */
@@ -305,7 +304,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		$this->_display_rows( $posts, $level );
 
 		// Total sum row
-		$this->_display_helper_row( 'total' );
+		$this->display_helper_row( 'total' );
 	}
 
 	/** New Rows **********************************************************/
@@ -316,7 +315,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @since 0.0.8
 	 *
 	 * @uses FCT_Records_List_Table::single_new_row()
-	 * @uses FCT_Records_List_Table::_display_helper_row()
+	 * @uses FCT_Records_List_Table::display_helper_row()
 	 */
 	function display_new_rows() {
 
@@ -326,7 +325,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		}
 
 		// Total sum row
-		$this->_display_helper_row( 'total' );
+		$this->display_helper_row( 'total' );
 	}
 
 	/**
@@ -435,7 +434,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 *
 	 * @since 0.0.8
 	 * 
-	 * @uses FCT_Records_List_Table::_display_helper_row()
+	 * @uses FCT_Records_List_Table::display_helper_row()
 	 * @param array $posts Posts
 	 * @param integer $level Depth
 	 */
@@ -450,18 +449,18 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 		// Start account row. Revenue accounts have no starting value
 		if ( $this->account_display && fct_get_revenue_account_type_id() != fct_get_account_type( $this->account_display ) ) {
-			$this->_display_helper_row( 'start' );
+			$this->display_helper_row( 'start' );
 		}
 
 		$this->_display_rows( $posts, $level );
 
 		// End account row
 		if ( $this->account_display ) {
-			$this->_display_helper_row( 'end' );
+			$this->display_helper_row( 'end' );
 		}
 
 		// Total sum row
-		$this->_display_helper_row( 'total' );
+		$this->display_helper_row( 'total' );
 	}
 
 	/**
@@ -569,7 +568,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @uses do_action() Calls 'fct_admin_records_{$which}_row'
 	 * @param string $which The row name
 	 */
-	function _display_helper_row( $which = '' ) {
+	function display_helper_row( $which = '' ) {
 
 		// Bail if no row name given
 		$which = esc_attr( esc_html( $which ) );

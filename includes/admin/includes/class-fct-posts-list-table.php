@@ -176,11 +176,11 @@ class FCT_Posts_List_Table extends WP_List_Table {
 		$post_type     = $this->screen->post_type;
 		$posts_columns = $this->_get_columns();
 
-		if ( post_type_supports( $post_type, 'author' ) )
+		if ( post_type_supports( $post_type, 'author' ) ) {
 			$posts_columns['author'] = __( 'Author' );
+		}
 
 		// Support custom taxonomies
-		$taxonomies = array();
 		$taxonomies = get_object_taxonomies( $post_type, 'objects' );
 		$taxonomies = wp_filter_object_list( $taxonomies, array( 'show_admin_column' => true ), 'and', 'name' );
 

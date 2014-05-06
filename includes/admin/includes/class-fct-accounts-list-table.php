@@ -38,6 +38,7 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 			$actions['close'] = __( 'Close', 'fiscaat' );
 		}
 
+		// Accounts are not trashed, only deleted
 		if ( current_user_can( 'delete_accounts' ) ) {
 			$actions['delete'] = __( 'Delete', 'fiscaat' );
 		}
@@ -121,13 +122,14 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 				break;
 
 			case 'fct_account_type' :
+				$account_type = fct_get_account_type( $account_id );
 
 				// Capital
-				if ( fct_get_capital_account_type_id() == fct_get_account_type( $account_id ) ) {
+				if ( fct_get_capital_account_type_id() == $account_type ) {
 					_ex( 'C', 'Capital account type', 'fiscaat' );
 
 				// Revenue
-				} else {
+				} elseif ( fct_get_revenue_account_type_id() == $account_type ) {
 					_ex( 'R', 'Revenue account type', 'fiscaat' );
 				}
 				break;
