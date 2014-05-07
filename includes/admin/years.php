@@ -71,6 +71,9 @@ class Fiscaat_Years_Admin {
 
 		/** Filters ***********************************************************/
 
+		// Filter years
+		add_filter( 'fct_request',           array( $this, 'filter_post_rows' ) );
+
 		// Messages
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
@@ -332,9 +335,8 @@ class Fiscaat_Years_Admin {
 			.column-fct_year_account_count,
 			.column-fct_year_record_count,
 			.column-fct_account_record_count,
-			.column-fct_account_record_count_declined,
-			.column-fct_account_record_count_unapproved {
-				width: 8% !important;
+			.column-fct_account_end_value {
+				width: 10% !important;
 			}
 
 			.column-author,
@@ -426,6 +428,58 @@ class Fiscaat_Years_Admin {
 		}
 
 		return $actions;
+	}
+
+	/**
+	 * Adjust the request query
+	 *
+	 * @param array $query_vars Query variables from {@link WP_Query}
+	 * @return array Processed Query Vars
+	 */
+	function filter_post_rows( $query_vars ) {
+		if ( $this->bail() ) 
+			return $query_vars;
+
+		// Handle sorting
+		if ( isset( $_REQUEST['orderby'] ) ) {
+
+			// Check order type
+			switch ( $_REQUEST['orderby'] ) {
+
+				// Year closed date. Reverse order
+				case 'year_closed' :
+					$query_vars['meta_key'] = '_fct_closed';
+					$query_vars['orderby']  = 'meta_value';
+					$query_vars['order']   = isset( $_REQUEST['order'] ) && 'DESC' == strtoupper( $_REQUEST['order'] ) ? 'ASC' : 'DESC';
+					break;
+
+				// Year account count
+				case 'year_account_count' :
+					$query_vars['meta_key'] = '_fct_account_type';
+					$query_vars['orderby']  = 'meta_value';
+					break;
+
+				// Year record count
+				case 'year_record_count' :
+					$query_vars['meta_key'] = '_fct_record_count';
+					$query_vars['orderby']  = 'meta_value_num';
+					break;
+
+				// Year end value
+				case 'year_end_value' :
+					$query_vars['meta_key'] = '_fct_end_value';
+					$query_vars['orderby']  = 'meta_value_num';
+					break;
+			}
+
+			// Default sorting order
+			if ( ! isset( $query_vars['order'] ) ) {
+				$query_vars['order']    = isset( $_REQEUEST['order'] ) ? strtoupper( $_REQEUEST['order'] ) : 'ASC';
+			}
+		}
+
+		// Return manipulated query_vars
+		return $query_vars;
 	}
 
 	/**

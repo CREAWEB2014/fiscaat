@@ -79,7 +79,7 @@ class FCT_Years_List_Table extends FCT_Posts_List_Table {
 			'fct_year_closed'          => array( 'year_closed', true ),
 			'fct_year_account_count'   => 'year_account_count',
 			'fct_year_record_count'    => 'year_record_count',
-			'fct_year_end_value'       => 'year_value',
+			'fct_year_end_value'       => 'year_end_value',
 		);
 	}
 

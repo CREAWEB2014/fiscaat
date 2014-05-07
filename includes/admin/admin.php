@@ -146,7 +146,7 @@ class Fiscaat_Admin {
 
 		/** Development *******************************************************/
 
-		add_action( 'fct_admin_init', array( $this, 'delete_content' ) );
+		add_action( 'fct_admin_init', array( $this, 'dev_content' ) );
 
 		/** Redirect **********************************************************/
 
@@ -170,7 +170,7 @@ class Fiscaat_Admin {
 	/**
 	 * Dev only: delete or add content
 	 */
-	public function delete_content() {
+	public function dev_content() {
 
 		// Bail if no add_content query arg
 		if ( isset( $_GET['add_content'] ) && $_GET['add_content'] ) {
@@ -252,16 +252,6 @@ class Fiscaat_Admin {
 				333333
 			);
 
-			// Accounts
-			$hooks[] = add_submenu_page(
-				'fiscaat',
-				__( 'Accounts', 'fiscaat' ),
-				__( 'Accounts', 'fiscaat' ),
-				$this->minimum_capability,
-				'fct-accounts',
-				'fct_admin_posts_page'
-			);
-
 			// Records
 			$hooks[] = add_submenu_page(
 				'fiscaat',
@@ -269,6 +259,16 @@ class Fiscaat_Admin {
 				__( 'Records', 'fiscaat' ),
 				$this->minimum_capability,
 				'fct-records',
+				'fct_admin_posts_page'
+			);
+
+			// Accounts
+			$hooks[] = add_submenu_page(
+				'fiscaat',
+				__( 'Accounts', 'fiscaat' ),
+				__( 'Accounts', 'fiscaat' ),
+				$this->minimum_capability,
+				'fct-accounts',
 				'fct_admin_posts_page'
 			);
 
@@ -739,6 +739,10 @@ class Fiscaat_Admin {
 
 			<?php if ( isset( get_current_screen()->id ) && 'dashboard' == get_current_screen()->id ) : ?>
 
+			/**
+			 * Dashboard Right Now
+			 */
+			
 			#fct-dashboard-right-now p.sub,
 			#fct-dashboard-right-now .table,
 			#fct-dashboard-right-now .versions {

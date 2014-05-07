@@ -75,10 +75,10 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 	function _get_sortable_columns() {
 		return array(
 			'fct_account_ledger_id'    => 'account_ledger_id',
-			'title'                    => 'post_title',
+			'title'                    => 'title',
 			'fct_account_type'         => 'account_type',
 			'fct_account_record_count' => 'account_record_count',
-			'fct_account_end_value'    => 'account_value',
+			'fct_account_end_value'    => 'account_end_value',
 		);
 	}
 

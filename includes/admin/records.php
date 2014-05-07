@@ -800,20 +800,21 @@ class Fiscaat_Records_Admin {
 
 				// Record value
 				case 'record_amount' :
-					$query_vars['meta_key'] = '_fct_amount'; // No meta_query
+					$query_vars['meta_key'] = '_fct_amount';
 					$query_vars['orderby']  = 'meta_value_num';
 					break;
 
 				// Record offset account
 				case 'record_offset_acount' :
-					$query_vars['meta_key'] = '_fct_offset_account'; // No meta_query
+					$query_vars['meta_key'] = '_fct_offset_account';
 					$query_vars['orderby']  = 'meta_value'; // Account can be string
 					break;
 			}
 
 			// Default sorting order
-			if ( ! isset( $query_vars['order'] ) )
+			if ( ! isset( $query_vars['order'] ) ) {
 				$query_vars['order'] = isset( $_REQUEST['order'] ) ? strtoupper( $_REQUEST['order'] ) : 'ASC';
+			}
 		}
 
 		// Set meta query

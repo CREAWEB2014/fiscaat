@@ -1567,7 +1567,6 @@ function fct_account_dropdown( $args = '' ) {
  *
  * @param mixed $args See {@link fct_get_dropdown()} for arguments
  */
-
 function fct_ledger_dropdown( $args = '' ) {
 	echo fct_get_ledger_dropdown( $args );
 }

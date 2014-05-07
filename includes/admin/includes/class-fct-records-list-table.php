@@ -46,15 +46,18 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			$this->account_display = $_GET['fct_account_id'];
 
 		// Setup amounts counter
-		$this->amounts = array( fct_get_debit_record_type_id() => array(), fct_get_credit_record_type_id() => array() );
+		$this->amounts = array( 
+			fct_get_debit_record_type_id()  => array(), 
+			fct_get_credit_record_type_id() => array() 
+		);
 
 		// Single row data
-		add_action( 'fct_admin_records_start_row',  array( $this, '_start_or_end_row' ) );
-		add_action( 'fct_admin_records_end_row',    array( $this, '_start_or_end_row' ) );
-		add_action( 'fct_admin_records_total_row',  array( $this, '_total_row'        ) );
+		add_action( 'fct_admin_records_start_row', array( $this, '_start_or_end_row' ) );
+		add_action( 'fct_admin_records_end_row',   array( $this, '_start_or_end_row' ) );
+		add_action( 'fct_admin_records_total_row', array( $this, '_total_row'        ) );
 
 		// Single post-new row data
-		add_action( 'fct_admin_new_records_row',    array( $this, '_new_row'          ) );
+		add_action( 'fct_admin_new_records_row',   array( $this, '_new_row'          ) );
 	}
 
 	/**
@@ -162,7 +165,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			'fct_record_amount'            => _x( 'Amount', 'Amount column name (debit/credit)', 'fiscaat' ),
 		);
 
-		if ( fct_admin_is_new_records() ) {
+		if ( ! fct_admin_is_view_records() ) {
 			unset( $columns['cb'] );
 		}
 

@@ -358,10 +358,8 @@ class Fiscaat_Accounts_Admin {
 			.column-fct_account_ledger_id,
 			.column-fct_account_type,
 			.column-fct_account_record_count,
-			.column-fct_account_record_count_unapproved,
-			.column-fct_account_record_count_declined,
-			.column-fct_account_spectators {
-				width: 8% !important;
+			.column-fct_account_end_value {
+				width: 10% !important;
 			}
 
 			.column-author,
@@ -593,9 +591,11 @@ class Fiscaat_Accounts_Admin {
 		if ( $this->bail() ) 
 			return $columns;
 
-		// Hide year column if showing year accounts
-		if ( isset( $_GET['fct_year_id'] ) && ! empty( $_GET['fct_year_id'] ) )
+		// Hide year column if showing year accounts. When there
+		// is no year selection, current year accounts are showed.
+		if ( ! isset( $_GET['fct_year_id'] ) || ! empty( $_GET['fct_year_id'] ) ) {
 			unset( $columns['fct_account_year'] );
+		}
 
 		return $columns;
 	}
@@ -685,22 +685,26 @@ class Fiscaat_Accounts_Admin {
 		if ( $this->bail() ) 
 			return;
 
+		// Show the number dropdown
+		fct_ledger_dropdown( array(
+			'selected'  => isset( $_GET['fct_ledger_account_id'] ) ? $_GET['fct_ledger_account_id'] : '',
+			'show_none' => '&mdash;'
+		) );
+
 		// Get which year is selected. Default to current year
 		$selected = isset( $_GET['fct_year_id'] ) ? $_GET['fct_year_id'] : fct_get_current_year_id();
 
 		// Show the years dropdown
 		fct_dropdown( array(
 			'selected'  => $selected,
-			'show_none' => __( 'In all years', 'fiscaat' ) // @todo Possible when defaulting to the current year?
+			'show_none' => __( '&mdash; All years &mdash;', 'fiscaat' )
 		) );
 	}
 
 	/**
-	 * Adjust the request query and include the year id
+	 * Adjust the request query and include the parent year id
 	 *
 	 * @param array $query_vars Query variables from {@link WP_Query}
-	 * @uses fct_get_account_post_type() To get the account post type
-	 * @uses fct_get_record_post_type() To get the record post type
 	 * @return array Processed Query Vars
 	 */
 	function filter_post_rows( $query_vars ) {
@@ -708,19 +712,43 @@ class Fiscaat_Accounts_Admin {
 			return $query_vars;
 
 		// Add post_parent query_var
-		$query_vars['post_parent'] = ! empty( $_GET['fct_year_id'] ) ? $_GET['fct_year_id'] : fct_get_current_year_id();
+		$query_vars['post_parent'] = ! empty( $_REQEUEST['fct_year_id'] ) ? $_REQEUEST['fct_year_id'] : fct_get_current_year_id();
 
-		// Handle sorting by ledger id. Also default order, hence OR operator
-		if ( ! isset( $_GET['orderby'] ) || 'ledger_id' == $_GET['orderby'] ) {
-			$query_vars['meta_key'] = '_fct_ledger_id';
-			$query_vars['orderby']  = 'meta_value_num';
-			$query_vars['order']    = isset( $_GET['order'] ) ? strtoupper( $_GET['order'] ) : 'ASC';
-		
-		// Handle ordering by record count
-		} elseif ( 'record_count' == $_GET['orderby'] ) {
-			$query_vars['meta_key'] = '_fct_record_count';
-			$query_vars['orderby']  = 'meta_value_num';
-			$query_vars['order']    = isset( $_GET['order'] ) ? strtoupper( $_GET['order'] ) : 'DESC';
+		// Get ordering request
+		$orderby = isset( $_REQEUEST['orderby'] ) ? $_REQEUEST['orderby'] : '';
+
+		// Handle sorting
+		switch ( $orderby ) {
+
+			// Account type
+			case 'account_type' :
+				$query_vars['meta_key'] = '_fct_account_type';
+				$query_vars['orderby']  = 'meta_value'; // Also 2nd item (ledger id)?
+				break;
+
+			// Account record count
+			case 'account_record_count' :
+				$query_vars['meta_key'] = '_fct_record_count';
+				$query_vars['orderby']  = 'meta_value_num';
+				break;
+
+			// Account end value
+			case 'account_end_value' :
+				$query_vars['meta_key'] = '_fct_end_value';
+				$query_vars['orderby']  = 'meta_value_num';
+				break;
+
+			// Account ledger id. Default order
+			case 'account_ledger_id' :
+			default :
+				$query_vars['meta_key'] = '_fct_ledger_id';
+				$query_vars['orderby']  = 'meta_value_num';
+				break;
+		}
+
+		// Default sorting order
+		if ( ! isset( $query_vars['order'] ) ) {
+			$query_vars['order']    = isset( $_REQEUEST['order'] ) ? strtoupper( $_REQEUEST['order'] ) : 'ASC';
 		}
 
 		// Return manipulated query_vars
@@ -848,10 +876,11 @@ class Fiscaat_Accounts_Admin {
 	public function accounts_page_title( $title ) {
 
 		// Year accounts
-		if ( isset( $_GET['fct_year_id'] ) && ! empty( $_GET['fct_year_id'] ) ) {
+		if ( ! isset( $_GET['fct_year_id'] ) || ! empty( $_GET['fct_year_id'] ) ) {
 
 			// Check year id
-			$year_id = fct_get_year_id( $_GET['fct_year_id'] );
+			$selected = isset( $_GET['fct_year_id'] ) ? $_GET['fct_year_id'] : fct_get_current_year_id();
+			$year_id  = fct_get_year_id( $selected );
 
 			if ( ! empty( $year_id ) ) {
 				// Format: {title} -- {year title}
