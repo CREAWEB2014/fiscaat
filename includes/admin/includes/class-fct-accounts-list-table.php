@@ -101,6 +101,7 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 	 */
 	function _column_content( $column_name, $account_id ) {
 
+		// Check column name
 		switch ( $column_name ) {
 
 			// Account year

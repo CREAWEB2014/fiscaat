@@ -336,26 +336,26 @@ class Fiscaat_Years_Admin {
 			.column-fct_year_record_count,
 			.column-fct_account_record_count,
 			.column-fct_year_end_value {
-				width: 10% !important;
+				width: 10%;
 			}
 
 			.column-author,
 			.column-fct_record_author,
 			.column-fct_account_author {
-				width: 10% !important;
+				width: 10%;
 			}
 
 			.column-fct_account_year,
 			.column-fct_record_year,
 			.column-fct_record_account {
-				width: 10% !important;
+				width: 10%;
 			}
 
 			.column-date,
 			.column-fct_year_started,
 			.column-fct_year_closed,
 			.column-fct_record_created {
-				width: 15% !important;
+				width: 10%;
 			}
 
 			.status-closed {

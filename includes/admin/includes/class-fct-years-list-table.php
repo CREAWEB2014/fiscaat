@@ -99,16 +99,21 @@ class FCT_Years_List_Table extends FCT_Posts_List_Table {
 	 */
 	function _column_content( $column_name, $year_id ) {
 
+		// Check column name
 		switch ( $column_name ) {
 
 			// Year start date
 			case 'fct_year_started':
-				echo mysql2date( 'Y/m/d', fct_get_year_started( $year_id ) );
+				$date   = fct_get_year_started( $year_id );
+				$h_time = mysql2date( 'Y/m/d', $date );
+				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date ) . '">' . apply_filters( 'post_date_column_time', $h_time, $year_id, $column_name, 'list' ) . '</abbr>';
 				break;
 
 			// Year close date
 			case 'fct_year_closed':
-				echo mysql2date( 'Y/m/d', fct_get_year_closed( $year_id ) );
+				$date   = fct_get_year_closed( $year_id );
+				$h_time = mysql2date( 'Y/m/d', $date );
+				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date )  . '">' . apply_filters( 'post_date_column_time', $h_time, $year_id, $column_name, 'list' ) . '</abbr>';
 				break;
 
 			// Year account count
