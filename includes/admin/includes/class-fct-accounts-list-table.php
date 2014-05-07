@@ -102,6 +102,8 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 	function _column_content( $column_name, $account_id ) {
 
 		switch ( $column_name ) {
+
+			// Account year
 			case 'fct_account_year' :
 				$year_id = fct_get_account_year_id( $account_id );
 				
@@ -117,10 +119,12 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 				}
 				break;
 
+			// Account ledger id
 			case 'fct_account_ledger_id' :
 				fct_account_ledger_id( $account_id );
 				break;
 
+			// Account type
 			case 'fct_account_type' :
 				$account_type = fct_get_account_type( $account_id );
 
@@ -134,10 +138,12 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 				}
 				break;
 
+			// Account record count
 			case 'fct_account_record_count' :
 				fct_account_record_count( $account_id );
 				break;
 
+			// Account end value
 			case 'fct_account_end_value' :
 				fct_currency_format( fct_get_account_end_value( $account_id ), true );
 				break;

@@ -157,7 +157,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	function _get_columns() {
 		$columns = array(
 			'cb'                           => '<input type="checkbox" />',
-			'fct_record_created'           => __( 'Date' ),
+			'fct_record_date'           => __( 'Date' ),
 			'fct_record_account_ledger_id' => _x( 'No.', 'Account number column name',           'fiscaat' ),
 			'fct_record_account'           => __( 'Account',                                     'fiscaat' ),
 			'fct_record_description'       => __( 'Description',                                 'fiscaat' ),
@@ -181,7 +181,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 */
 	function _get_sortable_columns() {
 		return array(
-			'fct_record_created'           => array( 'date', true ),
+			'fct_record_date'              => array( 'date', true ),
 			'fct_record_account_ledger_id' => 'record_account_ledger_id',
 			'fct_record_account'           => 'record_account',
 			'fct_record_offset_account'    => 'record_offset_account',
@@ -378,14 +378,18 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 */
 	function _new_row( $column_name ) {
 
+		// Check column name
 		switch ( $column_name ) {
-			case 'fct_record_created': ?>
 
-				<input name="records[created][]" type="text" class="fct_record_created medium-text" value="" />
+			// Record date
+			case 'fct_record_date': ?>
+
+				<input name="records[date][]" type="text" class="fct_record_date medium-text" value="" />
 
 				<?php
 				break;
 
+			// Record account ledger id
 			case 'fct_record_account_ledger_id' :
 				fct_ledger_dropdown( array(
 					'select_name' => 'records[account_ledger_id][]', 
@@ -395,6 +399,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 				) );
 				break;
 
+			// Record account
 			case 'fct_record_account' :
 				fct_account_dropdown( array(
 					'select_name' => 'records[account_id][]',
@@ -404,6 +409,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 				) );
 				break;
 
+			// Record content
 			case 'fct_record_description' : ?>
 
 				<textarea name="records[description][]" class="fct_record_description" rows="1" ></textarea>
@@ -411,6 +417,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 				<?php
 				break;
 
+			// Record offset account
 			case 'fct_record_offset_account' : ?>
 
 				<input name="records[offset_account][]" type="text" class="fct_record_offset_account medium-text" value="" />
@@ -418,6 +425,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 				<?php
 				break;
 
+			// Record amount
 			case 'fct_record_amount' : ?>
 
 				<input name="records[amount][debit][]"  class="fct_record_debit_amount small-text"  type="text" value="" />
@@ -472,6 +480,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @since 0.0.8
 	 *
 	 * @uses fct_get_record_account_id()
+	 * @uses get_the_date()
 	 * @uses fct_account_ledger_id()
 	 * @uses fct_get_account_title()
 	 * @uses fct_record_excerpt()
@@ -490,16 +499,21 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	function _column_content( $column_name, $record_id ) {
 		$account_id = fct_get_record_account_id( $record_id );
 
+		// Check column name
 		switch ( $column_name ) {
-			case 'fct_record_created':
-				echo get_the_date();
+
+			// Record date
+			case 'fct_record_date':
+				echo get_the_date( 'Y/m/d', $record_id );
 				break;
 
+			// Record account ledger id
 			case 'fct_record_account_ledger_id' :
 				if ( ! empty( $account_id ) )
 					fct_account_ledger_id( $account_id, true );
 				break;
 
+			// Record account
 			case 'fct_record_account' :
 				if ( ! empty( $account_id ) ) {
 					$account_title = fct_get_account_title( $account_id );
@@ -513,14 +527,17 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 				}
 				break;
 
+			// Record content
 			case 'fct_record_description' :
 				fct_record_excerpt( $record_id );
 				break;
 
+			// Record offset account
 			case 'fct_record_offset_account' :
 				fct_record_offset_account( $record_id );
 				break;
 
+			// Record amount
 			case 'fct_record_amount' :
 				$value = fct_get_record_amount( $record_id ); // Always float
 				$rtype = fct_get_record_type(   $record_id );
@@ -532,10 +549,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 				<?php
 				break;
 
-			case 'fct_record_author' :
-				fct_record_author_display_name( $record_id );
-				break;
-
+			// Record year
 			case 'fct_record_year' :
 				$record_year_id  = fct_get_record_year_id(  $record_id  );
 				$account_year_id = fct_get_account_year_id( $account_id );
@@ -627,9 +641,13 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		if ( ! $account_id = fct_get_account_id( $this->account_display ) )
 			return;
 
+		// Is this the start row?
 		$start = false !== strpos( current_filter(), 'start' );
 
+		// Check column name
 		switch ( $column ) {
+
+			// Row title
 			case 'fct_record_description' :
 				switch ( fct_get_account_type( $account_id ) ) {
 					case fct_get_capital_account_type_id() :
@@ -648,6 +666,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 				}
 				break;
 
+			// Row account amount
 			case 'fct_record_amount' :
 				$_row  = $start ? 'start' : 'end';
 				$value = call_user_func_array( "fct_get_account_{$_row}_value", array( 'account_id' => $account_id ) ); 
@@ -673,7 +692,10 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 */
 	function _total_row( $column ) {
 
+		// Check column name
 		switch ( $column ) {
+
+			// Row title
 			case 'fct_record_description' :
 				$total_title = _x( 'Total', 'Sum of all records', 'fiscaat' );
 
@@ -685,6 +707,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 				echo $total_title;
 				break;
 
+			// Total amount
 			case 'fct_record_amount' : ?>
 
 				<input id="fct_records_debit_total"  class="fct_record_debit_amount fct_record_total small-text"  type="text" value="<?php fct_currency_format( array_sum( $this->amounts[ fct_get_debit_record_type_id()  ] ) ); ?>" disabled="disabled" />

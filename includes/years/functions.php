@@ -310,15 +310,17 @@ function fct_save_year_extras( $year_id = 0 ) {
  * @param int $year_id Optional. Year id
  * @param string $date Mysql date string
  * @uses fct_get_year_id() To get the year id
- * @uses fct_get_current_time() To get the current date in mysql format
+ * @uses fct_current_time() To get the current date in mysql format
+ * @uses fct_update_year_meta() To update the year's close date
  * @return string Year close date
  */
 function fct_update_year_closed( $year_id = 0, $date = '' ) {
 	$year_id = fct_get_year_id( $year_id );
 	
-	// Require close date
-	if ( empty( $date ) )
-		return false;
+	// Default close date to now GMT
+	if ( empty( $date ) ) {
+		$date = fct_current_time( 'mysql', true );
+	}
 
 	fct_update_year_meta( $year_id, 'closed', $date );
 

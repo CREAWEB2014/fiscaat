@@ -131,12 +131,12 @@ function fct_convert_date( $time, $d = 'U', $translate = false ) {
  * @param string $type Optional. Defaults to 'mysql' database format
  * @param boolean $gmt Optional. Whether to return GMT
  * @uses current_time() To get the current time
- * @uses apply_filters() Calls 'fct_get_current_time' with the current time
+ * @uses apply_filters() Calls 'fct_current_time' with the current time
  *                        and the format type
  * @return string Current time
  */
-function fct_get_current_time( $type = 'mysql', $gmt = false ){
-	return apply_filters( 'fct_get_current_time', current_time( $type, $gmt ), $type, $gmt );
+function fct_current_time( $type = 'mysql', $gmt = false ){
+	return apply_filters( 'fct_current_time', current_time( $type, $gmt ), $type, $gmt );
 }
 
 /**

@@ -357,6 +357,8 @@ function fct_year_started_text( $year_id = 0, $at = true, $gmt = false ) {
 	 * 
 	 * @uses fct_get_year_id() To get the year id
 	 * @uses fct_get_year_started() To get the year's start date
+	 * @uses apply_filters() Calls 'fct_get_year_started_text' with
+	 *                        the close date and year id
 	 * 
 	 * @param int $year_id Year id
 	 * @param bool $at Whether to use 'date at time' format or other
@@ -379,7 +381,7 @@ function fct_year_started_text( $year_id = 0, $at = true, $gmt = false ) {
 			$result = sprintf( _x( '%1$s <br /> %2$s', 'date <br/> time', 'fiscaat' ), $date, $time );
 		}
 
-		return apply_filters( 'fct_get_year_started', $result, $year_id, $gmt, $date, $time );
+		return apply_filters( 'fct_get_year_started_text', $result, $year_id, $gmt, $date, $time );
 	}
 
 	/**
@@ -394,11 +396,11 @@ function fct_year_started_text( $year_id = 0, $at = true, $gmt = false ) {
 	 *
 	 * @param int $year_id Year id
 	 * @param bool $gmt Optional. Use GMT
-	 * @return string Year's start date
+	 * @return string Year's start mysql date 
 	 */
 	function fct_get_year_started( $year_id, $gmt = false ) {
 		$year_id = fct_get_year_id( $year_id );
-		$date    = get_post_time( 'U', $gmt, $year_id );
+		$date    = get_post_time( 'Y-m-d H:i:s', $gmt, $year_id );
 
 		return apply_filters( 'fct_get_year_started', $date, $year_id, $gmt );
 	}
@@ -420,6 +422,8 @@ function fct_year_closed_text( $year_id = 0, $at = true, $gmt = false ) {
 	 * 
 	 * @uses fct_get_year_id() To get the year id
 	 * @uses fct_get_year_closed() To get the year's close date
+	 * @uses apply_filters() Calls 'fct_get_year_closed_text' with
+	 *                        the close date and year id
 	 * 
 	 * @param int $year_id Year id
 	 * @param bool $at Whether to use 'date at time' format or other
@@ -449,7 +453,7 @@ function fct_year_closed_text( $year_id = 0, $at = true, $gmt = false ) {
 			$result = $date = $time = '';
 		}
 
-		return apply_filters( 'fct_get_year_closed', $result, $year_id, $date, $time );
+		return apply_filters( 'fct_get_year_closed_text', $result, $year_id, $date, $time );
 	}
 
 	/**
@@ -464,16 +468,23 @@ function fct_year_closed_text( $year_id = 0, $at = true, $gmt = false ) {
 	 *
 	 * @param int $year_id Year id
 	 * @param bool $gmt Optional. Use GMT
-	 * @return string Year's close date
+	 * @return string Year's close mysql date
 	 */
 	function fct_get_year_closed( $year_id, $gmt = false ) {
 		$year_id = fct_get_year_id( $year_id );
 		$date    = fct_get_year_meta( $year_id, 'closed' );
 
-		// Translate from GMT
-		// @todo Fix non-GMT
-		if ( ! $gmt ) {
-			$date = $date;
+		// Year is closed
+		if ( ! empty( $date ) ) {
+
+			// Date is stored as GMT. Convert back
+			if ( ! $gmt ) {
+				$date = gmdate( 'Y-m-d H:i:s', strtotime( $date ) + get_option( 'gmt_offset' ) * HOUR_IN_SECONDS );
+			}
+
+		// Not closed
+		} else {
+			$date = '';
 		}
 
 		return apply_filters( 'fct_get_year_closed', $date, $year_id, $gmt );

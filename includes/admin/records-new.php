@@ -147,7 +147,7 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 			'post_title'         => '',
 			'post_content'       => '',
 			'post_author'        => 0,
-			'post_date'          => fct_get_current_time(),
+			'post_date'          => fct_current_time(),
 			'menu_order'         => 0,
 
 			// Record meta
