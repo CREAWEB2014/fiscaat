@@ -102,6 +102,7 @@ function fct_float_format( $value = '' ) {
 	// Remove whitespace
 	$value = trim( $value );
 
+	// Return value as float
 	return (float) apply_filters( 'fct_float_format', $value );
 }
 
@@ -110,9 +111,9 @@ function fct_float_format( $value = '' ) {
  *
  * @param int|object $time The database time to be converted
  * @param string $d Optional. Default is 'U'. Either 'G', 'U', or php date
- *                             format
+ *                   format
  * @param bool $translate Optional. Default is false. Whether to translate the
- *                                   result
+ *                         result
  * @uses mysql2date() To convert the format
  * @uses apply_filters() Calls 'fct_convert_date' with the time, date format
  *                        and translate bool

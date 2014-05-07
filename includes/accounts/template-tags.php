@@ -1550,7 +1550,7 @@ function fct_account_dropdown( $args = '' ) {
 
 			// Output-related
 			'select_id'          => 'fct_account_id',
-			'show_none'          => __('In all accounts', 'fiscaat'),
+			'show_none'          => __( 'In all accounts', 'fiscaat' ),
 		);
 
 		$r = fct_parse_args( $args, $defaults, 'get_account_dropdown' );

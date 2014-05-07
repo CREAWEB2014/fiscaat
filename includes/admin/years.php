@@ -335,7 +335,7 @@ class Fiscaat_Years_Admin {
 			.column-fct_year_account_count,
 			.column-fct_year_record_count,
 			.column-fct_account_record_count,
-			.column-fct_account_end_value {
+			.column-fct_year_end_value {
 				width: 10% !important;
 			}
 
@@ -351,6 +351,7 @@ class Fiscaat_Years_Admin {
 				width: 10% !important;
 			}
 
+			.column-date,
 			.column-fct_year_started,
 			.column-fct_year_closed,
 			.column-fct_record_created {
@@ -440,6 +441,8 @@ class Fiscaat_Years_Admin {
 		if ( $this->bail() ) 
 			return $query_vars;
 
+		/** Sorting ***********************************************************/
+
 		// Handle sorting
 		if ( isset( $_REQUEST['orderby'] ) ) {
 
@@ -474,7 +477,7 @@ class Fiscaat_Years_Admin {
 
 			// Default sorting order
 			if ( ! isset( $query_vars['order'] ) ) {
-				$query_vars['order']    = isset( $_REQEUEST['order'] ) ? strtoupper( $_REQEUEST['order'] ) : 'ASC';
+				$query_vars['order'] = isset( $_REQEUEST['order'] ) ? strtoupper( $_REQEUEST['order'] ) : 'ASC';
 			}
 		}
 

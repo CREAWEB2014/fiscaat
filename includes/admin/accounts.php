@@ -711,13 +711,17 @@ class Fiscaat_Accounts_Admin {
 		if ( $this->bail() ) 
 			return $query_vars;
 
-		// Add post_parent query_var
+		/** Year **************************************************************/
+
+		// Set the parent from year id if given or current year
 		$query_vars['post_parent'] = ! empty( $_REQEUEST['fct_year_id'] ) ? $_REQEUEST['fct_year_id'] : fct_get_current_year_id();
 
-		// Get ordering request
-		$orderby = isset( $_REQEUEST['orderby'] ) ? $_REQEUEST['orderby'] : '';
+		/** Sorting ***********************************************************/
 
 		// Handle sorting
+		$orderby = isset( $_REQEUEST['orderby'] ) ? $_REQEUEST['orderby'] : '';
+
+		// Check order type
 		switch ( $orderby ) {
 
 			// Account type
@@ -748,7 +752,7 @@ class Fiscaat_Accounts_Admin {
 
 		// Default sorting order
 		if ( ! isset( $query_vars['order'] ) ) {
-			$query_vars['order']    = isset( $_REQEUEST['order'] ) ? strtoupper( $_REQEUEST['order'] ) : 'ASC';
+			$query_vars['order'] = isset( $_REQEUEST['order'] ) ? strtoupper( $_REQEUEST['order'] ) : 'ASC';
 		}
 
 		// Return manipulated query_vars

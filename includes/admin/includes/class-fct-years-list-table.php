@@ -58,7 +58,7 @@ class FCT_Years_List_Table extends FCT_Posts_List_Table {
 		return array(
 			'cb'                       => '<input type="checkbox" />',
 			'title'                    => __( 'Title',                            'fiscaat' ),
-			'fct_year_started'         => _x( 'Opened', 'Start date column name', 'fiscaat' ),
+			'date'                     => _x( 'Opened', 'Start date column name', 'fiscaat' ),
 			'fct_year_closed'          => _x( 'Closed', 'Close date column name', 'fiscaat' ),
 			'fct_year_account_count'   => __( 'Accounts',                         'fiscaat' ),
 			'fct_year_record_count'    => __( 'Records',                          'fiscaat' ),
@@ -75,7 +75,7 @@ class FCT_Years_List_Table extends FCT_Posts_List_Table {
 	 */
 	function _get_sortable_columns() {
 		return array(
-			'fct_year_started'         => array( 'date',        true ),
+			'date'                     => array( 'date',        true ),
 			'fct_year_closed'          => array( 'year_closed', true ),
 			'fct_year_account_count'   => 'year_account_count',
 			'fct_year_record_count'    => 'year_record_count',
@@ -100,12 +100,8 @@ class FCT_Years_List_Table extends FCT_Posts_List_Table {
 	function _column_content( $column_name, $year_id ) {
 
 		switch ( $column_name ) {
-			case 'fct_year_started':
-				fct_year_started( $year_id, false );
-				break;
-
 			case 'fct_year_closed':
-				fct_year_closed( $year_id, false );
+				fct_year_closed( $year_id );
 				break;
 
 			case 'fct_year_account_count' :

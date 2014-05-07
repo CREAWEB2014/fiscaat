@@ -379,6 +379,13 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	function _new_row( $column_name ) {
 
 		switch ( $column_name ) {
+			case 'fct_record_created': ?>
+
+				<input name="records[created][]" type="text" class="fct_record_created medium-text" value="" />
+
+				<?php
+				break;
+
 			case 'fct_record_account_ledger_id' :
 				fct_ledger_dropdown( array(
 					'select_name' => 'records[account_ledger_id][]', 
@@ -407,13 +414,6 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			case 'fct_record_offset_account' : ?>
 
 				<input name="records[offset_account][]" type="text" class="fct_record_offset_account medium-text" value="" />
-
-				<?php
-				break;
-
-			case 'fct_record_created': ?>
-
-				<input name="records[created][]" type="text" class="fct_record_created medium-text" value="" />
 
 				<?php
 				break;

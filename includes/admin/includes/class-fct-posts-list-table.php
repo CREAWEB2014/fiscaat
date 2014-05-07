@@ -131,6 +131,8 @@ class FCT_Posts_List_Table extends WP_List_Table {
 	 * Return whether this table has bulk actions
 	 * 
 	 * @since 0.0.8
+	 *
+	 * @see WP_List_Table::bulk_actions()
 	 * 
 	 * @return bool Table has bulk actions
 	 */
@@ -138,7 +140,7 @@ class FCT_Posts_List_Table extends WP_List_Table {
 		$no_new_actions = $actions = $this->get_bulk_actions();
 		/** This filter is documented in wp-admin/includes/class-wp-list-table.php */
 		$actions = apply_filters( "bulk_actions-{$this->screen->id}", $actions );
-		$actions = array_intersect_assoc( $this->_actions, $no_new_actions );
+		$actions = array_intersect_assoc( $actions, $no_new_actions );
 
 		return ! empty( $actions );
 	}
