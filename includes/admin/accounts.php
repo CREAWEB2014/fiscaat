@@ -697,7 +697,7 @@ class Fiscaat_Accounts_Admin {
 		// Show the years dropdown
 		fct_dropdown( array(
 			'selected'  => $selected,
-			'show_none' => __( '&mdash; All years &mdash;', 'fiscaat' )
+			'show_none' => __( 'In all years', 'fiscaat' )
 		) );
 	}
 
@@ -711,10 +711,23 @@ class Fiscaat_Accounts_Admin {
 		if ( $this->bail() ) 
 			return $query_vars;
 
+		// Setup meta query
+		$meta_query = isset( $query_vars['meta_query'] ) ? $query_vars['meta_query'] : array();
+
 		/** Year **************************************************************/
 
 		// Set the parent from year id if given or current year
-		$query_vars['post_parent'] = ! empty( $_REQEUEST['fct_year_id'] ) ? $_REQEUEST['fct_year_id'] : fct_get_current_year_id();
+		$query_vars['post_parent'] = isset( $_REQEUEST['fct_year_id'] ) ? $_REQEUEST['fct_year_id'] : fct_get_current_year_id();
+
+		/** Ledger ************************************************************/
+
+		// Query by ledger id
+		if ( isset( $_REQEUEST['fct_ledger_account_id'] ) ) {
+			$meta_query[] = array(
+				'key'   => '_fct_ledger_id',
+				'value' => fct_get_account_ledger_id( (int) $_REQEUEST['fct_ledger_account_id'] )
+			);
+		}
 
 		/** Sorting ***********************************************************/
 
