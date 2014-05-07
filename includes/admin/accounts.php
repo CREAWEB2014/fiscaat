@@ -768,6 +768,9 @@ class Fiscaat_Accounts_Admin {
 			$query_vars['order'] = isset( $_REQEUEST['order'] ) ? strtoupper( $_REQEUEST['order'] ) : 'ASC';
 		}
 
+		// Set meta query
+		$query_vars['meta_query'] = $meta_query;
+
 		// Return manipulated query_vars
 		return $query_vars;
 	}
