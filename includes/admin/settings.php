@@ -31,6 +31,11 @@ function fct_admin_get_settings_sections() {
 			'callback' => 'fct_admin_setting_callback_currency_section',
 			'page'     => 'fiscaat',
 		),
+		'fct_settings_editing' => array(
+			'title'    => __( 'Editing', 'fiscaat' ),
+			'callback' => 'fct_admin_setting_callback_editing_section',
+			'page'     => 'fiscaat',
+		),
 		'fct_settings_per_page' => array(
 			'title'    => __( 'Per Page', 'fiscaat' ),
 			'callback' => 'fct_admin_setting_callback_per_page_section',
@@ -62,7 +67,37 @@ function fct_admin_get_settings_sections() {
 function fct_admin_get_settings_fields() {
 	return (array) apply_filters( 'fct_admin_get_settings_fields', array(
 
-		/** Main Section ******************************************************/
+		/** Features Section **************************************************/
+
+		'fct_settings_features' => array(
+
+			// Enable control setting
+			'_fct_enable_control' => array(
+				'title'             => __( 'Control', 'fiscaat' ),
+				'callback'          => 'fct_admin_setting_callback_enable_control',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
+			// Enable comments setting
+			'_fct_enable_comments' => array(
+				'title'             => __( 'Comments', 'fiscaat' ),
+				'callback'          => 'fct_admin_setting_callback_enable_comments',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
+			// Enable comments setting
+			'_fct_use_wp_editor' => array(
+				'title'             => __( 'Use WordPress editor', 'fiscaat' ),
+				'callback'          => 'fct_admin_setting_callback_use_wp_editor',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
+		),
+
+		/** Currency Section **************************************************/
 
 		'fct_settings_currency' => array(
 
@@ -102,36 +137,6 @@ function fct_admin_get_settings_fields() {
 			'_fct_num_decimals' => array(
 				'title'             => __( 'Number of Decimals', 'fiscaat' ),
 				'callback'          => 'fct_admin_setting_callback_num_decimals',
-				'sanitize_callback' => 'intval',
-				'args'              => array()
-			),
-
-		),
-
-		/** Features Section **************************************************/
-
-		'fct_settings_features' => array(
-
-			// Enable control setting
-			'_fct_enable_control' => array(
-				'title'             => __( 'Control', 'fiscaat' ),
-				'callback'          => 'fct_admin_setting_callback_enable_control',
-				'sanitize_callback' => 'intval',
-				'args'              => array()
-			),
-
-			// Enable comments setting
-			'_fct_enable_comments' => array(
-				'title'             => __( 'Comments', 'fiscaat' ),
-				'callback'          => 'fct_admin_setting_callback_enable_comments',
-				'sanitize_callback' => 'intval',
-				'args'              => array()
-			),
-
-			// Enable comments setting
-			'_fct_use_wp_editor' => array(
-				'title'             => __( 'Use WordPress editor', 'fiscaat' ),
-				'callback'          => 'fct_admin_setting_callback_use_wp_editor',
 				'sanitize_callback' => 'intval',
 				'args'              => array()
 			),
@@ -292,6 +297,61 @@ function fct_admin_get_settings_fields_for_section( $section_id = '' ) {
 	return (array) apply_filters( 'fct_admin_get_settings_fields_for_section', $retval, $section_id );
 }
 
+/** Functionality Section *****************************************************/
+
+/**
+ * Main settings section description for the settings page
+ */
+function fct_admin_setting_callback_features_section() {
+?>
+
+	<p><?php _e( 'Main settings for enabling and disabling features.', 'fiscaat' ); ?></p>
+
+<?php
+}
+
+/**
+ * Enable control setting field
+ *
+ * @uses fct_form_option() To output the option value
+ */
+function fct_admin_setting_callback_enable_control() {
+?>
+
+	<input id="_fct_enable_control" name="_fct_enable_control" type="checkbox" value="1" <?php checked( fct_is_control_active() ); fct_maybe_admin_setting_disabled( '_fct_enable_control' ); ?> />
+	<label for="_fct_enable_control"><?php _e( 'Enable controlling functions and the Controller role.', 'fiscaat' ); ?></label>
+
+<?php
+}
+
+/**
+ * Enable comments setting field
+ *
+ * @uses fct_form_option() To output the option value
+ */
+function fct_admin_setting_callback_enable_comments() {
+?>
+
+	<input id="_fct_enable_comments" name="_fct_enable_comments" type="checkbox" value="1" <?php checked( fct_is_comments_active() ); fct_maybe_admin_setting_disabled( '_fct_enable_comments' ); ?> />
+	<label for="_fct_enable_comments"><?php _e( "Enable commenting on records in Fiscaat.", 'fiscaat' ); ?></label>
+
+<?php
+}
+
+/**
+ * Use WordPress editor setting field
+ *
+ * @uses fct_form_option() To output the option value
+ */
+function fct_admin_setting_callback_use_wp_editor() {
+?>
+
+	<input id="_fct_use_wp_editor" name="_fct_use_wp_editor" type="checkbox" value="1" <?php checked( fct_use_wp_editor() ); fct_maybe_admin_setting_disabled( '_fct_use_wp_editor' ); ?> />
+	<label for="_fct_use_wp_editor"><?php _e( "Use the WordPress editor if available.", 'fiscaat' ); ?></label>
+
+<?php
+}
+
 /** Currency Section **********************************************************/
 
 /**
@@ -378,61 +438,6 @@ function fct_admin_setting_callback_num_decimals() {
 ?>
 
 	<input name="_fct_num_decimals" type="number" id="_fct_num_decimals" value="<?php fct_form_option( '_fct_num_decimals', '2' ); ?>" class="small-text" <?php fct_maybe_admin_setting_disabled( '_fct_num_decimals' ); ?> />
-
-<?php
-}
-
-/** Functionality Section *****************************************************/
-
-/**
- * Main settings section description for the settings page
- */
-function fct_admin_setting_callback_features_section() {
-?>
-
-	<p><?php _e( 'Main settings for enabling and disabling features.', 'fiscaat' ); ?></p>
-
-<?php
-}
-
-/**
- * Enable control setting field
- *
- * @uses fct_form_option() To output the option value
- */
-function fct_admin_setting_callback_enable_control() {
-?>
-
-	<input id="_fct_enable_control" name="_fct_enable_control" type="checkbox" value="1" <?php checked( fct_is_control_active() ); fct_maybe_admin_setting_disabled( '_fct_enable_control' ); ?> />
-	<label for="_fct_enable_control"><?php _e( 'Enable controlling functions and the Controller role.', 'fiscaat' ); ?></label>
-
-<?php
-}
-
-/**
- * Enable comments setting field
- *
- * @uses fct_form_option() To output the option value
- */
-function fct_admin_setting_callback_enable_comments() {
-?>
-
-	<input id="_fct_enable_comments" name="_fct_enable_comments" type="checkbox" value="1" <?php checked( fct_is_comments_active() ); fct_maybe_admin_setting_disabled( '_fct_enable_comments' ); ?> />
-	<label for="_fct_enable_comments"><?php _e( "Enable commenting on records in Fiscaat.", 'fiscaat' ); ?></label>
-
-<?php
-}
-
-/**
- * Use WordPress editor setting field
- *
- * @uses fct_form_option() To output the option value
- */
-function fct_admin_setting_callback_use_wp_editor() {
-?>
-
-	<input id="_fct_use_wp_editor" name="_fct_use_wp_editor" type="checkbox" value="1" <?php checked( fct_use_wp_editor() ); fct_maybe_admin_setting_disabled( '_fct_use_wp_editor' ); ?> />
-	<label for="_fct_use_wp_editor"><?php _e( "Use the WordPress editor if available.", 'fiscaat' ); ?></label>
 
 <?php
 }

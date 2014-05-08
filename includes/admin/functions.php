@@ -425,7 +425,7 @@ function fct_admin_get_records_mode() {
 	) ) ) {
 		$mode = $_GET['mode'];
 
-	// Default empty
+	// Default empty (view)
 	} else {
 		$mode = '';
 	}

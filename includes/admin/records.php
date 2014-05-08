@@ -264,6 +264,8 @@ class Fiscaat_Records_Admin {
 		);
 	}
 
+	/** Records Meta **********************************************************/
+
 	/**
 	 * Add the record attributes metabox
 	 *
@@ -344,6 +346,8 @@ class Fiscaat_Records_Admin {
 		return $record_id;
 	}
 
+	/** Styles ****************************************************************/
+
 	/**
 	 * Add some general styling to the admin area
 	 *
@@ -355,7 +359,10 @@ class Fiscaat_Records_Admin {
 	 */
 	public function admin_head() {
 		if ( $this->bail() ) 
-			return; ?>
+			return; 
+
+		// Determine records mode
+		$mode = fct_admin_get_records_mode(); ?>
 
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
@@ -368,36 +375,29 @@ class Fiscaat_Records_Admin {
 			.column-author,
 			.column-fct_record_author,
 			.column-fct_account_author {
-				width: 10% !important;
+				width: 10%;
 			}
 
-			.column-fct_record_date,
-			.column-fct_record_offset_account,
-			.column-fct_record_year,
+			.column-fct_record_post_date,
+			.column-fct_record_date {
+				width: 100px;
+			}
+
+			.column-fct_record_offset_account {
+				width: 15%;
+			}
+
 			.column-fct_record_account {
-				width: 15% !important;
+				width: 20%;
 			}
 
-			.column-fct_record_account {
-				width: 193px !important;
-			}
-
-			.wp-list-table td.column-fct_record_date, 
-			.wp-list-table td.column-fct_record_description, 
-			.wp-list-table td.column-fct_record_account, 
-			.wp-list-table td.column-fct_record_account_ledger_id, 
-			.wp-list-table td.column-fct_record_offset_account {
-				padding: 11px 10px;
+			.column-fct_record_account_ledger_id,
+			.column-fct_record_year {
+				width: 10%;
 			}
 
 			.column-fct_record_amount {
 				width: 157px;
-			}
-
-			.column-fct_record_amount .small-text {
-				text-align: right;
-				width: 65px;
-				padding: 3px 5px;
 			}
 
 			.column-fct_record_status {
@@ -412,31 +412,6 @@ class Fiscaat_Records_Admin {
 
 			.status-closed {
 				background-color: #eaeaea;
-			}
-
-			.status-declined {
-				background-color: #faeaea;
-			}
-
-			.status-approved {
-				background-color: #eafeaf;
-			}
-
-			.widefat tbody .record {
-				height: 36px;
-			}
-
-			.widefat tbody th.check-column {
-				padding-top: 10px;
-				padding-bottom: 0;
-			}
-
-			#the-list .fiscaat-row .check-column input {
-				display: none;
-			}
-			
-			#the-list .fiscaat-row-total .column-fct_record_offset_account {
-				text-align: right;
 			}
 
 			.fct_record_status_icon {
@@ -462,14 +437,292 @@ class Fiscaat_Records_Admin {
 					background-color: #999;
 				}
 
-			.column-fct_record_account_ledger_id {
-				width: 8% !important;
+			.widefat .column-fct_record_amount input.small-text {
+				text-align: right;
+				width: 65px;
+			}
+
+			.widefat .records-start-row .column-fct_record_description,
+			.widefat .records-end-row   .column-fct_record_description,
+			.widefat .records-total-row .column-fct_record_description {
+				vertical-align: middle;
+			}
+
+			/** Edit / New Records Mode ***************************************/
+
+			.widefat .new-records-row  select,
+			.widefat .edit-records-row select {
+				width: 100%;
+				max-width: 173px;
+			}
+
+			.widefat .new-records-row  textarea,
+			.widefat .edit-records-row textarea,
+			.widefat .new-records-row  input,
+			.widefat .edit-records-row input {
+				width: 100%;
+				padding: 3px 5px;
+				height: 28px;
+			}
+
+			.widefat .new-records-row  td.column-fct_record_description,
+			.widefat .edit-records-row td.column-fct_record_description {
+				padding: 9px 10px 4px;
 			}
 
 		/*]]>*/
 		</style>
 
 		<?php
+	}
+
+	/** Records List Table ****************************************************/
+
+	/**
+	 * Manage the column headers for the records page
+	 *
+	 * @param array $columns The columns
+	 * @return array $columns Fiscaat record columns
+	 */
+	public function records_column_headers( $columns ) {
+		if ( $this->bail() ) 
+			return $columns;
+
+		// Account records pages do not need account details
+		if ( isset( $_GET['fct_account_id'] ) && ! empty( $_GET['fct_account_id'] ) )
+			unset( $columns['fct_record_account_ledger_id'], $columns['fct_record_account'] );
+
+		return $columns;
+	}
+
+	/**
+	 * Add year dropdown to account and record list table filters
+	 *
+	 * @uses fct_get_record_post_type() To get the record post type
+	 * @uses fct_get_account_post_type() To get the account post type
+	 * @uses fct_dropdown() To generate a year dropdown
+	 * @return bool False. If post type is not account or record
+	 */
+	public function filter_dropdown() {
+		if ( $this->bail() ) 
+			return;
+
+		// Get which year is selected
+		$year_id = ! empty( $_REQUEST['fct_year_id'] ) ? (int) $_REQUEST['fct_year_id'] : fct_get_current_year_id();
+
+		// Show the years dropdown
+		fct_dropdown( array(
+			'selected'   => $year_id,
+			'show_none'  => __( 'In current year', 'fiscaat' )
+		) );
+		
+		// Get which account is selected. With account id or ledger id
+		$account_id = ! empty( $_REQUEST['fct_account_id'] )         ? (int) $_REQUEST['fct_account_id']         : 0;
+		$ledger_id  = ! empty( $_REQUEST['fct_ledger_account_id']  ) ? (int) $_REQUEST['fct_ledger_account_id']  : '';
+
+		// Ledger id was set, account id not
+		if ( ! empty( $ledger_id ) && empty( $account_id ) )
+			$account_id = fct_get_account_id_by_ledger_id( $ledger_id, $year_id );
+
+		// Show the ledger dropdown
+		fct_ledger_dropdown( array(
+			'selected'   => $account_id,
+			'year_id'    => $year_id,
+			'show_none'  => '&mdash;',
+			'none_found' => true,
+		) );
+
+		// Show the accounts dropdown
+		fct_account_dropdown( array(
+			'selected'  => $account_id,
+			'year_id'   => $year_id,
+		) );
+	}
+
+	/**
+	 * Adjust the request query and include the year id
+	 *
+	 * @param array $query_vars Query variables from {@link WP_Query}
+	 * @uses is_admin() To check if it's the admin section
+	 * @uses fct_get_account_post_type() To get the account post type
+	 * @uses fct_get_record_post_type() To get the record post type
+	 * @return array Processed Query Vars
+	 */
+	public function filter_post_rows( $query_vars ) {
+		if ( $this->bail() ) 
+			return $query_vars;
+
+		// Setup meta query
+		$meta_query = isset( $query_vars['meta_query'] ) ? $query_vars['meta_query'] : array();
+
+		/** Year & Account ****************************************************/
+
+		// Set the year id
+		$meta_query[] = array(
+			'key'   => '_fct_year_id',
+			'value' => ! empty( $_REQUEST['fct_year_id'] ) ? (int) $_REQUEST['fct_year_id'] : fct_get_current_year_id()
+		);
+		
+		// Set the parent if given
+		if ( ! empty( $_REQUEST['fct_account_id'] ) ) {
+			$query_vars['post_parent'] = (int) $_REQUEST['fct_account_id'];
+
+		// Set the parent from ledger_id if given
+		} elseif ( ! empty( $_REQUEST['fct_ledger_account_id'] ) ) {
+			$query_vars['post_parent'] = (int) $_REQUEST['fct_ledger_account_id'];
+		}
+
+		/** Approval **********************************************************/
+
+		// @todo Move to Control
+		// Check approval
+		if ( isset( $_REQUEST['approval'] ) && fct_is_control_active() ) {
+
+			// Check approval states
+			switch ( (int) $_REQUEST['approval'] ) {
+
+				// Unapproved
+				case 0 :
+					$query_vars['post_status'] = array( fct_get_public_status_id(), fct_get_declined_status_id() ); // + declined?
+					break;
+
+				// Approved
+				case 1 :
+					$query_vars['post_status'] = array( fct_get_approved_status_id(), fct_get_closed_status_id() ); // + closed?
+					break;
+
+				// Declined
+				case 2 :
+					$query_vars['post_status'] = fct_get_declined_status_id();
+					break;
+			}
+		}
+
+		/** Sorting ***********************************************************/
+
+		// Handle sorting
+		if ( isset( $_REQUEST['orderby'] ) ) {
+
+			// Check order type
+			switch ( $_REQUEST['orderby'] ) {
+
+				// Record date. Reverse order
+				case 'record_date' :
+					$query_vars['meta_key'] = '_fct_record_date';
+					$query_vars['orderby']  = 'meta_value';
+					$query_vars['order']    = isset( $_REQUEST['order'] ) && 'DESC' == strtoupper( $_REQUEST['order'] ) ? 'ASC' : 'DESC';
+					break;
+
+				// @todo Fix ordering by account/ledger id. Goes
+				//        beyond setting meta_key query var.
+
+				// Record account ledger id.
+				// Order by parent's _fct_ledger_id meta key
+				// case 'record_account_ledger_id' :
+				// 	$query_vars['meta_key'] = '_fct_account_id';
+				// 	$query_vars['orderby']  = 'meta_value_num';
+				// 	break;
+
+				// Record account
+				// Order by parent's title
+				// case 'record_account' :
+				// 	$query_vars['meta_key'] = '_fct_account_id';
+				// 	$query_vars['orderby']  = 'meta_value_num';
+				// 	break;
+
+				// Record offset account
+				case 'record_offset_acount' :
+					$query_vars['meta_key'] = '_fct_offset_account';
+					$query_vars['orderby']  = 'meta_value';
+					break;
+
+				// Record value
+				case 'record_amount' :
+					$query_vars['meta_key'] = '_fct_amount';
+					$query_vars['orderby']  = 'meta_value_num';
+					break;
+			}
+
+			// Default sorting order
+			if ( ! isset( $query_vars['order'] ) ) {
+				$query_vars['order'] = isset( $_REQUEST['order'] ) ? strtoupper( $_REQUEST['order'] ) : 'ASC';
+			}
+		}
+
+		// Set meta query
+		$query_vars['meta_query'] = $meta_query;
+
+		// Return manipulated query_vars
+		return $query_vars;
+	}
+
+	/** Record Actions ********************************************************/
+
+	/**
+	 * Record Row actions
+	 *
+	 * Remove the quick-edit action link under the record title and add the
+	 * content and spam link
+	 *
+	 * @param array $actions Actions
+	 * @param array $record Record object
+	 * @uses fct_get_record_post_type() To get the record post type
+	 * @uses fct_record_content() To output record content
+	 * @uses fct_get_record_permalink() To get the record link
+	 * @uses fct_get_record_title() To get the record title
+	 * @uses current_user_can() To check if the current user can edit or
+	 *                           delete the record
+	 * @uses fct_is_record_approved() To check if the record is marked as approved
+	 * @uses get_post_type_object() To get the record post type object
+	 * @uses add_query_arg() To add custom args to the url
+	 * @uses remove_query_arg() To remove custom args from the url
+	 * @uses wp_nonce_url() To nonce the url
+	 * @uses get_delete_post_link() To get the delete post link of the record
+	 * @return array $actions Actions
+	 */
+	public function records_row_actions( $actions, $record ) {
+		if ( $this->bail() ) 
+			return $actions;
+
+		unset( $actions['inline hide-if-no-js'] );
+
+		// Record view links to account
+		$actions['view'] = '<a href="' . fct_get_record_url( $record->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'fiscaat' ), fct_get_record_title( $record->ID ) ) ) . '" rel="permalink">' . __( 'View', 'fiscaat' ) . '</a>';
+
+		// User cannot view records in trash
+		if ( ( fct_get_trash_status_id() == $record->post_status ) && !current_user_can( 'view_trash' ) )
+			unset( $actions['view'] );
+
+		// Only show the actions if the user is capable of viewing them and record is open
+		// @todo Move to Control
+		if ( current_user_can( 'control', $record->ID ) ) {
+			if ( fct_record_is_open( $record->ID ) ) {
+				$approval_uri  = esc_url( wp_nonce_url( add_query_arg( array( 'record_id' => $record->ID, 'action' => 'fct_toggle_record_approval' ), remove_query_arg( array( 'fct_record_toggle_notice', 'record_id', 'failed', 'super' ) ) ), 'approval-record_'  . $record->ID ) );
+				if ( ! fct_is_record_approved( $record->ID ) ) {
+					$actions['approval'] = '<a href="' . $approval_uri . '" title="' . esc_attr__( 'Mark this record as approved',    'fiscaat' ) . '">' . __( 'Approve',    'fiscaat' ) . '</a>';
+				} elseif( ! fct_is_record_declined( $record->ID ) ) {
+					$actions['approval'] = '<a href="' . $approval_uri . '" title="' . esc_attr__( 'Mark this record as declined', 'fiscaat' ) . '">' . __( 'Decline', 'fiscaat' ) . '</a>';
+				}
+			}
+		}
+
+		// Trash
+		if ( current_user_can( 'delete_record', $record->ID ) ) {
+			if ( fct_get_trash_status_id() == $record->post_status ) {
+				$post_type_object = get_post_type_object( fct_get_record_post_type() );
+				$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fct_get_record_post_type() ), admin_url( 'edit.php' ) ) ), wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $record->ID ) ), 'untrash-' . $record->post_type . '_' . $record->ID ) ) . "'>" . __( 'Restore', 'fiscaat' ) . "</a>";
+			} elseif ( EMPTY_TRASH_DAYS ) {
+				$actions['trash'] = "<a class='submitdelete' title='" . esc_attr__( 'Move this item to the Trash', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fct_get_record_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $record->ID ) ) . "'>" . __( 'Trash', 'fiscaat' ) . "</a>";
+			}
+
+			if ( fct_get_trash_status_id() == $record->post_status || !EMPTY_TRASH_DAYS ) {
+				$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fct_get_record_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $record->ID, '', true ) ) . "'>" . __( 'Delete Permanently', 'fiscaat' ) . "</a>";
+			} elseif ( fct_get_spam_status_id() == $record->post_status ) {
+				unset( $actions['trash'] );
+			}
+		}
+
+		return $actions;
 	}
 
 	/**
@@ -597,248 +850,7 @@ class Fiscaat_Records_Admin {
 		}
 	}
 
-	/**
-	 * Manage the column headers for the records page
-	 *
-	 * @param array $columns The columns
-	 * @return array $columns Fiscaat record columns
-	 */
-	public function records_column_headers( $columns ) {
-		if ( $this->bail() ) 
-			return $columns;
-
-		// Account records pages do not need account details
-		if ( isset( $_GET['fct_account_id'] ) && ! empty( $_GET['fct_account_id'] ) )
-			unset( $columns['fct_record_account_ledger_id'], $columns['fct_record_account'] );
-
-		return $columns;
-	}
-
-	/**
-	 * Record Row actions
-	 *
-	 * Remove the quick-edit action link under the record title and add the
-	 * content and spam link
-	 *
-	 * @param array $actions Actions
-	 * @param array $record Record object
-	 * @uses fct_get_record_post_type() To get the record post type
-	 * @uses fct_record_content() To output record content
-	 * @uses fct_get_record_permalink() To get the record link
-	 * @uses fct_get_record_title() To get the record title
-	 * @uses current_user_can() To check if the current user can edit or
-	 *                           delete the record
-	 * @uses fct_is_record_approved() To check if the record is marked as approved
-	 * @uses get_post_type_object() To get the record post type object
-	 * @uses add_query_arg() To add custom args to the url
-	 * @uses remove_query_arg() To remove custom args from the url
-	 * @uses wp_nonce_url() To nonce the url
-	 * @uses get_delete_post_link() To get the delete post link of the record
-	 * @return array $actions Actions
-	 */
-	public function records_row_actions( $actions, $record ) {
-		if ( $this->bail() ) 
-			return $actions;
-
-		unset( $actions['inline hide-if-no-js'] );
-
-		// Record view links to account
-		$actions['view'] = '<a href="' . fct_get_record_url( $record->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'fiscaat' ), fct_get_record_title( $record->ID ) ) ) . '" rel="permalink">' . __( 'View', 'fiscaat' ) . '</a>';
-
-		// User cannot view records in trash
-		if ( ( fct_get_trash_status_id() == $record->post_status ) && !current_user_can( 'view_trash' ) )
-			unset( $actions['view'] );
-
-		// Only show the actions if the user is capable of viewing them and record is open
-		// @todo Move to Control
-		if ( current_user_can( 'control', $record->ID ) ) {
-			if ( fct_record_is_open( $record->ID ) ) {
-				$approval_uri  = esc_url( wp_nonce_url( add_query_arg( array( 'record_id' => $record->ID, 'action' => 'fct_toggle_record_approval' ), remove_query_arg( array( 'fct_record_toggle_notice', 'record_id', 'failed', 'super' ) ) ), 'approval-record_'  . $record->ID ) );
-				if ( ! fct_is_record_approved( $record->ID ) ) {
-					$actions['approval'] = '<a href="' . $approval_uri . '" title="' . esc_attr__( 'Mark this record as approved',    'fiscaat' ) . '">' . __( 'Approve',    'fiscaat' ) . '</a>';
-				} elseif( ! fct_is_record_declined( $record->ID ) ) {
-					$actions['approval'] = '<a href="' . $approval_uri . '" title="' . esc_attr__( 'Mark this record as declined', 'fiscaat' ) . '">' . __( 'Decline', 'fiscaat' ) . '</a>';
-				}
-			}
-		}
-
-		// Trash
-		if ( current_user_can( 'delete_record', $record->ID ) ) {
-			if ( fct_get_trash_status_id() == $record->post_status ) {
-				$post_type_object = get_post_type_object( fct_get_record_post_type() );
-				$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fct_get_record_post_type() ), admin_url( 'edit.php' ) ) ), wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $record->ID ) ), 'untrash-' . $record->post_type . '_' . $record->ID ) ) . "'>" . __( 'Restore', 'fiscaat' ) . "</a>";
-			} elseif ( EMPTY_TRASH_DAYS ) {
-				$actions['trash'] = "<a class='submitdelete' title='" . esc_attr__( 'Move this item to the Trash', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fct_get_record_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $record->ID ) ) . "'>" . __( 'Trash', 'fiscaat' ) . "</a>";
-			}
-
-			if ( fct_get_trash_status_id() == $record->post_status || !EMPTY_TRASH_DAYS ) {
-				$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fct_get_record_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $record->ID, '', true ) ) . "'>" . __( 'Delete Permanently', 'fiscaat' ) . "</a>";
-			} elseif ( fct_get_spam_status_id() == $record->post_status ) {
-				unset( $actions['trash'] );
-			}
-		}
-
-		return $actions;
-	}
-
-	/**
-	 * Add year dropdown to account and record list table filters
-	 *
-	 * @uses fct_get_record_post_type() To get the record post type
-	 * @uses fct_get_account_post_type() To get the account post type
-	 * @uses fct_dropdown() To generate a year dropdown
-	 * @return bool False. If post type is not account or record
-	 */
-	public function filter_dropdown() {
-		if ( $this->bail() ) 
-			return;
-
-		// Get which year is selected
-		$year_id = ! empty( $_REQUEST['fct_year_id'] ) ? (int) $_REQUEST['fct_year_id'] : fct_get_current_year_id();
-
-		// Show the years dropdown
-		fct_dropdown( array(
-			'selected'   => $year_id,
-			'show_none'  => __( 'In current year', 'fiscaat' )
-		) );
-		
-		// Get which account is selected. With account id or ledger id
-		$account_id = ! empty( $_REQUEST['fct_account_id'] )         ? (int) $_REQUEST['fct_account_id']         : 0;
-		$ledger_id  = ! empty( $_REQUEST['fct_ledger_account_id']  ) ? (int) $_REQUEST['fct_ledger_account_id']  : '';
-
-		// Ledger id was set, account id not
-		if ( ! empty( $ledger_id ) && empty( $account_id ) )
-			$account_id = fct_get_account_id_by_ledger_id( $ledger_id, $year_id );
-
-		// Show the ledger dropdown
-		fct_ledger_dropdown( array(
-			'selected'   => $account_id,
-			'year_id'    => $year_id,
-			'show_none'  => '&mdash;',
-			'none_found' => true,
-		) );
-
-		// Show the accounts dropdown
-		fct_account_dropdown( array(
-			'selected'  => $account_id,
-			'year_id'   => $year_id,
-		) );
-	}
-
-	/**
-	 * Adjust the request query and include the year id
-	 *
-	 * @param array $query_vars Query variables from {@link WP_Query}
-	 * @uses is_admin() To check if it's the admin section
-	 * @uses fct_get_account_post_type() To get the account post type
-	 * @uses fct_get_record_post_type() To get the record post type
-	 * @return array Processed Query Vars
-	 */
-	public function filter_post_rows( $query_vars ) {
-		if ( $this->bail() ) 
-			return $query_vars;
-
-		// Setup meta query
-		$meta_query = isset( $query_vars['meta_query'] ) ? $query_vars['meta_query'] : array();
-
-		/** Year & Account ****************************************************/
-
-		// Set the year id
-		$meta_query[] = array(
-			'key'   => '_fct_year_id',
-			'value' => ! empty( $_REQUEST['fct_year_id'] ) ? (int) $_REQUEST['fct_year_id'] : fct_get_current_year_id()
-		);
-		
-		// Set the parent if given
-		if ( ! empty( $_REQUEST['fct_account_id'] ) ) {
-			$query_vars['post_parent'] = (int) $_REQUEST['fct_account_id'];
-
-		// Set the parent from ledger_id if given
-		} elseif ( ! empty( $_REQUEST['fct_ledger_account_id'] ) ) {
-			$query_vars['post_parent'] = (int) $_REQUEST['fct_ledger_account_id'];
-		}
-
-		/** Approval **********************************************************/
-
-		// @todo Move to Control
-		// Check approval
-		if ( isset( $_REQUEST['approval'] ) && fct_is_control_active() ) {
-
-			// Check approval states
-			switch ( (int) $_REQUEST['approval'] ) {
-
-				// Unapproved
-				case 0 :
-					$query_vars['post_status'] = array( fct_get_public_status_id(), fct_get_declined_status_id() ); // + declined?
-					break;
-
-				// Approved
-				case 1 :
-					$query_vars['post_status'] = array( fct_get_approved_status_id(), fct_get_closed_status_id() ); // + closed?
-					break;
-
-				// Declined
-				case 2 :
-					$query_vars['post_status'] = fct_get_declined_status_id();
-					break;
-			}
-		}
-
-		/** Sorting ***********************************************************/
-
-		// Handle sorting
-		if ( isset( $_REQUEST['orderby'] ) ) {
-
-			// Check order type
-			switch ( $_REQUEST['orderby'] ) {
-
-				// Record date. Reverse order
-				case 'record_date' :
-					$query_vars['meta_key'] = '_fct_record_date';
-					$query_vars['orderby']  = 'meta_value';
-					$query_vars['order']    = isset( $_REQUEST['order'] ) && 'DESC' == strtoupper( $_REQUEST['order'] ) ? 'ASC' : 'DESC';
-					break;
-
-				// @todo Fix ordering by account/ledger id. Goes
-				//        beyond setting meta_key query var.
-
-				// Record account ledger id
-				// case 'record_account_ledger_id' :
-				// 	$query_vars['meta_key'] = '_fct_account_id';
-				// 	$query_vars['orderby']  = 'meta_value_num';
-				// 	break;
-
-				// Record account
-				// case 'record_account' :
-				// 	$query_vars['meta_key'] = '_fct_account_id';
-				// 	$query_vars['orderby']  = 'meta_value_num';
-				// 	break;
-
-				// Record offset account
-				case 'record_offset_acount' :
-					$query_vars['meta_key'] = '_fct_offset_account';
-					$query_vars['orderby']  = 'meta_value'; // Account can be string
-					break;
-
-				// Record value
-				case 'record_amount' :
-					$query_vars['meta_key'] = '_fct_amount';
-					$query_vars['orderby']  = 'meta_value_num';
-					break;
-			}
-
-			// Default sorting order
-			if ( ! isset( $query_vars['order'] ) ) {
-				$query_vars['order'] = isset( $_REQUEST['order'] ) ? strtoupper( $_REQUEST['order'] ) : 'ASC';
-			}
-		}
-
-		// Set meta query
-		$query_vars['meta_query'] = $meta_query;
-
-		// Return manipulated query_vars
-		return $query_vars;
-	}
+	/** Record Messages *******************************************************/
 
 	/**
 	 * Custom user feedback messages for record post type

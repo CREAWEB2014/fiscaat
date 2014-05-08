@@ -697,9 +697,13 @@ class Fiscaat_Admin {
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
 
+			/* Flexible medium text input */
 			input.medium-text {
-				width: 100px;
-				padding: 1px 6px;
+				width: 100%;
+				max-width: 100px;
+				padding: 3px 5px;
+				height: 28px;
+				vertical-align: middle;
 			}
 
 			span.dashicons-before.fct-icon-success:before {

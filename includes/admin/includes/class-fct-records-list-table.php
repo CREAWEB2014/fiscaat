@@ -148,6 +148,23 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	}
 
 	/**
+	 * Return table classes. Mode aware
+	 *
+	 * @since 0.0.8
+	 * 
+	 * @return array Classes
+	 */
+	function get_table_classes() {
+		$classes = array( 'widefat', 'fixed', 'posts', $this->_args['plural'] );
+
+		if ( ! fct_admin_is_view_records() ) {
+			$classes[] = fct_admin_get_records_mode();
+		}
+
+		return $classes;
+	}
+
+	/**
 	 * Return dedicated record columns
 	 *
 	 * @since 0.0.8
@@ -427,7 +444,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			// Record offset account
 			case 'fct_record_offset_account' : ?>
 
-				<input name="records[offset_account][]" type="text" class="fct_record_offset_account medium-text" value="" />
+				<input name="records[offset_account][]" type="text" class="fct_record_offset_account" value="" />
 
 				<?php
 				break;
@@ -609,7 +626,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 		$alternate =& $this->alternate;
 		$alternate = 'alternate' == $alternate ? '' : 'alternate';
-		$classes = $alternate . ' iedit records-row-' . $which;
+		$classes   = "{$alternate} iedit records-{$which}-row";
 
 		list( $columns, $hidden ) = $this->get_column_info(); ?>
 		<tr id="fct-records-<?php echo $which; ?>-row" class="<?php echo $classes; ?>" valign="top">
