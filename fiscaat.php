@@ -417,8 +417,7 @@ final class Fiscaat {
 
 		// Record supports
 		$post_type['supports'] = array(
-			'editor', 
-			'author',
+			'editor'
 		);
 
 		// Comments enabled
@@ -477,8 +476,7 @@ final class Fiscaat {
 		// Account supports
 		$post_type['supports'] = array(
 			'title',
-			'editor',
-			'author',
+			'editor'
 		);
 
 		// Register Account content type
@@ -531,8 +529,7 @@ final class Fiscaat {
 
 		// Year supports
 		$post_type['supports'] = array(
-			'title',
-			'author',
+			'title'
 		);
 
 		// Register Year content type
