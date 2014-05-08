@@ -57,12 +57,12 @@ class FCT_Years_List_Table extends FCT_Posts_List_Table {
 	function _get_columns() {
 		return array(
 			'cb'                       => '<input type="checkbox" />',
-			'title'                    => __( 'Title',                            'fiscaat' ),
-			'fct_year_started'         => _x( 'Opened', 'Start date column name', 'fiscaat' ),
-			'fct_year_closed'          => _x( 'Closed', 'Close date column name', 'fiscaat' ),
-			'fct_year_account_count'   => __( 'Accounts',                         'fiscaat' ),
-			'fct_year_record_count'    => __( 'Records',                          'fiscaat' ),
-			'fct_year_end_value'       => __( 'Value',                            'fiscaat' ),
+			'title'                    => __( 'Title',                 'fiscaat' ),
+			'fct_year_started'         => _x( 'Opened', 'column name', 'fiscaat' ),
+			'fct_year_closed'          => _x( 'Closed', 'column name', 'fiscaat' ),
+			'fct_year_account_count'   => __( 'Accounts',              'fiscaat' ),
+			'fct_year_record_count'    => __( 'Records',               'fiscaat' ),
+			'fct_year_end_value'       => __( 'Value',                 'fiscaat' ),
 		);
 	}
 
@@ -75,11 +75,11 @@ class FCT_Years_List_Table extends FCT_Posts_List_Table {
 	 */
 	function _get_sortable_columns() {
 		return array(
-			'fct_year_started'         => array( 'date',        true ),
-			'fct_year_closed'          => array( 'year_closed', true ),
-			'fct_year_account_count'   => 'year_account_count',
-			'fct_year_record_count'    => 'year_record_count',
-			'fct_year_end_value'       => 'year_end_value',
+			'fct_year_started'         => array( 'date',               true ),
+			'fct_year_closed'          => array( 'year_closed',        true ),
+			'fct_year_account_count'   => array( 'year_account_count', true ),
+			'fct_year_record_count'    => array( 'year_record_count',  true ),
+			'fct_year_end_value'       => array( 'year_end_value',     true ),
 		);
 	}
 
@@ -104,16 +104,14 @@ class FCT_Years_List_Table extends FCT_Posts_List_Table {
 
 			// Year start date
 			case 'fct_year_started':
-				$date   = fct_get_year_started( $year_id );
-				$h_time = mysql2date( 'Y/m/d', $date );
-				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date ) . '">' . apply_filters( 'post_date_column_time', $h_time, $year_id, $column_name, 'list' ) . '</abbr>';
+				$date = fct_get_year_started( $year_id );
+				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date ) . '">' . apply_filters( 'post_date_column_time', mysql2date( 'Y/m/d', $date ), $year_id, $column_name, 'list' ) . '</abbr>';
 				break;
 
 			// Year close date
 			case 'fct_year_closed':
-				$date   = fct_get_year_closed( $year_id );
-				$h_time = mysql2date( 'Y/m/d', $date );
-				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date )  . '">' . apply_filters( 'post_date_column_time', $h_time, $year_id, $column_name, 'list' ) . '</abbr>';
+				$date = fct_get_year_closed( $year_id );
+				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date )  . '">' . apply_filters( 'post_date_column_time', mysql2date( 'Y/m/d', $date ), $year_id, $column_name, 'list' ) . '</abbr>';
 				break;
 
 			// Year account count

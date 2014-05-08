@@ -56,12 +56,12 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 	function _get_columns() {
 		return array(
 			'cb'                       => '<input type="checkbox" />',
-			'fct_account_year'         => __( 'Year',                         'fiscaat' ),
-			'fct_account_ledger_id'    => _x( 'No.', 'Account number column', 'fiscaat' ),
-			'title'                    => __( 'Account',                      'fiscaat' ),
-			'fct_account_type'         => __( 'Type',                         'fiscaat' ),
-			'fct_account_record_count' => __( 'Records',                      'fiscaat' ),
-			'fct_account_end_value'    => __( 'Value',                        'fiscaat' ),
+			'fct_account_year'         => __( 'Year',               'fiscaat' ),
+			'fct_account_ledger_id'    => _x( 'No.', 'column name', 'fiscaat' ),
+			'title'                    => __( 'Account',            'fiscaat' ),
+			'fct_account_type'         => __( 'Type',               'fiscaat' ),
+			'fct_account_record_count' => __( 'Records',            'fiscaat' ),
+			'fct_account_end_value'    => __( 'Value',              'fiscaat' ),
 		);
 	}
 
@@ -77,8 +77,8 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 			'fct_account_ledger_id'    => 'account_ledger_id',
 			'title'                    => 'title',
 			'fct_account_type'         => 'account_type',
-			'fct_account_record_count' => 'account_record_count',
-			'fct_account_end_value'    => 'account_end_value',
+			'fct_account_record_count' => array( 'account_record_count', true ),
+			'fct_account_end_value'    => array( 'account_end_value',    true ),
 		);
 	}
 

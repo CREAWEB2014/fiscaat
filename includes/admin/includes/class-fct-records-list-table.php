@@ -157,16 +157,18 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	function _get_columns() {
 		$columns = array(
 			'cb'                           => '<input type="checkbox" />',
-			'fct_record_date'           => __( 'Date' ),
-			'fct_record_account_ledger_id' => _x( 'No.', 'Account number column name',           'fiscaat' ),
-			'fct_record_account'           => __( 'Account',                                     'fiscaat' ),
-			'fct_record_description'       => __( 'Description',                                 'fiscaat' ),
-			'fct_record_offset_account'    => __( 'Offset Account',                              'fiscaat' ),
-			'fct_record_amount'            => _x( 'Amount', 'Amount column name (debit/credit)', 'fiscaat' ),
+			'fct_record_post_date'         => _x( 'Inserted', 'column name', 'fiscaat' ),
+			'fct_record_date'              => __( 'Date' ),
+			'fct_record_account_ledger_id' => _x( 'No.',    'column name',   'fiscaat' ),
+			'fct_record_account'           => __( 'Account',                 'fiscaat' ),
+			'fct_record_description'       => __( 'Description',             'fiscaat' ),
+			'fct_record_offset_account'    => __( 'Offset Account',          'fiscaat' ),
+			'fct_record_amount'            => _x( 'Amount', 'column name',   'fiscaat' ),
 		);
 
+		// Hide checkbox and post date rows in edit/new mode
 		if ( ! fct_admin_is_view_records() ) {
-			unset( $columns['cb'] );
+			unset( $columns['cb'], $columns['fct_record_post_date'] );
 		}
 
 		return $columns;
@@ -181,9 +183,14 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 */
 	function _get_sortable_columns() {
 		return array(
-			'fct_record_date'              => array( 'date', true ),
-			'fct_record_account_ledger_id' => 'record_account_ledger_id',
-			'fct_record_account'           => 'record_account',
+			'fct_record_post_date'         => array( 'date',        true ),
+			'fct_record_date'              => array( 'record_date', true ),
+
+			// @todo Fix sorting by account/ledger id. 
+			// @see Fiscaat_Records_Admin::filter_post_rows()
+			// 'fct_record_account_ledger_id' => 'record_account_ledger_id',
+			// 'fct_record_account'           => 'record_account',
+
 			'fct_record_offset_account'    => 'record_offset_account',
 			'fct_record_amount'            => 'record_amount',
 		);
@@ -392,7 +399,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			// Record account ledger id
 			case 'fct_record_account_ledger_id' :
 				fct_ledger_dropdown( array(
-					'select_name' => 'records[account_ledger_id][]', 
+					'select_name' => 'records[ledger_account_id][]', 
 					'class'       => 'fct_record_ledger_id',
 					'show_none'   => '&mdash;',
 					'tabindex'    => '',
@@ -502,15 +509,23 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		// Check column name
 		switch ( $column_name ) {
 
+			// Record post date
+			case 'fct_record_post_date':
+				$date = get_post_time( 'U', $year_id );
+				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date ) . '">' . apply_filters( 'post_date_column_time', mysql2date( 'Y/m/d', $date ), $record_id, $column_name, 'list' ) . '</abbr>';
+				break;
+
 			// Record date
 			case 'fct_record_date':
-				echo get_the_date( 'Y/m/d', $record_id );
+				$date = fct_get_record_date( $record_id );
+				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date ) . '">' . apply_filters( 'post_date_column_time', mysql2date( 'Y/m/d', $date ), $record_id, $column_name, 'list' ) . '</abbr>';
 				break;
 
 			// Record account ledger id
 			case 'fct_record_account_ledger_id' :
-				if ( ! empty( $account_id ) )
+				if ( ! empty( $account_id ) ) {
 					fct_account_ledger_id( $account_id, true );
+				}
 				break;
 
 			// Record account

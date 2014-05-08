@@ -23,6 +23,7 @@ function fct_get_record_default_meta(){
 	return apply_filters( 'fct_get_record_default_meta', array(
 		'year_id'        => fct_get_current_year_id(), // Year
 		'account_id'     => 0,                         // Account
+		'record_date'    => '',                        // Physical record date
 		'record_type'    => '',                        // 'debit' or 'credit'
 		'amount'         => 0,                         // Amount
 		'offset_account' => '',                        // External account received from or sent to
@@ -102,20 +103,23 @@ function fct_insert_record( $record_data = array(), $record_meta = array() ) {
 	$record_id   = wp_insert_post( $record_data );
 
 	// Bail if no record was added
-	if ( empty( $record_id ) )
+	if ( empty( $record_id ) ) {
 		return false;
+	}
 
 	// Record meta
 	$record_meta = fct_parse_args( $record_meta, fct_get_record_default_meta(), 'insert_record_meta' );
 
 	// Insert record meta
-	foreach ( $record_meta as $meta_key => $meta_value )
+	foreach ( $record_meta as $meta_key => $meta_value ) {
 		fct_update_record_meta( $record_id, $meta_key, $meta_value );
+	}
 
 	// Update the account
 	$account_id = fct_get_record_account_id( $record_id );
-	if ( !empty( $account_id ) )
+	if ( ! empty( $account_id ) ) {
 		fct_update_account( array( 'account_id' => $account_id, 'is_edit' => false ) );
+	}
 
 	// Return new record ID
 	return $record_id;
@@ -140,8 +144,6 @@ function fct_insert_record( $record_data = array(), $record_meta = array() ) {
  * @return bool Record's year id
  */
 function fct_update_record_year_id( $record_id = 0, $year_id = 0 ) {
-
-	// Validation
 	$record_id = fct_get_record_id( $record_id );
 	$year_id   = fct_get_year_id( $year_id );
 
@@ -189,8 +191,6 @@ function fct_update_record_year_id( $record_id = 0, $year_id = 0 ) {
  * @return bool Record's account id
  */
 function fct_update_record_account_id( $record_id = 0, $account_id = 0 ) {
-
-	// Validation
 	$record_id  = fct_get_record_id( $record_id );
 	$account_id = fct_get_account_id( $account_id );
 
@@ -201,7 +201,7 @@ function fct_update_record_account_id( $record_id = 0, $account_id = 0 ) {
 		$ancestors = (array) get_post_ancestors( $record_id );
 
 		// Loop through ancestors
-		if ( !empty( $ancestors ) ) {
+		if ( ! empty( $ancestors ) ) {
 			foreach ( $ancestors as $ancestor ) {
 
 				// Get first parent that is an account
@@ -222,6 +222,104 @@ function fct_update_record_account_id( $record_id = 0, $account_id = 0 ) {
 }
 
 /**
+ * Adjust the date of a record
+ *
+ * NOTE: A record should never have it's original date adjusted! 
+ * This function therefore should always return false after initial
+ * creation.
+ *
+ * @param int $record_id Optional. Record id
+ * @param int $record_date Optional. Record date
+ * @return boolean False
+ */
+function fct_update_record_date( $record_id = 0, $record_date = '' ) {
+
+	// Bail if record already exists: cannot update value
+	if ( fct_is_record( $record_id ) ) {
+		return false;
+	}
+
+	$record_id = fct_get_record_id( $record_id );
+
+	// If no record_date was passed, delete the record meta
+	if ( empty( $record_date ) ) {
+		fct_delete_record_meta( $record_id, 'record_date' );
+
+	// Update the record date
+	} else {
+
+		// Parse mysql date
+		$record_date = gmdate( 'Y-m-d H:i:s', $record_date );
+
+		// Update meta
+		fct_update_record_meta( $record_id, 'record_date', $record_date );
+	}
+	
+	return apply_filters( 'fct_update_record_date', $record_date, $record_id );
+}
+
+/**
+ * Adjust the type of a record
+ *
+ * NOTE: A record should never have it's type adjusted! This 
+ * function therefore should always return false after initial
+ * creation.
+ *
+ * @param int $record_id Optional. Record id
+ * @param int $record_type Optional. Record type
+ * @return boolean False
+ */
+function fct_update_record_type( $record_id = 0, $record_type = '' ) {
+
+	// Bail if record already exists: cannot update value
+	if ( fct_is_record( $record_id ) ) {
+		return false;
+	}
+
+	$record_id = fct_get_record_id( $record_id );
+
+	// Bail if no valid type
+	if ( ! in_array( $record_type, array_keys( fct_get_record_types() ) ) ) {
+		return false;
+	}
+
+	fct_update_record_meta( $record_id, 'record_type', $record_type );
+
+	return apply_filters( 'fct_update_record_type', $record_type, $record_id );
+}
+
+/**
+ * Adjust the amount of a record
+ *
+ * NOTE: A record should never have it's amount adjusted! This 
+ * function therefore should always returns after initial
+ * creation.
+ *
+ * @param int $record_id Optional. Record id
+ * @param int $amount Optional. Record amount
+ * @return boolean False
+ */
+function fct_update_record_amount( $record_id = 0, $amount = 0 ) {
+
+	// Bail if record already exists: cannot update value
+	if ( fct_is_record( $record_id ) ) {
+		return false;
+	}
+
+	$record_id = fct_get_record_id( $record_id );
+
+	// Bail if no valid amount
+	if ( empty( $amount ) || ! is_numeric( $amount ) ) {
+		return false;
+	}
+
+	// Update the record amount
+	fct_update_record_meta( $record_id, 'amount', (float) $amount );
+
+	return apply_filters( 'fct_update_record_amount', (float) $amount, $record_id );
+}
+
+/**
  * Adjust the offset account of a record
  *
  * @param int $record_id Optional. Record id
@@ -235,9 +333,7 @@ function fct_update_record_account_id( $record_id = 0, $account_id = 0 ) {
  * @return mixed Record's offset account
  */
 function fct_update_record_offset_account( $record_id = 0, $offset_account = 0 ) {
-
-	// Validation
-	$record_id  = fct_get_record_id( $record_id );
+	$record_id = fct_get_record_id( $record_id );
 
 	// If no offset_account was passed, delete the record meta
 	if ( empty( $offset_account ) ) {
@@ -249,50 +345,6 @@ function fct_update_record_offset_account( $record_id = 0, $offset_account = 0 )
 	}
 	
 	return apply_filters( 'fct_update_record_offset_account', $offset_account, $record_id );
-}
-
-/**
- * Adjust the amount of a record
- *
- * NOTE: A record should never have it's amount adjusted! This 
- * function therefore should always returns false.
- *
- * @param int $record_id Optional. Record id
- * @param int $amount Optional. Record amount
- * @return boolean False
- */
-function fct_update_record_amount( $record_id = 0, $amount = 0 ) {
-	return false;
-
-	$record_id = fct_get_record_id( $record_id );
-	
-	fct_update_record_meta( $record_id, 'amount', (float) $amount );
-
-	return apply_filters( 'fct_update_record_amount', (float) $amount, $record_id );
-}
-
-/**
- * Adjust the type of a record
- *
- * NOTE: A record should never have it's type adjusted! This 
- * function therefore should always returns false.
- *
- * @param int $record_id Optional. Record id
- * @param int $record_type Optional. Record type
- * @return boolean False
- */
-function fct_update_record_type( $record_id = 0, $record_type = '' ) {
-	return false;
-
-	$record_id = fct_get_record_id( $record_id );
-
-	// Bail if no valid param
-	if ( ! in_array( $record_type, array_keys( fct_get_record_types() ) ) )
-		return false;
-
-	fct_update_record_meta( $record_id, 'record_type', $record_type );
-
-	return apply_filters( 'fct_update_record_type', $record_type, $record_id );
 }
 
 /**
@@ -322,6 +374,7 @@ function fct_update_record( $args = '' ) {
 		'account_id'     => 0,
 		'year_id'        => 0,
 		'record_type'    => 0,
+		'record_date'    => 0,
 		'amount'         => 0,
 		'offset_account' => 0,
 		'is_edit'        => false
@@ -343,19 +396,22 @@ function fct_update_record( $args = '' ) {
 		$account_id = fct_get_record_account_id( $record_id );
 
 	// Check year_id
-	if ( !empty( $account_id ) && empty( $year_id ) )
+	if ( ! empty( $account_id ) && empty( $year_id ) )
 		$year_id = fct_get_account_year_id( $account_id );
 
 	// Record meta relating to record position in tree
 	fct_update_record_year_id   ( $record_id, $year_id    );
 	fct_update_record_account_id( $record_id, $account_id );
 
-	// Update offset account
-	fct_update_record_offset_account( $record_id, $offset_account );
+	// Record date
+	fct_update_record_date( $record_id, $record_date );
 
 	// Type and Amount. Should return false, because once created, never editable
 	fct_update_record_type  ( $record_id, $record_type );
 	fct_update_record_amount( $record_id, $amount      );
+
+	// Update offset account
+	fct_update_record_offset_account( $record_id, $offset_account );
 
 	// Update associated account values if this is a new record
 	if ( empty( $is_edit ) ) {

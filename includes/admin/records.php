@@ -371,7 +371,7 @@ class Fiscaat_Records_Admin {
 				width: 10% !important;
 			}
 
-			.column-fct_record_created,
+			.column-fct_record_date,
 			.column-fct_record_offset_account,
 			.column-fct_record_year,
 			.column-fct_record_account {
@@ -382,7 +382,7 @@ class Fiscaat_Records_Admin {
 				width: 193px !important;
 			}
 
-			.wp-list-table td.column-fct_record_created, 
+			.wp-list-table td.column-fct_record_date, 
 			.wp-list-table td.column-fct_record_description, 
 			.wp-list-table td.column-fct_record_account, 
 			.wp-list-table td.column-fct_record_account_ledger_id, 
@@ -793,21 +793,37 @@ class Fiscaat_Records_Admin {
 			switch ( $_REQUEST['orderby'] ) {
 
 				// Record date. Reverse order
-				case 'record_created' :
-					$query_vars['orderby'] = 'post_date';
-					$query_vars['order']   = isset( $_REQUEST['order'] ) && 'DESC' == strtoupper( $_REQUEST['order'] ) ? 'ASC' : 'DESC';
+				case 'record_date' :
+					$query_vars['meta_key'] = '_fct_record_date';
+					$query_vars['orderby']  = 'meta_value';
+					$query_vars['order']    = isset( $_REQUEST['order'] ) && 'DESC' == strtoupper( $_REQUEST['order'] ) ? 'ASC' : 'DESC';
+					break;
+
+				// @todo Fix ordering by account/ledger id. Goes
+				//        beyond setting meta_key query var.
+
+				// Record account ledger id
+				// case 'record_account_ledger_id' :
+				// 	$query_vars['meta_key'] = '_fct_account_id';
+				// 	$query_vars['orderby']  = 'meta_value_num';
+				// 	break;
+
+				// Record account
+				// case 'record_account' :
+				// 	$query_vars['meta_key'] = '_fct_account_id';
+				// 	$query_vars['orderby']  = 'meta_value_num';
+				// 	break;
+
+				// Record offset account
+				case 'record_offset_acount' :
+					$query_vars['meta_key'] = '_fct_offset_account';
+					$query_vars['orderby']  = 'meta_value'; // Account can be string
 					break;
 
 				// Record value
 				case 'record_amount' :
 					$query_vars['meta_key'] = '_fct_amount';
 					$query_vars['orderby']  = 'meta_value_num';
-					break;
-
-				// Record offset account
-				case 'record_offset_acount' :
-					$query_vars['meta_key'] = '_fct_offset_account';
-					$query_vars['orderby']  = 'meta_value'; // Account can be string
 					break;
 			}
 
@@ -839,7 +855,8 @@ class Fiscaat_Records_Admin {
 	public function updated_messages( $messages ) {
 		global $post_ID;
 
-		if ( $this->bail() ) return $messages;
+		if ( $this->bail() ) 
+			return $messages;
 
 		// URL for the current account
 		$account_url = fct_get_account_permalink( fct_get_record_account_id( $post_ID ) );

@@ -20,6 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 function fct_record_post_type() {
 	echo fct_get_record_post_type();
 }
+
 	/**
 	 * Return the unique id of the custom post type for records
 	 *
@@ -194,6 +195,7 @@ function fct_the_record() {
 function fct_record_id( $record_id = 0 ) {
 	echo fct_get_record_id( $record_id );
 }
+
 	/**
 	 * Return the id of the record in a records loop
 	 *
@@ -256,6 +258,7 @@ function fct_get_record( $record, $output = OBJECT, $filter = 'raw' ) {
 		$record = fct_get_record_id( $record );
 
 	$record = get_post( $record, OBJECT, $filter );
+
 	if ( empty( $record ) )
 		return $record;
 
@@ -272,7 +275,6 @@ function fct_get_record( $record, $output = OBJECT, $filter = 'raw' ) {
 	} elseif ( $output == ARRAY_N ) {
 		$_record = array_values( get_object_vars( $record ) );
 		return $_record;
-
 	}
 
 	return apply_filters( 'fct_get_record', $record, $output, $filter );
@@ -287,6 +289,7 @@ function fct_get_record( $record, $output = OBJECT, $filter = 'raw' ) {
 function fct_record_permalink( $record_id = 0 ) {
 	echo fct_get_record_permalink( $record_id );
 }
+
 	/**
 	 * Return the link to the record
 	 *
@@ -302,6 +305,7 @@ function fct_record_permalink( $record_id = 0 ) {
 
 		return apply_filters( 'fct_get_record_permalink', get_permalink( $record_id ), $record_id );
 	}
+
 /**
  * Output the paginated url to the record in the record loop
  *
@@ -311,6 +315,7 @@ function fct_record_permalink( $record_id = 0 ) {
 function fct_record_url( $record_id = 0 ) {
 	echo fct_get_record_url( $record_id );
 }
+
 	/**
 	 * Return the paginated url to the record in the record loop
 	 *
@@ -333,7 +338,7 @@ function fct_record_url( $record_id = 0 ) {
 		// @todo Fix record position
 
 		// Set needed variables
-		$record_id    = fct_get_record_id      ( $record_id );
+		$record_id    = fct_get_record_id( $record_id );
 		$account_id   = fct_get_record_account_id( $record_id );
 		$record_page  = ceil( (int) fct_get_record_position( $record_id, $account_id ) / (int) fct_get_records_per_page() );
 		$record_hash  = '#post-' . $record_id;
@@ -400,6 +405,7 @@ function fct_record_title( $record_id = 0 ) {
 function fct_record_content( $record_id = 0 ) {
 	echo fct_get_record_content( $record_id );
 }
+
 	/**
 	 * Return the content of the record
 	 *
@@ -429,6 +435,7 @@ function fct_record_content( $record_id = 0 ) {
 function fct_record_excerpt( $record_id = 0, $length = 100 ) {
 	echo fct_get_record_excerpt( $record_id, $length );
 }
+
 	/**
 	 * Return the excerpt of the record
 	 *
@@ -471,15 +478,17 @@ function fct_record_excerpt( $record_id = 0, $length = 100 ) {
 function fct_record_post_date( $record_id = 0, $humanize = false, $gmt = false ) {
 	echo fct_get_record_post_date( $record_id, $humanize, $gmt );
 }
+
 	/**
 	 * Return the post date and time of a record
+	 * 
+	 * @uses fct_get_record_id() To get the record id
+	 * @uses get_post_time() to get the record post time
+	 * @uses fct_time_since() to maybe humanize the record post time
 	 *
 	 * @param int $record_id Optional. Record id.
 	 * @param bool $humanize Optional. Humanize output using time_since
 	 * @param bool $gmt Optional. Use GMT
-	 * @uses fct_get_record_id() To get the record id
-	 * @uses get_post_time() to get the record post time
-	 * @uses fct_time_since() to maybe humanize the record post time
 	 * @return string
 	 */
 	function fct_get_record_post_date( $record_id = 0, $humanize = false, $gmt = false ) {
@@ -511,6 +520,7 @@ function fct_record_post_date( $record_id = 0, $humanize = false, $gmt = false )
 function fct_record_status( $record_id = 0 ) {
 	echo fct_get_record_status( $record_id );
 }
+
 	/**
 	 * Return the status of the record
 	 *
@@ -533,7 +543,7 @@ function fct_record_status( $record_id = 0 ) {
  * @return bool True if open, false if closed.
  */
 function fct_is_record_open( $record_id = 0 ) {
-	return !fct_is_record_closed( $record_id );
+	return ! fct_is_record_closed( $record_id );
 }
 
 	/**
@@ -576,6 +586,7 @@ function fct_is_record_published( $record_id = 0 ) {
 function fct_record_status_icon( $record_id = 0 ) {
 	echo fct_get_record_status_icon( $record_id );
 }
+
 	/**
 	 * Return the records' status icon
 	 *
@@ -632,6 +643,7 @@ function fct_record_status_icon( $record_id = 0 ) {
 function fct_record_author( $record_id = 0 ) {
 	echo fct_get_record_author( $record_id );
 }
+
 	/**
 	 * Return the author of the record
 	 *
@@ -658,6 +670,7 @@ function fct_record_author( $record_id = 0 ) {
 function fct_record_author_id( $record_id = 0 ) {
 	echo fct_get_record_author_id( $record_id );
 }
+
 	/**
 	 * Return the author ID of the record
 	 *
@@ -684,6 +697,7 @@ function fct_record_author_id( $record_id = 0 ) {
 function fct_record_author_display_name( $record_id = 0 ) {
 	echo fct_get_record_author_display_name( $record_id );
 }
+
 	/**
 	 * Return the author display_name of the record
 	 *
@@ -721,6 +735,7 @@ function fct_record_author_display_name( $record_id = 0 ) {
 function fct_record_author_avatar( $record_id = 0, $size = 40 ) {
 	echo fct_get_record_author_avatar( $record_id, $size );
 }
+
 	/**
 	 * Return the author avatar of the record
 	 *
@@ -753,6 +768,7 @@ function fct_record_author_avatar( $record_id = 0, $size = 40 ) {
 function fct_record_account_title( $record_id = 0 ) {
 	echo fct_get_record_account_title( $record_id );
 }
+
 	/**
 	 * Return the account title a record belongs to
 	 *
@@ -780,6 +796,7 @@ function fct_record_account_title( $record_id = 0 ) {
 function fct_record_account_id( $record_id = 0 ) {
 	echo fct_get_record_account_id( $record_id );
 }
+
 	/**
 	 * Return the account id a record belongs to
 	 *
@@ -806,6 +823,7 @@ function fct_record_account_id( $record_id = 0 ) {
 function fct_record_year_id( $record_id = 0 ) {
 	echo fct_get_record_year_id( $record_id );
 }
+
 	/**
 	 * Return the year id a record belongs to
 	 *
@@ -824,6 +842,41 @@ function fct_record_year_id( $record_id = 0 ) {
 	}
 
 /**
+ * Output the date of a record
+ *
+ * @uses fct_get_record_date() To get the record date
+ * 
+ * @param int $record_id Optional. Record id
+ */
+function fct_record_date( $record_id = 0 ) {
+	echo fct_get_record_date( $record_id );
+}
+
+	/**
+	 * Return the date of a record
+	 *
+	 * There's no way to distinguish from GMT.
+	 *
+	 * @uses fct_get_record_id() To get the record id
+	 * @uses fct_get_record_meta() To get the record date
+	 * @uses apply_filters() Calls 'fct_get_record_date' with the year
+	 *                        id and record id
+	 *
+	 * @param int $record_id Optional. Record id
+	 * @return string Record's date
+	 */
+	function fct_get_record_date( $record_id = 0 ) {
+		$record_id = fct_get_record_id( $record_id );
+		$date      = fct_get_record_meta( $record_id, 'record_date' );
+
+		if ( empty( $date ) ) {
+			$date = '';
+		}
+
+		return apply_filters( 'fct_get_record_date', $date, $record_id );
+	}
+
+/**
  * Output the offset account of a record
  *
  * @param int $record_id Optional. Record id
@@ -832,6 +885,7 @@ function fct_record_year_id( $record_id = 0 ) {
 function fct_record_offset_account( $record_id = 0 ) {
 	echo fct_get_record_offset_account( $record_id );
 }
+
 	/**
 	 * Return the offset account of a record
 	 *
@@ -840,13 +894,42 @@ function fct_record_offset_account( $record_id = 0 ) {
 	 * @uses fct_get_record_meta() To get the record offset account
 	 * @uses apply_filters() Calls 'fct_get_record_offset_account' with the year
 	 *                        id and record id
-	 * @return int Record's offset account
+	 * @return string Record's offset account
 	 */
 	function fct_get_record_offset_account( $record_id = 0 ) {
 		$record_id      = fct_get_record_id( $record_id );
 		$offset_account = fct_get_record_meta( $record_id, 'offset_account' );
 
 		return apply_filters( 'fct_get_record_offset_account', $offset_account, $record_id );
+	}
+
+/**
+ * Output the type of a record
+ *
+ * @uses fct_get_record_type() To get the record type
+ * 
+ * @param int $record_id Optional. Record id
+ */
+function fct_record_type( $record_id = 0 ) {
+	echo fct_get_record_type( $record_id );
+}
+
+	/**
+	 * Return the type of a record
+	 *
+	 * @uses fct_get_record_id() To get the record id
+	 * @uses fct_get_record_meta() To get the record type
+	 * @uses apply_filters() Calls 'fct_get_record_type' with the year
+	 *                        id and record id
+	 *
+	 * @param int $record_id Optional. Record id
+	 * @return int Record's type
+	 */
+	function fct_get_record_type( $record_id = 0 ) {
+		$record_id = fct_get_record_id( $record_id );
+		$type      = fct_get_record_meta( $record_id, 'record_type' );
+
+		return apply_filters( 'fct_get_record_type', $type, $record_id );
 	}
 
 /**
@@ -858,6 +941,7 @@ function fct_record_offset_account( $record_id = 0 ) {
 function fct_record_amount( $record_id = 0 ) {
 	echo fct_get_record_amount( $record_id );
 }
+
 	/**
 	 * Return the amount of a record
 	 *
@@ -875,32 +959,6 @@ function fct_record_amount( $record_id = 0 ) {
 		return (float) apply_filters( 'fct_get_record_amount', $amount, $record_id );
 	}
 
-/**
- * Output the type of a record
- *
- * @param int $record_id Optional. Record id
- * @uses fct_get_record_amount() To get the record type
- */
-function fct_record_type( $record_id = 0 ) {
-	echo fct_get_record_type( $record_id );
-}
-	/**
-	 * Return the type of a record
-	 *
-	 * @param int $record_id Optional. Record id
-	 * @uses fct_get_record_id() To get the record id
-	 * @uses fct_get_record_meta() To get the record type
-	 * @uses apply_filters() Calls 'fct_get_record_type' with the year
-	 *                        id and record id
-	 * @return int Record's type
-	 */
-	function fct_get_record_type( $record_id = 0 ) {
-		$record_id = fct_get_record_id( $record_id );
-		$type      = fct_get_record_meta( $record_id, 'record_type' );
-
-		return apply_filters( 'fct_get_record_type', $type, $record_id );
-	}
-
 /** Record Admin Links *********************************************************/
 
 /**
@@ -912,6 +970,7 @@ function fct_record_type( $record_id = 0 ) {
 function fct_record_admin_links( $args = '' ) {
 	echo fct_get_record_admin_links( $args );
 }
+
 	/**
 	 * Return admin links for record
 	 *
@@ -1061,6 +1120,7 @@ function fct_record_edit_link( $args = '' ) {
 function fct_record_edit_url( $record_id = 0 ) {
 	echo fct_get_record_edit_url( $record_id );
 }
+
 	/**
 	 * Return URL to the record edit page
 	 *
@@ -1160,6 +1220,7 @@ function fct_record_decline_link( $args = '' ) {
 function fct_record_class( $record_id = 0 ) {
 	echo fct_get_record_class( $record_id );
 }
+
 	/**
 	 * Return the row class of a record
 	 *
@@ -1197,6 +1258,7 @@ function fct_record_class( $record_id = 0 ) {
 function fct_account_pagination_count() {
 	echo fct_get_account_pagination_count();
 }
+
 	/**
 	 * Return the account pagination count
 	 *
@@ -1256,6 +1318,7 @@ function fct_account_pagination_count() {
 function fct_account_pagination_links() {
 	echo fct_get_account_pagination_links();
 }
+
 	/**
 	 * Return account pagination links
 	 *
@@ -1282,6 +1345,7 @@ function fct_account_pagination_links() {
 function fct_form_record_title() {
 	echo fct_get_form_record_title();
 }
+
 	/**
 	 * Return the value of record title field
 	 *
@@ -1314,6 +1378,7 @@ function fct_form_record_title() {
 function fct_form_record_content() {
 	echo fct_get_form_record_content();
 }
+
 	/**
 	 * Return the value of record content field
 	 *
@@ -1348,6 +1413,7 @@ function fct_form_record_content() {
 function fct_form_record_status_dropdown( $record_id = 0 ) {
 	echo fct_get_form_record_status_dropdown( $record_id );
 }
+
 	/**
 	 * Return the record status dropdown
 	 * 
@@ -1379,45 +1445,45 @@ function fct_form_record_status_dropdown( $record_id = 0 ) {
 	}
 
 /**
- * Output the record's value type select
+ * Output the record's type select
  * 
  * @param int $record_id Optional. Record id
- * @param bool $disable Optional. Whether to disable the value type select
- * @uses fct_get_form_record_amount_type_select()
+ * @param bool $disable Optional. Whether to disable the type select
+ * @uses fct_get_form_record_type_select()
  */
-function fct_form_record_amount_type_select( $record_id = 0 ) {
-	echo fct_get_form_record_amount_type_select( $record_id );
+function fct_form_record_type_select( $record_id = 0 ) {
+	echo fct_get_form_record_type_select( $record_id );
 }
+
 	/**
-	 * Return the record's value type select
+	 * Return the record's type select
 	 * 
 	 * @param int $record_id. Optional. Record id
-	 * @param bool $disable Optional. Whether to disable the value type select
+	 * @param bool $disable Optional. Whether to disable the type select
 	 * @uses fct_get_record_id()
-	 * @uses fct_get_record_amount_type()
+	 * @uses fct_get_record_type()
 	 * @uses fct_get_debit_record_type_id()
 	 * @uses fct_get_credit_record_type_id()
-	 * @uses apply_filters() Calls 'fct_get_form_record_amount_type_select' with
-	 *                        the record's value type select, record id, and value types
-	 * @return string Record value type select
+	 * @uses apply_filters() Calls 'fct_get_form_record_type_select' with
+	 *                        the record's type select, record id, and record types
+	 * @return string Record type select
 	 */
-	function fct_get_form_record_amount_type_select( $record_id = 0 ) {
-		$record_id  = fct_get_record_id( $record_id );
-		$value_type = fct_get_record_amount_type( $record_id );
-		$types      = apply_filters( 'fct_record_amount_types', array(
-			fct_get_debit_record_type_id()  => __('Debit',  'fiscaat'),
-			fct_get_credit_record_type_id() => __('Credit', 'fiscaat'),
-		) );
+	function fct_get_form_record_type_select( $record_id = 0 ) {
+		$record_id   = fct_get_record_id( $record_id );
+		$record_type = fct_get_record_type( $record_id );
+		$types       = fct_get_record_types();
 
 		// Disable select
 		$disable = fct_is_control_active() && ! current_user_can( 'fiscaat' );
 
-		$type_output = '<select name="fct_record_amount_type" id="fct_record_amount_type" '. disabled( $disable, true, false ) .'>' . "\n";
+		// Start select
+		$type_output = '<select name="fct_record_type" id="fct_record_type" '. disabled( $disable, true, false ) .'>' . "\n";
 
-		foreach( $types as $value => $label )
-			$type_output .= "\t" . '<option value="' . $value . '"' . selected( $value_type, $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
+		foreach( $types as $value => $label ) {
+			$type_output .= "\t" . '<option value="' . $value . '"' . selected( $record_type, $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
+		}
 
 		$type_output .= '</select>';
 
-		return apply_filters( 'fct_get_form_record_amount_type_select', $type_output, $record_id, $types );
+		return apply_filters( 'fct_get_form_record_type_select', $type_output, $record_id, $types );
 	}
