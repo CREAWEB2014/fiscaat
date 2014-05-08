@@ -264,7 +264,7 @@ class Fiscaat_Records_Admin {
 		);
 	}
 
-	/** Records Meta **********************************************************/
+	/** Record Meta ***********************************************************/
 
 	/**
 	 * Add the record attributes metabox
@@ -477,7 +477,7 @@ class Fiscaat_Records_Admin {
 		<?php
 	}
 
-	/** Records List Table ****************************************************/
+	/** List Table ************************************************************/
 
 	/**
 	 * Manage the column headers for the records page
@@ -490,8 +490,14 @@ class Fiscaat_Records_Admin {
 			return $columns;
 
 		// Account records pages do not need account details
-		if ( isset( $_GET['fct_account_id'] ) && ! empty( $_GET['fct_account_id'] ) )
+		if ( isset( $_GET['fct_account_id'] ) && ! empty( $_GET['fct_account_id'] ) ) {
 			unset( $columns['fct_record_account_ledger_id'], $columns['fct_record_account'] );
+		}
+
+		// Only unspecified year queries require year column
+		if ( ! isset( $_GET['fct_year_id'] ) || ! empty( $_GET['fct_year_id'] ) ) {
+			unset( $columns['fct_record_year'] );
+		}
 
 		return $columns;
 	}
@@ -650,7 +656,7 @@ class Fiscaat_Records_Admin {
 		return $query_vars;
 	}
 
-	/** Record Actions ********************************************************/
+	/** Post Actions **********************************************************/
 
 	/**
 	 * Record Row actions
@@ -844,7 +850,7 @@ class Fiscaat_Records_Admin {
 		}
 	}
 
-	/** Record Messages *******************************************************/
+	/** Messages **************************************************************/
 
 	/**
 	 * Custom user feedback messages for record post type

@@ -642,7 +642,7 @@ class Fiscaat_Admin {
 			remove_menu_page( 'edit.php?post_type=' . $_post_type );
 
 			// This tells WP to highlight Fiscaat's toplevel menu and matching posts menu 
-			// item, associating any page (post-new.php) with the relevant post type.
+			// item, associating any post type page (post-new.php) with the relevant menu.
 			if ( isset( $post_type ) && $post_type == $_post_type ) {
 				$parent_file  = 'fiscaat'; // @todo Fix not showing toplevel menu
 				$submenu_file = 'fct-' . fct_get_post_type_type( $post_type ) . 's';

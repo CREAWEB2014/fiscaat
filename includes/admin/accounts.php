@@ -254,6 +254,8 @@ class Fiscaat_Accounts_Admin {
 		);
 	}
 
+	/** Account Meta **********************************************************/
+
 	/**
 	 * Add the account attributes metabox
 	 *
@@ -331,6 +333,8 @@ class Fiscaat_Accounts_Admin {
 
 		return $account_id;
 	}
+
+	/** Styles ****************************************************************/
 
 	/**
 	 * Add some general styling to the admin area
@@ -426,6 +430,8 @@ class Fiscaat_Accounts_Admin {
 		<?php
 	}
 
+	/** Ajax ******************************************************************/
+
 	/**
 	 * Ajax action for facilitating the ledger id check
 	 *
@@ -455,6 +461,204 @@ class Fiscaat_Accounts_Admin {
 		} else {
 			wp_send_json_success();
 		}
+	}
+
+	/** List Table ************************************************************/
+
+	/**
+	 * Manage the column headers for the accounts page
+	 *
+	 * @param array $columns The columns
+	 * @return array $columns Fiscaat account columns
+	 */
+	public function accounts_column_headers( $columns ) {
+		if ( $this->bail() ) 
+			return $columns;
+
+		// Hide year column if showing year accounts. When there
+		// is no year selection, current year accounts are showed.
+		if ( ! isset( $_GET['fct_year_id'] ) || ! empty( $_GET['fct_year_id'] ) ) {
+			unset( $columns['fct_account_year'] );
+		}
+
+		return $columns;
+	}
+
+	/**
+	 * Return account records view link instead of edit post link
+	 * 
+	 * @param string $link Edit post link
+	 * @param int $post_id Current post id
+	 * @param mixed $context Context
+	 * @return string Account records view link
+	 */
+	public function accounts_edit_post_link( $link, $post_id, $context ) {
+		if ( $this->bail() ) 
+			return $link;
+
+		// Distinguish edit post links
+		if ( true === $context )
+			return $link;
+
+		// Build account records view link
+		$link = add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'fct_account_id' => $post_id ), admin_url( 'edit.php' ) );
+
+		return apply_filters( 'fct_admin_accounts_edit_post_link', $link, $post_id, $context );
+	}
+
+	/**
+	 * Add year dropdown to account and record list table filters
+	 *
+	 * @uses fct_dropdown() To generate a year dropdown
+	 * @return bool False. If post type is not account or record
+	 */
+	public function filter_dropdown() {
+		if ( $this->bail() ) 
+			return;
+
+		// Show the number dropdown
+		fct_ledger_dropdown( array(
+			'selected'  => isset( $_GET['fct_ledger_account_id'] ) ? $_GET['fct_ledger_account_id'] : '',
+			'show_none' => '&mdash;'
+		) );
+
+		// Get which year is selected. Default to current year
+		$selected = isset( $_GET['fct_year_id'] ) ? $_GET['fct_year_id'] : fct_get_current_year_id();
+
+		// Show the years dropdown
+		fct_dropdown( array(
+			'selected'  => $selected,
+			'show_none' => __( 'In all years', 'fiscaat' )
+		) );
+	}
+
+	/**
+	 * Adjust the request query and include the parent year id
+	 *
+	 * @param array $query_vars Query variables from {@link WP_Query}
+	 * @return array Processed Query Vars
+	 */
+	function filter_post_rows( $query_vars ) {
+		if ( $this->bail() ) 
+			return $query_vars;
+
+		// Setup meta query
+		$meta_query = isset( $query_vars['meta_query'] ) ? $query_vars['meta_query'] : array();
+
+		/** Year **************************************************************/
+
+		// Set the parent from year id if given or current year
+		$query_vars['post_parent'] = isset( $_REQEUEST['fct_year_id'] ) ? $_REQEUEST['fct_year_id'] : fct_get_current_year_id();
+
+		/** Ledger ************************************************************/
+
+		// Query by ledger id
+		if ( isset( $_REQEUEST['fct_ledger_account_id'] ) ) {
+			$meta_query[] = array(
+				'key'   => '_fct_ledger_id',
+				'value' => fct_get_account_ledger_id( (int) $_REQEUEST['fct_ledger_account_id'] )
+			);
+		}
+
+		/** Sorting ***********************************************************/
+
+		// Handle sorting
+		$orderby = isset( $_REQEUEST['orderby'] ) ? $_REQEUEST['orderby'] : '';
+
+		// Check order type
+		switch ( $orderby ) {
+
+			// Account type
+			case 'account_type' :
+				$query_vars['meta_key'] = '_fct_account_type';
+				$query_vars['orderby']  = 'meta_value'; // Also 2nd item (ledger id)?
+				break;
+
+			// Account record count
+			case 'account_record_count' :
+				$query_vars['meta_key'] = '_fct_record_count';
+				$query_vars['orderby']  = 'meta_value_num';
+				break;
+
+			// Account end value
+			case 'account_end_value' :
+				$query_vars['meta_key'] = '_fct_end_value';
+				$query_vars['orderby']  = 'meta_value_num';
+				break;
+
+			// Account ledger id. Default order
+			case 'account_ledger_id' :
+			default :
+				$query_vars['meta_key'] = '_fct_ledger_id';
+				$query_vars['orderby']  = 'meta_value_num';
+				break;
+		}
+
+		// Default sorting order
+		if ( ! isset( $query_vars['order'] ) ) {
+			$query_vars['order'] = isset( $_REQEUEST['order'] ) ? strtoupper( $_REQEUEST['order'] ) : 'ASC';
+		}
+
+		// Set meta query
+		$query_vars['meta_query'] = $meta_query;
+
+		// Return manipulated query_vars
+		return $query_vars;
+	}
+
+	/** Post Actions **********************************************************/
+
+	/**
+	 * Account Row actions
+	 *
+	 * Add the view/records/close/open/delete action links under the account title
+	 *
+	 * @since 0.0.1
+	 *
+	 * @param array $actions Actions
+	 * @param array $account Account object
+	 * @uses fct_get_account_post_type() To get the account post type
+	 * @uses fct_get_account_permalink() To get the account link
+	 * @uses fct_get_account_title() To get the account title
+	 * @uses current_user_can() To check if the current user can edit or
+	 *                           delete the account
+	 * @uses fct_is_account_open() To check if the account is open
+	 * @uses add_query_arg() To add custom args to the url
+	 * @uses remove_query_arg() To remove custom args from the url
+	 * @uses wp_nonce_url() To nonce the url
+	 * @uses get_delete_post_link() To get the delete post link of the account
+	 * @return array $actions Actions
+	 */
+	public function accounts_row_actions( $actions, $account ) {
+		if ( $this->bail() ) 
+			return $actions;
+
+		// Show view link if it's not set, the account is trashed and the user can view trashed accounts
+		if ( empty( $actions['view'] ) && ( fct_get_trash_status_id() == $account->post_status ) && current_user_can( 'view_trash' ) ) {
+			$actions['view'] = '<a href="' . fct_get_account_permalink( $account->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'fiscaat' ), fct_get_account_title( $account->ID ) ) ) . '" rel="permalink">' . __( 'View', 'fiscaat' ) . '</a>';
+		}
+
+		// Show records link
+		if ( current_user_can( 'read_account', $account->ID ) ) {
+			$actions['records'] = '<a href="' . add_query_arg( array( 'page' => 'fct-records', 'fct_account_id' => $account->ID ), admin_url( 'admin.php' ) ) .'" title="' . esc_attr( sprintf( __( 'Show all records of &#8220;%s&#8221;',  'fiscaat' ), fct_get_account_title( $account->ID ) ) ) . '">' . __( 'Records', 'fiscaat' ) . '</a>';
+		}
+
+		// Show the close and open link
+		if ( current_user_can( 'edit_account', $account->ID ) ) {
+			$toggle_uri = esc_url( wp_nonce_url( add_query_arg( array( 'account_id' => $account->ID, 'action' => 'fct_toggle_account_close' ), remove_query_arg( array( 'fct_account_toggle_notice', 'account_id', 'failed', 'super' ) ) ), 'close-account_' . $account->ID ) );
+			if ( fct_is_account_open( $account->ID ) ) {
+				$actions['closed'] = '<a href="' . $toggle_uri . '" title="' . esc_attr__( 'Close this account', 'fiscaat' ) . '">' . _x( 'Close', 'Close the account', 'fiscaat' ) . '</a>';
+			} else {
+				$actions['open'] = '<a href="' . $toggle_uri . '" title="' . esc_attr__( 'Open this account',  'fiscaat' ) . '">' . _x( 'Open',  'Open the account',  'fiscaat' ) . '</a>';
+			}
+		}
+
+		// Only show delete links for empty accounts. No trash
+		if ( current_user_can( 'delete_account', $account->ID ) && ! fct_account_has_records() ) {
+			$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fct_get_account_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $account->ID, '', true ) ) . "'>" . __( 'Delete', 'fiscaat' ) . "</a>";
+		}
+
+		return $actions;
 	}
 
 	/**
@@ -581,199 +785,7 @@ class Fiscaat_Accounts_Admin {
 		}
 	}
 
-	/**
-	 * Manage the column headers for the accounts page
-	 *
-	 * @param array $columns The columns
-	 * @return array $columns Fiscaat account columns
-	 */
-	public function accounts_column_headers( $columns ) {
-		if ( $this->bail() ) 
-			return $columns;
-
-		// Hide year column if showing year accounts. When there
-		// is no year selection, current year accounts are showed.
-		if ( ! isset( $_GET['fct_year_id'] ) || ! empty( $_GET['fct_year_id'] ) ) {
-			unset( $columns['fct_account_year'] );
-		}
-
-		return $columns;
-	}
-
-	/**
-	 * Return account records view link instead of edit post link
-	 * 
-	 * @param string $link Edit post link
-	 * @param int $post_id Current post id
-	 * @param mixed $context Context
-	 * @return string Account records view link
-	 */
-	public function accounts_edit_post_link( $link, $post_id, $context ) {
-		if ( $this->bail() ) 
-			return $link;
-
-		// Distinguish edit post links
-		if ( true === $context )
-			return $link;
-
-		// Build account records view link
-		$link = add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'fct_account_id' => $post_id ), admin_url( 'edit.php' ) );
-
-		return apply_filters( 'fct_admin_accounts_edit_post_link', $link, $post_id, $context );
-	}
-
-	/**
-	 * Account Row actions
-	 *
-	 * Add the view/records/close/open/delete action links under the account title
-	 *
-	 * @since 0.0.1
-	 *
-	 * @param array $actions Actions
-	 * @param array $account Account object
-	 * @uses fct_get_account_post_type() To get the account post type
-	 * @uses fct_get_account_permalink() To get the account link
-	 * @uses fct_get_account_title() To get the account title
-	 * @uses current_user_can() To check if the current user can edit or
-	 *                           delete the account
-	 * @uses fct_is_account_open() To check if the account is open
-	 * @uses add_query_arg() To add custom args to the url
-	 * @uses remove_query_arg() To remove custom args from the url
-	 * @uses wp_nonce_url() To nonce the url
-	 * @uses get_delete_post_link() To get the delete post link of the account
-	 * @return array $actions Actions
-	 */
-	public function accounts_row_actions( $actions, $account ) {
-		if ( $this->bail() ) 
-			return $actions;
-
-		// Show view link if it's not set, the account is trashed and the user can view trashed accounts
-		if ( empty( $actions['view'] ) && ( fct_get_trash_status_id() == $account->post_status ) && current_user_can( 'view_trash' ) ) {
-			$actions['view'] = '<a href="' . fct_get_account_permalink( $account->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'fiscaat' ), fct_get_account_title( $account->ID ) ) ) . '" rel="permalink">' . __( 'View', 'fiscaat' ) . '</a>';
-		}
-
-		// Show records link
-		if ( current_user_can( 'read_account', $account->ID ) ) {
-			$actions['records'] = '<a href="' . add_query_arg( array( 'page' => 'fct-records', 'fct_account_id' => $account->ID ), admin_url( 'admin.php' ) ) .'" title="' . esc_attr( sprintf( __( 'Show all records of &#8220;%s&#8221;',  'fiscaat' ), fct_get_account_title( $account->ID ) ) ) . '">' . __( 'Records', 'fiscaat' ) . '</a>';
-		}
-
-		// Show the close and open link
-		if ( current_user_can( 'edit_account', $account->ID ) ) {
-			$toggle_uri = esc_url( wp_nonce_url( add_query_arg( array( 'account_id' => $account->ID, 'action' => 'fct_toggle_account_close' ), remove_query_arg( array( 'fct_account_toggle_notice', 'account_id', 'failed', 'super' ) ) ), 'close-account_' . $account->ID ) );
-			if ( fct_is_account_open( $account->ID ) ) {
-				$actions['closed'] = '<a href="' . $toggle_uri . '" title="' . esc_attr__( 'Close this account', 'fiscaat' ) . '">' . _x( 'Close', 'Close the account', 'fiscaat' ) . '</a>';
-			} else {
-				$actions['open'] = '<a href="' . $toggle_uri . '" title="' . esc_attr__( 'Open this account',  'fiscaat' ) . '">' . _x( 'Open',  'Open the account',  'fiscaat' ) . '</a>';
-			}
-		}
-
-		// Only show delete links for empty accounts. No trash
-		if ( current_user_can( 'delete_account', $account->ID ) && ! fct_account_has_records() ) {
-			$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fct_get_account_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $account->ID, '', true ) ) . "'>" . __( 'Delete', 'fiscaat' ) . "</a>";
-		}
-
-		return $actions;
-	}
-
-	/**
-	 * Add year dropdown to account and record list table filters
-	 *
-	 * @uses fct_dropdown() To generate a year dropdown
-	 * @return bool False. If post type is not account or record
-	 */
-	public function filter_dropdown() {
-		if ( $this->bail() ) 
-			return;
-
-		// Show the number dropdown
-		fct_ledger_dropdown( array(
-			'selected'  => isset( $_GET['fct_ledger_account_id'] ) ? $_GET['fct_ledger_account_id'] : '',
-			'show_none' => '&mdash;'
-		) );
-
-		// Get which year is selected. Default to current year
-		$selected = isset( $_GET['fct_year_id'] ) ? $_GET['fct_year_id'] : fct_get_current_year_id();
-
-		// Show the years dropdown
-		fct_dropdown( array(
-			'selected'  => $selected,
-			'show_none' => __( 'In all years', 'fiscaat' )
-		) );
-	}
-
-	/**
-	 * Adjust the request query and include the parent year id
-	 *
-	 * @param array $query_vars Query variables from {@link WP_Query}
-	 * @return array Processed Query Vars
-	 */
-	function filter_post_rows( $query_vars ) {
-		if ( $this->bail() ) 
-			return $query_vars;
-
-		// Setup meta query
-		$meta_query = isset( $query_vars['meta_query'] ) ? $query_vars['meta_query'] : array();
-
-		/** Year **************************************************************/
-
-		// Set the parent from year id if given or current year
-		$query_vars['post_parent'] = isset( $_REQEUEST['fct_year_id'] ) ? $_REQEUEST['fct_year_id'] : fct_get_current_year_id();
-
-		/** Ledger ************************************************************/
-
-		// Query by ledger id
-		if ( isset( $_REQEUEST['fct_ledger_account_id'] ) ) {
-			$meta_query[] = array(
-				'key'   => '_fct_ledger_id',
-				'value' => fct_get_account_ledger_id( (int) $_REQEUEST['fct_ledger_account_id'] )
-			);
-		}
-
-		/** Sorting ***********************************************************/
-
-		// Handle sorting
-		$orderby = isset( $_REQEUEST['orderby'] ) ? $_REQEUEST['orderby'] : '';
-
-		// Check order type
-		switch ( $orderby ) {
-
-			// Account type
-			case 'account_type' :
-				$query_vars['meta_key'] = '_fct_account_type';
-				$query_vars['orderby']  = 'meta_value'; // Also 2nd item (ledger id)?
-				break;
-
-			// Account record count
-			case 'account_record_count' :
-				$query_vars['meta_key'] = '_fct_record_count';
-				$query_vars['orderby']  = 'meta_value_num';
-				break;
-
-			// Account end value
-			case 'account_end_value' :
-				$query_vars['meta_key'] = '_fct_end_value';
-				$query_vars['orderby']  = 'meta_value_num';
-				break;
-
-			// Account ledger id. Default order
-			case 'account_ledger_id' :
-			default :
-				$query_vars['meta_key'] = '_fct_ledger_id';
-				$query_vars['orderby']  = 'meta_value_num';
-				break;
-		}
-
-		// Default sorting order
-		if ( ! isset( $query_vars['order'] ) ) {
-			$query_vars['order'] = isset( $_REQEUEST['order'] ) ? strtoupper( $_REQEUEST['order'] ) : 'ASC';
-		}
-
-		// Set meta query
-		$query_vars['meta_query'] = $meta_query;
-
-		// Return manipulated query_vars
-		return $query_vars;
-	}
+	/** Redirect **************************************************************/
 
 	/**
 	 * Redirect user to record post-new page with correct message id
@@ -803,6 +815,8 @@ class Fiscaat_Accounts_Admin {
 		// Redirect user with message
 		wp_safe_redirect( add_query_arg( array( 'message' => $message, 'post_type' => fct_get_account_post_type() ), admin_url( 'post-new.php' ) ) );
 	}
+
+	/** Messages **************************************************************/
 
 	/**
 	 * Custom user feedback messages for account post type
