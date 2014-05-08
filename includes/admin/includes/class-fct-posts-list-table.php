@@ -33,6 +33,8 @@ class FCT_Posts_List_Table extends WP_List_Table {
 		if ( method_exists( $this, '_column_content' ) ) {
 			add_action( "manage_{$this->screen->post_type}_posts_custom_column", array( $this, '_column_content' ), 10, 2 );
 		}
+
+		add_filter( "get_user_option_manage{$this->screen->id}columnshidden", array( $this, 'get_hidden_columns' ) );
 	}
 
 	function ajax_user_can() {
@@ -242,6 +244,11 @@ class FCT_Posts_List_Table extends WP_List_Table {
 
 	function get_sortable_columns() {
 		return apply_filters( "fct_admin_{$this->_args['plural']}_get_sortable_columns", $this->_get_sortable_columns() );
+	}
+
+	function get_hidden_columns( $columns ) {
+		$columns = $this->_get_hidden_columns( $columns );
+		return apply_filters( "fct_admin_{$this->_args['plural']}_get_hidden_columns", $columns );
 	}
 
 	function display_rows( $posts = array(), $level = 0 ) {

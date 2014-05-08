@@ -145,7 +145,7 @@ function fct_admin_get_settings_fields() {
 
 		/** Editing Section ***************************************************/
 
-		'fct_settings_editing'/ => array(),
+		'fct_settings_editing' => array(),
 
 		/** Accounts Section **************************************************/
 

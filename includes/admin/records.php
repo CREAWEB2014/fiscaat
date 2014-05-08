@@ -383,6 +383,10 @@ class Fiscaat_Records_Admin {
 				width: 100px;
 			}
 
+			.column-fct_record_description {
+				min-width: 15%;
+			}
+
 			.column-fct_record_offset_account {
 				width: 15%;
 			}
@@ -450,16 +454,13 @@ class Fiscaat_Records_Admin {
 
 			/** Edit / New Records Mode ***************************************/
 
-			.widefat .new-records-row  select,
-			.widefat .edit-records-row select {
+			.widefat .iedit select {
 				width: 100%;
 				max-width: 173px;
 			}
 
-			.widefat .new-records-row  textarea,
-			.widefat .edit-records-row textarea,
-			.widefat .new-records-row  input,
-			.widefat .edit-records-row input {
+			.widefat .iedit textarea,
+			.widefat .iedit input {
 				width: 100%;
 				padding: 3px 5px;
 				height: 28px;
@@ -619,13 +620,6 @@ class Fiscaat_Records_Admin {
 				// Record account ledger id.
 				// Order by parent's _fct_ledger_id meta key
 				// case 'record_account_ledger_id' :
-				// 	$query_vars['meta_key'] = '_fct_account_id';
-				// 	$query_vars['orderby']  = 'meta_value_num';
-				// 	break;
-
-				// Record account
-				// Order by parent's title
-				// case 'record_account' :
 				// 	$query_vars['meta_key'] = '_fct_account_id';
 				// 	$query_vars['orderby']  = 'meta_value_num';
 				// 	break;

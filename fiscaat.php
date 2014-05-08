@@ -417,10 +417,12 @@ final class Fiscaat {
 
 		// Record supports
 		$post_type['supports'] = array(
-			'editor'
+			'editor', 
+			'author',
 		);
 
 		// Comments enabled
+		// @todo Move to Comments
 		if ( fct_is_comments_active() )
 			$post_type['supports'][] = 'comments';
 
@@ -475,7 +477,8 @@ final class Fiscaat {
 		// Account supports
 		$post_type['supports'] = array(
 			'title',
-			'editor'
+			'editor',
+			'author',
 		);
 
 		// Register Account content type
@@ -528,7 +531,8 @@ final class Fiscaat {
 
 		// Year supports
 		$post_type['supports'] = array(
-			'title'
+			'title',
+			'author',
 		);
 
 		// Register Year content type

@@ -55,15 +55,22 @@ class FCT_Years_List_Table extends FCT_Posts_List_Table {
 	 * @return array Columns
 	 */
 	function _get_columns() {
-		return array(
+		$columns = array(
 			'cb'                       => '<input type="checkbox" />',
-			'title'                    => __( 'Title',                 'fiscaat' ),
+			'title'                    => __( 'Title' ),
+			'author'                   => __( 'Author' ),
 			'fct_year_started'         => _x( 'Opened', 'column name', 'fiscaat' ),
 			'fct_year_closed'          => _x( 'Closed', 'column name', 'fiscaat' ),
 			'fct_year_account_count'   => __( 'Accounts',              'fiscaat' ),
 			'fct_year_record_count'    => __( 'Records',               'fiscaat' ),
 			'fct_year_end_value'       => __( 'Value',                 'fiscaat' ),
 		);
+
+		if ( ! current_user_can( 'edit_years' ) ) {
+			unset( $columns['author'] );
+		}
+
+		return $columns;
 	}
 
 	/**
@@ -81,6 +88,19 @@ class FCT_Years_List_Table extends FCT_Posts_List_Table {
 			'fct_year_record_count'    => array( 'year_record_count',  true ),
 			'fct_year_end_value'       => array( 'year_end_value',     true ),
 		);
+	}
+
+	/**
+	 * Return columns that are hidden by default
+	 *
+	 * @since 0.0.8
+	 * 
+	 * @return array Hidden columns
+	 */
+	function _get_hidden_columns( $columns ) {
+		$columns[] = 'author';
+
+		return $columns;
 	}
 
 	/**

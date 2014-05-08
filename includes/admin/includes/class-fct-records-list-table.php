@@ -175,17 +175,24 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		$columns = array(
 			'cb'                           => '<input type="checkbox" />',
 			'fct_record_post_date'         => _x( 'Inserted', 'column name', 'fiscaat' ),
-			'fct_record_date'              => __( 'Date' ),
+			'author'                       => __( 'Author' ),
+			'fct_record_year'              => _x( 'Year',   'column name',   'fiscaat' ),
 			'fct_record_account_ledger_id' => _x( 'No.',    'column name',   'fiscaat' ),
 			'fct_record_account'           => __( 'Account',                 'fiscaat' ),
+			'fct_record_date'              => __( 'Date' ),
 			'fct_record_description'       => __( 'Description',             'fiscaat' ),
 			'fct_record_offset_account'    => __( 'Offset Account',          'fiscaat' ),
 			'fct_record_amount'            => _x( 'Amount', 'column name',   'fiscaat' ),
 		);
 
-		// Hide checkbox and post date rows in edit/new mode
+		// Remove rows in edit/new mode
 		if ( ! fct_admin_is_view_records() ) {
-			unset( $columns['cb'], $columns['fct_record_post_date'] );
+			unset( 
+				$columns['cb'], 
+				$columns['fct_record_post_date'],
+				$columns['author'],
+				$columns['fct_record_year']
+			);
 		}
 
 		return $columns;
@@ -203,14 +210,32 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			'fct_record_post_date'         => array( 'date',        true ),
 			'fct_record_date'              => array( 'record_date', true ),
 
-			// @todo Fix sorting by account/ledger id. 
+			// @todo Fix sorting by account ledger id. 
 			// @see Fiscaat_Records_Admin::filter_post_rows()
 			// 'fct_record_account_ledger_id' => 'record_account_ledger_id',
-			// 'fct_record_account'           => 'record_account',
 
+			'fct_record_account'           => 'parent',
 			'fct_record_offset_account'    => 'record_offset_account',
 			'fct_record_amount'            => 'record_amount',
 		);
+	}
+
+	/**
+	 * Return columns that are hidden by default
+	 *
+	 * @since 0.0.8
+	 * 
+	 * @return array Hidden columns
+	 */
+	function _get_hidden_columns( $columns ) {
+
+		// Hide columns on view page to keep it clean
+		if ( fct_admin_is_view_records() ) {
+			$columns[] = 'author';
+			$columns[] = 'fct_record_year';
+		}
+
+		return $columns;
 	}
 
 	/** Display Rows ******************************************************/

@@ -54,7 +54,7 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 	 * @return array Columns
 	 */
 	function _get_columns() {
-		return array(
+		$columns = array(
 			'cb'                       => '<input type="checkbox" />',
 			'fct_account_year'         => __( 'Year',               'fiscaat' ),
 			'fct_account_ledger_id'    => _x( 'No.', 'column name', 'fiscaat' ),
@@ -62,7 +62,14 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 			'fct_account_type'         => __( 'Type',               'fiscaat' ),
 			'fct_account_record_count' => __( 'Records',            'fiscaat' ),
 			'fct_account_end_value'    => __( 'Value',              'fiscaat' ),
+			'author'                   => __( 'Author' ),
 		);
+
+		if ( ! current_user_can( 'edit_accounts' ) ) {
+			unset( $columns['author'] );
+		}
+
+		return $columns;
 	}
 
 	/**
@@ -74,12 +81,26 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 	 */
 	function _get_sortable_columns() {
 		return array(
+			'fct_account_year'         => 'parent',
 			'fct_account_ledger_id'    => 'account_ledger_id',
 			'title'                    => 'title',
 			'fct_account_type'         => 'account_type',
 			'fct_account_record_count' => array( 'account_record_count', true ),
 			'fct_account_end_value'    => array( 'account_end_value',    true ),
 		);
+	}
+
+	/**
+	 * Return columns that are hidden by default
+	 *
+	 * @since 0.0.8
+	 * 
+	 * @return array Hidden columns
+	 */
+	function _get_hidden_columns( $columns ) {
+		$columns[] = 'author';
+
+		return $columns;
 	}
 
 	/**
