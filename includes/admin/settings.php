@@ -36,14 +36,14 @@ function fct_admin_get_settings_sections() {
 			'callback' => 'fct_admin_setting_callback_editing_section',
 			'page'     => 'fiscaat',
 		),
-		'fct_settings_per_page' => array(
-			'title'    => __( 'Per Page', 'fiscaat' ),
-			'callback' => 'fct_admin_setting_callback_per_page_section',
-			'page'     => 'fiscaat',
-		),
 		'fct_settings_accounts' => array(
 			'title'    => __( 'Default Accounts', 'fiscaat' ),
 			'callback' => 'fct_admin_setting_callback_accounts_section',
+			'page'     => 'fiscaat',
+		),
+		'fct_settings_per_page' => array(
+			'title'    => __( 'Per Page', 'fiscaat' ),
+			'callback' => 'fct_admin_setting_callback_per_page_section',
 			'page'     => 'fiscaat',
 		),
 		'fct_settings_root_slugs' => array(
@@ -143,34 +143,9 @@ function fct_admin_get_settings_fields() {
 
 		),
 
-		/** Per Page Section **************************************************/
+		/** Editing Section ***************************************************/
 
-		'fct_settings_per_page' => array(
-
-			// Years per page setting
-			'_fct_years_per_page' => array(
-				'title'             => __( 'Years', 'fiscaat' ),
-				'callback'          => 'fct_admin_setting_callback_years_per_page',
-				'sanitize_callback' => 'intval',
-				'args'              => array()
-			),
-
-			// Accounts per page setting
-			'_fct_accounts_per_page' => array(
-				'title'             => __( 'Accounts', 'fiscaat' ),
-				'callback'          => 'fct_admin_setting_callback_accounts_per_page',
-				'sanitize_callback' => 'intval',
-				'args'              => array()
-			),
-
-			// Records per page setting
-			'_fct_records_per_page' => array(
-				'title'             => __( 'Records', 'fiscaat' ),
-				'callback'          => 'fct_admin_setting_callback_records_per_page',
-				'sanitize_callback' => 'intval',
-				'args'              => array()
-			)
-		),
+		'fct_settings_editing'/ => array(),
 
 		/** Accounts Section **************************************************/
 
@@ -216,6 +191,35 @@ function fct_admin_get_settings_fields() {
 				'args'              => array()
 			),
 
+		),
+
+		/** Per Page Section **************************************************/
+
+		'fct_settings_per_page' => array(
+
+			// Years per page setting
+			'_fct_years_per_page' => array(
+				'title'             => __( 'Years', 'fiscaat' ),
+				'callback'          => 'fct_admin_setting_callback_years_per_page',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
+			// Accounts per page setting
+			'_fct_accounts_per_page' => array(
+				'title'             => __( 'Accounts', 'fiscaat' ),
+				'callback'          => 'fct_admin_setting_callback_accounts_per_page',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
+			// Records per page setting
+			'_fct_records_per_page' => array(
+				'title'             => __( 'Records', 'fiscaat' ),
+				'callback'          => 'fct_admin_setting_callback_records_per_page',
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			)
 		),
 
 		/** Front Slugs *******************************************************/
@@ -438,6 +442,19 @@ function fct_admin_setting_callback_num_decimals() {
 ?>
 
 	<input name="_fct_num_decimals" type="number" id="_fct_num_decimals" value="<?php fct_form_option( '_fct_num_decimals', '2' ); ?>" class="small-text" <?php fct_maybe_admin_setting_disabled( '_fct_num_decimals' ); ?> />
+
+<?php
+}
+
+/** Editing Section ***********************************************************/
+
+/**
+ * Editing settings section description for the settings page
+ */
+function fct_admin_setting_callback_editing_section() {
+?>
+
+	<p><?php _e( 'Settings for creating and editing records in Fiscaat.', 'fiscaat' ); ?></p>
 
 <?php
 }
