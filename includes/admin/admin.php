@@ -173,6 +173,11 @@ class Fiscaat_Admin {
 	public function dev_content() {
 
 		// Bail if no add_content query arg
+		if ( isset( $_GET['year_account_count'] ) && $_GET['year_account_count'] ) {
+			fct_update_year_account_count( fct_get_current_year_id() );
+		}
+
+		// Bail if no add_content query arg
 		if ( isset( $_GET['add_content'] ) && $_GET['add_content'] ) {
 			fct_create_initial_content();
 		}

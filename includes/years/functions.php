@@ -463,8 +463,10 @@ function fct_update_year_end_value( $year_id = 0, $end_value = 0 ) {
  */
 function fct_update_year( $args = '' ) {
 	$defaults = array(
-		'year_id'   => 0,
-		'end_value' => 0
+		'year_id'       => 0,
+		'account_count' => 0,
+		'record_count'  => 0,
+		'end_value'     => 0
 	);
 	$r = fct_parse_args( $args, $defaults, 'update_year' );
 	extract( $r );
@@ -472,15 +474,15 @@ function fct_update_year( $args = '' ) {
 	// Check year id
 	$year_id = fct_get_year_id( $year_id );
 
-	// Update year to balance
-	fct_update_year_end_value( $year_id, $end_value );
-
 	// Counts
 	fct_update_year_account_count( $year_id );
 	fct_update_year_record_count ( $year_id );
 	// @todo Move to Control
 	// fct_update_year_record_count_unapproved( $year_id );
 	// fct_update_year_record_count_declined  ( $year_id );
+
+	// Update year to balance
+	fct_update_year_end_value( $year_id, $end_value );
 }
 
 

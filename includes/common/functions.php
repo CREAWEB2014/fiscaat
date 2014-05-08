@@ -585,7 +585,7 @@ function fct_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	// Check for cache and set if needed
 	$child_ids = wp_cache_get( $cache_id, 'fiscaat' );
 	if ( empty( $child_ids ) ) {
-		$child_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_type = '%s' ORDER BY ID DESC;", $parent_id, $post_type ) );
+		$child_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_type = %s ORDER BY ID DESC;", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_ids, 'fiscaat' );
 	}
 

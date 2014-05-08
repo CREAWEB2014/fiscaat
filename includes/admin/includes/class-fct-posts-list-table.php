@@ -103,7 +103,7 @@ class FCT_Posts_List_Table extends WP_List_Table {
 		}
 
 		$class = empty( $class ) && empty( $_REQUEST['post_status'] ) ? ' class="current"' : '';
-		$status_links['all'] = "<a href='edit.php?post_type=$post_type{$allposts}'$class>" . sprintf( _nx( 'All <span class="count">(%s)</span>', 'All <span class="count">(%s)</span>', $total_posts, 'posts' ), number_format_i18n( $total_posts ) ) . '</a>';
+		$status_links['all'] = "<a href='admin.php?page=fct-{$this->_args['plural']}{$allposts}'$class>" . sprintf( _nx( 'All <span class="count">(%s)</span>', 'All <span class="count">(%s)</span>', $total_posts, 'posts' ), number_format_i18n( $total_posts ) ) . '</a>';
 
 		foreach ( get_post_stati( array( 'show_in_admin_status_list' => true ), 'objects' ) as $status ) {
 			$class = '';
@@ -119,7 +119,7 @@ class FCT_Posts_List_Table extends WP_List_Table {
 			if ( isset( $_REQUEST['post_status'] ) && $status_name == $_REQUEST['post_status'] )
 				$class = ' class="current"';
 
-			$status_links[$status_name] = "<a href='edit.php?post_status=$status_name&amp;post_type=$post_type'$class>" . sprintf( translate_nooped_plural( $status->label_count, $num_posts->$status_name ), number_format_i18n( $num_posts->$status_name ) ) . '</a>';
+			$status_links[$status_name] = "<a href='admin.php?page=fct-{$this->_args['plural']}&amp;post_status=$status_name'$class>" . sprintf( translate_nooped_plural( $status->label_count, $num_posts->$status_name ), number_format_i18n( $num_posts->$status_name ) ) . '</a>';
 		}
 
 		return apply_filters( "fct_admin_{$this->_args['plural']}_get_views", $status_links );
@@ -179,10 +179,6 @@ class FCT_Posts_List_Table extends WP_List_Table {
 	function get_columns() {
 		$post_type     = $this->screen->post_type;
 		$posts_columns = $this->_get_columns();
-
-		if ( post_type_supports( $post_type, 'author' ) ) {
-			$posts_columns['author'] = __( 'Author' );
-		}
 
 		// Support custom taxonomies
 		$taxonomies = get_object_taxonomies( $post_type, 'objects' );
@@ -267,10 +263,6 @@ class FCT_Posts_List_Table extends WP_List_Table {
 		foreach ( $posts as $post ) {
 			$this->single_row( $post, $level );
 		}
-		
-		// while ( fct_posts() ) {
-		// 	$this->single_row( fct_the_post(), $level );
-		// }
 	}
 
 	function single_row( $post, $level = 0 ) {
@@ -339,12 +331,6 @@ class FCT_Posts_List_Table extends WP_List_Table {
 				$attributes = 'class="post-title page-title column-title"' . $style;
 				$pad = str_repeat( '&#8212; ', $level );
 				echo "<td $attributes><strong>";
-
-				if ( $format = get_post_format( $post->ID ) ) {
-					$label = get_post_format_string( $format );
-
-					echo '<a href="' . esc_url( add_query_arg( array( 'post_format' => $format, 'post_type' => $post->post_type ), 'edit.php' ) ) . '" class="post-state-format post-format-icon post-format-' . $format . '" title="' . $label . '">' . $label . ":</a> ";
-				}
 
 				if ( $can_edit_post && $post->post_status != 'trash' ) {
 					echo '<a class="row-title" href="' . $edit_link . '" title="' . esc_attr( sprintf( __( 'Edit &#8220;%s&#8221;' ), $title ) ) . '">' . $pad . $title . '</a>';
@@ -465,7 +451,7 @@ class FCT_Posts_List_Table extends WP_List_Table {
 			?>
 			<td <?php echo $attributes ?>><?php
 				printf( '<a href="%s">%s</a>',
-					esc_url( add_query_arg( array( 'post_type' => $post->post_type, 'author' => get_the_author_meta( 'ID' ) ), 'edit.php' )),
+					esc_url( add_query_arg( array( 'page' => "fct-{$this->_args['plural']}", 'author' => get_the_author_meta( 'ID' ) ), 'admin.php' )),
 					get_the_author()
 				);
 			?></td>
@@ -490,7 +476,7 @@ class FCT_Posts_List_Table extends WP_List_Table {
 						foreach ( $terms as $t ) {
 							$posts_in_term_qv = array();
 							if ( 'post' != $post->post_type )
-								$posts_in_term_qv['post_type'] = $post->post_type;
+								$posts_in_term_qv['page'] = "fct-{$this->_args['plural']}";
 							if ( $taxonomy_object->query_var ) {
 								$posts_in_term_qv[ $taxonomy_object->query_var ] = $t->slug;
 							} else {
@@ -499,7 +485,7 @@ class FCT_Posts_List_Table extends WP_List_Table {
 							}
 
 							$out[] = sprintf( '<a href="%s">%s</a>',
-								esc_url( add_query_arg( $posts_in_term_qv, 'edit.php' ) ),
+								esc_url( add_query_arg( $posts_in_term_qv, 'admin.php' ) ),
 								esc_html( sanitize_term_field( 'name', $t->name, $t->term_id, $taxonomy, 'display' ) )
 							);
 						}
