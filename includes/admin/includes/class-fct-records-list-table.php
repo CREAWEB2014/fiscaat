@@ -619,8 +619,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 					// Alert capable users of record year mismatch
 					if ( $record_year_id != $account_year_id ) {
-						if ( current_user_can( 'edit_others_records' ) || current_user_can( 'fiscaat' ) ) {
-							$year_title .= '<div class="attention">' . __( '(Mismatch)', 'fiscaat' ) . '</div>';
+						if ( current_user_can( 'edit_others_records' ) ) {
+							$year_title .= ' <div class="attention">' . __( '(Mismatch)', 'fiscaat' ) . '</div>';
 						}
 					}
 					echo $year_title;

@@ -547,23 +547,24 @@ class Fiscaat_Accounts_Admin {
 
 		/** Year **************************************************************/
 
-		// Set the parent from year id if given or current year
-		$query_vars['post_parent'] = isset( $_REQEUEST['fct_year_id'] ) ? $_REQEUEST['fct_year_id'] : fct_get_current_year_id();
+		// Set the parent from year id if given or current year. Empty
+		// year results in all years.
+		$query_vars['post_parent'] = isset( $_REQUEST['fct_year_id'] ) ? $_REQUEST['fct_year_id'] : fct_get_current_year_id();
 
 		/** Ledger ************************************************************/
 
 		// Query by ledger id
-		if ( isset( $_REQEUEST['fct_ledger_account_id'] ) ) {
+		if ( ! empty( $_REQUEST['fct_ledger_account_id'] ) ) {
 			$meta_query[] = array(
 				'key'   => '_fct_ledger_id',
-				'value' => fct_get_account_ledger_id( (int) $_REQEUEST['fct_ledger_account_id'] )
+				'value' => fct_get_account_ledger_id( (int) $_REQUEST['fct_ledger_account_id'] )
 			);
 		}
 
 		/** Sorting ***********************************************************/
 
 		// Handle sorting
-		$orderby = isset( $_REQEUEST['orderby'] ) ? $_REQEUEST['orderby'] : '';
+		$orderby = ! empty( $_REQUEST['orderby'] ) ? $_REQUEST['orderby'] : '';
 
 		// Check order type
 		switch ( $orderby ) {
@@ -586,9 +587,9 @@ class Fiscaat_Accounts_Admin {
 				$query_vars['orderby']  = 'meta_value_num';
 				break;
 
-			// Account ledger id. Default order
+			// Account ledger id. Default order when none requested
 			case 'account_ledger_id' :
-			default :
+			case '':
 				$query_vars['meta_key'] = '_fct_ledger_id';
 				$query_vars['orderby']  = 'meta_value_num';
 				break;
@@ -596,7 +597,7 @@ class Fiscaat_Accounts_Admin {
 
 		// Default sorting order
 		if ( ! isset( $query_vars['order'] ) ) {
-			$query_vars['order'] = isset( $_REQEUEST['order'] ) ? strtoupper( $_REQEUEST['order'] ) : 'ASC';
+			$query_vars['order'] = isset( $_REQUEST['order'] ) ? strtoupper( $_REQUEST['order'] ) : 'ASC';
 		}
 
 		// Set meta query
