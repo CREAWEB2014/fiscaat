@@ -975,25 +975,26 @@ class Fiscaat_Records_Admin {
 
 			if ( ! empty( $account_id ) ) {
 				// Format: {account number}. {account title}
-				$title = fct_get_account_ledger_id( $account_id ) .'. '. fct_get_account_title( $account_id );
+				$title = fct_get_account_ledger_id( $account_id ) . '. ' . fct_get_account_title( $account_id );
 			}
 		}
 
 		// Period records
 		if ( isset( $_REQUEST['fct_period_id'] ) && ! empty( $_REQUEST['fct_period_id'] ) ) {
-			
+
 			// Fetch period id
 			$period_id = fct_get_period_id( $_REQUEST['fct_period_id'] );
 
 			if ( ! empty( $period_id ) ) {
 				// Format: {title} -- {period title}
-				$title .= ' &mdash; '. fct_get_period_title( $period_id );
+				$title .= ' &mdash; ' . fct_get_period_title( $period_id );
 			}
 		}
 
 		// New records
 		if ( fct_admin_is_new_records() ) {
-			$title = get_post_type_object( fct_get_record_post_type() )->labels->add_new;
+			$title  = get_post_type_object( fct_get_record_post_type() )->labels->add_new;
+			$title .= ' &mdash; ' . fct_get_period_title( fct_get_current_period_id() );
 		}
 
 		return $title;
