@@ -379,7 +379,7 @@ class Fiscaat_Records_Admin {
 
 			.column-fct_record_post_date,
 			.column-fct_record_date {
-				width: 100px;
+				width: 106px;
 			}
 
 			.column-fct_record_description {
