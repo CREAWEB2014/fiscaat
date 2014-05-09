@@ -143,7 +143,13 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 
 			// Account ledger id
 			case 'fct_account_ledger_id' :
-				fct_account_ledger_id( $account_id );
+				$ledger_id = fct_get_account_ledger_id( $account_id );
+
+				if ( ! empty( $ledger_id ) ) {
+					echo $ledger_id;
+				} else {
+					echo '&mdash;';
+				}
 				break;
 
 			// Account type

@@ -68,10 +68,10 @@ class Fiscaat_Accounts_Admin {
 
 		// Contextual Help
 		add_action( 'fct_admin_load_edit_accounts',  array( $this, 'edit_help' ) );
-		add_action( 'fct_admin_load_new_accounts',   array( $this, 'new_help'  ) );
+		add_action( 'fct_admin_load_post_account',   array( $this, 'new_help'  ) );
 
 		// Redirect
-		add_action( 'fct_admin_load_new_accounts',   array( $this, 'no_period_redirect'    ) );
+		add_action( 'fct_admin_load_post_account',   array( $this, 'no_period_redirect'    ) );
 		
 		// Page title
 		add_action( 'fct_admin_accounts_page_title', array( $this, 'accounts_page_title'   ) );
@@ -88,8 +88,9 @@ class Fiscaat_Accounts_Admin {
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
 		// Account columns (in post row)
-		add_filter( 'fct_admin_accounts_get_columns', array( $this, 'accounts_column_headers' )        );
-		add_filter( 'post_row_actions',               array( $this, 'accounts_row_actions'    ), 10, 2 );
+		add_filter( 'fct_admin_accounts_get_columns',          array( $this, 'accounts_column_headers'   )        );
+		add_filter( 'fct_admin_accounts_get_sortable_columns', array( $this, 'accounts_columns_sortable' )        );
+		add_filter( 'post_row_actions',                        array( $this, 'accounts_row_actions'      ), 10, 2 );
 
 		// Add ability to filter accounts and records per period
 		add_action( 'restrict_manage_posts', array( $this, 'filter_dropdown'  ) );
@@ -333,7 +334,7 @@ class Fiscaat_Accounts_Admin {
 		return $account_id;
 	}
 
-	/** Styles ****************************************************************/
+	/** Misc ******************************************************************/
 
 	/**
 	 * Add some general styling to the admin area
@@ -382,15 +383,15 @@ class Fiscaat_Accounts_Admin {
 				background-color: #eaeaea;
 			}
 
-			#fct_account_attributes .ajax-loading {
+			#fct_account_attributes p span {
 				vertical-align: middle;
 			}
 
 		/*]]>*/
 		</style>
 
-		<?php // On post and post-new pages ?>
-		<?php if ( isset( get_current_screen()->id ) && 'post' == get_current_screen()->id ) : ?>
+		<?php // On post.php and post-new.php pages ?>
+		<?php if ( isset( get_current_screen()->base ) && 'post' == get_current_screen()->base ) : ?>
 
 		<script type="text/javascript">
 			jQuery(document).ready( function($) {
@@ -399,29 +400,36 @@ class Fiscaat_Accounts_Admin {
 				
 				// On input change (blur)
 				$ledger_id.change( function() {
-					if ( this.value ) {
-						$loader = $ledger_id.siblings('.ajax-loading').css('visibility', 'visible').show();
+					var new_value = this.value;
+
+					if ( new_value ) {
+						$loader = $ledger_id.siblings('.spinner').css('display', 'inline-block');
 
 						$.post( 
 							ajaxurl, 
 							{
 								action: 'fct_check_ledger_id',
-								account_id: <?php echo get_the_ID(); ?>,
-								ledger_id: this.value
+								account_id: <?php the_ID(); ?>,
+								ledger_id: new_value
 							}, 
 							function ( response ) {
-								var icon = response.success ? 'fct-icon-success' : 'fct-icon-error',
+								var resp = response.success ? 'success' : 'error',
 								    msg  = response.success ? '' : response.data.post.post_title;
 
 								// Show response icon
-								$('<span class="dashicons-before ' + icon + '" title="' + msg + '"></span>')
-									.appendTo( $loader.hide().parent() ).delay(800).fadeOut( function() {
-										$(this).remove();
+								$('<span class="dashicons fct-badge-' + resp + '" title="' + msg + '"></span>')
+									.appendTo( $loader.hide().parent() ).delay(1500).fadeOut( function() {
+										$(this).remove(); // Remove element
 									});
 
 								// Reset original value on error
-								if ( ! response.success ) 
+								if ( ! response.success ) {
 									$ledger_id.attr('value', orig_val);
+
+								// Overwrite new accepted value
+								} else {
+									orig_val = new_value;
+								}
 							}
 						);
 					}
@@ -438,17 +446,20 @@ class Fiscaat_Accounts_Admin {
 	 * Ajax action for facilitating the ledger id check
 	 *
 	 * @uses get_posts()
-	 * @uses fct_get_account_post_type()
 	 * @uses fct_get_account_period_id()
+	 * @uses fct_get_period_id()
+	 * @uses fct_get_account_post_type()
 	 * @uses wp_send_json_error() To return that an account was found
 	 * @uses wp_send_json_success() To return that no account was found
 	 */
 	public function check_ledger_id() {
+		$period_id = fct_get_account_period_id( $_REQUEST['account_id'] );
+		$period_id = fct_get_period_id( $period_id );
 
 		// Find any matching ledger id in the account's period
 		$query = get_posts( array(
 			'post_type'    => fct_get_account_post_type(),
-			'post_parent'  => fct_get_account_period_id( $_REQUEST['account_id'] ),
+			'post_parent'  => $period_id,
 			'meta_key'     => '_fct_ledger_id',
 			'meta_value'   => (int) like_escape( $_REQUEST['ledger_id'] ),
 			'post__not_in' => array( (int) $_REQUEST['account_id'] ),
@@ -481,6 +492,36 @@ class Fiscaat_Accounts_Admin {
 		// is no period selection, current period accounts are showed.
 		if ( ! isset( $_GET['fct_period_id'] ) || ! empty( $_GET['fct_period_id'] ) ) {
 			unset( $columns['fct_account_period'] );
+		}
+
+		return $columns;
+	}
+
+	/**
+	 * Manage the sortable columns for the accounts page
+	 *
+	 * @since 0.0.9
+	 * 
+	 * @param array $columns Sortable columns
+	 * @return array Sortable columns
+	 */
+	public function accounts_columns_sortable( $columns ) {
+
+		// When querying drafts, deselect columns
+		if ( isset( $_REQUEST['post_status'] ) && 'draft' == $_REQUEST['post_status'] ) {
+
+			// Remove columns
+			foreach ( $columns as $k => $column ) {
+				switch ( $column ) {
+					case 'fct_account_period'       :
+					case 'fct_account_ledger_id'    :
+					case 'fct_account_type'         :
+					case 'fct_account_record_count' :
+					case 'fct_account_end_value'    :
+						unset( $columns[$k] );
+						break;
+				}
+			}
 		}
 
 		return $columns;
@@ -547,6 +588,18 @@ class Fiscaat_Accounts_Admin {
 
 		// Setup meta query
 		$meta_query = isset( $query_vars['meta_query'] ) ? $query_vars['meta_query'] : array();
+
+		/** Drafts **************************************************************/
+
+		// When querying drafts...
+		if ( isset( $query_vars['post_status'] ) && 'draft' == $query_vars['post_status'] ) {
+
+			// ... Order by title and bail early
+			$query_vars['orderby'] = 'title';
+			$query_vars['order']   = isset( $_REQUEST['order'] ) ? strtoupper( $_REQUEST['order'] ) : 'ASC';
+
+			return $query_vars;
+		}
 
 		/** Period **************************************************************/
 
@@ -637,29 +690,42 @@ class Fiscaat_Accounts_Admin {
 		if ( $this->bail() ) 
 			return $actions;
 
-		// Show view link if it's not set, the account is trashed and the user can view trashed accounts
-		if ( empty( $actions['view'] ) && ( fct_get_trash_status_id() == $account->post_status ) && current_user_can( 'view_trash' ) ) {
-			$actions['view'] = '<a href="' . fct_get_account_permalink( $account->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'fiscaat' ), fct_get_account_title( $account->ID ) ) ) . '" rel="permalink">' . __( 'View', 'fiscaat' ) . '</a>';
-		}
+		// Only when account is published
+		if ( ! in_array( $account->post_status, array( 'draft', fct_get_trash_status_id() ) ) ) {
 
-		// Show records link
-		if ( current_user_can( 'read_account', $account->ID ) ) {
-			$actions['records'] = '<a href="' . add_query_arg( array( 'page' => 'fct-records', 'fct_account_id' => $account->ID ), admin_url( 'admin.php' ) ) .'" title="' . esc_attr( sprintf( __( 'Show all records of &#8220;%s&#8221;',  'fiscaat' ), fct_get_account_title( $account->ID ) ) ) . '">' . __( 'Records', 'fiscaat' ) . '</a>';
-		}
+			// Show view link if it's not set, the account is trashed and the user can view trashed accounts
+			if ( empty( $actions['view'] ) && ( fct_get_trash_status_id() == $account->post_status ) && current_user_can( 'view_trash' ) ) {
+				$actions['view'] = '<a href="' . fct_get_account_permalink( $account->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'fiscaat' ), fct_get_account_title( $account->ID ) ) ) . '" rel="permalink">' . __( 'View', 'fiscaat' ) . '</a>';
+			}
 
-		// Show the close and open link
-		if ( current_user_can( 'edit_account', $account->ID ) ) {
-			$toggle_uri = esc_url( wp_nonce_url( add_query_arg( array( 'account_id' => $account->ID, 'action' => 'fct_toggle_account_close' ), remove_query_arg( array( 'fct_account_toggle_notice', 'account_id', 'failed', 'super' ) ) ), 'close-account_' . $account->ID ) );
-			if ( fct_is_account_open( $account->ID ) ) {
-				$actions['closed'] = '<a href="' . $toggle_uri . '" title="' . esc_attr__( 'Close this account', 'fiscaat' ) . '">' . _x( 'Close', 'Close the account', 'fiscaat' ) . '</a>';
-			} else {
-				$actions['open'] = '<a href="' . $toggle_uri . '" title="' . esc_attr__( 'Open this account',  'fiscaat' ) . '">' . _x( 'Open',  'Open the account',  'fiscaat' ) . '</a>';
+			// Show records link
+			if ( current_user_can( 'read_account', $account->ID ) ) {
+				$actions['records'] = '<a href="' . add_query_arg( array( 'page' => 'fct-records', 'fct_account_id' => $account->ID ), admin_url( 'admin.php' ) ) .'" title="' . esc_attr( sprintf( __( 'Show all records of &#8220;%s&#8221;',  'fiscaat' ), fct_get_account_title( $account->ID ) ) ) . '">' . __( 'Records', 'fiscaat' ) . '</a>';
+			}
+
+			// Show the close and open link
+			if ( current_user_can( 'edit_account', $account->ID ) ) {
+				$toggle_uri = esc_url( wp_nonce_url( add_query_arg( array( 'account_id' => $account->ID, 'action' => 'fct_toggle_account_close' ), remove_query_arg( array( 'fct_account_toggle_notice', 'account_id', 'failed', 'super' ) ) ), 'close-account_' . $account->ID ) );
+				if ( fct_is_account_open( $account->ID ) ) {
+					$actions['closed'] = '<a href="' . $toggle_uri . '" title="' . esc_attr__( 'Close this account', 'fiscaat' ) . '">' . _x( 'Close', 'Close the account', 'fiscaat' ) . '</a>';
+				} else {
+					$actions['open'] = '<a href="' . $toggle_uri . '" title="' . esc_attr__( 'Open this account',  'fiscaat' ) . '">' . _x( 'Open',  'Open the account',  'fiscaat' ) . '</a>';
+				}
 			}
 		}
 
-		// Only show delete links for empty accounts. No trash
+		// Only show delete links for empty accounts
 		if ( current_user_can( 'delete_account', $account->ID ) && ! fct_account_has_records() ) {
-			$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fct_get_account_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $account->ID, '', true ) ) . "'>" . __( 'Delete', 'fiscaat' ) . "</a>";
+			if ( fct_get_trash_status_id() == $account->post_status ) {
+				$post_type_object = get_post_type_object( fct_get_period_post_type() );
+				$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fct_get_period_post_type() ), admin_url( 'edit.php' ) ) ), wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $account->ID ) ), 'untrash-' . $account->post_type . '_' . $account->ID ) ) . "'>" . __( 'Restore', 'fiscaat' ) . "</a>";
+			} elseif ( EMPTY_TRASH_DAYS ) {
+				$actions['trash'] = "<a class='submitdelete' title='" . esc_attr__( 'Move this item to the Trash', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fct_get_period_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $account->ID ) ) . "'>" . __( 'Trash', 'fiscaat' ) . "</a>";
+			}
+
+			if ( fct_get_trash_status_id() == $account->post_status || ! EMPTY_TRASH_DAYS ) {
+				$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'post_type' => fct_get_account_post_type() ), admin_url( 'edit.php' ) ) ), get_delete_post_link( $account->ID, '', true ) ) . "'>" . __( 'Delete', 'fiscaat' ) . "</a>";
+			}
 		}
 
 		return $actions;

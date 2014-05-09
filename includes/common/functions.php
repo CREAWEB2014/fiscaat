@@ -426,7 +426,13 @@ function fct_get_statistics( $args = '' ) {
 }
 
 /**
- * Mimic wp_count_posts with the possibility for querying with post_parent
+ * Count number of available posts
+ * 
+ * Mimics wp_count_posts() behavior with the added 
+ * possibility to query per post parent, using
+ * 'post_parent' => $parent_id in the args array.
+ *
+ * @see wp_count_posts() pre-3.9
  * 
  * @param mixed $args Optional. Arguments
  * @return object Number of posts for each status

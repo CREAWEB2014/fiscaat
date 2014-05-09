@@ -64,7 +64,7 @@ class Fiscaat_Periods_Admin {
 
 		// Contextual Help
 		add_action( 'fct_admin_load_edit_periods',  array( $this, 'edit_help' ) );
-		add_action( 'fct_admin_load_new_periods',   array( $this, 'new_help'  ) );
+		add_action( 'fct_admin_load_post_period',   array( $this, 'new_help'  ) );
 
 		// Page title
 		add_action( 'fct_admin_periods_page_title', array( $this, 'post_new_link' ) );

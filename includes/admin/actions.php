@@ -146,17 +146,6 @@ function fct_register_admin_settings() {
 /** Post Pages ****************************************************************/
 
 /**
- * Dedicated action to load the edit accounts page
- *
- * @since 0.0.7
- *
- * @uses do_action() Calls 'fct_admin_load_edit_accounts'
- */
-function fct_admin_load_edit_accounts() {
-	do_action( 'fct_admin_load_edit_accounts' );
-}
-
-/**
  * Dedicated action to load the edit records page
  *
  * @since 0.0.7
@@ -165,6 +154,17 @@ function fct_admin_load_edit_accounts() {
  */
 function fct_admin_load_edit_records() {
 	do_action( 'fct_admin_load_edit_records' );
+}
+
+/**
+ * Dedicated action to load the edit accounts page
+ *
+ * @since 0.0.7
+ *
+ * @uses do_action() Calls 'fct_admin_load_edit_accounts'
+ */
+function fct_admin_load_edit_accounts() {
+	do_action( 'fct_admin_load_edit_accounts' );
 }
 
 /**
@@ -179,25 +179,30 @@ function fct_admin_load_edit_periods() {
 }
 
 /**
+ * Dedicated action to load the record's post-new.php page
+ * 
+ * @since 0.0.8
+ *
+ * @uses do_action() Calls 'fct_admin_load_post_record'
+ */
+function fct_admin_load_post_records() {
+
+	/**
+	 * NOTE: this hook differs from the other post
+	 * hooks, for it ends in plural 's'.
+	 */
+	do_action( 'fct_admin_load_post_records' );
+}
+
+/**
  * Dedicated action to load the account's post-new.php page
  *
  * @since 0.0.8
  *
- * @uses do_action() Calls 'fct_admin_load_new_accounts'
+ * @uses do_action() Calls 'fct_admin_load_post_account'
  */
-function fct_admin_load_new_accounts() {
-	do_action( 'fct_admin_load_new_accounts' );
-}
-
-/**
- * Dedicated action to load the record's post-new.php page
- *
- * @since 0.0.8
- *
- * @uses do_action() Calls 'fct_admin_load_new_records'
- */
-function fct_admin_load_new_records() {
-	do_action( 'fct_admin_load_new_records' );
+function fct_admin_load_post_account() {
+	do_action( 'fct_admin_load_post_account' );
 }
 
 /**
@@ -205,8 +210,8 @@ function fct_admin_load_new_records() {
  *
  * @since 0.0.8
  *
- * @uses do_action() Calls 'fct_admin_load_new_periods'
+ * @uses do_action() Calls 'fct_admin_load_post_period'
  */
-function fct_admin_load_new_periods() {
-	do_action( 'fct_admin_load_new_periods' );
+function fct_admin_load_post_period() {
+	do_action( 'fct_admin_load_post_period' );
 }

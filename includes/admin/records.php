@@ -71,7 +71,7 @@ class Fiscaat_Records_Admin {
 
 		// Contextual Help
 		add_action( 'fct_admin_load_edit_records',  array( $this, 'edit_help'             ) );
-		add_action( 'fct_admin_load_new_records',   array( $this, 'new_help'              ) );
+		add_action( 'fct_admin_load_post_record',   array( $this, 'new_help'              ) );
 
 		// Modify page title
 		add_action( 'fct_admin_records_page_title', array( $this, 'records_page_title'    ) );
@@ -130,7 +130,7 @@ class Fiscaat_Records_Admin {
 			return;
 
 		// Setup load-new.php hook for new records mode
-		add_action( current_filter(), 'fct_admin_load_new_records' );
+		add_action( current_filter(), 'fct_admin_load_post_records' );
 	}
 
 	/** Contextual Help *******************************************************/

@@ -198,7 +198,7 @@ function fct_dashboard_widget_right_now() {
 function fct_period_metabox() {
 
 	// Post ID
-	$post_id     = get_the_ID();
+	$post_id = get_the_ID();
 
 	/** Status ****************************************************************/
 
@@ -215,7 +215,7 @@ function fct_period_metabox() {
 	/** Start date ************************************************************/
 
 	// Not on post-new.php
-	if ( 'add' != get_current_screen()->action ) : ?>
+	if ( isset( get_current_screen()->action ) && 'add' != get_current_screen()->action ) : ?>
 
 	<p>
 		<strong class="label"><?php _e( 'Start:', 'Period start date', 'fiscaat' ); ?></strong>
@@ -255,9 +255,9 @@ function fct_period_metabox() {
 function fct_account_metabox() {
 
 	// Post ID
-	$post_id = get_the_ID();
+	$post_id   = get_the_ID();
 	$period_id = fct_get_account_period_id( $post_id );
-	$period_id = ! empty( $period_id ) ? $period_id : fct_get_current_period_id();
+	$period_id = fct_get_period_id( $period_id );
 
 	/** Ledger ID *************************************************************/
 
@@ -267,7 +267,7 @@ function fct_account_metabox() {
 		<strong class="label"><?php _e( 'No.:', 'fiscaat' ); ?></strong>
 		<label class="screen-reader-text" for="fct_account_ledger_id"><?php _e( 'Account Number', 'fiscaat' ); ?></label>
 		<input name="fct_account_ledger_id" id="fct_account_ledger_id" type="text" class="medium-text" value="<?php echo esc_attr( fct_get_account_ledger_id( $post_id ) ); ?>" <?php disabled( ! current_user_can( 'fiscaat' ) || fct_is_account_closed( $post_id ) ); ?> />
-		<img class="ajax-loading" src="<?php echo admin_url(); ?>images/spinner.gif" />
+		<span class="spinner" style="float:none;"></span>
 	</p>
 
 	<?php
@@ -324,8 +324,8 @@ function fct_record_metabox() {
 
 	// Get some meta
 	$record_account_id = fct_get_record_account_id( $post_id );
-	$record_period_id    = fct_get_record_period_id( $post_id );
-	$record_period_id    = ! empty( $record_period_id ) ? $record_period_id : fct_get_current_period_id();
+	$record_period_id  = fct_get_record_period_id( $post_id );
+	$record_period_id  = fct_get_period_id( $period_id );
 
 	/** Period ******************************************************************/
 
@@ -362,7 +362,7 @@ function fct_record_metabox() {
 			'select_id'          => 'fct_record_account_ledger_id',
 			'show_none'          => __( '&mdash; No account &mdash;', 'fiscaat' ),
 			'none_found'         => false,
-			'disabled'           => ! current_user_can( 'fiscaat' ) || fct_is_account_closed( $record_account_id ),
+			'disabled'           => ! current_user_can( 'edit_records' ) || fct_is_account_closed( $record_account_id ),
 		) ); ?>
 
 		<br/>
@@ -377,7 +377,7 @@ function fct_record_metabox() {
 			'select_id'          => 'parent_id',
 			'show_none'          => __( '&mdash; No account &mdash;', 'fiscaat' ),
 			'none_found'         => false,
-			'disabled'           => ! current_user_can( 'fiscaat' ) || fct_is_account_closed( $record_account_id ),
+			'disabled'           => ! current_user_can( 'edit_records' ) || fct_is_account_closed( $record_account_id ),
 		) ); ?>
 	</p>
 

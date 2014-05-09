@@ -150,11 +150,11 @@ class Fiscaat_Admin {
 
 		/** Redirect **********************************************************/
 
-		add_action( 'load-edit.php',               array( $this, 'redirect_edit_pages' ), 0 );
+		add_action( 'load-edit.php', array( $this, 'redirect_edit_pages' ), 0 );
 
 		/** Ajax **************************************************************/
 
-		add_action( 'wp_ajax_fct_suggest_account', array( $this, 'suggest_account'     )    );
+		add_action( 'wp_ajax_fct_suggest_account', array( $this, 'suggest_account' ) );
 
 		/** Filters ***********************************************************/
 
@@ -312,7 +312,8 @@ class Fiscaat_Admin {
 			// Setup page specific hooks
 			foreach ( $hooks as $k => $hook ) {
 				add_action( "load-$hook",        array( $this, 'setup_edit_posts' ), 0 );
-				add_action( "load-post-new.php", array( $this, 'setup_new_posts'  ), 0 );
+				add_action( 'load-post-new.php', array( $this, 'setup_post_post'  ), 0 );
+				add_action( 'load-post.php',     array( $this, 'setup_post_post'  ), 0 );
 				unset( $hooks[ $k ] );
 			}
 		}
@@ -416,7 +417,7 @@ class Fiscaat_Admin {
 	}
 
 	/**
-	 * Setup new posts page hooks
+	 * Setup single post (new/edit) page hooks
 	 *
 	 * @since 0.0.8
 	 * 
@@ -425,14 +426,14 @@ class Fiscaat_Admin {
 	 * @uses fct_get_record_post_type() To get the record post type
 	 * @uses fct_get_post_type_type()
 	 */
-	public function setup_new_posts() {
+	public function setup_post_post() {
 
 		// Bail if not a Fiscaat post type
-		if ( ! isset( $_GET['post_type'] ) || ! $type = fct_get_post_type_type( $_GET['post_type'] ) )
+		if ( isset( get_current_screen()->post_type ) && ! $type = fct_get_post_type_type( get_current_screen()->post_type ) )
 			return;
 
 		// Setup type specific load hook
-		add_action( current_filter(), "fct_admin_load_new_{$type}s" );
+		add_action( current_filter(), "fct_admin_load_post_{$type}" );
 	}
 
 	/**
@@ -673,12 +674,12 @@ class Fiscaat_Admin {
 
 			/* Enable account suggesting */
 			jQuery(document).ready(function() {
-				var fct_account_id = jQuery( '#fct_account_id' );
+				var fct_account_id = jQuery('#fct_account_id');
 
 				fct_account_id.suggest( ajaxurl + '?action=fct_suggest_account', {
 					onSelect: function() {
 						var value = this.value;
-						fct_account_id.val( value.substr( 0, value.indexOf( ' ' ) ) );
+						fct_account_id.val( value.substr( 0, value.indexOf(' ') ) );
 					}
 				} );
 			});
@@ -686,8 +687,8 @@ class Fiscaat_Admin {
 			/* Connect primary account id and ledger id dropdowns */
 			jQuery(document).ready(function($) {
 				var dropdowns = [ 
-					$( 'select#fct_ledger_account_id, select#fct_record_account_ledger_id' ), // Account ledger dropdowns
-					$( 'select#fct_account_id, select#parent_id' ) // Account dropdowns
+					$('select#fct_ledger_account_id, select#fct_record_account_ledger_id'), // Account ledger dropdowns
+					$('select#fct_account_id, select#parent_id') // Account dropdowns
 				];
 
 				// Make dropdowns listen to their co-dropdown
@@ -699,7 +700,7 @@ class Fiscaat_Admin {
 					$.each( this, function( j ) {
 						$(this).change( function(){
 
-							$( dropdowns[other_dd][j] ).find( 'option[value="'+ this.value +'"]' ).attr( 'selected', true );
+							$( dropdowns[other_dd][j] ).find('option[value="'+ this.value +'"]').attr('selected', true );
 						});
 					});
 				});
@@ -718,28 +719,6 @@ class Fiscaat_Admin {
 				vertical-align: middle;
 			}
 
-			span.dashicons-before.fct-icon-success:before {
-				content: '\f147'; /* dashicons-yes */
-				background: #1DA817;
-				color: #fff;
-				border-radius: 50%;
-				margin-top: 1px;
-				border: 1px solid #188114;
-				-webkit-box-shadow: inset 0 1px 0 #67D552, 0 1px 0 rgba(0,0,0,.15);
-				box-shadow: inset 0 1px 0 #67D552, 0 1px 0 rgba(0,0,0,.15);
-			}
-
-			span.dashicons-before.fct-icon-error:before {
-				content: '\f335'; /* dashicons-no-alt */
-				margin-top: 1px;
-				background: #e14d43;
-				color: #fff;
-				border-radius: 50%;
-				border: 1px solid #d02a21;
-				-webkit-box-shadow: inset 0 1px 0 #ec8a85, 0 1px 0 rgba(0,0,0,.15);
-				box-shadow: inset 0 1px 0 #ec8a85, 0 1px 0 rgba(0,0,0,.15);
-			}
-
 			/* Kludge for too-wide periods dropdown */
 			#poststuff #fct_account_attributes select#parent_id,
 			#poststuff #fct_record_attributes select#fct_period_id {
@@ -752,6 +731,35 @@ class Fiscaat_Admin {
 			#posts-filter select#fct_account_id {
 				max-width: 173px;
 			}
+
+			/* Icon badges */
+			span.dashicons.fct-badge-success {
+				background: #1DA817;
+				margin: 0 4px;
+				color: #fff;
+				border-radius: 50%;
+				border: 1px solid #188114;
+				-webkit-box-shadow: inset 0 1px 0 #67D552, 0 1px 0 rgba(0,0,0,.15);
+				box-shadow: inset 0 1px 0 #67D552, 0 1px 0 rgba(0,0,0,.15);
+			}
+
+				span.dashicons.fct-badge-success:before {
+					content: '\f147';
+				}
+
+			span.dashicons.fct-badge-error {
+				background: #e14d43;
+				margin: 0 4px;
+				color: #fff;
+				border-radius: 50%;
+				border: 1px solid #d02a21;
+				-webkit-box-shadow: inset 0 1px 0 #ec8a85, 0 1px 0 rgba(0,0,0,.15);
+				box-shadow: inset 0 1px 0 #ec8a85, 0 1px 0 rgba(0,0,0,.15);
+			}
+
+				span.dashicons.fct-badge-error:before {
+					content: '\f335';
+				}
 
 			<?php if ( isset( get_current_screen()->id ) && 'dashboard' == get_current_screen()->id ) : ?>
 
