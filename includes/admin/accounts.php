@@ -390,7 +390,7 @@ class Fiscaat_Accounts_Admin {
 		</style>
 
 		<?php // On post and post-new pages ?>
-		<?php if ( 'post' == get_current_screen()->id ) : ?>
+		<?php if ( isset( get_current_screen()->id ) && 'post' == get_current_screen()->id ) : ?>
 
 		<script type="text/javascript">
 			jQuery(document).ready( function($) {

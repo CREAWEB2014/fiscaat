@@ -393,7 +393,7 @@ function fct_make_current_user_fiscus() {
 function fct_update_years_to_periods() {
 
 	// Query all posts with post type fct_year
-	if ( $periods = new WP_Query( array(
+	if ( $years = new WP_Query( array(
 		'suppress_filters' => true,
 		'post_type'        => 'fct_year',
 		'nopaging'         => true,
@@ -401,7 +401,7 @@ function fct_update_years_to_periods() {
 	) ) ) {
 
 		// Update post type
-		foreach ( $periods->posts as $period_id ) {
+		foreach ( $years->posts as $year_id ) {
 			wp_update_post( array(
 				'ID'        => $year_id, 
 				'post_type' => fct_get_period_post_type()
@@ -410,7 +410,7 @@ function fct_update_years_to_periods() {
 	}
 
 	// Query all accounts and records which have period_id meta
-	if ( $accounts = new WP_Query( array(
+	if ( $posts = new WP_Query( array(
 		'suppress_filters' => true,
 		'post_type'        => array( fct_get_account_post_type(), fct_get_record_post_type() ),
 		'nopaging'         => true,
@@ -418,16 +418,16 @@ function fct_update_years_to_periods() {
 	) ) ) {
 
 		// Update post meta
-		foreach ( $accounts->posts as $account_id ) {
+		foreach ( $posts->posts as $post_id ) {
 
 			// Get current year id meta value
-			$period_id = get_post_meta( $account_id, '_fct_year_id', true );
+			$period_id = get_post_meta( $post_id, '_fct_year_id', true );
 
 			// Update period id meta value
-			update_post_meta( $account_id, '_fct_period_id', $period_id );
+			update_post_meta( $post_id, '_fct_period_id', $period_id );
 
 			// Delete year id meta value
-			delete_post_meta( $account_id, '_fct_year_id' );
+			delete_post_meta( $post_id, '_fct_year_id' );
 		}
 	}
 }

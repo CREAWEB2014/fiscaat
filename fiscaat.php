@@ -18,7 +18,7 @@
  * Description:       Fiscaat is accounting software the Wordpress way
  * Author:            Laurens Offereins
  * Author URI:        https://github.com/lmoffereins
- * Version:           0.0.7
+ * Version:           0.0.8
  * Text Domain:       fiscaat
  * Domain Path:       /languages/
  * GitHub Plugin URI: lmoffereins/fiscaat
@@ -159,8 +159,8 @@ final class Fiscaat {
 
 		/** Versions **********************************************************/
 
-		$this->version       = '0.0.7';
-		$this->db_version    = '007';
+		$this->version       = '0.0.8';
+		$this->db_version    = '008';
 
 		/** Paths *************************************************************/
 
