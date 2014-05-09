@@ -389,6 +389,9 @@ class Fiscaat_Accounts_Admin {
 		/*]]>*/
 		</style>
 
+		<?php // On post and post-new pages ?>
+		<?php if ( 'post' == get_current_screen()->id ) : ?>
+
 		<script type="text/javascript">
 			jQuery(document).ready( function($) {
 				var $ledger_id = $('input#fct_account_ledger_id'),
@@ -426,7 +429,7 @@ class Fiscaat_Accounts_Admin {
 			});
 		</script>
 
-		<?php
+		<?php endif;
 	}
 
 	/** Ajax ******************************************************************/
