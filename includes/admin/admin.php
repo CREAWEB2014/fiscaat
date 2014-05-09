@@ -79,18 +79,18 @@ class Fiscaat_Admin {
 	 * @access private
 	 */
 	private function setup_globals() {
-		$fiscaat = fiscaat();
+		$fct = fiscaat();
 
 		/** Paths *************************************************************/
 
-		$this->admin_dir    = trailingslashit( $fiscaat->includes_dir . 'admin'    ); // Admin path
-		$this->admin_url    = trailingslashit( $fiscaat->includes_url . 'admin'    ); // Admin url
+		$this->admin_dir    = trailingslashit( $fct->includes_dir . 'admin'    ); // Admin path
+		$this->admin_url    = trailingslashit( $fct->includes_url . 'admin'    ); // Admin url
 
-		$this->includes_dir = trailingslashit( $this->admin_dir       . 'includes' ); // Admin includes path
-		$this->includes_url = trailingslashit( $this->admin_url       . 'includes' ); // Admin includes url
+		$this->includes_dir = trailingslashit( $this->admin_dir   . 'includes' ); // Admin includes path
+		$this->includes_url = trailingslashit( $this->admin_url   . 'includes' ); // Admin includes url
 
-		$this->images_url   = trailingslashit( $this->admin_url       . 'images'   ); // Admin images URL
-		$this->styles_url   = trailingslashit( $this->admin_url       . 'styles'   ); // Admin styles URL
+		$this->images_url   = trailingslashit( $this->admin_url   . 'images'   ); // Admin images URL
+		$this->styles_url   = trailingslashit( $this->admin_url   . 'styles'   ); // Admin styles URL
 
 		/** Pages *************************************************************/
 
@@ -246,7 +246,7 @@ class Fiscaat_Admin {
 		// Fiscaat pages
 		if ( current_user_can( 'fct_spectate' ) ) {
 
-			// Fiscaat Core Root
+			// Fiscaat core root
 			add_menu_page(
 				__( 'Fiscaat', 'fiscaat' ),
 				__( 'Fiscaat', 'fiscaat' ),
@@ -665,13 +665,14 @@ class Fiscaat_Admin {
 		remove_submenu_page( 'tools.php', 'fct-reset'     );
 
 		// Top level menu classes
-		$period_class    = sanitize_html_class( fct_get_period_post_type() );
+		$period_class  = sanitize_html_class( fct_get_period_post_type() );
 		$account_class = sanitize_html_class( fct_get_account_post_type() );
 		$record_class  = sanitize_html_class( fct_get_record_post_type() ); ?>
 
 		<script type="text/javascript">
-			jQuery(document).ready(function() {
 
+			/* Enable account suggesting */
+			jQuery(document).ready(function() {
 				var fct_account_id = jQuery( '#fct_account_id' );
 
 				fct_account_id.suggest( ajaxurl + '?action=fct_suggest_account', {
@@ -682,18 +683,24 @@ class Fiscaat_Admin {
 				} );
 			});
 
-			/* Communicate between primary account id and ledger id dropdowns */
+			/* Connect primary account id and ledger id dropdowns */
 			jQuery(document).ready(function($) {
 				var dropdowns = [ 
-					$( 'select#fct_account_id, select#parent_id' ),
-					$( 'select#fct_ledger_account_id, select#fct_record_account_ledger_id' )
+					$( 'select#fct_ledger_account_id, select#fct_record_account_ledger_id' ), // Account ledger dropdowns
+					$( 'select#fct_account_id, select#parent_id' ) // Account dropdowns
 				];
 
+				// Make dropdowns listen to their co-dropdown
 				$.each( dropdowns, function( i ){
 					var other_dd = ( i == 1 ) ? 0 : 1;
 
-					this.change( function(){
-						dropdowns[other_dd].find( 'option[value='+ this.value +']' ).attr( 'selected', true );
+					// For each change in the first selection, change the 
+					// matching one in the other.
+					$.each( this, function( j ) {
+						$(this).change( function(){
+
+							$( dropdowns[other_dd][j] ).find( 'option[value="'+ this.value +'"]' ).attr( 'selected', true );
+						});
 					});
 				});
 			});
@@ -736,14 +743,14 @@ class Fiscaat_Admin {
 			/* Kludge for too-wide periods dropdown */
 			#poststuff #fct_account_attributes select#parent_id,
 			#poststuff #fct_record_attributes select#fct_period_id {
-				max-width: 193px;
+				max-width: 173px;
 			}
 
 			/* Kludge for too-wide account dropdown */
 			#poststuff #fct_record_attributes select#parent_id,
 			#poststuff #fct_record_attributes select#fct_record_account_ledger_id,
 			#posts-filter select#fct_account_id {
-				max-width: 193px;
+				max-width: 173px;
 			}
 
 			<?php if ( isset( get_current_screen()->id ) && 'dashboard' == get_current_screen()->id ) : ?>

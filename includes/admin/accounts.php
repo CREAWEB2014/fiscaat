@@ -56,31 +56,31 @@ class Fiscaat_Accounts_Admin {
 		/** Actions ***********************************************************/
 
 		// Add some general styling to the admin area
-		add_action( 'fct_admin_head', array( $this, 'admin_head'              ) );
+		add_action( 'fct_admin_head', array( $this, 'admin_head' ) );
 
 		// Account metabox actions
 		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox'      ) );
 		add_action( 'save_post',      array( $this, 'attributes_metabox_save' ) );
 
 		// Check if there are any fct_toggle_account_* requests on admin_init, also have a message displayed
-		add_action( 'fct_admin_load_edit_accounts',  array( $this, 'toggle_account'         ) );
-		add_action( 'fct_admin_notices',             array( $this, 'toggle_account_notice'  ) );
+		add_action( 'fct_admin_load_edit_accounts',  array( $this, 'toggle_account'        ) );
+		add_action( 'fct_admin_notices',             array( $this, 'toggle_account_notice' ) );
 
 		// Contextual Help
-		add_action( 'fct_admin_load_edit_accounts',  array( $this, 'edit_help'              ) );
-		add_action( 'fct_admin_load_new_accounts',   array( $this, 'new_help'               ) );
+		add_action( 'fct_admin_load_edit_accounts',  array( $this, 'edit_help' ) );
+		add_action( 'fct_admin_load_new_accounts',   array( $this, 'new_help'  ) );
 
-		// Fiscaat requires
-		add_action( 'fct_admin_load_new_accounts',   array( $this, 'no_period_redirect'       ) );
+		// Redirect
+		add_action( 'fct_admin_load_new_accounts',   array( $this, 'no_period_redirect'    ) );
 		
 		// Page title
-		add_action( 'fct_admin_accounts_page_title', array( $this, 'accounts_page_title'    ) );
-		add_action( 'fct_admin_accounts_page_title', array( $this, 'post_new_link'          ) );
+		add_action( 'fct_admin_accounts_page_title', array( $this, 'accounts_page_title'   ) );
+		add_action( 'fct_admin_accounts_page_title', array( $this, 'post_new_link'         ) );
 
 		/** Ajax **************************************************************/
 		
 		// Check ledger id
-		add_action( 'wp_ajax_fct_check_ledger_id',   array( $this, 'check_ledger_id'        ) );
+		add_action( 'wp_ajax_fct_check_ledger_id', array( $this, 'check_ledger_id' ) );
 
 		/** Filters ***********************************************************/
 		
@@ -92,7 +92,7 @@ class Fiscaat_Accounts_Admin {
 		add_filter( 'post_row_actions',               array( $this, 'accounts_row_actions'    ), 10, 2 );
 
 		// Add ability to filter accounts and records per period
-		add_filter( 'restrict_manage_posts', array( $this, 'filter_dropdown'  ) );
+		add_action( 'restrict_manage_posts', array( $this, 'filter_dropdown'  ) );
 		add_filter( 'fct_request',           array( $this, 'filter_post_rows' ) );
 
 		// Account records view link
@@ -519,6 +519,7 @@ class Fiscaat_Accounts_Admin {
 			return;
 
 		// Show the number dropdown
+		// @todo Show ledger ids in *all* periods
 		fct_ledger_dropdown( array(
 			'selected'  => isset( $_GET['fct_ledger_account_id'] ) ? $_GET['fct_ledger_account_id'] : '',
 			'show_none' => '&mdash;'
