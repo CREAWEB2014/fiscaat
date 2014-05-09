@@ -197,10 +197,10 @@ function fct_admin_get_settings_fields() {
 
 		'fct_settings_per_page' => array(
 
-			// Years per page setting
-			'_fct_years_per_page' => array(
-				'title'             => __( 'Years', 'fiscaat' ),
-				'callback'          => 'fct_admin_setting_callback_years_per_page',
+			// Periods per page setting
+			'_fct_periods_per_page' => array(
+				'title'             => __( 'Periods', 'fiscaat' ),
+				'callback'          => 'fct_admin_setting_callback_periods_per_page',
 				'sanitize_callback' => 'intval',
 				'args'              => array()
 			),
@@ -255,10 +255,10 @@ function fct_admin_get_settings_fields() {
 				'args'              => array()
 			),
 
-			// Year slug setting
-			'_fct_year_slug' => array(
-				'title'             => __( 'Year slug', 'fiscaat' ),
-				'callback'          => 'fct_admin_setting_callback_year_slug',
+			// Period slug setting
+			'_fct_period_slug' => array(
+				'title'             => __( 'Period slug', 'fiscaat' ),
+				'callback'          => 'fct_admin_setting_callback_period_slug',
 				'sanitize_callback' => 'sanitize_title',
 				'args'              => array()
 			),
@@ -573,15 +573,15 @@ function fct_admin_setting_callback_per_page_section() {
 }
 
 /**
- * Years per page setting field
+ * Periods per page setting field
  *
  * @uses fct_form_option() To output the option value
  */
-function fct_admin_setting_callback_years_per_page() {
+function fct_admin_setting_callback_periods_per_page() {
 ?>
 
-	<input name="_fct_years_per_page" type="number" min="1" step="1" id="_fct_years_per_page" value="<?php fct_form_option( '_fct_years_per_page', '15' ); ?>" class="small-text" <?php fct_maybe_admin_setting_disabled( '_fct_years_per_page' ); ?> />
-	<label for="_fct_years_per_page"><?php _e( 'per page', 'fiscaat' ); ?></label>
+	<input name="_fct_periods_per_page" type="number" min="1" step="1" id="_fct_periods_per_page" value="<?php fct_form_option( '_fct_periods_per_page', '15' ); ?>" class="small-text" <?php fct_maybe_admin_setting_disabled( '_fct_periods_per_page' ); ?> />
+	<label for="_fct_periods_per_page"><?php _e( 'per page', 'fiscaat' ); ?></label>
 
 <?php
 }
@@ -625,7 +625,7 @@ function fct_admin_setting_callback_root_slugs_section() {
 	if ( isset( $_GET['settings-updated'] ) && isset( $_GET['page'] ) )
 		flush_rewrite_rules(); ?>
 
-	<p><?php _e( 'Custom root slugs to prefix your years and accounts with. These can be partnered with WordPress pages to allow more flexibility.', 'fiscaat' ); ?></p>
+	<p><?php _e( 'Custom root slugs to prefix your periods and accounts with. These can be partnered with WordPress pages to allow more flexibility.', 'fiscaat' ); ?></p>
 
 <?php
 }
@@ -668,7 +668,7 @@ function fct_admin_setting_callback_ledger_slug() {
 function fct_admin_setting_callback_single_slugs_section() {
 ?>
 
-	<p><?php printf( __( 'Custom slugs for single years, accounts and records here. If you change these, existing permalinks will also change.', 'fiscaat' ), get_admin_url( null, 'options-permalink.php' ) ); ?></p>
+	<p><?php printf( __( 'Custom slugs for single periods, accounts and records here. If you change these, existing permalinks will also change.', 'fiscaat' ), get_admin_url( null, 'options-permalink.php' ) ); ?></p>
 
 <?php
 }
@@ -688,18 +688,18 @@ function fct_admin_setting_callback_include_root() {
 }
 
 /**
- * Year slug setting field
+ * Period slug setting field
  *
  * @uses fct_form_option() To output the option value
  */
-function fct_admin_setting_callback_year_slug() {
+function fct_admin_setting_callback_period_slug() {
 ?>
 
-	<input name="_fct_year_slug" type="text" id="_fct_year_slug" class="regular-text code" value="<?php fct_form_option( '_fct_year_slug', 'year', true ); ?>"<?php fct_maybe_admin_setting_disabled( '_fct_year_slug' ); ?> />
+	<input name="_fct_period_slug" type="text" id="_fct_period_slug" class="regular-text code" value="<?php fct_form_option( '_fct_period_slug', 'period', true ); ?>"<?php fct_maybe_admin_setting_disabled( '_fct_period_slug' ); ?> />
 
 <?php
 	// Slug Check
-	fct_form_slug_conflict_check( '_fct_year_slug', 'year' );
+	fct_form_slug_conflict_check( '_fct_period_slug', 'period' );
 }
 
 /**
@@ -773,7 +773,7 @@ function fct_admin_settings() {
 function fct_converter_setting_callback_main_section() {
 ?>
 
-	<p><?php _e( 'Information about your previous years database so that they can be converted. <strong>Backup your database before proceeding.</strong>', 'fiscaat' ); ?></p>
+	<p><?php _e( 'Information about your previous periods database so that they can be converted. <strong>Backup your database before proceeding.</strong>', 'fiscaat' ); ?></p>
 
 <?php
 }
@@ -803,7 +803,7 @@ function fct_converter_setting_callback_platform() {
 	closedir( $curdir ); ?>
 
 	<select name="_fct_converter_platform" id="_fct_converter_platform" /><?php echo $platform_options ?></select>
-	<label for="_fct_converter_platform"><?php _e( 'is the previous year software', 'fiscaat' ); ?></label>
+	<label for="_fct_converter_platform"><?php _e( 'is the previous period software', 'fiscaat' ); ?></label>
 
 <?php
 }
@@ -873,7 +873,7 @@ function fct_converter_setting_callback_dbname() {
 ?>
 
 	<input name="_fct_converter_db_name" type="text" id="_fct_converter_db_name" value="<?php fct_form_option( '_fct_converter_db_name' ); ?>" class="medium-text" />
-	<label for="_fct_converter_db_name"><?php _e( 'Name of the database with your old year data', 'fiscaat' ); ?></label>
+	<label for="_fct_converter_db_name"><?php _e( 'Name of the database with your old period data', 'fiscaat' ); ?></label>
 
 <?php
 }
@@ -900,7 +900,7 @@ function fct_converter_setting_callback_dbprefix() {
 ?>
 
 	<input name="_fct_converter_db_prefix" type="text" id="_fct_converter_db_prefix" value="<?php fct_form_option( '_fct_converter_db_prefix' ); ?>" class="medium-text" />
-	<label for="_fct_converter_db_prefix"><?php _e( '(If converting from BuddyPress Years, use "wp_bb_" or your custom prefix)', 'fiscaat' ); ?></label>
+	<label for="_fct_converter_db_prefix"><?php _e( '(If converting from BuddyPress Periods, use "wp_bb_" or your custom prefix)', 'fiscaat' ); ?></label>
 
 <?php
 }
@@ -974,7 +974,7 @@ function fct_converter_setting_callback_convert_users() {
 ?>
 
 	<input id="_fct_converter_convert_users" name="_fct_converter_convert_users" type="checkbox" id="_fct_converter_convert_users" value="1" <?php checked( get_option( '_fct_converter_convert_users', false ) ); ?> />
-	<label for="_fct_converter_convert_users"><?php _e( 'Attempt to import user accounts from previous years', 'fiscaat' ); ?></label>
+	<label for="_fct_converter_convert_users"><?php _e( 'Attempt to import user accounts from previous periods', 'fiscaat' ); ?></label>
 	<p class="description"><?php _e( 'Non-Fiscaat passwords cannot be automatically converted. They will be converted as each user logs in.', 'fiscaat' ); ?></p>
 
 <?php
@@ -996,7 +996,7 @@ function fct_converter_settings() {
 
 		<?php screen_icon( 'tools' ); ?>
 
-		<h2 class="nav-tab-wrapper"><?php fct_tools_admin_tabs( __( 'Import Years', 'fiscaat' ) ); ?></h2>
+		<h2 class="nav-tab-wrapper"><?php fct_tools_admin_tabs( __( 'Import Periods', 'fiscaat' ) ); ?></h2>
 
 		<form action="#" method="post" id="fct-converter-settings">
 
@@ -1020,7 +1020,7 @@ function fct_converter_settings() {
 /** Helpers *******************************************************************/
 
 /**
- * Contextual help for Years settings page
+ * Contextual help for Periods settings page
  *
  * @since Fiscaat (r3119)
  * @uses get_current_screen()
@@ -1037,7 +1037,7 @@ function fct_admin_settings_help() {
 	$current_screen->add_help_tab( array(
 		'id'      => 'overview',
 		'title'   => __( 'Overview', 'fiscaat' ),
-		'content' => '<p>' . __( 'This screen provides access to all of the Years settings.',                          'fiscaat' ) . '</p>' .
+		'content' => '<p>' . __( 'This screen provides access to all of the Periods settings.',                          'fiscaat' ) . '</p>' .
 					 '<p>' . __( 'Please see the additional help tabs for more information on each indiviual section.', 'fiscaat' ) . '</p>'
 	) );
 
@@ -1049,10 +1049,10 @@ function fct_admin_settings_help() {
 					 '<p>' .
 						'<ul>' .
 							'<li>' . __( 'You can choose to lock a post after a certain number of minutes. "Locking post editing" will prevent the author from editing some amount of time after saving a post.',              'fiscaat' ) . '</li>' .
-							'<li>' . __( '"Throttle time" is the amount of time required between posts from a single author. The higher the throttle time, the longer a user will need to wait between posting to the year.', 'fiscaat' ) . '</li>' .
+							'<li>' . __( '"Throttle time" is the amount of time required between posts from a single author. The higher the throttle time, the longer a user will need to wait between posting to the period.', 'fiscaat' ) . '</li>' .
 							'<li>' . __( 'Favorites are a way for users to save and later return to accounts they favor. This is enabled by default.',                                                                           'fiscaat' ) . '</li>' .
 							'<li>' . __( 'Subscriptions allow users to subscribe for notifications to accounts that interest them. This is enabled by default.',                                                                 'fiscaat' ) . '</li>' .
-							'<li>' . __( 'Account-Tags allow users to filter accounts between years. This is enabled by default.',                                                                                                'fiscaat' ) . '</li>' .
+							'<li>' . __( 'Account-Tags allow users to filter accounts between periods. This is enabled by default.',                                                                                                'fiscaat' ) . '</li>' .
 							'<li>' . __( '"Anonymous Posting" allows guest users who do not have accounts on your site to both create accounts as well as records.',                                                             'fiscaat' ) . '</li>' .
 							'<li>' . __( 'The Fancy Editor brings the luxury of the Visual editor and HTML editor from the traditional WordPress dashboard into your theme.',                                                  'fiscaat' ) . '</li>' .
 							'<li>' . __( 'Auto-embed will embed the media content from a URL directly into the records. For example: links to Flickr and YouTube.',                                                            'fiscaat' ) . '</li>' .
@@ -1074,9 +1074,9 @@ function fct_admin_settings_help() {
 	$current_screen->add_help_tab( array(
 		'id'      => 'slus',
 		'title'   => __( 'Slugs', 'fiscaat' ),
-		'content' => '<p>' . __( 'The Slugs section allows you to control the permalink structure for your years.',                                                                                                            'fiscaat' ) . '</p>' .
-					 '<p>' . __( '"Archive Slugs" are used as the "root" for your years and accounts. If you combine these values with existing page slugs, Fiscaat will attempt to output the most correct title and content.', 'fiscaat' ) . '</p>' .
-					 '<p>' . __( '"Single Slugs" are used as a prefix when viewing an individual year, account, record, user, or view.',                                                                                          'fiscaat' ) . '</p>' .
+		'content' => '<p>' . __( 'The Slugs section allows you to control the permalink structure for your periods.',                                                                                                            'fiscaat' ) . '</p>' .
+					 '<p>' . __( '"Archive Slugs" are used as the "root" for your periods and accounts. If you combine these values with existing page slugs, Fiscaat will attempt to output the most correct title and content.', 'fiscaat' ) . '</p>' .
+					 '<p>' . __( '"Single Slugs" are used as a prefix when viewing an individual period, account, record, user, or view.',                                                                                          'fiscaat' ) . '</p>' .
 					 '<p>' . __( 'In the event of a slug collision with WordPress or BuddyPress, a warning will appear next to the problem slug(s).', 'fiscaat' ) . '</p>'
 	) );
 
@@ -1084,7 +1084,7 @@ function fct_admin_settings_help() {
 	$current_screen->set_help_sidebar(
 		'<p><strong>' . __( 'For more information:' ) . '</strong></p>' .
 		'<p>' . __( '<a href="http://codex.fiscaat.org" target="_blank">Fiscaat Documentation</a>',    'fiscaat' ) . '</p>' .
-		'<p>' . __( '<a href="http://fiscaat.org/years/" target="_blank">Fiscaat Support Years</a>', 'fiscaat' ) . '</p>'
+		'<p>' . __( '<a href="http://fiscaat.org/periods/" target="_blank">Fiscaat Support Periods</a>', 'fiscaat' ) . '</p>'
 	);
 }
 
@@ -1181,11 +1181,11 @@ function fct_form_slug_conflict_check( $slug, $default ) {
 
 			/** Fiscaat Core ******************************************************/
 
-			// Year archive slug
+			// Period archive slug
 			'_fct_root_slug'         => array( 'name' => __( 'Fiscaat base', 'fiscaat' ), 'default' => 'fiscaat', 'context' => 'Fiscaat' ),
 
-			// Year slug
-			'_fct_year_slug'         => array( 'name' => __( 'Year slug',    'fiscaat' ), 'default' => 'year',    'context' => 'Fiscaat' ),
+			// Period slug
+			'_fct_period_slug'       => array( 'name' => __( 'Period slug',  'fiscaat' ), 'default' => 'period',  'context' => 'Fiscaat' ),
 
 			// Account slug
 			'_fct_account_slug'      => array( 'name' => __( 'Account slug', 'fiscaat' ), 'default' => 'account', 'context' => 'Fiscaat' ),

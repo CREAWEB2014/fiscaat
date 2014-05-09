@@ -12,64 +12,64 @@
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-/** Years *********************************************************************/
+/** Periods *********************************************************************/
 
 /**
- * Output total declined record count of a year 
+ * Output total declined record count of a period 
  *
- * @param int $year_id Optional. Account id
+ * @param int $period_id Optional. Account id
  * @param boolean $integer Optional. Whether or not to format the result
- * @uses fct_get_year_record_count_declined() To get the year declined record count
+ * @uses fct_get_period_record_count_declined() To get the period declined record count
  */
-function fct_year_record_count_declined( $year_id = 0, $integer = false ) {
-	echo fct_get_year_record_count_declined( $year_id, $integer );
+function fct_period_record_count_declined( $period_id = 0, $integer = false ) {
+	echo fct_get_period_record_count_declined( $period_id, $integer );
 }
 	/**
-	 * Return total declined record count of a year 
+	 * Return total declined record count of a period 
 	 *
-	 * @param int $year_id Optional. Account id
+	 * @param int $period_id Optional. Account id
 	 * @param boolean $integer Optional. Whether or not to format the result
-	 * @uses fct_get_year_id() To get the year id
-	 * @uses fct_get_year_meta() To get the declined record count
-	 * @uses apply_filters() Calls 'fct_get_year_record_count_declined' with
-	 *                        the declined record count and year id
+	 * @uses fct_get_period_id() To get the period id
+	 * @uses fct_get_period_meta() To get the declined record count
+	 * @uses apply_filters() Calls 'fct_get_period_record_count_declined' with
+	 *                        the declined record count and period id
 	 * @return int Account declined record count
 	 */
-	function fct_get_year_record_count_declined( $year_id = 0, $integer = false ) {
-		$year_id = fct_get_year_id( $year_id );
-		$records = (int) fct_get_year_meta( $year_id, 'record_count_declined' );
-		$filter  = ( true === $integer ) ? 'fct_get_year_record_count_declined_int' : 'fct_get_year_record_count_declined';
+	function fct_get_period_record_count_declined( $period_id = 0, $integer = false ) {
+		$period_id = fct_get_period_id( $period_id );
+		$records   = (int) fct_get_period_meta( $period_id, 'record_count_declined' );
+		$filter    = ( true === $integer ) ? 'fct_get_period_record_count_declined_int' : 'fct_get_period_record_count_declined';
 
-		return apply_filters( $filter, $records, $year_id );
+		return apply_filters( $filter, $records, $period_id );
 	}
 
 /**
- * Output total unapproved record count of a year 
+ * Output total unapproved record count of a period 
  *
- * @param int $year_id Optional. Account id
+ * @param int $period_id Optional. Account id
  * @param boolean $integer Optional. Whether or not to format the result
- * @uses fct_get_year_record_count_unapproved() To get the year unapproved record count
+ * @uses fct_get_period_record_count_unapproved() To get the period unapproved record count
  */
-function fct_year_record_count_unapproved( $year_id = 0, $integer = false ) {
-	echo fct_get_year_record_count_unapproved( $year_id, $integer );
+function fct_period_record_count_unapproved( $period_id = 0, $integer = false ) {
+	echo fct_get_period_record_count_unapproved( $period_id, $integer );
 }
 	/**
-	 * Return total unapproved record count of a year 
+	 * Return total unapproved record count of a period 
 	 *
-	 * @param int $year_id Optional. Account id
+	 * @param int $period_id Optional. Account id
 	 * @param boolean $integer Optional. Whether or not to format the result
-	 * @uses fct_get_year_id() To get the year id
-	 * @uses fct_get_year_meta() To get the unapproved record count
-	 * @uses apply_filters() Calls 'fct_get_year_record_count_unapproved' with
-	 *                        the unapproved record count and year id
+	 * @uses fct_get_period_id() To get the period id
+	 * @uses fct_get_period_meta() To get the unapproved record count
+	 * @uses apply_filters() Calls 'fct_get_period_record_count_unapproved' with
+	 *                        the unapproved record count and period id
 	 * @return int Account unapproved record count
 	 */
-	function fct_get_year_record_count_unapproved( $year_id = 0, $integer = false ) {
-		$year_id = fct_get_year_id( $year_id );
-		$records = (int) fct_get_year_meta( $year_id, 'record_count_unapproved' );
-		$filter  = ( true === $integer ) ? 'fct_get_year_record_count_unapproved_int' : 'fct_get_year_record_count_unapproved';
+	function fct_get_period_record_count_unapproved( $period_id = 0, $integer = false ) {
+		$period_id = fct_get_period_id( $period_id );
+		$records   = (int) fct_get_period_meta( $period_id, 'record_count_unapproved' );
+		$filter    = ( true === $integer ) ? 'fct_get_period_record_count_unapproved_int' : 'fct_get_period_record_count_unapproved';
 
-		return apply_filters( $filter, $records, $year_id );
+		return apply_filters( $filter, $records, $period_id );
 	}
 
 /** Accounts ******************************************************************/
@@ -209,9 +209,9 @@ function fct_record_approve_link( $args = '' ) {
 		if ( empty( $record ) || ! current_user_can( 'control', $record->ID ) )
 			return;
 
-		$uri      = add_query_arg( array( 'action' => 'fct_toggle_record_approve', 'record_id' => $record->ID ) );
-		$uri      = esc_url( wp_nonce_url( $uri, 'approve-record_' . $record->ID ) );
-		$retval   = $link_before . '<a href="' . $uri . '">' . $approve_text . '</a>' . $link_after;
+		$uri    = add_query_arg( array( 'action' => 'fct_toggle_record_approve', 'record_id' => $record->ID ) );
+		$uri    = esc_url( wp_nonce_url( $uri, 'approve-record_' . $record->ID ) );
+		$retval = $link_before . '<a href="' . $uri . '">' . $approve_text . '</a>' . $link_after;
 
 		return apply_filters( 'fct_get_record_approve_link', $retval, $args );
 	}
@@ -261,10 +261,9 @@ function fct_record_decline_link( $args = '' ) {
 		if ( empty( $record ) || ! current_user_can( 'control', $record->ID ) )
 			return;
 
-		$uri      = add_query_arg( array( 'action' => 'fct_set_record_decline', 'record_id' => $record->ID ) );
-		$uri      = esc_url( wp_nonce_url( $uri, 'decline-record_' . $record->ID ) );
-		$retval   = $link_before . '<a href="' . $uri . '">' . $decline_text . '</a>' . $link_after;
+		$uri    = add_query_arg( array( 'action' => 'fct_set_record_decline', 'record_id' => $record->ID ) );
+		$uri    = esc_url( wp_nonce_url( $uri, 'decline-record_' . $record->ID ) );
+		$retval = $link_before . '<a href="' . $uri . '">' . $decline_text . '</a>' . $link_after;
 
 		return apply_filters( 'fct_get_record_decline_link', $retval, $args );
 	}
-

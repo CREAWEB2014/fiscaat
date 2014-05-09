@@ -176,7 +176,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			'cb'                           => '<input type="checkbox" />',
 			'fct_record_post_date'         => _x( 'Inserted', 'column name', 'fiscaat' ),
 			'author'                       => __( 'Author' ),
-			'fct_record_year'              => _x( 'Year',   'column name',   'fiscaat' ),
+			'fct_record_period'              => _x( 'Period',   'column name',   'fiscaat' ),
 			'fct_record_account_ledger_id' => _x( 'No.',    'column name',   'fiscaat' ),
 			'fct_record_account'           => __( 'Account',                 'fiscaat' ),
 			'fct_record_date'              => __( 'Date' ),
@@ -191,7 +191,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 				$columns['cb'], 
 				$columns['fct_record_post_date'],
 				$columns['author'],
-				$columns['fct_record_year']
+				$columns['fct_record_period']
 			);
 		}
 
@@ -232,7 +232,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		// Hide columns on view page to keep it clean
 		if ( fct_admin_is_view_records() ) {
 			$columns[] = 'author';
-			$columns[] = 'fct_record_year';
+			$columns[] = 'fct_record_period';
 		}
 
 		return $columns;
@@ -433,7 +433,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			// Record date
 			case 'fct_record_date': ?>
 
-				<input name="records[date][]" type="text" class="fct_record_date medium-text" value="" />
+				<input name="records[date][]" type="text" class="fct_record_date medium-text" value="" <?php fct_tab_index_attr(); ?>/>
 
 				<?php
 				break;
@@ -444,7 +444,6 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 					'select_name' => 'records[ledger_account_id][]', 
 					'class'       => 'fct_record_ledger_id',
 					'show_none'   => '&mdash;',
-					'tabindex'    => '',
 				) );
 				break;
 
@@ -454,14 +453,13 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 					'select_name' => 'records[account_id][]',
 					'class'       => 'fct_record_account_id',
 					'show_none'   => __( '&mdash; No Account &mdash;', 'fiscaat' ),
-					'tabindex'    => '',
 				) );
 				break;
 
 			// Record content
 			case 'fct_record_description' : ?>
 
-				<textarea name="records[description][]" class="fct_record_description" rows="1" ></textarea>
+				<textarea name="records[description][]" class="fct_record_description" rows="1" <?php fct_tab_index_attr(); ?>></textarea>
 
 				<?php
 				break;
@@ -469,7 +467,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			// Record offset account
 			case 'fct_record_offset_account' : ?>
 
-				<input name="records[offset_account][]" type="text" class="fct_record_offset_account" value="" />
+				<input name="records[offset_account][]" type="text" class="fct_record_offset_account" value="" <?php fct_tab_index_attr(); ?>/>
 
 				<?php
 				break;
@@ -477,8 +475,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			// Record amount
 			case 'fct_record_amount' : ?>
 
-				<input name="records[amount][debit][]"  class="fct_record_debit_amount small-text"  type="text" value="" />
-				<input name="records[amount][credit][]" class="fct_record_credit_amount small-text" type="text" value="" />
+				<input name="records[amount][debit][]"  class="fct_record_debit_amount small-text"  type="text" value="" <?php fct_tab_index_attr(); ?>/>
+				<input name="records[amount][credit][]" class="fct_record_credit_amount small-text" type="text" value="" <?php fct_tab_index_attr(); ?>/>
 
 				<?php
 				break;
@@ -539,9 +537,9 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @uses fct_get_debit_record_type()
 	 * @uses fct_get_credit_record_type()
 	 * @uses fct_currency_format()
-	 * @uses fct_get_record_year_id()
-	 * @uses fct_get_account_year_id()
-	 * @uses fct_get_year_title()
+	 * @uses fct_get_record_period_id()
+	 * @uses fct_get_account_period_id()
+	 * @uses fct_get_period_title()
 	 * @param string $column_name Column name
 	 * @param int $record_id Record ID
 	 */
@@ -553,7 +551,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 			// Record post date
 			case 'fct_record_post_date':
-				$date = get_post_time( 'U', $year_id );
+				$date = get_post_time( 'U', $period_id );
 				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date ) . '">' . apply_filters( 'post_date_column_time', mysql2date( 'Y/m/d', $date ), $record_id, $column_name, 'list' ) . '</abbr>';
 				break;
 
@@ -606,27 +604,27 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 				<?php
 				break;
 
-			// Record year
-			case 'fct_record_year' :
-				$record_year_id  = fct_get_record_year_id(  $record_id  );
-				$account_year_id = fct_get_account_year_id( $account_id );
+			// Record period
+			case 'fct_record_period' :
+				$record_period_id  = fct_get_record_period_id(  $record_id  );
+				$account_period_id = fct_get_account_period_id( $account_id );
 
-				if ( ! empty( $record_year_id ) ) {
-					$year_title = fct_get_year_title( $record_year_id );
-					if ( empty( $year_title ) ) {
-						$year_title = __( 'No Year', 'fiscaat' );
+				if ( ! empty( $record_period_id ) ) {
+					$period_title = fct_get_period_title( $record_period_id );
+					if ( empty( $period_title ) ) {
+						$period_title = __( 'No Period', 'fiscaat' );
 					}
 
-					// Alert capable users of record year mismatch
-					if ( $record_year_id != $account_year_id ) {
+					// Alert capable users of record period mismatch
+					if ( $record_period_id != $account_period_id ) {
 						if ( current_user_can( 'edit_others_records' ) ) {
-							$year_title .= ' <div class="attention">' . __( '(Mismatch)', 'fiscaat' ) . '</div>';
+							$period_title .= ' <div class="attention">' . __( '(Mismatch)', 'fiscaat' ) . '</div>';
 						}
 					}
-					echo $year_title;
+					echo $period_title;
 
 				} else {
-					_e( 'No Year', 'fiscaat' );
+					_e( 'No Period', 'fiscaat' );
 				}
 				break;
 		}
@@ -729,8 +727,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 				$value = call_user_func_array( "fct_get_account_{$_row}_value", array( 'account_id' => $account_id ) ); 
 				$this->amounts[ $value > 0 ? fct_get_debit_record_type_id() : fct_get_credit_record_type_id() ][] = abs( $value ); ?>
 
-				<input id="fct_account_<?php echo $_row; ?>_value_debit"  class="fct_record_debit_amount small-text"  type="text" value="<?php if ( $value > 0 ) { fct_currency_format( abs( $value ) ); } ?>" disabled="disabled" />
-				<input id="fct_account_<?php echo $_row; ?>_value_credit" class="fct_record_credit_amount small-text" type="text" value="<?php if ( $value < 0 ) { fct_currency_format( abs( $value ) ); } ?>" disabled="disabled" />
+				<input id="fct_account_<?php echo $_row; ?>_value_debit"  class="fct_record_debit_amount small-text"  type="text" value="<?php if ( $value > 0 ) { fct_currency_format( abs( $value ) ); } ?>" disabled="disabled" <?php fct_tab_index_attr(); ?>/>
+				<input id="fct_account_<?php echo $_row; ?>_value_credit" class="fct_record_credit_amount small-text" type="text" value="<?php if ( $value < 0 ) { fct_currency_format( abs( $value ) ); } ?>" disabled="disabled" <?php fct_tab_index_attr(); ?>/>
 
 				<?php
 				break;
@@ -767,8 +765,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			// Total amount
 			case 'fct_record_amount' : ?>
 
-				<input id="fct_records_debit_total"  class="fct_record_debit_amount fct_record_total small-text"  type="text" value="<?php fct_currency_format( array_sum( $this->amounts[ fct_get_debit_record_type_id()  ] ) ); ?>" disabled="disabled" />
-				<input id="fct_records_credit_total" class="fct_record_credit_amount fct_record_total small-text" type="text" value="<?php fct_currency_format( array_sum( $this->amounts[ fct_get_credit_record_type_id() ] ) ); ?>" disabled="disabled" />
+				<input id="fct_records_debit_total"  class="fct_record_debit_amount fct_record_total small-text"  type="text" value="<?php fct_currency_format( array_sum( $this->amounts[ fct_get_debit_record_type_id()  ] ) ); ?>" disabled="disabled" <?php fct_tab_index_attr(); ?>/>
+				<input id="fct_records_credit_total" class="fct_record_credit_amount fct_record_total small-text" type="text" value="<?php fct_currency_format( array_sum( $this->amounts[ fct_get_credit_record_type_id() ] ) ); ?>" disabled="disabled" <?php fct_tab_index_attr(); ?>/>
 
 				<?php
 				break;

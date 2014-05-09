@@ -8,7 +8,7 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 /** Meta **********************************************************************/
 
@@ -17,16 +17,15 @@ if ( !defined( 'ABSPATH' ) ) exit;
  * 
  * @param int $record_id
  * @return array
- * @todo  Add record_created arg?
  */
 function fct_get_record_default_meta(){
 	return apply_filters( 'fct_get_record_default_meta', array(
-		'year_id'        => fct_get_current_year_id(), // Year
-		'account_id'     => 0,                         // Account
-		'record_date'    => '',                        // Physical record date
-		'record_type'    => '',                        // 'debit' or 'credit'
-		'amount'         => 0,                         // Amount
-		'offset_account' => '',                        // External account received from or sent to
+		'period_id'      => fct_get_current_period_id(), // Period
+		'account_id'     => 0,                           // Account
+		'record_date'    => '',                          // Physical record date
+		'record_type'    => '',                          // 'debit' or 'credit'
+		'amount'         => 0,                           // Amount
+		'offset_account' => '',                          // External account received from or sent to
 	) );
 }
 
@@ -36,7 +35,7 @@ function fct_get_record_default_meta(){
  * @uses get_post_meta()
  * 
  * @param string $meta_key Meta key
- * @param int $record_id Year id
+ * @param int $record_id Period id
  * @return mixed $meta_value
  */
 function fct_get_record_meta( $record_id, $meta_key ){
@@ -128,27 +127,27 @@ function fct_insert_record( $record_data = array(), $record_meta = array() ) {
 /** Record Updaters ************************************************************/
 
 /**
- * Update the record with its year id it is in
+ * Update the record with its period id it is in
  *
  * @since 0.0.1
  *
  * @param int $record_id Optional. Record id to update
- * @param int $year_id Optional. Year id
+ * @param int $period_id Optional. Period id
  * @uses fct_get_record_id() To get the record id
- * @uses fct_get_year_id() To get the year id
- * @uses get_post_ancestors() To get the record's year
+ * @uses fct_get_period_id() To get the period id
+ * @uses get_post_ancestors() To get the record's period
  * @uses get_post_field() To get the post type of the post
- * @uses update_post_meta() To update the record year id meta
- * @uses apply_filters() Calls 'fct_update_record_year_id' with the year id
+ * @uses update_post_meta() To update the record period id meta
+ * @uses apply_filters() Calls 'fct_update_record_period_id' with the period id
  *                        and record id
- * @return bool Record's year id
+ * @return bool Record's period id
  */
-function fct_update_record_year_id( $record_id = 0, $year_id = 0 ) {
+function fct_update_record_period_id( $record_id = 0, $period_id = 0 ) {
 	$record_id = fct_get_record_id( $record_id );
-	$year_id   = fct_get_year_id( $year_id );
+	$period_id = fct_get_period_id( $period_id );
 
-	// If no year_id was passed, walk up ancestors and look for year type
-	if ( empty( $year_id ) ) {
+	// If no period_id was passed, walk up ancestors and look for period type
+	if ( empty( $period_id ) ) {
 
 		// Get ancestors
 		$ancestors = (array) get_post_ancestors( $record_id );
@@ -157,21 +156,21 @@ function fct_update_record_year_id( $record_id = 0, $year_id = 0 ) {
 		if ( !empty( $ancestors ) ) {
 			foreach ( $ancestors as $ancestor ) {
 
-				// Get first parent that is a year
-				if ( get_post_field( 'post_type', $ancestor ) == fct_get_year_post_type() ) {
-					$year_id = $ancestor;
+				// Get first parent that is a period
+				if ( get_post_field( 'post_type', $ancestor ) == fct_get_period_post_type() ) {
+					$period_id = $ancestor;
 
-					// Found a year, so exit the loop and continue
+					// Found a period, so exit the loop and continue
 					continue;
 				}
 			}
 		}
 	}
 
-	// Update the year ID
-	fct_update_record_meta( $record_id, 'year_id', $year_id );
+	// Update the period ID
+	fct_update_record_meta( $record_id, 'period_id', $period_id );
 
-	return apply_filters( 'fct_update_record_year_id', (int) $year_id, $record_id );
+	return apply_filters( 'fct_update_record_period_id', (int) $period_id, $record_id );
 }
 
 /**
@@ -352,27 +351,27 @@ function fct_update_record_offset_account( $record_id = 0, $offset_account = 0 )
  *
  * @param int $record_id Optional. Record id
  * @param int $account_id Optional. Topic id
- * @param int $year_id Optional. Forum id
+ * @param int $period_id Optional. Forum id
  * @param bool|array $anonymous_data Optional. If it is an array, it is
  *                    extracted and anonymous user info is saved
  * @param int $author_id Author id
  * @param bool $is_edit Optional. Is the post being edited? Defaults to false.
  * @uses fct_get_record_id() To get the record id
  * @uses fct_get_account_id() To get the account id
- * @uses fct_get_year_id() To get the year id
+ * @uses fct_get_period_id() To get the period id
  * @uses fct_get_current_user_id() To get the current user id
  * @uses fct_get_record_account_id() To get the record account id
- * @uses fct_get_account_year_id() To get the account year id
+ * @uses fct_get_account_period_id() To get the account period id
  * @uses update_post_meta() To update the record metas
  * @uses fct_update_user_last_posted() To update the users last posted time
- * @uses fct_update_record_year_id() To update the record year id
+ * @uses fct_update_record_period_id() To update the record period id
  * @uses fct_update_record_account_id() To update the record account id
  */
 function fct_update_record( $args = '' ) {
 	$defaults = array(
 		'record_id'      => 0,
 		'account_id'     => 0,
-		'year_id'        => 0,
+		'period_id'      => 0,
 		'record_type'    => 0,
 		'record_date'    => 0,
 		'amount'         => 0,
@@ -383,9 +382,9 @@ function fct_update_record( $args = '' ) {
 	extract( $r );	
 
 	// Validate the ID's passed from 'fct_new_record' action
-	$record_id  = fct_get_record_id( $record_id );
+	$record_id  = fct_get_record_id ( $record_id  );
 	$account_id = fct_get_account_id( $account_id );
-	$year_id    = fct_get_year_id( $year_id );
+	$period_id  = fct_get_period_id ( $period_id  );
 
 	// Bail if there is no record
 	if ( empty( $record_id ) )
@@ -395,12 +394,12 @@ function fct_update_record( $args = '' ) {
 	if ( empty( $account_id ) )
 		$account_id = fct_get_record_account_id( $record_id );
 
-	// Check year_id
-	if ( ! empty( $account_id ) && empty( $year_id ) )
-		$year_id = fct_get_account_year_id( $account_id );
+	// Check period_id
+	if ( ! empty( $account_id ) && empty( $period_id ) )
+		$period_id = fct_get_account_period_id( $account_id );
 
 	// Record meta relating to record position in tree
-	fct_update_record_year_id   ( $record_id, $year_id    );
+	fct_update_record_period_id   ( $record_id, $period_id    );
 	fct_update_record_account_id( $record_id, $account_id );
 
 	// Record date
@@ -417,7 +416,7 @@ function fct_update_record( $args = '' ) {
 	if ( empty( $is_edit ) ) {
 
 		// Update parent account
-		fct_update_account( array( 'account_id' => $account_id, 'year_id' => $year_id ) );
+		fct_update_account( array( 'account_id' => $account_id, 'period_id' => $period_id ) );
 	}
 }
 

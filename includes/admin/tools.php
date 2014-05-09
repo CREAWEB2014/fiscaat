@@ -31,9 +31,9 @@ function fct_admin_repair() {
 
 		<?php screen_icon( 'tools' ); ?>
 
-		<h2 class="nav-tab-wrapper"><?php fct_tools_admin_tabs( __( 'Repair Years', 'fiscaat' ) ); ?></h2>
+		<h2 class="nav-tab-wrapper"><?php fct_tools_admin_tabs( __( 'Repair Periods', 'fiscaat' ) ); ?></h2>
 
-		<p><?php _e( 'Fiscaat keeps track of relationships between years, accounts, records, and account tags, and users. Occasionally these relationships become out of sync, most often after an import or migration. Use the tools below to manually recalculate these relationships.', 'fiscaat' ); ?></p>
+		<p><?php _e( 'Fiscaat keeps track of relationships between periods, accounts, records, and account tags, and users. Occasionally these relationships become out of sync, most often after an import or migration. Use the tools below to manually recalculate these relationships.', 'fiscaat' ); ?></p>
 		<p class="description"><?php _e( 'Some of these tools create substantial database overhead. Avoid running more than 1 repair job at a time.', 'fiscaat' ); ?></p>
 
 		<form class="settings" method="post" action="">
@@ -158,11 +158,11 @@ function fct_admin_tools_feedback( $message, $class = false ) {
 function fct_admin_repair_list() {
 	$repair_list = array(
 		0  => array( 'fct-sync-account-meta',       __( 'Recalculate the parent account for each post',       'fiscaat' ), 'fct_admin_repair_account_meta'               ),
-		5  => array( 'fct-sync-year-meta',          __( 'Recalculate the parent year for each post',          'fiscaat' ), 'fct_admin_repair_year_meta'                   ),
-		10 => array( 'fct-sync-year-visibility',    __( 'Recalculate private and hidden years',               'fiscaat' ), 'fct_admin_repair_year_visibility'             ),
-		15 => array( 'fct-sync-all-accounts-years', __( 'Recalculate last activity in each account and year', 'fiscaat' ), 'fct_admin_repair_freshness'                   ),
-		25 => array( 'fct-year-accounts',           __( 'Count accounts in each year',                        'fiscaat' ), 'fct_admin_repair_year_account_count'          ),
-		30 => array( 'fct-year-records',            __( 'Count records in each year',                         'fiscaat' ), 'fct_admin_repair_year_record_count'           ),
+		5  => array( 'fct-sync-period-meta',          __( 'Recalculate the parent period for each post',          'fiscaat' ), 'fct_admin_repair_period_meta'                   ),
+		10 => array( 'fct-sync-period-visibility',    __( 'Recalculate private and hidden periods',               'fiscaat' ), 'fct_admin_repair_period_visibility'             ),
+		15 => array( 'fct-sync-all-accounts-periods', __( 'Recalculate last activity in each account and period', 'fiscaat' ), 'fct_admin_repair_freshness'                   ),
+		25 => array( 'fct-period-accounts',           __( 'Count accounts in each period',                        'fiscaat' ), 'fct_admin_repair_period_account_count'          ),
+		30 => array( 'fct-period-records',            __( 'Count records in each period',                         'fiscaat' ), 'fct_admin_repair_period_record_count'           ),
 		35 => array( 'fct-account-records',         __( 'Count records in each account',                      'fiscaat' ), 'fct_admin_repair_account_record_count'        ),
 		45 => array( 'fct-account-hidden-records',  __( 'Count spammed & trashed records in each account',    'fiscaat' ), 'fct_admin_repair_account_hidden_record_count' ),
 		50 => array( 'fct-user-records',            __( 'Count accounts for each user',                       'fiscaat' ), 'fct_admin_repair_user_account_count'          ),
@@ -246,31 +246,31 @@ function fct_admin_repair_account_hidden_record_count() {
 }
 
 /**
- * Recount year accounts
+ * Recount period accounts
  *
  * @since Fiscaat (r2613)
  *
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
- * @uses fct_get_year_post_type() To get the year post type
- * @uses get_posts() To get the years
- * @uses fct_update_year_account_count() To update the year account count
+ * @uses fct_get_period_post_type() To get the period post type
+ * @uses get_posts() To get the periods
+ * @uses fct_update_period_account_count() To update the period account count
  * @return array An array of the status code and the message
  */
-function fct_admin_repair_year_account_count() {
+function fct_admin_repair_period_account_count() {
 	global $wpdb;
 
-	$statement = __( 'Counting the number of accounts in each year&hellip; %s', 'fiscaat' );
+	$statement = __( 'Counting the number of accounts in each period&hellip; %s', 'fiscaat' );
 	$result    = __( 'Failed!', 'fiscaat' );
 
 	$sql_delete = "DELETE FROM {$wpdb->postmeta} WHERE meta_key IN ( '_fct_account_count', '_fct_total_account_count' );";
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$years = get_posts( array( 'post_type' => fct_get_year_post_type(), 'numberposts' => -1 ) );
-	if ( ! empty( $years ) ) {
-		foreach( $years as $year ) {
-			fct_update_year_account_count( $year->ID );
+	$periods = get_posts( array( 'post_type' => fct_get_period_post_type(), 'numberposts' => -1 ) );
+	if ( ! empty( $periods ) ) {
+		foreach( $periods as $period ) {
+			fct_update_period_account_count( $period->ID );
 		}
 	} else {
 		return array( 2, sprintf( $statement, $result ) );
@@ -280,31 +280,31 @@ function fct_admin_repair_year_account_count() {
 }
 
 /**
- * Recount year records
+ * Recount period records
  *
  * @since Fiscaat (r2613)
  *
  * @uses wpdb::query() To run our recount sql queries
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
- * @uses fct_get_year_post_type() To get the year post type
- * @uses get_posts() To get the years
- * @uses fct_update_year_record_count() To update the year record count
+ * @uses fct_get_period_post_type() To get the period post type
+ * @uses get_posts() To get the periods
+ * @uses fct_update_period_record_count() To update the period record count
  * @return array An array of the status code and the message
  */
-function fct_admin_repair_year_record_count() {
+function fct_admin_repair_period_record_count() {
 	global $wpdb;
 
-	$statement = __( 'Counting the number of records in each year&hellip; %s', 'fiscaat' );
+	$statement = __( 'Counting the number of records in each period&hellip; %s', 'fiscaat' );
 	$result    = __( 'Failed!', 'fiscaat' );
 
 	$sql_delete = "DELETE FROM `{$wpdb->postmeta}` WHERE `meta_key` IN ( '_fct_record_count', '_fct_total_record_count' );";
 	if ( is_wp_error( $wpdb->query( $sql_delete ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
-	$years = get_posts( array( 'post_type' => fct_get_year_post_type(), 'numberposts' => -1 ) );
-	if ( ! empty( $years ) ) {
-		foreach( $years as $year ) {
-			fct_update_year_record_count( $year->ID );
+	$periods = get_posts( array( 'post_type' => fct_get_period_post_type(), 'numberposts' => -1 ) );
+	if ( ! empty( $periods ) ) {
+		foreach( $periods as $period ) {
+			fct_update_period_record_count( $period->ID );
 		}
 	} else {
 		return array( 2, sprintf( $statement, $result ) );
@@ -528,15 +528,15 @@ function fct_admin_repair_user_subscriptions() {
 
 /**
  * This repair tool will map each user of the current site to their respective
- * years role. By default, Admins will be Key Masters, and every other role
- * will be the default role defined in Settings > Years (Participant).
+ * periods role. By default, Admins will be Key Masters, and every other role
+ * will be the default role defined in Settings > Periods (Participant).
  *
  * @since Fiscaat (r4340)
  *
  * @uses fct_get_user_role_map() To get the map of user roles
  * @uses get_editable_roles() To get the current WordPress roles
  * @uses get_users() To get the users of each role (limited to ID field)
- * @uses fct_set_user_role() To set each user's years role
+ * @uses fct_set_user_role() To set each user's periods role
  */
 function fct_admin_repair_user_roles() {
 
@@ -579,47 +579,47 @@ function fct_admin_repair_user_roles() {
 }
 
 /**
- * Recaches the private and hidden years
+ * Recaches the private and hidden periods
  *
  * @since Fiscaat (r4104)
  *
- * @uses delete_option() to delete private and hidden year pointers
+ * @uses delete_option() to delete private and hidden period pointers
  * @uses WP_Query() To query post IDs
  * @uses is_wp_error() To return if error occurred
  * @uses update_option() To update the private and hidden post ID pointers
  * @return array An array of the status code and the message
  */
-function fct_admin_repair_year_visibility() {
+function fct_admin_repair_period_visibility() {
 
-	$statement = __( 'Recalculating year visibility &hellip; %s', 'fiscaat' );
+	$statement = __( 'Recalculating period visibility &hellip; %s', 'fiscaat' );
 	$result    = __( 'Failed!', 'fiscaat' );
 
 	// First, delete everything.
-	delete_option( '_fct_private_years' );
-	delete_option( '_fct_hidden_years'  );
+	delete_option( '_fct_private_periods' );
+	delete_option( '_fct_hidden_periods'  );
 
-	// Next, get all the private and hidden years
-	$private_years = new WP_Query( array(
+	// Next, get all the private and hidden periods
+	$private_periods = new WP_Query( array(
 		'suppress_filters' => true,
 		'nopaging'         => true,
-		'post_type'        => fct_get_year_post_type(),
+		'post_type'        => fct_get_period_post_type(),
 		'post_status'      => fct_get_private_status_id(),
 		'fields'           => 'ids'
 	) );
-	$hidden_years = new WP_Query( array(
+	$hidden_periods = new WP_Query( array(
 		'suppress_filters' => true,
 		'nopaging'         => true,
-		'post_type'        => fct_get_year_post_type(),
+		'post_type'        => fct_get_period_post_type(),
 		'post_status'      => fct_get_hidden_status_id(),
 		'fields'           => 'ids'
 	) );
 
 	// Bail if queries returned errors
-	if ( is_wp_error( $private_years ) || is_wp_error( $hidden_years ) )
+	if ( is_wp_error( $private_periods ) || is_wp_error( $hidden_periods ) )
 		return array( 2, sprintf( $statement, $result ) );
 
-	update_option( '_fct_private_years', $private_years->posts ); // Private years
-	update_option( '_fct_hidden_years',  $hidden_years->posts  ); // Hidden years
+	update_option( '_fct_private_periods', $private_periods->posts ); // Private periods
+	update_option( '_fct_hidden_periods',  $hidden_periods->posts  ); // Hidden periods
 
 	// Reset the $post global
 	wp_reset_postdata();
@@ -629,7 +629,7 @@ function fct_admin_repair_year_visibility() {
 }
 
 /**
- * Recaches the year for each post
+ * Recaches the period for each post
  *
  * @since Fiscaat (r3876)
  *
@@ -637,28 +637,28 @@ function fct_admin_repair_year_visibility() {
  * @uses is_wp_error() To check if the executed query returned {@link WP_Error}
  * @return array An array of the status code and the message
  */
-function fct_admin_repair_year_meta() {
+function fct_admin_repair_period_meta() {
 	global $wpdb;
 
-	$statement = __( 'Recalculating the year for each post &hellip; %s', 'fiscaat' );
+	$statement = __( 'Recalculating the period for each post &hellip; %s', 'fiscaat' );
 	$result    = __( 'Failed!', 'fiscaat' );
 
 	// First, delete everything.
-	if ( is_wp_error( $wpdb->query( "DELETE FROM `$wpdb->postmeta` WHERE `meta_key` = '_fct_year_id';" ) ) )
+	if ( is_wp_error( $wpdb->query( "DELETE FROM `$wpdb->postmeta` WHERE `meta_key` = '_fct_period_id';" ) ) )
 		return array( 1, sprintf( $statement, $result ) );
 
 	// Next, give all the accounts with records the ID their last record.
 	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
-			( SELECT `year`.`ID`, '_fct_year_id', `year`.`post_parent`
+			( SELECT `period`.`ID`, '_fct_period_id', `period`.`post_parent`
 			FROM `$wpdb->posts`
-				AS `year`
-			WHERE `year`.`post_type` = 'year'
-			GROUP BY `year`.`ID` );" ) ) )
+				AS `period`
+			WHERE `period`.`post_type` = 'period'
+			GROUP BY `period`.`ID` );" ) ) )
 		return array( 2, sprintf( $statement, $result ) );
 
 	// Next, give all the accounts with records the ID their last record.
 	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
-			( SELECT `account`.`ID`, '_fct_year_id', `account`.`post_parent`
+			( SELECT `account`.`ID`, '_fct_period_id', `account`.`post_parent`
 			FROM `$wpdb->posts`
 				AS `account`
 			WHERE `account`.`post_type` = 'account'
@@ -667,7 +667,7 @@ function fct_admin_repair_year_meta() {
 
 	// Next, give all the accounts with records the ID their last record.
 	if ( is_wp_error( $wpdb->query( "INSERT INTO `$wpdb->postmeta` (`post_id`, `meta_key`, `meta_value`)
-			( SELECT `record`.`ID`, '_fct_year_id', `account`.`post_parent`
+			( SELECT `record`.`ID`, '_fct_period_id', `account`.`post_parent`
 			FROM `$wpdb->posts`
 				AS `record`
 			INNER JOIN `$wpdb->posts`
@@ -751,8 +751,8 @@ function fct_admin_reset() {
 
 		<?php screen_icon( 'tools' ); ?>
 
-		<h2 class="nav-tab-wrapper"><?php fct_tools_admin_tabs( __( 'Reset Years', 'fiscaat' ) ); ?></h2>
-		<p><?php _e( 'This will revert your years back to a brand new installation. This process cannot be undone. <strong>Backup your database before proceeding</strong>.', 'fiscaat' ); ?></p>
+		<h2 class="nav-tab-wrapper"><?php fct_tools_admin_tabs( __( 'Reset Periods', 'fiscaat' ) ); ?></h2>
+		<p><?php _e( 'This will revert your periods back to a brand new installation. This process cannot be undone. <strong>Backup your database before proceeding</strong>.', 'fiscaat' ); ?></p>
 
 		<form class="settings" method="post" action="">
 			<table class="form-table">
@@ -760,7 +760,7 @@ function fct_admin_reset() {
 					<tr valign="top">
 						<th scope="row"><?php _e( 'The following data will be removed:', 'fiscaat' ) ?></th>
 						<td>
-							<?php _e( 'All Years',            'fiscaat' ); ?><br />
+							<?php _e( 'All Periods',            'fiscaat' ); ?><br />
 							<?php _e( 'All Accounts',         'fiscaat' ); ?><br />
 							<?php _e( 'All Records',          'fiscaat' ); ?><br />
 							<?php _e( 'Related Meta Data',    'fiscaat' ); ?><br />
@@ -817,8 +817,8 @@ function fct_admin_reset_handler() {
 		/** Posts *************************************************************/
 
 		$statement  = __( 'Deleting Posts&hellip; %s', 'fiscaat' );
-		$sql_posts  = $wpdb->get_results( "SELECT `ID` FROM `{$wpdb->posts}` WHERE `post_type` IN ('year', 'account', 'record')", OBJECT_K );
-		$sql_delete = "DELETE FROM `{$wpdb->posts}` WHERE `post_type` IN ('year', 'account', 'record')";
+		$sql_posts  = $wpdb->get_results( "SELECT `ID` FROM `{$wpdb->posts}` WHERE `post_type` IN ('period', 'account', 'record')", OBJECT_K );
+		$sql_delete = "DELETE FROM `{$wpdb->posts}` WHERE `post_type` IN ('period', 'account', 'record')";
 		$result     = is_wp_error( $wpdb->query( $sql_delete ) ) ? $failed : $success;
 		$messages[] = sprintf( $statement, $result );
 

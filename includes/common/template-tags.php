@@ -4,7 +4,7 @@
  * Fiscaat Common Template Tags
  *
  * Common template tags are ones that are used by more than one component, like
- * years, accounts, records, etc...
+ * periods, accounts, records, etc...
  *
  * @package Fiscaat
  * @subpackage TemplateTags
@@ -16,28 +16,28 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /** URLs **********************************************************************/
 
 /**
- * Ouput the year URL
+ * Ouput the period URL
  * 
- * @uses fct_get_years_url() To get the years URL
+ * @uses fct_get_periods_url() To get the periods URL
  * @param string $path Additional path with leading slash
  */
-function fct_years_url( $path = '/' ) {
-	echo fct_get_years_url( $path );
+function fct_periods_url( $path = '/' ) {
+	echo fct_get_periods_url( $path );
 }
 
 	/**
-	 * Return the year URL
+	 * Return the period URL
 	 * 
 	 * @uses home_url() To get the home URL
-	 * @uses fct_get_root_slug() To get the year root location
+	 * @uses fct_get_root_slug() To get the period root location
 	 * @param string $path Additional path with leading slash
 	 */
-	function fct_get_years_url( $path = '/' ) {
+	function fct_get_periods_url( $path = '/' ) {
 		return home_url( fct_get_root_slug() . $path );
 	}
 
 /**
- * Ouput the year URL
+ * Ouput the period URL
  *
  * @uses fct_get_accounts_url() To get the accounts URL
  * @param string $path Additional path with leading slash
@@ -47,7 +47,7 @@ function fct_accounts_url( $path = '/' ) {
 }
 
 	/**
-	 * Return the year URL
+	 * Return the period URL
 	 *
 	 * @uses home_url() To get the home URL
 	 * @uses fct_get_account_archive_slug() To get the accounts archive location
@@ -89,7 +89,7 @@ function fct_footer() {
  *
  * @see fct_has_records()
  * @see fct_has_accounts()
- * @see fct_has_years()
+ * @see fct_has_periods()
  * 
  * @uses fct_post_callback() To call 'fct_has_{posts}'
  * @param string $post_type Optional. Post type name
@@ -108,7 +108,7 @@ function fct_has_posts( $post_type = '' ) {
  *
  * @see fct_records()
  * @see fct_accounts()
- * @see fct_years()
+ * @see fct_periods()
  * 
  * @uses fct_post_callback() To call 'fct_{posts}'
  * @param string $post_type Optional. Post type name
@@ -127,7 +127,7 @@ function fct_posts( $post_type = '' ) {
  *
  * @see fct_the_record()
  * @see fct_the_account()
- * @see fct_the_year()
+ * @see fct_the_period()
  * 
  * @uses fct_post_callback() To call 'fct_the_{post}'
  * @param string $post_type Optional. Post type name
@@ -140,91 +140,91 @@ function fct_the_post( $post_type = '' ) {
 /** Is Functions **************************************************************/
 
 /**
- * Check if current page is a Fiscaat year
+ * Check if current page is a Fiscaat period
  *
  * @param int $post_id Possible post_id to check
- * @uses fct_get_year_post_type() To get the year post type
- * @return bool True if it's a year page, false if not
+ * @uses fct_get_period_post_type() To get the period post type
+ * @return bool True if it's a period page, false if not
  */
-function fct_is_year( $post_id = 0 ) {
+function fct_is_period( $post_id = 0 ) {
 
 	// Assume false
 	$retval = false;
 
-	// Supplied ID is a year
-	if ( ! empty( $post_id ) && ( fct_get_year_post_type() == get_post_type( $post_id ) ))
+	// Supplied ID is a period
+	if ( ! empty( $post_id ) && ( fct_get_period_post_type() == get_post_type( $post_id ) ))
 		$retval = true;
 
-	return (bool) apply_filters( 'fct_is_year', $retval, $post_id );
+	return (bool) apply_filters( 'fct_is_period', $retval, $post_id );
 }
 
 /**
- * Check if we are viewing a year archive.
+ * Check if we are viewing a period archive.
  *
- * @uses is_post_type_archive() To check if we are looking at the year archive
- * @uses fct_get_year_post_type() To get the year post type ID
+ * @uses is_post_type_archive() To check if we are looking at the period archive
+ * @uses fct_get_period_post_type() To get the period post type ID
  *
  * @return bool
  */
-function fct_is_year_archive() {
+function fct_is_period_archive() {
 
 	// Default to false
 	$retval = false;
 
-	// In year archive
-	if ( is_post_type_archive( fct_get_year_post_type() ) || fct_is_query_name( 'fct_year_archive' ) )
+	// In period archive
+	if ( is_post_type_archive( fct_get_period_post_type() ) || fct_is_query_name( 'fct_period_archive' ) )
 		$retval = true;
 
-	return (bool) apply_filters( 'fct_is_year_archive', $retval );
+	return (bool) apply_filters( 'fct_is_period_archive', $retval );
 }
 
 /**
- * Viewing a single year
+ * Viewing a single period
  *
  * @uses is_single()
- * @uses fct_get_year_post_type()
+ * @uses fct_get_period_post_type()
  * @uses get_post_type()
  * @uses apply_filters()
  *
  * @return bool
  */
-function fct_is_single_year() {
+function fct_is_single_period() {
 
 	// Assume false
 	$retval = false;
 
-	// Edit is not a single year
-	if ( fct_is_year_edit() )
+	// Edit is not a single period
+	if ( fct_is_period_edit() )
 		return false;
 
 	// Single and a match
-	if ( is_singular( fct_get_year_post_type() ) || fct_is_query_name( 'fct_single_year' ) )
+	if ( is_singular( fct_get_period_post_type() ) || fct_is_query_name( 'fct_single_period' ) )
 		$retval = true;
 
-	return (bool) apply_filters( 'fct_is_single_year', $retval );
+	return (bool) apply_filters( 'fct_is_single_period', $retval );
 }
 
 /**
- * Check if current page is a year edit page
+ * Check if current page is a period edit page
  *
- * @uses WP_Query Checks if WP_Query::fct_is_year_edit is true
- * @return bool True if it's the year edit page, false if not
+ * @uses WP_Query Checks if WP_Query::fct_is_period_edit is true
+ * @return bool True if it's the period edit page, false if not
  */
-function fct_is_year_edit() {
+function fct_is_period_edit() {
 	global $wp_query, $pagenow;
 
 	// Assume false
 	$retval = false;
 
 	// Check query
-	if ( ! empty( $wp_query->fct_is_year_edit ) && ( $wp_query->fct_is_year_edit == true ) )
+	if ( ! empty( $wp_query->fct_is_period_edit ) && ( $wp_query->fct_is_period_edit == true ) )
 		$retval = true;
 
 	// Editing in admin
-	elseif ( is_admin() && ( 'post.php' == $pagenow ) && ( get_post_type() == fct_get_year_post_type() ) && ( ! empty( $_GET['action'] ) && ( 'edit' == $_GET['action'] ) ) )
+	elseif ( is_admin() && ( 'post.php' == $pagenow ) && ( get_post_type() == fct_get_period_post_type() ) && ( ! empty( $_GET['action'] ) && ( 'edit' == $_GET['action'] ) ) )
 		$retval = true;
 
-	return (bool) apply_filters( 'fct_is_year_edit', $retval );
+	return (bool) apply_filters( 'fct_is_period_edit', $retval );
 }
 
 /**
@@ -321,7 +321,7 @@ function fct_is_account_edit() {
  *
  * @param mixed $the_post Optional. Post object or post ID.
  * @uses get_post_type()
- * @uses fct_get_year_post_type()
+ * @uses fct_get_period_post_type()
  * @uses fct_get_account_post_type()
  * @uses fct_get_record_post_type()
  *
@@ -334,7 +334,7 @@ function fct_is_custom_post_type( $the_post = false ) {
 
 	// Viewing one of the Fiscaat post types
 	if ( in_array( get_post_type( $the_post ), array(
-		fct_get_year_post_type(),
+		fct_get_period_post_type(),
 		fct_get_account_post_type(),
 		fct_get_record_post_type()
 	) ) )
@@ -462,12 +462,12 @@ function fct_is_edit() {
  *
  * @param array $wp_classes
  * @param array $custom_classes
- * @uses fct_is_single_year()
+ * @uses fct_is_single_period()
  * @uses fct_is_single_account()
  * @uses fct_is_single_record()
  * @uses fct_is_record_edit()
  * @uses fct_is_single_view()
- * @uses fct_is_year_archive()
+ * @uses fct_is_period_archive()
  * @uses fct_is_account_archive()
  * @return array Body Classes
  */
@@ -477,16 +477,16 @@ function fct_body_class( $wp_classes, $custom_classes = false ) {
 
 	/** Archives **************************************************************/
 
-	if ( fct_is_year_archive() )
-		$fct_classes[] = fct_get_year_post_type() . '-archive';
+	if ( fct_is_period_archive() )
+		$fct_classes[] = fct_get_period_post_type() . '-archive';
 
 	if ( fct_is_account_archive() )
 		$fct_classes[] = fct_get_account_post_type() . '-archive';
 
 	/** Components ************************************************************/
 
-	if ( fct_is_single_year() )
-		$fct_classes[] = fct_get_year_post_type();
+	if ( fct_is_single_period() )
+		$fct_classes[] = fct_get_period_post_type();
 
 	if ( fct_is_single_account() )
 		$fct_classes[] = fct_get_account_post_type();
@@ -518,7 +518,7 @@ function fct_body_class( $wp_classes, $custom_classes = false ) {
 /**
  * Use the above is_() functions to return if in any Fiscaat page
  *
- * @uses fct_is_single_year()
+ * @uses fct_is_single_period()
  * @uses fct_is_single_account()
  * @uses fct_is_single_record()
  * @uses fct_is_record_edit()
@@ -533,7 +533,7 @@ function is_fiscaat() {
 
 	/** Archives **************************************************************/
 
-	if ( fct_is_year_archive() )
+	if ( fct_is_period_archive() )
 		$retval = true;
 
 	elseif ( fct_is_account_archive() )
@@ -541,7 +541,7 @@ function is_fiscaat() {
 
 	/** Components ************************************************************/
 
-	elseif ( fct_is_single_year() )
+	elseif ( fct_is_single_period() )
 		$retval = true;
 
 	elseif ( fct_is_single_account() )
@@ -567,17 +567,17 @@ function is_fiscaat() {
 /** Listeners *****************************************************************/
 
 /**
- * Check if it's a year or a account or record of a year and if
+ * Check if it's a period or a account or record of a period and if
  * the user can't view it, then sets a 404
  *
  * @uses current_user_can() To check if the current user can fiscaat
  * @uses is_singular() To check if it's a singular page
- * @uses fct_get_year_post_type() To get the year post type
+ * @uses fct_get_period_post_type() To get the period post type
  * @uses fct_get_account_post_type() To get the account post type
  * @uses fct_get_record_post_type() To get the record post type
- * @uses fct_get_account_year_id() To get the account year id
- * @uses fct_get_record_year_id() To get the record year id
- * @uses fct_user_can_spectate() To check if the year is closed or not
+ * @uses fct_get_account_period_id() To get the account period id
+ * @uses fct_get_record_period_id() To get the record period id
+ * @uses fct_user_can_spectate() To check if the period is closed or not
  * @uses fct_set_404() To set a 404 status
  */
 function fct_enforce_404() {
@@ -589,29 +589,29 @@ function fct_enforce_404() {
 	global $wp_query;
 
 	// Define local variables
-	$year_id = 0;
+	$period_id = 0;
 
 	// Check post type
 	switch ( $wp_query->get( 'post_type' ) ) {
 
-		// Year
-		case fct_get_year_post_type() :
-			$year_id = fct_get_year_id( $wp_query->post->ID );
+		// Period
+		case fct_get_period_post_type() :
+			$period_id = fct_get_period_id( $wp_query->post->ID );
 			break;
 
 		// Topic
 		case fct_get_account_post_type() :
-			$year_id = fct_get_account_year_id( $wp_query->post->ID );
+			$period_id = fct_get_account_period_id( $wp_query->post->ID );
 			break;
 
 		// Reply
 		case fct_get_record_post_type() :
-			$year_id = fct_get_record_year_id( $wp_query->post->ID );
+			$period_id = fct_get_record_period_id( $wp_query->post->ID );
 			break;
 	}
 
 	// If page is Fiscaat and user is not capable, set 404
-	if ( ! empty( $year_id ) && ! fct_user_can_spectate( $wp_query->post->ID ) )
+	if ( ! empty( $period_id ) && ! fct_user_can_spectate( $wp_query->post->ID ) )
 		fct_set_404();
 }
 
@@ -704,6 +704,20 @@ function fct_sanitize_val( $request = '', $input_type = 'text' ) {
 	}
 
 /**
+ * Output the current tab index of a given form in html
+ *
+ * Use this function to handle the tab indexing of user facing forms within a
+ * template file. Calling this function will automatically increment the global
+ * tab index by default.
+ *
+ * @param int $auto_increment Optional. Default true. Set to false to prevent
+ *                             increment
+ */
+function fct_tab_index_attr( $auto_increment = true ) {
+	echo 'tabindex="' . fct_get_tab_index( $auto_increment ) . '"';
+}
+
+/**
  * Output the current tab index of a given form
  *
  * Use this function to handle the tab indexing of user facing forms within a
@@ -739,10 +753,10 @@ function fct_tab_index( $auto_increment = true ) {
 	}
 
 /**
- * Output a select box allowing to pick which year/account a new account/record
+ * Output a select box allowing to pick which period/account a new account/record
  * belongs in.
  *
- * Can be used for any post type, but is mostly used for accounts and years.
+ * Can be used for any post type, but is mostly used for accounts and periods.
  *
  * @param mixed $args See {@link fct_get_dropdown()} for arguments
  */
@@ -751,11 +765,11 @@ function fct_dropdown( $args = '' ) {
 }
 
 	/**
-	 * Output a select box allowing to pick which year/account a new
+	 * Output a select box allowing to pick which period/account a new
 	 * account/record belongs in.
 	 *
 	 * @param mixed $args The function supports these args:
-	 *  - post_type: Post type, defaults to fct_get_year_post_type() (fct_year)
+	 *  - post_type: Post type, defaults to fct_get_period_post_type() (fct_period)
 	 *  - selected: Selected ID, to not have any value as selected, pass
 	 *               anything smaller than 0 (due to the nature of select
 	 *               box, the first value would of course be selected -
@@ -766,22 +780,22 @@ function fct_dropdown( $args = '' ) {
 	 *                  or CSV of publish, category, closed, private, spam,
 	 *                  trash (based on post type) - if not set, these are
 	 *                  automatically determined based on the post_type
-	 *  - posts_per_page: Retrieve all years/accounts. Defaults to -1 to get
+	 *  - posts_per_page: Retrieve all periods/accounts. Defaults to -1 to get
 	 *                     all posts
 	 *  - walker: Which walker to use? Defaults to {@link Fiscaat_Walker_Dropdown}
-	 *  - select_id: ID of the select box. Defaults to 'fct_year_id'
+	 *  - select_id: ID of the select box. Defaults to 'fct_period_id'
 	 *  - tab: Tabindex value. False or integer
 	 *  - options_only: Show only <options>? No <select>?
-	 *  - show_none: False or something like __( '(No Year)', 'fiscaat' ),
+	 *  - show_none: False or something like __( '(No Period)', 'fiscaat' ),
 	 *                will have value=""
 	 *  - none_found: False or something like
-	 *                 __( 'No years to post to!', 'fiscaat' )
-	 *  - disable_closed: Disable closed years? Defaults to true. Only for years.
+	 *                 __( 'No periods to post to!', 'fiscaat' )
+	 *  - disable_closed: Disable closed periods? Defaults to true. Only for periods.
 	 * @uses Fiscaat_Walker_Dropdown() As the default walker to generate the
 	 *                              dropdown
 	 * @uses current_user_can() To check if the current user can read
-	 *                           private years
-	 * @uses fct_get_year_post_type() To get the year post type
+	 *                           private periods
+	 * @uses fct_get_period_post_type() To get the period post type
 	 * @uses fct_get_account_post_type() To get the account post type
 	 * @uses walk_page_dropdown_tree() To generate the dropdown using the
 	 *                                  walker
@@ -794,7 +808,7 @@ function fct_dropdown( $args = '' ) {
 		/** Arguments *********************************************************/
 
 		$defaults = array (
-			'post_type'          => fct_get_year_post_type(),
+			'post_type'          => fct_get_period_post_type(),
 			'selected'           => 0,
 			'sort_column'        => 'menu_order',
 			'child_of'           => '0',
@@ -804,7 +818,7 @@ function fct_dropdown( $args = '' ) {
 			'walker'             => '',
 
 			// Output-related
-			'select_id'          => 'fct_year_id',
+			'select_id'          => 'fct_period_id',
 			'select_name'        => false, // Custom
 			'class'              => false, // Custom
 			'tab'                => fct_get_tab_index(),
@@ -886,9 +900,9 @@ function fct_dropdown( $args = '' ) {
 					$retval .= __( '&mdash; No accounts &mdash;', 'fiscaat' );
 					break;
 
-				// Years
-				case fct_get_year_post_type() :
-					$retval .=  __('&mdash; No years &mdash;', 'fiscaat');
+				// Periods
+				case fct_get_period_post_type() :
+					$retval .=  __('&mdash; No periods &mdash;', 'fiscaat');
 					break;
 
 				// Any other
@@ -904,50 +918,50 @@ function fct_dropdown( $args = '' ) {
 	}
 
 /**
- * Output the required hidden fields when creating/editing a year
+ * Output the required hidden fields when creating/editing a period
  *
  * @since Fiscaat (r3553)
  *
- * @uses fct_is_year_edit() To check if it's the year edit page
+ * @uses fct_is_period_edit() To check if it's the period edit page
  * @uses wp_nonce_field() To generate hidden nonce fields
- * @uses fct_year_id() To output the year id
- * @uses fct_is_single_year() To check if it's a year page
- * @uses fct_year_id() To output the year id
+ * @uses fct_period_id() To output the period id
+ * @uses fct_is_single_period() To check if it's a period page
+ * @uses fct_period_id() To output the period id
  */
-function fct_year_form_fields() {
+function fct_period_form_fields() {
 
-	if ( fct_is_year_edit() ) : ?>
+	if ( fct_is_period_edit() ) : ?>
 
-		<input type="hidden" name="action"          id="fct_post_action" value="fiscaat-edit-year" />
-		<input type="hidden" name="fct_year_id" id="fct_year_id"     value="<?php fct_year_id(); ?>" />
+		<input type="hidden" name="action"          id="fct_post_action" value="fiscaat-edit-period" />
+		<input type="hidden" name="fct_period_id" id="fct_period_id"     value="<?php fct_period_id(); ?>" />
 
 		<?php
 
 		if ( current_user_can( 'unfiltered_html' ) )
-			wp_nonce_field( 'fiscaat-unfiltered-html-year_' . fct_get_year_id(), '_fct_unfiltered_html_year', false );
+			wp_nonce_field( 'fiscaat-unfiltered-html-period_' . fct_get_period_id(), '_fct_unfiltered_html_period', false );
 
 		?>
 
-		<?php wp_nonce_field( 'fiscaat-edit-year_' . fct_get_year_id() );
+		<?php wp_nonce_field( 'fiscaat-edit-period_' . fct_get_period_id() );
 
 	else :
 
-		if ( fct_is_single_year() ) : ?>
+		if ( fct_is_single_period() ) : ?>
 
-			<input type="hidden" name="fct_year_parent_id" id="fct_year_parent_id" value="<?php fct_year_parent_id(); ?>" />
+			<input type="hidden" name="fct_period_parent_id" id="fct_period_parent_id" value="<?php fct_period_parent_id(); ?>" />
 
 		<?php endif; ?>
 
-			<input type="hidden" name="action" id="fct_post_action" value="fiscaat-new-year" />
+			<input type="hidden" name="action" id="fct_post_action" value="fiscaat-new-period" />
 
 		<?php
 
 		if ( current_user_can( 'unfiltered_html' ) )
-			wp_nonce_field( 'fiscaat-unfiltered-html-year_new', '_fct_unfiltered_html_year', false );
+			wp_nonce_field( 'fiscaat-unfiltered-html-period_new', '_fct_unfiltered_html_period', false );
 
 		?>
 
-		<?php wp_nonce_field( 'fiscaat-new-year' );
+		<?php wp_nonce_field( 'fiscaat-new-period' );
 
 	endif;
 }
@@ -960,8 +974,8 @@ function fct_year_form_fields() {
  * @uses fct_is_account_edit() To check if it's the account edit page
  * @uses wp_nonce_field() To generate hidden nonce fields
  * @uses fct_account_id() To output the account id
- * @uses fct_is_single_year() To check if it's a year page
- * @uses fct_year_id() To output the year id
+ * @uses fct_is_single_period() To check if it's a period page
+ * @uses fct_period_id() To output the period id
  */
 function fct_account_form_fields() {
 
@@ -981,9 +995,9 @@ function fct_account_form_fields() {
 
 	else :
 
-		if ( fct_is_single_year() ) : ?>
+		if ( fct_is_single_period() ) : ?>
 
-			<input type="hidden" name="fct_year_id" id="fct_year_id" value="<?php fct_year_id(); ?>" />
+			<input type="hidden" name="fct_period_id" id="fct_period_id" value="<?php fct_period_id(); ?>" />
 
 		<?php endif; ?>
 
@@ -1006,7 +1020,7 @@ function fct_account_form_fields() {
  * @uses wp_nonce_field() To generate hidden nonce fields
  * @uses fct_record_id() To output the record id
  * @uses fct_account_id() To output the account id
- * @uses fct_year_id() To output the year id
+ * @uses fct_period_id() To output the period id
  */
 function fct_record_form_fields() {
 
@@ -1190,7 +1204,7 @@ function fct_breadcrumb( $args = array() ) {
 }
 
 	/**
-	 * Return a breadcrumb ( year -> account -> record )
+	 * Return a breadcrumb ( period -> account -> record )
 	 *
 	 * @since Fiscaat (r2589)
 	 *
@@ -1199,14 +1213,14 @@ function fct_breadcrumb( $args = array() ) {
 	 * @param bool $root Include the root page if one exists
 	 *
 	 * @uses get_post() To get the post
-	 * @uses fct_get_year_permalink() To get the year link
+	 * @uses fct_get_period_permalink() To get the period link
 	 * @uses fct_get_account_permalink() To get the account link
 	 * @uses fct_get_record_permalink() To get the record link
 	 * @uses get_permalink() To get the permalink
-	 * @uses fct_get_year_post_type() To get the year post type
+	 * @uses fct_get_period_post_type() To get the period post type
 	 * @uses fct_get_account_post_type() To get the account post type
 	 * @uses fct_get_record_post_type() To get the record post type
-	 * @uses fct_get_year_title() To get the year title
+	 * @uses fct_get_period_title() To get the period title
 	 * @uses fct_get_account_title() To get the account title
 	 * @uses fct_get_record_title() To get the record title
 	 * @uses get_the_title() To get the title
@@ -1249,7 +1263,7 @@ function fct_breadcrumb( $args = array() ) {
 			if ( ! empty( $page ) ) {
 				$root_id = $page->ID;
 			}
-			$pre_root_text = fct_get_year_archive_title();
+			$pre_root_text = fct_get_period_archive_title();
 		}
 
 		/** Includes **********************************************************/
@@ -1258,27 +1272,27 @@ function fct_breadcrumb( $args = array() ) {
 		if ( ! empty( $front_id ) && ( $front_id == $root_id ) )
 			$pre_include_root = false;
 
-		// Don't show root if viewing year archive
-		if ( fct_is_year_archive() )
+		// Don't show root if viewing period archive
+		if ( fct_is_period_archive() )
 			$pre_include_root = false;
 
-		// Don't show root if viewing page in place of year archive
+		// Don't show root if viewing page in place of period archive
 		if ( ! empty( $root_id ) && ( ( is_single() || is_page() ) && ( $root_id == get_the_ID() ) ) )
 			$pre_include_root = false;
 
 		/** Current Text ******************************************************/
 
-		// Year archive
-		if ( fct_is_year_archive() ) {
-			$pre_current_text = fct_get_year_archive_title();
+		// Period archive
+		if ( fct_is_period_archive() ) {
+			$pre_current_text = fct_get_period_archive_title();
 
 		// Account archive
 		} elseif ( fct_is_account_archive() ) {
 			$pre_current_text = fct_get_account_archive_title();
 
-		// Single Year
-		} elseif ( fct_is_single_year() ) {
-			$pre_current_text = fct_get_year_title();
+		// Single Period
+		} elseif ( fct_is_single_period() ) {
+			$pre_current_text = fct_get_period_title();
 
 		// Single Account
 		} elseif ( fct_is_single_account() ) {
@@ -1316,7 +1330,7 @@ function fct_breadcrumb( $args = array() ) {
 			'include_home'    => $pre_include_home,
 			'home_text'       => $pre_front_text,
 
-			// Year root
+			// Period root
 			'include_root'    => $pre_include_root,
 			'root_text'       => $pre_root_text,
 
@@ -1332,14 +1346,14 @@ function fct_breadcrumb( $args = array() ) {
 		/** Ancestors *********************************************************/
 
 		// Get post ancestors
-		if ( is_page() || is_single() || fct_is_year_edit() || fct_is_account_edit() || fct_is_record_edit() )
+		if ( is_page() || is_single() || fct_is_period_edit() || fct_is_account_edit() || fct_is_record_edit() )
 			$ancestors = array_reverse( (array) get_post_ancestors( get_the_ID() ) );
 
 		// Do we want to include a link to home?
 		if ( ! empty( $include_home ) || empty( $home_text ) )
 			$crumbs[] = '<a href="' . trailingslashit( home_url() ) . '" class="fiscaat-breadcrumb-home">' . $home_text . '</a>';
 
-		// Do we want to include a link to the year root?
+		// Do we want to include a link to the period root?
 		if ( ! empty( $include_root ) || empty( $root_text ) ) {
 
 			// Page exists at root slug path, so use its permalink
@@ -1349,7 +1363,7 @@ function fct_breadcrumb( $args = array() ) {
 
 			// Use the root slug
 			} else {
-				$root_url = get_post_type_archive_link( fct_get_year_post_type() );
+				$root_url = get_post_type_archive_link( fct_get_period_post_type() );
 			}
 
 			// Add the breadcrumb
@@ -1368,9 +1382,9 @@ function fct_breadcrumb( $args = array() ) {
 				// Switch through post_type to ensure correct filters are applied
 				switch ( $parent->post_type ) {
 
-					// Year
-					case fct_get_year_post_type() :
-						$crumbs[] = '<a href="' . fct_get_year_permalink( $parent->ID ) . '" class="fiscaat-breadcrumb-year">' . fct_get_year_title( $parent->ID ) . '</a>';
+					// Period
+					case fct_get_period_post_type() :
+						$crumbs[] = '<a href="' . fct_get_period_permalink( $parent->ID ) . '" class="fiscaat-breadcrumb-period">' . fct_get_period_title( $parent->ID ) . '</a>';
 						break;
 
 					// Account
@@ -1497,8 +1511,8 @@ function fct_template_notices() {
  * @uses fct_is_user_home() To check if the profile page is of the current user
  * @uses get_query_var() To get the user id
  * @uses get_userdata() To get the user data
- * @uses fct_is_single_year() To check if it's a year
- * @uses fct_get_year_title() To get the year title
+ * @uses fct_is_single_period() To check if it's a period
+ * @uses fct_get_period_title() To get the period title
  * @uses fct_is_single_account() To check if it's a account
  * @uses fct_get_account_title() To get the account title
  * @uses fct_is_single_record() To check if it's a record
@@ -1519,9 +1533,9 @@ function fct_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 
 	/** Archives **************************************************************/
 
-	// Year Archive
-	if ( fct_is_year_archive() ) {
-		$title = fct_get_year_archive_title();
+	// Period Archive
+	if ( fct_is_period_archive() ) {
+		$title = fct_get_period_archive_title();
 
 	// Account Archive
 	} elseif ( fct_is_account_archive() ) {
@@ -1529,9 +1543,9 @@ function fct_title( $title = '', $sep = '&raquo;', $seplocation = '' ) {
 
 	/** Singles ***************************************************************/
 
-	// Year page
-	} elseif ( fct_is_single_year() ) {
-		$title = sprintf( __( 'Year: %s', 'fiscaat' ), fct_get_year_title() );
+	// Period page
+	} elseif ( fct_is_single_period() ) {
+		$title = sprintf( __( 'Period: %s', 'fiscaat' ), fct_get_period_title() );
 
 	// Account page
 	} elseif ( fct_is_single_account() ) {

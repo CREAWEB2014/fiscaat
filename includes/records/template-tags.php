@@ -24,7 +24,7 @@ function fct_record_post_type() {
 	/**
 	 * Return the unique id of the custom post type for records
 	 *
-	 * @uses apply_filters() Calls 'fct_get_year_post_type' with the record
+	 * @uses apply_filters() Calls 'fct_get_period_post_type' with the record
 	 *                        post type id
 	 * @return string The unique record post type id
 	 */
@@ -88,25 +88,25 @@ function fct_has_records( $args = '' ) {
 	extract( $fct_r );
 
 	// Get Fiscaat
-	$fiscaat = fiscaat();
+	$fct = fiscaat();
 
 	// Call the query
-	$fiscaat->record_query = new WP_Query( $fct_r );
+	$fct->record_query = new WP_Query( $fct_r );
 	
 	// Add pagination values to query object
-	$fiscaat->record_query->posts_per_page = $posts_per_page;
-	$fiscaat->record_query->paged          = $paged;
+	$fct->record_query->posts_per_page = $posts_per_page;
+	$fct->record_query->paged          = $paged;
 
 	// Never home, regardless of what parse_query says
-	$fiscaat->record_query->is_home        = false;
+	$fct->record_query->is_home        = false;
 
 	// Reset is_single if single account
 	if ( fct_is_single_account() ) {
-		$fiscaat->record_query->is_single = true;
+		$fct->record_query->is_single = true;
 	}
 
 	// Only add pagination if query returned results
-	if ( (int) $fiscaat->record_query->found_posts && (int) $fiscaat->record_query->posts_per_page ) {
+	if ( (int) $fct->record_query->found_posts && (int) $fct->record_query->posts_per_page ) {
 
 		// If pretty permalinks are enabled, make our pagination pretty
 		if ( $wp_rewrite->using_permalinks() ) {
@@ -132,12 +132,12 @@ function fct_has_records( $args = '' ) {
 		}
 
 		// Add pagination to query object
-		$fiscaat->record_query->pagination_links = paginate_links(
+		$fct->record_query->pagination_links = paginate_links(
 			apply_filters( 'fct_records_pagination', array(
 				'base'      => $base,
 				'format'    => '',
-				'total'     => ceil( (int) $fiscaat->record_query->found_posts / (int) $posts_per_page ),
-				'current'   => (int) $fiscaat->record_query->paged,
+				'total'     => ceil( (int) $fct->record_query->found_posts / (int) $posts_per_page ),
+				'current'   => (int) $fct->record_query->paged,
 				'prev_text' => '&larr;',
 				'next_text' => '&rarr;',
 				'mid_size'  => 1,
@@ -147,14 +147,14 @@ function fct_has_records( $args = '' ) {
 
 		// Remove first page from pagination
 		if ( $wp_rewrite->using_permalinks() ) {
-			$fiscaat->record_query->pagination_links = str_replace( $wp_rewrite->pagination_base . '/1/', '', $fiscaat->record_query->pagination_links );
+			$fct->record_query->pagination_links = str_replace( $wp_rewrite->pagination_base . '/1/', '', $fct->record_query->pagination_links );
 		} else {
-			$fiscaat->record_query->pagination_links = str_replace( '&#038;paged=1', '', $fiscaat->record_query->pagination_links );
+			$fct->record_query->pagination_links = str_replace( '&#038;paged=1', '', $fct->record_query->pagination_links );
 		}
 	}
 
 	// Return object
-	return apply_filters( 'fct_has_records', $fiscaat->record_query->have_posts(), $fiscaat->record_query );
+	return apply_filters( 'fct_has_records', $fct->record_query->have_posts(), $fct->record_query );
 }
 
 /**
@@ -215,19 +215,19 @@ function fct_record_id( $record_id = 0 ) {
 	function fct_get_record_id( $record_id = 0 ) {
 		global $wp_query;
 
-		$fiscaat = fiscaat();
+		$fct = fiscaat();
 
 		// Easy empty checking
 		if ( ! empty( $record_id ) && is_numeric( $record_id ) ) {
 			$fct_record_id = $record_id;
 
 		// Currently inside a records loop
-		} elseif ( ! empty( $fiscaat->record_query->in_the_loop ) && isset( $fiscaat->record_query->post->ID ) ) {
-			$fct_record_id = $fiscaat->record_query->post->ID;
+		} elseif ( ! empty( $fct->record_query->in_the_loop ) && isset( $fct->record_query->post->ID ) ) {
+			$fct_record_id = $fct->record_query->post->ID;
 
-		// Currently viewing a year
-		} elseif ( ( fct_is_single_record() || fct_is_record_edit() ) && ! empty( $fiscaat->current_record_id ) ) {
-			$fct_record_id = $fiscaat->current_record_id;
+		// Currently viewing a period
+		} elseif ( ( fct_is_single_record() || fct_is_record_edit() ) && ! empty( $fct->current_record_id ) ) {
+			$fct_record_id = $fct->current_record_id;
 
 		// Currently viewing a record
 		} elseif ( ( fct_is_single_record() || fct_is_record_edit() ) && isset( $wp_query->post->ID ) ) {
@@ -815,30 +815,30 @@ function fct_record_account_id( $record_id = 0 ) {
 	}
 
 /**
- * Output the year id a record belongs to
+ * Output the period id a record belongs to
  *
  * @param int $record_id Optional. Record id
- * @uses fct_get_record_year_id() To get the record year id
+ * @uses fct_get_record_period_id() To get the record period id
  */
-function fct_record_year_id( $record_id = 0 ) {
-	echo fct_get_record_year_id( $record_id );
+function fct_record_period_id( $record_id = 0 ) {
+	echo fct_get_record_period_id( $record_id );
 }
 
 	/**
-	 * Return the year id a record belongs to
+	 * Return the period id a record belongs to
 	 *
 	 * @param int $record_id Optional. Record id
 	 * @uses fct_get_record_id() To get the record id
-	 * @uses fct_get_record_meta() To get the record year id
-	 * @uses apply_filters() Calls 'fct_get_record_year_id' with the year
+	 * @uses fct_get_record_meta() To get the record period id
+	 * @uses apply_filters() Calls 'fct_get_record_period_id' with the period
 	 *                        id and record id
-	 * @return int Record's year id
+	 * @return int Record's period id
 	 */
-	function fct_get_record_year_id( $record_id = 0 ) {
+	function fct_get_record_period_id( $record_id = 0 ) {
 		$record_id = fct_get_record_id( $record_id );
-		$year_id   = (int) fct_get_record_meta( $record_id, 'year_id' );
+		$period_id   = (int) fct_get_record_meta( $record_id, 'period_id' );
 
-		return (int) apply_filters( 'fct_get_record_year_id', $year_id, $record_id );
+		return (int) apply_filters( 'fct_get_record_period_id', $period_id, $record_id );
 	}
 
 /**
@@ -859,7 +859,7 @@ function fct_record_date( $record_id = 0 ) {
 	 *
 	 * @uses fct_get_record_id() To get the record id
 	 * @uses fct_get_record_meta() To get the record date
-	 * @uses apply_filters() Calls 'fct_get_record_date' with the year
+	 * @uses apply_filters() Calls 'fct_get_record_date' with the period
 	 *                        id and record id
 	 *
 	 * @param int $record_id Optional. Record id
@@ -892,7 +892,7 @@ function fct_record_offset_account( $record_id = 0 ) {
 	 * @param int $record_id Optional. Record id
 	 * @uses fct_get_record_id() To get the record id
 	 * @uses fct_get_record_meta() To get the record offset account
-	 * @uses apply_filters() Calls 'fct_get_record_offset_account' with the year
+	 * @uses apply_filters() Calls 'fct_get_record_offset_account' with the period
 	 *                        id and record id
 	 * @return string Record's offset account
 	 */
@@ -919,7 +919,7 @@ function fct_record_type( $record_id = 0 ) {
 	 *
 	 * @uses fct_get_record_id() To get the record id
 	 * @uses fct_get_record_meta() To get the record type
-	 * @uses apply_filters() Calls 'fct_get_record_type' with the year
+	 * @uses apply_filters() Calls 'fct_get_record_type' with the period
 	 *                        id and record id
 	 *
 	 * @param int $record_id Optional. Record id
@@ -948,7 +948,7 @@ function fct_record_amount( $record_id = 0 ) {
 	 * @param int $record_id Optional. Record id
 	 * @uses fct_get_record_id() To get the record id
 	 * @uses fct_get_record_meta() To get the record amount
-	 * @uses apply_filters() Calls 'fct_get_record_amount' with the year
+	 * @uses apply_filters() Calls 'fct_get_record_amount' with the period
 	 *                        id and record id
 	 * @return int Record's amount
 	 */
@@ -1136,7 +1136,7 @@ function fct_record_edit_url( $record_id = 0 ) {
 	function fct_get_record_edit_url( $record_id = 0 ) {
 		global $wp_rewrite;
 
-		$fiscaat   = fiscaat();
+		$fct   = fiscaat();
 		$record = fct_get_record( fct_get_record_id( $record_id ) );
 		if ( empty( $record ) )
 			return;
@@ -1145,12 +1145,12 @@ function fct_record_edit_url( $record_id = 0 ) {
 
 		// Pretty permalinks
 		if ( $wp_rewrite->using_permalinks() ) {
-			$url = trailingslashit( $record_link ) . $fiscaat->edit_id;
+			$url = trailingslashit( $record_link ) . $fct->edit_id;
 			$url = trailingslashit( $url );
 
 		// Unpretty permalinks
 		} else {
-			$url = add_query_arg( array( fct_get_record_post_type() => $record->post_name, $fiscaat->edit_id => '1' ), $record_link );
+			$url = add_query_arg( array( fct_get_record_post_type() => $record->post_name, $fct->edit_id => '1' ), $record_link );
 		}
 
 		// Maybe add view all
@@ -1204,9 +1204,9 @@ function fct_record_decline_link( $args = '' ) {
 		if ( empty( $record ) || ! current_user_can( 'control', $record->ID ) )
 			return;
 
-		$uri      = add_query_arg( array( 'action' => 'fct_toggle_record_approval', 'record_id' => $record->ID ) );
-		$uri      = esc_url( wp_nonce_url( $uri, 'approval-record_' . $record->ID ) );
-		$retval   = $link_before . '<a href="' . $uri . '">' . $decline_text . '</a>' . $link_after;
+		$uri    = add_query_arg( array( 'action' => 'fct_toggle_record_approval', 'record_id' => $record->ID ) );
+		$uri    = esc_url( wp_nonce_url( $uri, 'approval-record_' . $record->ID ) );
+		$retval = $link_before . '<a href="' . $uri . '">' . $decline_text . '</a>' . $link_after;
 
 		return apply_filters( 'fct_get_record_decline_link', $retval, $args );
 	}
@@ -1226,19 +1226,19 @@ function fct_record_class( $record_id = 0 ) {
 	 *
 	 * @param int $record_id Optional. Record ID
 	 * @uses fct_get_record_id() To validate the record id
-	 * @uses fct_get_record_year_id() To get the record's year id
+	 * @uses fct_get_record_period_id() To get the record's period id
 	 * @uses fct_get_record_account_id() To get the record's account id
 	 * @uses get_post_class() To get all the classes including ours
 	 * @uses apply_filters() Calls 'fct_get_record_class' with the classes
 	 * @return string Row class of the record
 	 */
 	function fct_get_record_class( $record_id = 0 ) {
-		$fiscaat   = fiscaat();
+		$fct       = fiscaat();
 		$record_id = fct_get_record_id( $record_id );
-		$count     = isset( $fiscaat->record_query->current_post ) ? $fiscaat->record_query->current_post : 1;
+		$count     = isset( $fct->record_query->current_post ) ? $fct->record_query->current_post : 1;
 		$classes   = array();
 		$classes[] = ( (int) $count % 2 ) ? 'even' : 'odd';
-		$classes[] = 'fiscaat-parent-year-'    . fct_get_record_year_id   ( $record_id );
+		$classes[] = 'fiscaat-parent-period-'  . fct_get_record_period_id ( $record_id );
 		$classes[] = 'fiscaat-parent-account-' . fct_get_record_account_id( $record_id );
 		$classes[] = 'user-id-'                . fct_get_record_author_id ( $record_id );
 		$classes[] = 'fiscaat-record-status-'  . fct_get_record_status    ( $record_id );
@@ -1269,16 +1269,16 @@ function fct_account_pagination_count() {
 	 * @return string Account pagination count
 	 */
 	function fct_get_account_pagination_count() {
-		$fiscaat = fiscaat();
+		$fct = fiscaat();
 
 		// Define local variable(s)
 		$retstr = '';
 
 		// Set pagination values
-		$start_num = intval( ( $fiscaat->record_query->paged - 1 ) * $fiscaat->record_query->posts_per_page ) + 1;
+		$start_num = intval( ( $fct->record_query->paged - 1 ) * $fct->record_query->posts_per_page ) + 1;
 		$from_num  = fct_number_format( $start_num );
-		$to_num    = fct_number_format( ( $start_num + ( $fiscaat->record_query->posts_per_page - 1 ) > $fiscaat->record_query->found_posts ) ? $fiscaat->record_query->found_posts : $start_num + ( $fiscaat->record_query->posts_per_page - 1 ) );
-		$total_int = (int) $fiscaat->record_query->found_posts;
+		$to_num    = fct_number_format( ( $start_num + ( $fct->record_query->posts_per_page - 1 ) > $fct->record_query->found_posts ) ? $fct->record_query->found_posts : $start_num + ( $fct->record_query->posts_per_page - 1 ) );
+		$total_int = (int) $fct->record_query->found_posts;
 		$total     = fct_number_format( $total_int );
 
 		// We are not including the lead account
@@ -1290,7 +1290,7 @@ function fct_account_pagination_count() {
 
 			// Several records in a account with several pages
 			} else {
-				$retstr = sprintf( _n( 'Viewing %2$s records (of %4$s total)', 'Viewing %1$s records - %2$s through %3$s (of %4$s total)', $fiscaat->record_query->post_count, 'fiscaat' ), $fiscaat->record_query->post_count, $from_num, $to_num, $total );
+				$retstr = sprintf( _n( 'Viewing %2$s records (of %4$s total)', 'Viewing %1$s records - %2$s through %3$s (of %4$s total)', $fct->record_query->post_count, 'fiscaat' ), $fct->record_query->post_count, $from_num, $to_num, $total );
 			}
 
 		// We are including the lead account
@@ -1302,7 +1302,7 @@ function fct_account_pagination_count() {
 
 			// Several posts in a account with several pages
 			} else {
-				$retstr = sprintf( _n( 'Viewing %2$s post (of %4$s total)', 'Viewing %1$s posts - %2$s through %3$s (of %4$s total)', $fiscaat->record_query->post_count, 'fiscaat' ), $fiscaat->record_query->post_count, $from_num, $to_num, $total );
+				$retstr = sprintf( _n( 'Viewing %2$s post (of %4$s total)', 'Viewing %1$s posts - %2$s through %3$s (of %4$s total)', $fct->record_query->post_count, 'fiscaat' ), $fct->record_query->post_count, $from_num, $to_num, $total );
 			}
 		}
 
@@ -1327,12 +1327,12 @@ function fct_account_pagination_links() {
 	 * @return string Account pagination links
 	 */
 	function fct_get_account_pagination_links() {
-		$fiscaat = fiscaat();
+		$fct = fiscaat();
 
-		if ( !isset( $fiscaat->record_query->pagination_links ) || empty( $fiscaat->record_query->pagination_links ) )
+		if ( ! isset( $fct->record_query->pagination_links ) || empty( $fct->record_query->pagination_links ) )
 			return false;
 
-		return apply_filters( 'fct_get_account_pagination_links', $fiscaat->record_query->pagination_links );
+		return apply_filters( 'fct_get_account_pagination_links', $fct->record_query->pagination_links );
 	}
 
 /** Forms *********************************************************************/
@@ -1356,16 +1356,17 @@ function fct_form_record_title() {
 	function fct_get_form_record_title() {
 
 		// Get _POST data
-		if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['fct_record_title'] ) )
+		if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['fct_record_title'] ) ) {
 			$record_title = $_POST['fct_record_title'];
 
 		// Get edit data
-		elseif ( fct_is_record_edit() )
+		} elseif ( fct_is_record_edit() ) {
 			$record_title = fct_get_global_post_field( 'post_title', 'raw' );
 
 		// No data
-		else
+		} else {
 			$record_title = '';
+		}
 
 		return apply_filters( 'fct_get_form_record_title', esc_attr( $record_title ) );
 	}
@@ -1389,16 +1390,17 @@ function fct_form_record_content() {
 	function fct_get_form_record_content() {
 
 		// Get _POST data
-		if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['fct_record_content'] ) )
+		if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['fct_record_content'] ) ) {
 			$record_content = $_POST['fct_record_content'];
 
 		// Get edit data
-		elseif ( fct_is_record_edit() )
+		} elseif ( fct_is_record_edit() ) {
 			$record_content = fct_get_global_post_field( 'post_content', 'raw' );
 
 		// No data
-		else
+		} else {
 			$record_content = '';
+		}
 
 		return apply_filters( 'fct_get_form_record_content', esc_textarea( $record_content ) );
 	}

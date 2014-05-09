@@ -22,108 +22,108 @@ class Fiscaat1 extends Fiscaat_Converter_Base {
 	 */
 	public function setup_globals() {
 
-		/** Year Section *****************************************************/
+		/** Period Section *****************************************************/
 
-		// Year id (Stored in postmeta)
+		// Period id (Stored in postmeta)
 		$this->field_map[] = array(
-			'from_tablename' => 'years',
-			'from_fieldname' => 'year_id',
-			'to_type'        => 'year',
-			'to_fieldname'   => '_fct_year_id'
+			'from_tablename' => 'periods',
+			'from_fieldname' => 'period_id',
+			'to_type'        => 'period',
+			'to_fieldname'   => '_fct_period_id'
 		);
 
-		// Year parent id (If no parent, 0. Stored in postmeta)
+		// Period parent id (If no parent, 0. Stored in postmeta)
 		$this->field_map[] = array(
-			'from_tablename' => 'years',
-			'from_fieldname' => 'year_parent',
-			'to_type'        => 'year',
-			'to_fieldname'   => '_fct_year_parent_id'
+			'from_tablename' => 'periods',
+			'from_fieldname' => 'period_parent',
+			'to_type'        => 'period',
+			'to_fieldname'   => '_fct_period_parent_id'
 		);
 
-		// Year account count (Stored in postmeta)
+		// Period account count (Stored in postmeta)
 		$this->field_map[] = array(
-			'from_tablename' => 'years',
+			'from_tablename' => 'periods',
 			'from_fieldname' => 'accounts',
-			'to_type'        => 'year',
+			'to_type'        => 'period',
 			'to_fieldname'   => '_fct_account_count'
 		);
 
-		// Year record count (Stored in postmeta)
+		// Period record count (Stored in postmeta)
 		$this->field_map[] = array(
-			'from_tablename' => 'years',
+			'from_tablename' => 'periods',
 			'from_fieldname' => 'posts',
-			'to_type'        => 'year',
+			'to_type'        => 'period',
 			'to_fieldname'   => '_fct_record_count'
 		);
 
-		// Year account count (Stored in postmeta)
+		// Period account count (Stored in postmeta)
 		$this->field_map[] = array(
-			'from_tablename' => 'years',
+			'from_tablename' => 'periods',
 			'from_fieldname' => 'accounts',
-			'to_type'        => 'year',
+			'to_type'        => 'period',
 			'to_fieldname'   => '_fct_total_account_count'
 		);
 
-		// Year record count (Stored in postmeta)
+		// Period record count (Stored in postmeta)
 		$this->field_map[] = array(
-			'from_tablename' => 'years',
+			'from_tablename' => 'periods',
 			'from_fieldname' => 'posts',
-			'to_type'        => 'year',
+			'to_type'        => 'period',
 			'to_fieldname'   => '_fct_total_record_count'
 		);
 
-		// Year title.
+		// Period title.
 		$this->field_map[] = array(
-			'from_tablename' => 'years',
-			'from_fieldname' => 'year_name',
-			'to_type'        => 'year',
+			'from_tablename' => 'periods',
+			'from_fieldname' => 'period_name',
+			'to_type'        => 'period',
 			'to_fieldname'   => 'post_title'
 		);
 
-		// Year slug (Clean name to avoid confilcts)
+		// Period slug (Clean name to avoid confilcts)
 		$this->field_map[] = array(
-			'from_tablename'   => 'years',
-			'from_fieldname'   => 'year_slug',
-			'to_type'          => 'year',
+			'from_tablename'   => 'periods',
+			'from_fieldname'   => 'period_slug',
+			'to_type'          => 'period',
 			'to_fieldname'     => 'post_name',
 			'callback_method'  => 'callback_slug'
 		);
 
-		// Year description.
+		// Period description.
 		$this->field_map[] = array(
-			'from_tablename'   => 'years',
-			'from_fieldname'   => 'year_desc',
-			'to_type'          => 'year',
+			'from_tablename'   => 'periods',
+			'from_fieldname'   => 'period_desc',
+			'to_type'          => 'period',
 			'to_fieldname'     => 'post_content',
 			'callback_method'  => 'callback_null'
 		);
 
-		// Year display order (Starts from 1)
+		// Period display order (Starts from 1)
 		$this->field_map[] = array(
-			'from_tablename' => 'years',
-			'from_fieldname' => 'year_order',
-			'to_type'        => 'year',
+			'from_tablename' => 'periods',
+			'from_fieldname' => 'period_order',
+			'to_type'        => 'period',
 			'to_fieldname'   => 'menu_order'
 		);
 
-		// Year dates.
+		// Period dates.
 		$this->field_map[] = array(
-			'to_type'      => 'year',
+			'to_type'      => 'period',
 			'to_fieldname' => 'post_date',
 			'default'      => date('Y-m-d H:i:s')
 		);
 		$this->field_map[] = array(
-			'to_type'      => 'year',
+			'to_type'      => 'period',
 			'to_fieldname' => 'post_date_gmt',
 			'default'      => date('Y-m-d H:i:s')
 		);
 		$this->field_map[] = array(
-			'to_type'      => 'year',
+			'to_type'      => 'period',
 			'to_fieldname' => 'post_modified',
 			'default'      => date('Y-m-d H:i:s')
 		);
 		$this->field_map[] = array(
-			'to_type'      => 'year',
+			'to_type'      => 'period',
 			'to_fieldname' => 'post_modified_gmt',
 			'default'      => date('Y-m-d H:i:s')
 		);
@@ -147,13 +147,13 @@ class Fiscaat1 extends Fiscaat_Converter_Base {
 			'callback_method' => 'callback_account_record_count'
 		);
 
-		// Year id (Stored in postmeta)
+		// Period id (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'accounts',
-			'from_fieldname'  => 'year_id',
+			'from_fieldname'  => 'period_id',
 			'to_type'         => 'account',
-			'to_fieldname'    => '_fct_year_id',
-			'callback_method' => 'callback_yearid'
+			'to_fieldname'    => '_fct_period_id',
+			'callback_method' => 'callback_periodid'
 		);
 
 		// Account author.
@@ -219,13 +219,13 @@ class Fiscaat1 extends Fiscaat_Converter_Base {
 			'to_fieldname'    => '_fct_author_ip'
 		);
 
-		// Year id (If no parent, 0)
+		// Period id (If no parent, 0)
 		$this->field_map[] = array(
 			'from_tablename'  => 'accounts',
-			'from_fieldname'  => 'year_id',
+			'from_fieldname'  => 'period_id',
 			'to_type'         => 'account',
 			'to_fieldname'    => 'post_parent',
-			'callback_method' => 'callback_yearid'
+			'callback_method' => 'callback_periodid'
 		);
 
 		// Account dates.
@@ -312,13 +312,13 @@ class Fiscaat1 extends Fiscaat_Converter_Base {
 			'callback_method' => 'callback_accountid'
 		);
 
-		// Year id (Stored in postmeta)
+		// Period id (Stored in postmeta)
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
-			'from_fieldname'  => 'year_id',
+			'from_fieldname'  => 'period_id',
 			'to_type'         => 'record',
-			'to_fieldname'    => '_fct_year_id',
-			'callback_method' => 'callback_yearid'
+			'to_fieldname'    => '_fct_period_id',
+			'callback_method' => 'callback_periodid'
 		);
 
 		// Account title (for record title).

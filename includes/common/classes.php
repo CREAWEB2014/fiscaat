@@ -16,7 +16,7 @@ if ( !class_exists( 'Fiscaat_Component' ) ) :
  *
  * The Fiscaat component class is responsible for simplifying the creation
  * of components that share similar behaviors and routines. It is used
- * internally by Fiscaat to create years, accounts and records, but can be
+ * internally by Fiscaat to create periods, accounts and records, but can be
  * extended to create other really neat things.
  *
  * @package Fiscaat
@@ -160,7 +160,7 @@ endif; // Fiscaat_Component
 if ( class_exists( 'Walker' ) ) :
 
 /**
- * Create HTML dropdown list of Fiscaat years/accounts.
+ * Create HTML dropdown list of Fiscaat periods/accounts.
  *
  * @package Fiscaat
  * @subpackage Classes
@@ -189,7 +189,7 @@ class Fiscaat_Walker_Dropdown extends Walker {
 	 * Set the tree_type
 	 */
 	public function __construct() {
-		$this->tree_type = fct_get_year_post_type();
+		$this->tree_type = fct_get_period_post_type();
 	}
 
 	/**
@@ -203,8 +203,8 @@ class Fiscaat_Walker_Dropdown extends Walker {
 	 * @param array $args Uses 'selected' argument for selected post to set
 	 *                     selected HTML attribute for option element.
 	 * @uses current_user_can() To check if the current user can post in
-	 *                           closed years
-	 * @uses fct_is_year_closed() To check if the year is closed
+	 *                           closed periods
+	 * @uses fct_is_period_closed() To check if the period is closed
 	 * @uses apply_filters() Calls 'fct_walker_dropdown_post_title' with the
 	 *                        title, output, post, depth and args
 	 */
@@ -215,12 +215,12 @@ class Fiscaat_Walker_Dropdown extends Walker {
 		// Disable the <option> if:
 		// - <select> isn't disabled
 		// - we're told to do so
-		// - the post type is a year
-		// - year is closed
+		// - the post type is a period
+		// - period is closed
 		if (	( true != $args['disabled'] )
 				&& ( true == $args['disable_closed'] )
-				&& ( fct_get_year_post_type() == $_post->post_type )
-				&& fct_is_year_closed( $_post->ID )
+				&& ( fct_get_period_post_type() == $_post->post_type )
+				&& fct_is_period_closed( $_post->ID )
 			) {
 			$output .= ' disabled="disabled" value=""';
 		} else {

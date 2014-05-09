@@ -150,7 +150,7 @@ function fct_setup_updater() {
 }
 
 /**
- * Create the current year, some default accounts without records
+ * Create the current period, some default accounts without records
  *
  * @param array $args Array of arguments to override default values
  */
@@ -266,9 +266,9 @@ function fct_create_initial_content( $args = array() ) {
 	// Define local variable
 	$account_ids = array();
 
-	// Create the initial year
-	$year_id = fct_insert_year( array(
-		'post_title' => __( 'Initial Year', 'fiscaat' ),
+	// Create the initial period
+	$period_id = fct_insert_period( array(
+		'post_title' => __( 'Initial Period', 'fiscaat' ),
 	) );
 
 	// Create the initial accounts
@@ -277,12 +277,12 @@ function fct_create_initial_content( $args = array() ) {
 
 		$account_ids[] = fct_insert_account( 
 			array(
-				'post_parent'  => $year_id,
+				'post_parent'  => $period_id,
 				'post_title'   => $account_title,
 				'post_content' => $account_content,
 			),
 			array(
-				'year_id'      => $year_id,
+				'period_id'    => $period_id,
 				'account_type' => $account_type,
 				'ledger_id'    => $ledger_id,
 			)
@@ -290,7 +290,7 @@ function fct_create_initial_content( $args = array() ) {
 	}
 
 	return array(
-		'year_id'     => $year_id,
+		'period_id'   => $period_id,
 		'account_ids' => $account_ids,
 	);
 }
@@ -309,9 +309,13 @@ function fct_version_updater() {
 
 	/** 0.0 Branch ************************************************************/
 
-	// 0.0.1
-	if ( $raw_db_version < 001 ) {
-		// Do nothing
+	// 0.0.8
+	if ( $raw_db_version < 008 ) {
+		
+		/**
+		 * Translate all years to periods
+		 */
+		fct_update_years_to_periods();
 	}
 
 	/** All done! *************************************************************/
@@ -339,7 +343,7 @@ function fct_version_updater() {
  * @uses fct_get_user_role() To bail if the user already has a Fiscaat role 
  * @uses fct_set_user_role() To make the current user a fiscus
  *
- * @return If user can't activate plugins or is already a fiscus
+ * @return If user can't activate plugins or has already a Fiscaat role
  */
 function fct_make_current_user_fiscus() {
 
@@ -368,4 +372,62 @@ function fct_make_current_user_fiscus() {
 
 	// Reload the current user so caps apply immediately
 	wp_get_current_user();
+}
+
+/**
+ * Translate all database year references to periods
+ *
+ * This concerns post types and post meta keys.
+ *
+ * @since 0.0.8
+ *
+ * @uses WP_Query
+ * @uses wp_update_post()
+ * @uses fct_get_period_post_type()
+ * @uses fct_get_account_post_type()
+ * @uses fct_get_record_post_type()
+ * @uses get_post_meta()
+ * @uses update_post_meta()
+ * @uses delete_post_meta()
+ */
+function fct_update_years_to_periods() {
+
+	// Query all posts with post type fct_year
+	if ( $periods = new WP_Query( array(
+		'suppress_filters' => true,
+		'post_type'        => 'fct_year',
+		'nopaging'         => true,
+		'fields'           => 'ids'
+	) ) ) {
+
+		// Update post type
+		foreach ( $periods->posts as $period_id ) {
+			wp_update_post( array(
+				'ID'        => $year_id, 
+				'post_type' => fct_get_period_post_type()
+			) );
+		}
+	}
+
+	// Query all accounts and records which have period_id meta
+	if ( $accounts = new WP_Query( array(
+		'suppress_filters' => true,
+		'post_type'        => array( fct_get_account_post_type(), fct_get_record_post_type() ),
+		'nopaging'         => true,
+		'fields'           => 'ids'
+	) ) ) {
+
+		// Update post meta
+		foreach ( $accounts->posts as $account_id ) {
+
+			// Get current year id meta value
+			$period_id = get_post_meta( $account_id, '_fct_year_id', true );
+
+			// Update period id meta value
+			update_post_meta( $account_id, '_fct_period_id', $period_id );
+
+			// Delete year id meta value
+			delete_post_meta( $account_id, '_fct_year_id' );
+		}
+	}
 }

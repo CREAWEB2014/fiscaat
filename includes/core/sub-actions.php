@@ -275,7 +275,7 @@ function fct_generate_rewrite_rules( $wp_rewrite ) {
 }
 
 /**
- * Maps record/account/year caps to built in WordPress caps
+ * Maps record/account/period caps to built in WordPress caps
  *
  * @param array $caps Capabilities for meta capability
  * @param string $cap Capability name

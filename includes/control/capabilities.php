@@ -33,7 +33,7 @@ function fct_ctrl_map_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args
 		/** Reading ***********************************************************/
 
 		// Controllers can read all
-		case 'read_year'    :
+		case 'read_period'    :
 		case 'read_account' :
 		case 'read_record'  :
 			$caps = array( 'fct_control' );

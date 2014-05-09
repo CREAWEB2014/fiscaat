@@ -56,7 +56,7 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 	function _get_columns() {
 		$columns = array(
 			'cb'                       => '<input type="checkbox" />',
-			'fct_account_year'         => __( 'Year',               'fiscaat' ),
+			'fct_account_period'         => __( 'Period',               'fiscaat' ),
 			'fct_account_ledger_id'    => _x( 'No.', 'column name', 'fiscaat' ),
 			'title'                    => __( 'Account',            'fiscaat' ),
 			'fct_account_type'         => __( 'Type',               'fiscaat' ),
@@ -81,7 +81,7 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 	 */
 	function _get_sortable_columns() {
 		return array(
-			'fct_account_year'         => 'parent',
+			'fct_account_period'         => 'parent',
 			'fct_account_ledger_id'    => 'account_ledger_id',
 			'title'                    => 'title',
 			'fct_account_type'         => 'account_type',
@@ -108,8 +108,8 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 	 *
 	 * @since 0.0.8
 	 *
-	 * @uses fct_get_account_year_id()
-	 * @uses fct_get_year_title()
+	 * @uses fct_get_account_period_id()
+	 * @uses fct_get_period_title()
 	 * @uses fct_account_ledger_id()
 	 * @uses fct_get_account_type()
 	 * @uses fct_get_revenue_account_type_id()
@@ -125,19 +125,19 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 		// Check column name
 		switch ( $column_name ) {
 
-			// Account year
-			case 'fct_account_year' :
-				$year_id = fct_get_account_year_id( $account_id );
+			// Account period
+			case 'fct_account_period' :
+				$period_id = fct_get_account_period_id( $account_id );
 				
-				if ( ! empty( $year_id ) ) {
-					$year_title = fct_get_year_title( $year_id );
-					if ( empty( $year_title ) ) {
-						$year_title = __( 'No Year', 'fiscaat' );
+				if ( ! empty( $period_id ) ) {
+					$period_title = fct_get_period_title( $period_id );
+					if ( empty( $period_title ) ) {
+						$period_title = __( 'No Period', 'fiscaat' );
 					}
-					echo $year_title;
+					echo $period_title;
 
 				} else {
-					_e( '(No Year)', 'fiscaat' );
+					_e( '(No Period)', 'fiscaat' );
 				}
 				break;
 

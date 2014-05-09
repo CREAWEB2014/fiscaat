@@ -112,7 +112,7 @@ class Fiscaat_Admin {
 		require( $this->admin_dir . 'settings.php'  );
 		require( $this->admin_dir . 'tools.php'     );
 		require( $this->admin_dir . 'users.php'     );
-		require( $this->admin_dir . 'years.php'     );
+		require( $this->admin_dir . 'periods.php'   );
 
 		// Record new/edit pages
 		// require( $this->admin_dir . 'includes/class-fiscaat-admin-records.php' );
@@ -142,7 +142,7 @@ class Fiscaat_Admin {
 		add_action( 'fct_register_admin_settings', array( $this, 'register_admin_settings'    ) ); // Add settings
 		add_action( 'fct_activation',              array( $this, 'new_install'                ) ); // Create new content on install
 		add_action( 'admin_enqueue_scripts',       array( $this, 'enqueue_scripts'            ) ); // Add enqueued JS and CSS
-		add_action( 'wp_dashboard_setup',          array( $this, 'dashboard_widget_right_now' ) ); // Years 'Right now' Dashboard widget
+		add_action( 'wp_dashboard_setup',          array( $this, 'dashboard_widget_right_now' ) ); // Periods 'Right now' Dashboard widget
 
 		/** Development *******************************************************/
 
@@ -173,8 +173,8 @@ class Fiscaat_Admin {
 	public function dev_content() {
 
 		// Bail if no add_content query arg
-		if ( isset( $_GET['year_account_count'] ) && $_GET['year_account_count'] ) {
-			fct_update_year_account_count( fct_get_current_year_id() );
+		if ( isset( $_GET['period_account_count'] ) && $_GET['period_account_count'] ) {
+			fct_update_period_account_count( fct_get_current_period_id() );
 		}
 
 		// Bail if no add_content query arg
@@ -190,8 +190,8 @@ class Fiscaat_Admin {
 				wp_delete_post( $post_id, true ); // force delete
 			}
 
-			// Delete all years
-			foreach ( get_posts( array( 'post_type' => fct_get_year_post_type(), 'fields' => 'ids', 'numberposts' => -1 ) ) as $post_id ) {
+			// Delete all periods
+			foreach ( get_posts( array( 'post_type' => fct_get_period_post_type(), 'fields' => 'ids', 'numberposts' => -1 ) ) as $post_id ) {
 				wp_delete_post( $post_id, true ); // force delete
 			}
 		}
@@ -204,7 +204,7 @@ class Fiscaat_Admin {
 	 *
 	 * @since 0.0.7
 	 * 
-	 * @return string|bool Page type. Either false, 'record', 'account' or 'year'
+	 * @return string|bool Page type. Either false, 'record', 'account' or 'period'
 	 */
 	public function get_page_type() {
 
@@ -221,8 +221,8 @@ class Fiscaat_Admin {
 					case 'fct-accounts' :
 						$type = 'account';
 						break;
-					case 'fct-years' :
-						$type = 'year';
+					case 'fct-periods' :
+						$type = 'period';
 						break;
 				}
 			}
@@ -277,13 +277,13 @@ class Fiscaat_Admin {
 				'fct_admin_posts_page'
 			);
 
-			// Years
+			// Periods
 			$hooks[] = add_submenu_page(
 				'fiscaat',
-				__( 'Years', 'fiscaat' ),
-				__( 'Years', 'fiscaat' ),
+				__( 'Periods', 'fiscaat' ),
+				__( 'Periods', 'fiscaat' ),
 				$this->minimum_capability,
-				'fct-years',
+				'fct-periods',
 				'fct_admin_posts_page'
 			);
 
@@ -420,7 +420,7 @@ class Fiscaat_Admin {
 	 *
 	 * @since 0.0.8
 	 * 
-	 * @uses fct_get_year_post_type() To get the year post type
+	 * @uses fct_get_period_post_type() To get the period post type
 	 * @uses fct_get_account_post_type() To get the account post type
 	 * @uses fct_get_record_post_type() To get the record post type
 	 * @uses fct_get_post_type_type()
@@ -436,13 +436,13 @@ class Fiscaat_Admin {
 	}
 
 	/**
-	 * If this is a new installation or no years exists, create some initial Fiscaat content
+	 * If this is a new installation or no periods exists, create some initial Fiscaat content
 	 *
-	 * @uses fct_has_open_year() To check if an open year exists
+	 * @uses fct_has_open_period() To check if an open period exists
 	 * @uses fct_create_initial_content() To create initial Fiscaat content
 	 */
 	public function new_install() {
-		if ( fct_has_open_year() )
+		if ( fct_has_open_period() )
 			return;
 
 		fct_create_initial_content();
@@ -609,7 +609,7 @@ class Fiscaat_Admin {
 	}
 
 	/**
-	 * Add the 'Right now in Years' dashboard widget
+	 * Add the 'Right now in Periods' dashboard widget
 	 *
 	 * @uses wp_add_dashboard_widget() To add the dashboard widget
 	 */
@@ -632,7 +632,7 @@ class Fiscaat_Admin {
 	/**
 	 * Setup menu fixes and add some general styling to the admin area
 	 *
-	 * @uses fct_get_year_post_type() To get the year post type
+	 * @uses fct_get_period_post_type() To get the period post type
 	 * @uses fct_get_account_post_type() To get the account post type
 	 * @uses fct_get_record_post_type() To get the record post type
 	 * @uses sanitize_html_class() To sanitize the classes
@@ -642,7 +642,7 @@ class Fiscaat_Admin {
 
 		// Remove the individual edit post type menus.
 		// They are redirected to their respective Fiscaat pages
-		$post_types = array( fct_get_record_post_type(), fct_get_account_post_type(), fct_get_year_post_type() );
+		$post_types = array( fct_get_record_post_type(), fct_get_account_post_type(), fct_get_period_post_type() );
 		foreach ( $post_types as $_post_type ) {
 			remove_menu_page( 'edit.php?post_type=' . $_post_type );
 
@@ -665,7 +665,7 @@ class Fiscaat_Admin {
 		remove_submenu_page( 'tools.php', 'fct-reset'     );
 
 		// Top level menu classes
-		$year_class    = sanitize_html_class( fct_get_year_post_type() );
+		$period_class    = sanitize_html_class( fct_get_period_post_type() );
 		$account_class = sanitize_html_class( fct_get_account_post_type() );
 		$record_class  = sanitize_html_class( fct_get_record_post_type() ); ?>
 
@@ -733,9 +733,9 @@ class Fiscaat_Admin {
 				box-shadow: inset 0 1px 0 #ec8a85, 0 1px 0 rgba(0,0,0,.15);
 			}
 
-			/* Kludge for too-wide years dropdown */
+			/* Kludge for too-wide periods dropdown */
 			#poststuff #fct_account_attributes select#parent_id,
-			#poststuff #fct_record_attributes select#fct_year_id {
+			#poststuff #fct_record_attributes select#fct_period_id {
 				max-width: 193px;
 			}
 
@@ -888,7 +888,7 @@ class Fiscaat_Admin {
 	 *
 	 * @since 0.0.8
 	 *
-	 * @uses fct_get_year_post_type() To get the year post type
+	 * @uses fct_get_period_post_type() To get the period post type
 	 * @uses fct_get_account_post_type() To get the account post type
 	 * @uses fct_get_record_post_type() To get the record post type
 	 * @uses fct_get_post_type_type()
@@ -900,7 +900,7 @@ class Fiscaat_Admin {
 		if ( ! isset( $_GET['post_type'] ) || ! in_array( $_GET['post_type'], array(
 				fct_get_record_post_type(),
 				fct_get_account_post_type(),
-				fct_get_year_post_type()
+				fct_get_period_post_type()
 			) ) )
 			return;
 

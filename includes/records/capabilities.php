@@ -65,8 +65,8 @@ function fct_map_record_meta_caps( $caps = array(), $cap = '', $user_id = 0, $ar
 
 		case 'publish_records'  :
 
-			// Bail when there's no open year or account
-			if ( ! fct_has_open_year() || ! fct_has_open_account() ) {
+			// Bail when there's no open period or account
+			if ( ! fct_has_open_period() || ! fct_has_open_account() ) {
 				$caps = array( 'do_not_allow' );
 
 			// Only Fisci can always publish

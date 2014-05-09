@@ -28,7 +28,7 @@ class Fiscaat_Jetpack_REST_API {
 		if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST )
 			return $allowed_post_types;
 
-		$allowed_post_types[] = 'year';
+		$allowed_post_types[] = 'period';
 		$allowed_post_types[] = 'account';
 		$allowed_post_types[] = 'record';
 		return $allowed_post_types;
@@ -40,10 +40,10 @@ class Fiscaat_Jetpack_REST_API {
 		if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST )
 			return $allowed_meta_keys;
 
-		$allowed_meta_keys[] = '_fct_year_id';
+		$allowed_meta_keys[] = '_fct_period_id';
 		$allowed_meta_keys[] = '_fct_account_id';
 		$allowed_meta_keys[] = '_fct_status';
-		$allowed_meta_keys[] = '_fct_year_type';
+		$allowed_meta_keys[] = '_fct_period_type';
 		$allowed_meta_keys[] = '_fct_record_count';
 		$allowed_meta_keys[] = '_fct_total_record_count';
 		$allowed_meta_keys[] = '_fct_account_count';

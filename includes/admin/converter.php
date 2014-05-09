@@ -388,32 +388,32 @@ class Fiscaat_Converter {
 
 				break;
 
-			// STEP 4. Convert years.
+			// STEP 4. Convert periods.
 			case 4 :
-				if ( $converter->convert_years( $start ) ) {
+				if ( $converter->convert_periods( $start ) ) {
 					update_option( '_fct_converter_step',  $step + 1 );
 					update_option( '_fct_converter_start', 0         );
 					if ( empty( $start ) ) {
-						$this->converter_output( __( 'No years to convert', 'fiscaat' ) );
+						$this->converter_output( __( 'No periods to convert', 'fiscaat' ) );
 					}
 				} else {
 					update_option( '_fct_converter_start', $max + 1 );
-					$this->converter_output( sprintf( __( 'Converting years (%1$s - %2$s)', 'fiscaat' ), $min, $max ) );
+					$this->converter_output( sprintf( __( 'Converting periods (%1$s - %2$s)', 'fiscaat' ), $min, $max ) );
 				}
 
 				break;
 
-			// STEP 5. Convert year parents.
+			// STEP 5. Convert period parents.
 			case 5 :
-				if ( $converter->convert_year_parents( $start ) ) {
+				if ( $converter->convert_period_parents( $start ) ) {
 					update_option( '_fct_converter_step',  $step + 1 );
 					update_option( '_fct_converter_start', 0         );
 					if ( empty( $start ) ) {
-						$this->converter_output( __( 'No year parents to convert', 'fiscaat' ) );
+						$this->converter_output( __( 'No period parents to convert', 'fiscaat' ) );
 					}
 				} else {
 					update_option( '_fct_converter_start', $max + 1 );
-					$this->converter_output( sprintf( __( 'Calculating year hierarchy (%1$s - %2$s)', 'fiscaat' ), $min, $max ) );
+					$this->converter_output( sprintf( __( 'Calculating period hierarchy (%1$s - %2$s)', 'fiscaat' ), $min, $max ) );
 				}
 
 				break;
@@ -540,14 +540,14 @@ abstract class Fiscaat_Converter_Base {
 	public $max_rows;
 
 	/**
-	 * @var array() Map of account to year.  It is for optimization.
+	 * @var array() Map of account to period.  It is for optimization.
 	 */
-	private $map_accountid_to_yearid = array();
+	private $map_accountid_to_periodid = array();
 
 	/**
-	 * @var array() Map of from old year ids to new year ids.  It is for optimization.
+	 * @var array() Map of from old period ids to new period ids.  It is for optimization.
 	 */
-	private $map_yearid = array();
+	private $map_periodid = array();
 
 	/**
 	 * @var array() Map of from old account ids to new account ids.  It is for optimization.
@@ -622,27 +622,27 @@ abstract class Fiscaat_Converter_Base {
 		 * Default mapping.
 		 */
 
-		/** Year Section *****************************************************/
+		/** Period Section *****************************************************/
 
 		$this->field_map[] = array(
-			'to_type'      => 'year',
+			'to_type'      => 'period',
 			'to_fieldname' => 'post_status',
 			'default'      => 'publish'
 		);
 		$this->field_map[] = array(
-			'to_type'      => 'year',
+			'to_type'      => 'period',
 			'to_fieldname' => 'comment_status',
 			'default'      => 'closed'
 		);
 		$this->field_map[] = array(
-			'to_type'      => 'year',
+			'to_type'      => 'period',
 			'to_fieldname' => 'ping_status',
 			'default'      => 'closed'
 		);
 		$this->field_map[] = array(
-			'to_type'      => 'year',
+			'to_type'      => 'period',
 			'to_fieldname' => 'post_type',
-			'default'      => 'year'
+			'default'      => 'period'
 		);
 
 		/** Account Section *****************************************************/
@@ -701,10 +701,10 @@ abstract class Fiscaat_Converter_Base {
 	}
 
 	/**
-	 * Convert Years
+	 * Convert Periods
 	 */
-	public function convert_years( $start = 1 ) {
-		return $this->convert_table( 'year', $start );
+	public function convert_periods( $start = 1 ) {
+		return $this->convert_table( 'period', $start );
 	}
 
 	/**
@@ -819,19 +819,19 @@ abstract class Fiscaat_Converter_Base {
 		// We have a $from_tablename, so we want to get some data to convert
 		if ( ! empty( $from_tablename ) ) {
 
-			// Get some data from the old years
+			// Get some data from the old periods
 			$field_list  = array_unique( $field_list );
-			$year_query = 'SELECT ' . implode( ',', $field_list ) . ' FROM ' . $this->opdb->prefix . $from_tablename . ' LIMIT ' . $start . ', ' . $this->max_rows;
-			$year_array = $this->opdb->get_results( $year_query, ARRAY_A );
+			$period_query = 'SELECT ' . implode( ',', $field_list ) . ' FROM ' . $this->opdb->prefix . $from_tablename . ' LIMIT ' . $start . ', ' . $this->max_rows;
+			$period_array = $this->opdb->get_results( $period_query, ARRAY_A );
 
 			// Set this query as the last one ran
-			update_option( '_fct_converter_query', $year_query );
+			update_option( '_fct_converter_query', $period_query );
 
 			// Query returned some results
-			if ( ! empty( $year_array ) ) {
+			if ( ! empty( $period_array ) ) {
 
 				// Loop through results
-				foreach ( (array) $year_array as $year ) {
+				foreach ( (array) $period_array as $period ) {
 
 					// Reset some defaults
 					$insert_post = $insert_postmeta = $insert_data = array();
@@ -851,17 +851,17 @@ abstract class Fiscaat_Converter_Base {
 								if ( isset( $row['default'] ) ) {
 									$insert_post[$row['to_fieldname']] = $row['default'];
 
-								// Translates a field from the old year.
+								// Translates a field from the old period.
 								} elseif ( isset( $row['callback_method'] ) ) {
 									if ( ( 'callback_userid' == $row['callback_method'] ) && empty( $_POST['_fct_converter_convert_users'] ) ) {
-										$insert_post[$row['to_fieldname']] = $year[$row['from_fieldname']];
+										$insert_post[$row['to_fieldname']] = $period[$row['from_fieldname']];
 									} else {
-										$insert_post[$row['to_fieldname']] = call_user_func_array( array( $this, $row['callback_method'] ), array( $year[$row['from_fieldname']], $year ) );
+										$insert_post[$row['to_fieldname']] = call_user_func_array( array( $this, $row['callback_method'] ), array( $period[$row['from_fieldname']], $period ) );
 									}
 
-								// Maps the field from the old year.
+								// Maps the field from the old period.
 								} else {
-									$insert_post[$row['to_fieldname']] = $year[$row['from_fieldname']];
+									$insert_post[$row['to_fieldname']] = $period[$row['from_fieldname']];
 								}
 
 							// Destination field is not empty, so we might need
@@ -872,17 +872,17 @@ abstract class Fiscaat_Converter_Base {
 								if ( isset( $row['default'] ) ) {
 									$insert_postmeta[$row['to_fieldname']] = $row['default'];
 
-								// Translates a field from the old year.
+								// Translates a field from the old period.
 								} elseif ( isset( $row['callback_method'] ) ) {
 									if ( ( $row['callback_method'] == 'callback_userid' ) && ( 0 == $_POST['_fct_converter_convert_users'] ) ) {
-										$insert_postmeta[$row['to_fieldname']] = $year[$row['from_fieldname']];
+										$insert_postmeta[$row['to_fieldname']] = $period[$row['from_fieldname']];
 									} else {
-										$insert_postmeta[$row['to_fieldname']] = call_user_func_array( array( $this, $row['callback_method'] ), array( $year[$row['from_fieldname']], $year ) );
+										$insert_postmeta[$row['to_fieldname']] = call_user_func_array( array( $this, $row['callback_method'] ), array( $period[$row['from_fieldname']], $period ) );
 									}
 
-								// Maps the field from the old year.
+								// Maps the field from the old period.
 								} else {
-									$insert_postmeta[$row['to_fieldname']] = $year[$row['from_fieldname']];
+									$insert_postmeta[$row['to_fieldname']] = $period[$row['from_fieldname']];
 								}
 							}
 						}
@@ -927,7 +927,7 @@ abstract class Fiscaat_Converter_Base {
 								$post_id = wp_set_object_terms( $insert_postmeta['objectid'], $insert_postmeta['name'], 'account-tag', true );
 								break;
 
-							/** Year, Account, Record ***************************/
+							/** Period, Account, Record ***************************/
 
 							default:
 								$post_id = wp_insert_post( $insert_post );
@@ -938,9 +938,9 @@ abstract class Fiscaat_Converter_Base {
 
 										add_post_meta( $post_id, $key, $value, true );
 
-										// Years need to save their old ID for group year association
-										if ( ( 'year' == $to_type ) && ( '_fct_year_id' == $key ) )
-											add_post_meta( $post_id, '_fct_old_year_id', $value );
+										// Periods need to save their old ID for group period association
+										if ( ( 'period' == $to_type ) && ( '_fct_period_id' == $key ) )
+											add_post_meta( $post_id, '_fct_old_period_id', $value );
 
 										// Accounts need an extra bit of metadata
 										// to be keyed to the new post_id
@@ -972,21 +972,21 @@ abstract class Fiscaat_Converter_Base {
 		return ! $has_insert;
 	}
 
-	public function convert_year_parents( $start ) {
+	public function convert_period_parents( $start ) {
 
 		$has_update = false;
 
 		if ( ! empty( $this->sync_table ) )
-			$query = 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_fct_year_parent_id" AND meta_value > 0 LIMIT ' . $start . ', ' . $this->max_rows;
+			$query = 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_fct_period_parent_id" AND meta_value > 0 LIMIT ' . $start . ', ' . $this->max_rows;
 		else
-			$query = 'SELECT post_id AS value_id, meta_value FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_fct_year_parent_id" AND meta_value > 0 LIMIT ' . $start . ', ' . $this->max_rows;
+			$query = 'SELECT post_id AS value_id, meta_value FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_fct_period_parent_id" AND meta_value > 0 LIMIT ' . $start . ', ' . $this->max_rows;
 
 		update_option( '_fct_converter_query', $query );
 
-		$year_array = $this->wpdb->get_results( $query );
+		$period_array = $this->wpdb->get_results( $query );
 
-		foreach ( (array) $year_array as $row ) {
-			$parent_id = $this->callback_yearid( $row->meta_value );
+		foreach ( (array) $period_array as $row ) {
+			$parent_id = $this->callback_periodid( $row->meta_value );
 			$this->wpdb->query( 'UPDATE ' . $this->wpdb->posts . ' SET post_parent = "' . $parent_id . '" WHERE ID = "' . $row->value_id . '" LIMIT 1' );
 			$has_update = true;
 		}
@@ -1002,7 +1002,7 @@ abstract class Fiscaat_Converter_Base {
 		$start      = 0;
 		$has_delete = false;
 
-		/** Delete bbconverter accounts/years/posts ****************************/
+		/** Delete bbconverter accounts/periods/posts ****************************/
 
 		if ( true === $this->sync_table )
 			$query = 'SELECT value_id FROM ' . $this->sync_table_name . ' INNER JOIN ' . $this->wpdb->posts . ' ON(value_id = ID) WHERE meta_key LIKE "_fct_%" AND value_type = "post" GROUP BY value_id ORDER BY value_id DESC LIMIT ' . $this->max_rows;
@@ -1077,7 +1077,7 @@ abstract class Fiscaat_Converter_Base {
 	}
 
 	/**
-	 * This method implements the authentication for the different years.
+	 * This method implements the authentication for the different periods.
 	 *
 	 * @param string Unencoded password.
 	 */
@@ -1133,26 +1133,26 @@ abstract class Fiscaat_Converter_Base {
 	}
 
 	/**
-	 * A mini cache system to reduce database calls to year ID's
+	 * A mini cache system to reduce database calls to period ID's
 	 *
 	 * @param string $field
 	 * @return string
 	 */
-	private function callback_yearid( $field ) {
-		if ( !isset( $this->map_yearid[$field] ) ) {
+	private function callback_periodid( $field ) {
+		if ( !isset( $this->map_periodid[$field] ) ) {
 			if ( ! empty( $this->sync_table ) ) {
-				$row = $this->wpdb->get_row( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_fct_year_id" AND meta_value = "' . $field . '" LIMIT 1' );
+				$row = $this->wpdb->get_row( 'SELECT value_id, meta_value FROM ' . $this->sync_table_name . ' WHERE meta_key = "_fct_period_id" AND meta_value = "' . $field . '" LIMIT 1' );
 			} else {
-				$row = $this->wpdb->get_row( 'SELECT post_id AS value_id FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_fct_year_id" AND meta_value = "' . $field . '" LIMIT 1' );
+				$row = $this->wpdb->get_row( 'SELECT post_id AS value_id FROM ' . $this->wpdb->postmeta . ' WHERE meta_key = "_fct_period_id" AND meta_value = "' . $field . '" LIMIT 1' );
 			}
 
 			if ( !is_null( $row ) ) {
-				$this->map_yearid[$field] = $row->value_id;
+				$this->map_periodid[$field] = $row->value_id;
 			} else {
-				$this->map_yearid[$field] = 0;
+				$this->map_periodid[$field] = 0;
 			}
 		}
-		return $this->map_yearid[$field];
+		return $this->map_periodid[$field];
 	}
 
 	/**
@@ -1206,26 +1206,26 @@ abstract class Fiscaat_Converter_Base {
 	}
 
 	/**
-	 * A mini cache system to reduce database calls map accounts ID's to year ID's
+	 * A mini cache system to reduce database calls map accounts ID's to period ID's
 	 *
 	 * @param string $field
 	 * @return string
 	 */
-	private function callback_accountid_to_yearid( $field ) {
+	private function callback_accountid_to_periodid( $field ) {
 		$accountid = $this->callback_accountid( $field );
 		if ( empty( $accountid ) ) {
-			$this->map_accountid_to_yearid[$accountid] = 0;
-		} elseif ( ! isset( $this->map_accountid_to_yearid[$accountid] ) ) {
+			$this->map_accountid_to_periodid[$accountid] = 0;
+		} elseif ( ! isset( $this->map_accountid_to_periodid[$accountid] ) ) {
 			$row = $this->wpdb->get_row( 'SELECT post_parent FROM ' . $this->wpdb->posts . ' WHERE ID = "' . $accountid . '" LIMIT 1' );
 
 			if ( !is_null( $row ) ) {
-				$this->map_accountid_to_yearid[$accountid] = $row->post_parent;
+				$this->map_accountid_to_periodid[$accountid] = $row->post_parent;
 			} else {
-				$this->map_accountid_to_yearid[$accountid] = 0;
+				$this->map_accountid_to_periodid[$accountid] = 0;
 			}
 		}
 
-		return $this->map_accountid_to_yearid[$accountid];
+		return $this->map_accountid_to_periodid[$accountid];
 	}
 
 	protected function callback_slug( $field ) {

@@ -96,18 +96,18 @@ function fct_update_account_id( $post_id, $account_id ) {
 }
 
 /**
- * Update a posts year meta ID
+ * Update a posts period meta ID
  *
  * @param int $post_id The post to update
- * @param int $year_id The year
+ * @param int $period_id The period
  */
-function fct_update_year_id( $post_id, $year_id ) {
+function fct_update_period_id( $post_id, $period_id ) {
 
-	// Allow the year ID to be updated 'just in time' before save
-	$year_id = apply_filters( 'fct_update_year_id', $year_id, $post_id );
+	// Allow the period ID to be updated 'just in time' before save
+	$period_id = apply_filters( 'fct_update_period_id', $period_id, $post_id );
 
-	// Update the post meta year ID
-	update_post_meta( $post_id, '_fct_year_id', (int) $year_id );
+	// Update the post meta period ID
+	update_post_meta( $post_id, '_fct_period_id', (int) $period_id );
 }
 
 /** Post Type *****************************************************************/
@@ -119,7 +119,7 @@ function fct_update_year_id( $post_id, $year_id ) {
  *
  * @uses fct_get_record_post_type()
  * @uses fct_get_account_post_type()
- * @uses fct_get_year_post_type()
+ * @uses fct_get_period_post_type()
  * @param string $post_type Post type
  * @return string|bool Fiscaat object type or False if not Fiscaat's
  */
@@ -142,8 +142,8 @@ function fct_get_post_type_type( $post_type = '' ) {
 			$type = 'account';
 			break;
 
-		case fct_get_year_post_type() :
-			$type = 'year';
+		case fct_get_period_post_type() :
+			$type = 'period';
 			break;
 	}
 
@@ -212,7 +212,7 @@ function fct_get_trash_status_id() {
 /** Rewrite IDs ***************************************************************/
 
 /**
- * Return the enique ID for all edit rewrite rules (year|account|record)
+ * Return the enique ID for all edit rewrite rules (period|account|record)
  *
  * @return string
  */

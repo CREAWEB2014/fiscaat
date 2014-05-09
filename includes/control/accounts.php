@@ -19,14 +19,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * @return array Meta
  */
 function fct_ctrl_get_account_default_meta( $meta ) {
-	
-	// Declined record count
-	$meta['record_count_declined'] = 0; 
-
-	// Unapproved record count
-	$meta['record_count_unapproved'] = 0; 
-
-	return $meta;
+	return array_merge( $meta, array(
+		'record_count_declined'   => 0, // Declined record count
+		'record_count_unapproved' => 0, // Unapproved record count
+	) );
 }
 
 /**

@@ -55,7 +55,7 @@ class Fiscaat_Users_Admin {
 	}
 
 	/**
-	 * Default interface for setting a year role
+	 * Default interface for setting a period role
 	 *
 	 * @param WP_User $profileuser User data
 	 * @return bool Always false
@@ -135,7 +135,7 @@ class Fiscaat_Users_Admin {
 	}
 
 	/**
-	 * Return user's years role for display in the WordPress Users list table
+	 * Return user's periods role for display in the WordPress Users list table
 	 *
 	 * @param string $retval
 	 * @param string $column_name

@@ -60,14 +60,14 @@ function fct_get_caps_for_role( $role = '' ) {
 				'delete_others_accounts' => true,
 				'read_private_accounts'  => true,
 
-				// Year caps
-				'create_years'           => true,
-				'publish_years'          => true,
-				'edit_years'             => true,
-				'edit_others_years'      => true,
-				'delete_years'           => true,
-				'delete_others_years'    => true,
-				'read_private_years'     => true
+				// Period caps
+				'create_periods'         => true,
+				'publish_periods'        => true,
+				'edit_periods'           => true,
+				'edit_others_periods'    => true,
+				'delete_periods'         => true,
+				'delete_others_periods'  => true,
+				'read_private_periods'   => true
 			);
 
 			break;

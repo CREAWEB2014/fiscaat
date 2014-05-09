@@ -1,8 +1,8 @@
 
 /* Kludge for too-wide fiscaat dropdowns */
-#poststuff #fct_year_attributes select#parent_id,
+#poststuff #fct_period_attributes select#parent_id,
 #poststuff #fct_account_attributes select#parent_id,
-#poststuff #fct_record_attributes select#fct_year_id {
+#poststuff #fct_record_attributes select#fct_period_id {
 	max-width: 170px;
 }
 
@@ -156,7 +156,7 @@
 	}
 
 /* Dashicons */
-#adminmenu #menu-posts-fct_year .wp-menu-image:before {
+#adminmenu #menu-posts-fct_period .wp-menu-image:before {
 	content: "\f178";
 }
 

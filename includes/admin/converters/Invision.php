@@ -13,61 +13,61 @@ class Invision extends Fiscaat_Converter_Base
 
 	public function setup_globals()
 	{
-		/** Year Section ******************************************************/
+		/** Period Section ******************************************************/
 
-		// Year id. Stored in postmeta.
+		// Period id. Stored in postmeta.
 		$this->field_map[] = array(
-			'from_tablename' => 'years', 'from_fieldname' => 'id',
-			'to_type' => 'year', 'to_fieldname' => '_fct_year_id'
+			'from_tablename' => 'periods', 'from_fieldname' => 'id',
+			'to_type' => 'period', 'to_fieldname' => '_fct_period_id'
 		);
 		
-		// Year parent id.  If no parent, than 0. Stored in postmeta.
+		// Period parent id.  If no parent, than 0. Stored in postmeta.
 		$this->field_map[] = array(
-			'from_tablename' => 'years', 'from_fieldname' => 'parent_id',
-			'to_type' => 'year', 'to_fieldname' => '_fct_parent_id'
+			'from_tablename' => 'periods', 'from_fieldname' => 'parent_id',
+			'to_type' => 'period', 'to_fieldname' => '_fct_parent_id'
 		);
 		
-		// Year title.
+		// Period title.
 		$this->field_map[] = array(
-			'from_tablename' => 'years', 'from_fieldname' => 'name',
-			'to_type' => 'year', 'to_fieldname' => 'post_title'
+			'from_tablename' => 'periods', 'from_fieldname' => 'name',
+			'to_type' => 'period', 'to_fieldname' => 'post_title'
 		);
 		
-		// Year slug. Clean name.
+		// Period slug. Clean name.
 		$this->field_map[] = array(
-			'from_tablename' => 'years', 'from_fieldname' => 'name',
-			'to_type' => 'year', 'to_fieldname' => 'post_name',
+			'from_tablename' => 'periods', 'from_fieldname' => 'name',
+			'to_type' => 'period', 'to_fieldname' => 'post_name',
 			'callback_method' => 'callback_slug'
 		);
 		
-		// Year description.
+		// Period description.
 		$this->field_map[] = array(
-			'from_tablename' => 'years', 'from_fieldname' => 'description',
-			'to_type' => 'year', 'to_fieldname' => 'post_content',
+			'from_tablename' => 'periods', 'from_fieldname' => 'description',
+			'to_type' => 'period', 'to_fieldname' => 'post_content',
 			'callback_method' => 'callback_null'
 		);
 		
-		// Year display order.  Starts from 1.
+		// Period display order.  Starts from 1.
 		$this->field_map[] = array(
-			'from_tablename' => 'years', 'from_fieldname' => 'position',
-			'to_type' => 'year', 'to_fieldname' => 'menu_order'
+			'from_tablename' => 'periods', 'from_fieldname' => 'position',
+			'to_type' => 'period', 'to_fieldname' => 'menu_order'
 		);
 		
-		// Year date update.
+		// Period date update.
 		$this->field_map[] = array(
-			'to_type' => 'year', 'to_fieldname' => 'post_date',
+			'to_type' => 'period', 'to_fieldname' => 'post_date',
 			'default' => date('Y-m-d H:i:s')
 		);
 		$this->field_map[] = array(
-			'to_type' => 'year', 'to_fieldname' => 'post_date_gmt',
+			'to_type' => 'period', 'to_fieldname' => 'post_date_gmt',
 			'default' => date('Y-m-d H:i:s')
 		);
 		$this->field_map[] = array(
-			'to_type' => 'year', 'to_fieldname' => 'post_modified',
+			'to_type' => 'period', 'to_fieldname' => 'post_modified',
 			'default' => date('Y-m-d H:i:s')
 		);
 		$this->field_map[] = array(
-			'to_type' => 'year', 'to_fieldname' => 'post_modified_gmt',
+			'to_type' => 'period', 'to_fieldname' => 'post_modified_gmt',
 			'default' => date('Y-m-d H:i:s')
 		);
 
@@ -79,11 +79,11 @@ class Invision extends Fiscaat_Converter_Base
 			'to_type' => 'account', 'to_fieldname' => '_fct_account_id'
 		);
 		
-		// Year id. Stored in postmeta.
+		// Period id. Stored in postmeta.
 		$this->field_map[] = array(
-			'from_tablename' => 'accounts', 'from_fieldname' => 'year_id',
-			'to_type' => 'account', 'to_fieldname' => '_fct_year_id',
-			'callback_method' => 'callback_yearid'
+			'from_tablename' => 'accounts', 'from_fieldname' => 'period_id',
+			'to_type' => 'account', 'to_fieldname' => '_fct_period_id',
+			'callback_method' => 'callback_periodid'
 		);
 				
 		// Account author.
@@ -114,11 +114,11 @@ class Invision extends Fiscaat_Converter_Base
 			'callback_method' => 'callback_slug'
 		);
 		
-		// Year id.  If no parent, than 0.
+		// Period id.  If no parent, than 0.
 		$this->field_map[] = array(
-			'from_tablename' => 'accounts', 'from_fieldname' => 'year_id',
+			'from_tablename' => 'accounts', 'from_fieldname' => 'period_id',
 			'to_type' => 'account', 'to_fieldname' => 'post_parent',
-			'callback_method' => 'callback_yearid'
+			'callback_method' => 'callback_periodid'
 		);
 
 		// Account date update.
@@ -166,11 +166,11 @@ class Invision extends Fiscaat_Converter_Base
 			'to_type' => 'record', 'to_fieldname' => '_fct_post_id'
 		);
 		
-		// Year id. Stores in postmeta.
+		// Period id. Stores in postmeta.
 		$this->field_map[] = array(
 			'from_tablename' => 'posts', 'from_fieldname' => 'account_id',
-			'to_type' => 'record', 'to_fieldname' => '_fct_year_id',
-			'callback_method' => 'callback_accountid_to_yearid'
+			'to_type' => 'record', 'to_fieldname' => '_fct_period_id',
+			'callback_method' => 'callback_accountid_to_periodid'
 		);
 		
 		// Account id. Stores in postmeta.

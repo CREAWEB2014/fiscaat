@@ -42,7 +42,7 @@ function fct_admin_custom_menu_order( $menu_order = false ) {
  * Move our custom separator above our custom admin page
  *
  * @param array $menu_order Menu Order
- * @uses fct_get_year_post_type() To get the year post type
+ * @uses fct_get_period_post_type() To get the period post type
  * @return array Modified menu order
  */
 function fct_admin_menu_order( $menu_order ) {
@@ -116,7 +116,7 @@ function fct_tools_modify_menu_highlight() {
  * @param bool $sample Optional, defaults to false. Is it a sample permalink.
  *
  * @uses is_admin() To make sure we're on an admin page
- * @uses fct_is_custom_post_type() To get the year post type
+ * @uses fct_is_custom_post_type() To get the period post type
  *
  * @return string The custom post type permalink
  */
@@ -229,7 +229,7 @@ function fct_admin_get_page_type() {
  * @uses fct_admin_get_page_type()
  * @uses fct_get_record_post_type()
  * @uses fct_get_account_post_type()
- * @uses fct_get_year_post_type()
+ * @uses fct_get_period_post_type()
  * @return string The admin page post type
  */
 function fct_admin_get_page_post_type() {
@@ -284,7 +284,7 @@ function fct_get_list_table( $class, $args = array() ) {
 	$classes = apply_filters( 'fct_get_list_table_classes', array(
 		'FCT_Records_List_Table'  => array( 'fct-posts', 'fct-records'  ),
 		'FCT_Accounts_List_Table' => array( 'fct-posts', 'fct-accounts' ),
-		'FCT_Years_List_Table'    => array( 'fct-posts', 'fct-years'    ),
+		'FCT_Periods_List_Table'  => array( 'fct-posts', 'fct-periods'  ),
 	) );
 
 	if ( isset( $classes[ $class ] ) ) {

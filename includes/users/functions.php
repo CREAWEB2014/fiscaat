@@ -165,7 +165,7 @@ function fct_user_is_global_spectator( $user_id = 0 ) {
  * @param int $post_id Post id
  * @param int $user_id Optional. User id. Defaults to current user
  * @uses fct_get_user_id()
- * @uses fct_is_year()
+ * @uses fct_is_period()
  * @uses fct_user_is_global_spectator()
  * @uses fct_is_account()
  * @uses fct_is_record()
@@ -185,8 +185,8 @@ function fct_user_can_spectate( $post_id = 0, $user_id = 0 ) {
 	// Check post type
 	switch ( $post_id ) {
 
-		// Year
-		case fct_is_year( $post_id ) :
+		// Period
+		case fct_is_period( $post_id ) :
 			$can_spectate = fct_user_is_global_spectator( $user_id );
 			break;
 
@@ -290,7 +290,7 @@ function fct_get_total_spectators() {
  * 
  * @uses WP_Admin_Bar::remove_node() To remove default nodes
  * @uses current_user_can() To check if user can see menu
- * @uses fct_get_year_post_type()
+ * @uses fct_get_period_post_type()
  * @uses fct_get_account_post_type()
  * @uses fct_get_record_post_type()
  * @uses apply_filters() Calls 'fct_admin_bar_menu' with the nodes
@@ -300,7 +300,7 @@ function fct_get_total_spectators() {
 function fct_admin_bar_menu( $wp_admin_bar ) {
 
 	// Remove any New Fiscaat post type nodes
-	foreach ( array( fct_get_year_post_type(), fct_get_account_post_type(), fct_get_record_post_type() ) as $post_type ) {
+	foreach ( array( fct_get_period_post_type(), fct_get_account_post_type(), fct_get_record_post_type() ) as $post_type ) {
 		$wp_admin_bar->remove_node( 'new-' . $post_type );
 	}
 
@@ -314,7 +314,7 @@ function fct_admin_bar_menu( $wp_admin_bar ) {
 		// Top level menu
 		'fiscaat' => array(
 			'title'  => _x('Fiscaat', 'Admin bar menu title', 'fiscaat'),
-			'href'   => add_query_arg( array( 'post_type' => fct_get_year_post_type() ), admin_url( 'edit.php' ) ),
+			'href'   => add_query_arg( array( 'post_type' => fct_get_period_post_type() ), admin_url( 'edit.php' ) ),
 			'meta'   => array()
 		),
 

@@ -58,7 +58,7 @@ function fct_set_user_role( $user_id = 0, $new_role = '' ) {
 	// User exists
 	if ( ! empty( $user ) ) {
 
-		// Get users year role
+		// Get users period role
 		$role = fct_get_user_role( $user_id );
 
 		// User already has this role so no new role is set

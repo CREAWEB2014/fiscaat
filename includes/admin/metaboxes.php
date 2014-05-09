@@ -12,12 +12,12 @@
 /**
  * Fiscaat Dashboard Right Now Widget
  *
- * Adds a dashboard widget with year statistics
+ * Adds a dashboard widget with period statistics
  *
  * @uses fct_get_version() To get the current Fiscaat version
- * @uses fct_get_statistics() To get the year statistics
+ * @uses fct_get_statistics() To get the period statistics
  * @uses current_user_can() To check if the user is capable of doing things
- * @uses fct_get_year_post_type() To get the year post type
+ * @uses fct_get_period_post_type() To get the period post type
  * @uses fct_get_account_post_type() To get the account post type
  * @uses fct_get_record_post_type() To get the record post type
  * @uses get_admin_url() To get the administration url
@@ -41,17 +41,17 @@ function fct_dashboard_widget_right_now() {
 		<table>
 			<tr class="first">
 				<?php
-					$num  = $year_count;
-					$text = _n( 'Year', 'Years', $year_count, 'fiscaat' );
+					$num  = $period_count;
+					$text = _n( 'Period', 'Periods', $period_count, 'fiscaat' );
 					if ( current_user_can( 'fct_spectate' ) ) {
-						$link = add_query_arg( array( 'post_type' => fct_get_year_post_type() ), get_admin_url( null, 'edit.php' ) );
+						$link = add_query_arg( array( 'post_type' => fct_get_period_post_type() ), get_admin_url( null, 'edit.php' ) );
 						$num  = '<a href="' . $link . '">' . $num  . '</a>';
 						$text = '<a href="' . $link . '">' . $text . '</a>';
 					}
 				?>
 
-				<td class="first b b-years"><?php echo $num; ?></td>
-				<td class="t years"><?php echo $text; ?></td>
+				<td class="first b b-periods"><?php echo $num; ?></td>
+				<td class="t periods"><?php echo $text; ?></td>
 			</tr>
 
 			<tr>
@@ -109,7 +109,7 @@ function fct_dashboard_widget_right_now() {
 	</div>
 
 	<div class="table table_discussion">
-		<p class="sub"><?php _e( 'Current Year', 'fiscaat' ); ?></p>
+		<p class="sub"><?php _e( 'Current Period', 'fiscaat' ); ?></p>
 
 		<table>
 			<tr class="first">
@@ -117,7 +117,7 @@ function fct_dashboard_widget_right_now() {
 					$num  = fct_get_currency_format( $current_end_value, true );
 					$text = __( 'To Balance', 'fiscaat' );
 					if ( current_user_can( 'fct_spectate' ) ) {
-						$link = add_query_arg( array( 'post_type' => fct_get_account_post_type(), 'fct_year_id' => fct_get_current_year_id() ), get_admin_url( null, 'edit.php' ) );
+						$link = add_query_arg( array( 'post_type' => fct_get_account_post_type(), 'fct_period_id' => fct_get_current_period_id() ), get_admin_url( null, 'edit.php' ) );
 						$class = $current_end_value < 0 ? ' class="spam"' : ''; // Coloring
 						$num  = '<a'. $class .' href="' . $link . '">' . $num  . '</a>';
 						$text = '<a href="' . $link . '">' . $text . '</a>';
@@ -133,7 +133,7 @@ function fct_dashboard_widget_right_now() {
 					$num  = $current_record_count;
 					$text = _n( 'Record', 'Records', $current_record_count, 'fiscaat' );
 					if ( current_user_can( 'fct_spectate' ) ) {
-						$link = add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'fct_year_id' => fct_get_current_year_id() ), get_admin_url( null, 'edit.php' ) );
+						$link = add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'fct_period_id' => fct_get_current_period_id() ), get_admin_url( null, 'edit.php' ) );
 						$num  = '<a href="' . $link . '">' . $num  . '</a>';
 						$text = '<a href="' . $link . '">' . $text . '</a>';
 					}
@@ -183,19 +183,19 @@ function fct_dashboard_widget_right_now() {
 	do_action( 'fct_dashboard_widget_right_now_end' );
 }
 
-/** Years ********************************************************************/
+/** Periods ********************************************************************/
 
 /**
- * Year metabox
+ * Period metabox
  *
- * The metabox that holds all of the additional year information
+ * The metabox that holds all of the additional period information
  *
- * @uses fct_is_year_open() To check if a year is open or not
- * @uses fct_is_year_closed() To check if a year is closed or not
- * @uses fct_dropdown() To show a dropdown of the years for year parent
- * @uses do_action() Calls 'fct_year_metabox'
+ * @uses fct_is_period_open() To check if a period is open or not
+ * @uses fct_is_period_closed() To check if a period is closed or not
+ * @uses fct_dropdown() To show a dropdown of the periods for period parent
+ * @uses do_action() Calls 'fct_period_metabox'
  */
-function fct_year_metabox() {
+function fct_period_metabox() {
 
 	// Post ID
 	$post_id     = get_the_ID();
@@ -206,8 +206,8 @@ function fct_year_metabox() {
 
 	<p>
 		<strong class="label"><?php _e( 'Status:', 'fiscaat' ); ?></strong>
-		<label class="screen-reader-text" for="fct_year_status_select"><?php _e( 'Status:', 'fiscaat' ) ?></label>
-		<?php fct_form_year_status_dropdown( $post_id ); ?>
+		<label class="screen-reader-text" for="fct_period_status_select"><?php _e( 'Status:', 'fiscaat' ) ?></label>
+		<?php fct_form_period_status_dropdown( $post_id ); ?>
 	</p>
 
 	<?php
@@ -218,28 +218,28 @@ function fct_year_metabox() {
 	if ( 'add' != get_current_screen()->action ) : ?>
 
 	<p>
-		<strong class="label"><?php _e( 'Start:', 'Year start date', 'fiscaat' ); ?></strong>
-		<label class="screen-reader-text" for="fct_year_started"><?php _e( 'Start date:', 'fiscaat' ) ?></label>
-		<?php fct_form_year_started( $post_id ); ?>
+		<strong class="label"><?php _e( 'Start:', 'Period start date', 'fiscaat' ); ?></strong>
+		<label class="screen-reader-text" for="fct_period_started"><?php _e( 'Start date:', 'fiscaat' ) ?></label>
+		<?php fct_form_period_started( $post_id ); ?>
 	</p>
 
 	<?php endif;
 
 	/** Close date ************************************************************/
 
-	if ( fct_is_year_closed( $post_id ) ) : ?>
+	if ( fct_is_period_closed( $post_id ) ) : ?>
 
 	<p>
-		<strong class="label"><?php _e( 'Closed:', 'Year close date', 'fiscaat' ); ?></strong>
-		<label class="screen-reader-text" for="fct_year_closed"><?php _e( 'Close date:', 'fiscaat' ) ?></label>
-		<?php fct_form_year_closed( $post_id ); ?>
+		<strong class="label"><?php _e( 'Closed:', 'Period close date', 'fiscaat' ); ?></strong>
+		<label class="screen-reader-text" for="fct_period_closed"><?php _e( 'Close date:', 'fiscaat' ) ?></label>
+		<?php fct_form_period_closed( $post_id ); ?>
 
 	</p>
 
 	<?php endif;
 
-	wp_nonce_field( 'fct_year_metabox_save', 'fct_year_metabox' );
-	do_action( 'fct_year_metabox', $post_id );
+	wp_nonce_field( 'fct_period_metabox_save', 'fct_period_metabox' );
+	do_action( 'fct_period_metabox', $post_id );
 }
 
 /** Accounts ********************************************************************/
@@ -249,15 +249,15 @@ function fct_year_metabox() {
  *
  * The metabox that holds all of the additional account information
  *
- * @uses fct_get_account_year_id() To get the account year id
+ * @uses fct_get_account_period_id() To get the account period id
  * @uses do_action() Calls 'fct_account_metabox'
  */
 function fct_account_metabox() {
 
 	// Post ID
 	$post_id = get_the_ID();
-	$year_id = fct_get_account_year_id( $post_id );
-	$year_id = ! empty( $year_id ) ? $year_id : fct_get_current_year_id();
+	$period_id = fct_get_account_period_id( $post_id );
+	$period_id = ! empty( $period_id ) ? $period_id : fct_get_current_period_id();
 
 	/** Ledger ID *************************************************************/
 
@@ -284,15 +284,15 @@ function fct_account_metabox() {
 
 	<?php
 
-	/** Year ******************************************************************/
+	/** Period ******************************************************************/
 
 	?>
 
 	<p>
-		<strong class="label"><?php _e( 'Year:', 'fiscaat' ); ?></strong>
-		<label class="screen-reader-text" for="parent_id"><?php _e( 'Year', 'fiscaat' ); ?></label>
+		<strong class="label"><?php _e( 'Period:', 'fiscaat' ); ?></strong>
+		<label class="screen-reader-text" for="parent_id"><?php _e( 'Period', 'fiscaat' ); ?></label>
 		<?php fct_dropdown( array(
-			'selected'           => $year_id,
+			'selected'           => $period_id,
 
 			// Output-related
 			'select_id'          => 'parent_id',
@@ -324,21 +324,21 @@ function fct_record_metabox() {
 
 	// Get some meta
 	$record_account_id = fct_get_record_account_id( $post_id );
-	$record_year_id    = fct_get_record_year_id( $post_id );
-	$record_year_id    = ! empty( $record_year_id ) ? $record_year_id : fct_get_current_year_id();
+	$record_period_id    = fct_get_record_period_id( $post_id );
+	$record_period_id    = ! empty( $record_period_id ) ? $record_period_id : fct_get_current_period_id();
 
-	/** Year ******************************************************************/
+	/** Period ******************************************************************/
 
 	?>
 
 	<p>
-		<strong class="label"><?php _e( 'Year:', 'fiscaat' ); ?></strong>
-		<label class="screen-reader-text" for="fct_record_year_id"><?php _e( 'Year', 'fiscaat' ); ?></label>
+		<strong class="label"><?php _e( 'Period:', 'fiscaat' ); ?></strong>
+		<label class="screen-reader-text" for="fct_record_period_id"><?php _e( 'Period', 'fiscaat' ); ?></label>
 		<?php fct_dropdown( array(
-			'selected'           => $record_year_id,
+			'selected'           => $record_period_id,
 
 			// Output-related
-			'select_id'          => 'fct_year_id',
+			'select_id'          => 'fct_period_id',
 			'show_none'          => false,
 			'none_found'         => false,
 			'disabled'           => true,
@@ -356,7 +356,7 @@ function fct_record_metabox() {
 		<label class="screen-reader-text" for="fct_record_account_ledger_id"><?php _e( 'Account Number', 'fiscaat' ); ?></label>
 		<?php fct_ledger_dropdown( array(
 			'selected'           => $record_account_id,
-			'child_of'           => $record_year_id,
+			'child_of'           => $record_period_id,
 
 			// Output-related
 			'select_id'          => 'fct_record_account_ledger_id',
@@ -371,7 +371,7 @@ function fct_record_metabox() {
 		<label class="screen-reader-text" for="parent_id"><?php _e( 'Account Title', 'fiscaat' ); ?></label>
 		<?php fct_account_dropdown( array(
 			'selected'           => $record_account_id,
-			'child_of'           => $record_year_id,
+			'child_of'           => $record_period_id,
 
 			// Output-related
 			'select_id'          => 'parent_id',
@@ -433,4 +433,3 @@ function fct_record_metabox() {
 	wp_nonce_field( 'fiscaat_record_metabox_save', 'fiscaat_record_metabox' );
 	do_action( 'fiscaat_record_metabox', $post_id );
 }
-

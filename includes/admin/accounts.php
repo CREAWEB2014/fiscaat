@@ -11,7 +11,6 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 if ( ! class_exists( 'Fiscaat_Accounts_Admin' ) ) :
-
 /**
  * Loads Fiscaat accounts admin area
  *
@@ -48,7 +47,7 @@ class Fiscaat_Accounts_Admin {
 	 *
 	 * @uses add_action() To add various actions
 	 * @uses add_filter() To add various filters
-	 * @uses fct_get_year_post_type() To get the year post type
+	 * @uses fct_get_period_post_type() To get the period post type
 	 * @uses fct_get_account_post_type() To get the account post type
 	 * @uses fct_get_record_post_type() To get the record post type
 	 */
@@ -72,7 +71,7 @@ class Fiscaat_Accounts_Admin {
 		add_action( 'fct_admin_load_new_accounts',   array( $this, 'new_help'               ) );
 
 		// Fiscaat requires
-		add_action( 'fct_admin_load_new_accounts',   array( $this, 'no_year_redirect'       ) );
+		add_action( 'fct_admin_load_new_accounts',   array( $this, 'no_period_redirect'       ) );
 		
 		// Page title
 		add_action( 'fct_admin_accounts_page_title', array( $this, 'accounts_page_title'    ) );
@@ -92,7 +91,7 @@ class Fiscaat_Accounts_Admin {
 		add_filter( 'fct_admin_accounts_get_columns', array( $this, 'accounts_column_headers' )        );
 		add_filter( 'post_row_actions',               array( $this, 'accounts_row_actions'    ), 10, 2 );
 
-		// Add ability to filter accounts and records per year
+		// Add ability to filter accounts and records per period
 		add_filter( 'restrict_manage_posts', array( $this, 'filter_dropdown'  ) );
 		add_filter( 'fct_request',           array( $this, 'filter_post_rows' ) );
 
@@ -165,8 +164,8 @@ class Fiscaat_Accounts_Admin {
 					'<li>' . __( '<strong>Spam</strong> removes your account from this list and places it in the spam queue, from which you can permanently delete it.',                                                                                   'fiscaat' ) . '</li>' .
 					'<li>' . __( '<strong>Preview</strong> will show you what your draft account will look like if you publish it. View will take you to your live site to view the account. Which link is available depends on your account&#8217;s status.', 'fiscaat' ) . '</li>' .
 					'<li>' . __( '<strong>Close</strong> will mark the selected account as &#8217;closed&#8217; and disable the option to post new records to the account.',                                                                                 'fiscaat' ) . '</li>' .
-					'<li>' . __( '<strong>Stick</strong> will keep the selected account &#8217;pinned&#8217; to the top the parent year account list.',                                                                                                     'fiscaat' ) . '</li>' .
-					'<li>' . __( '<strong>Stick <em>(to front)</em></strong> will keep the selected account &#8217;pinned&#8217; to the top of ALL years and be visable in any years accounts list.',                                                      'fiscaat' ) . '</li>' .
+					'<li>' . __( '<strong>Stick</strong> will keep the selected account &#8217;pinned&#8217; to the top the parent period account list.',                                                                                                     'fiscaat' ) . '</li>' .
+					'<li>' . __( '<strong>Stick <em>(to front)</em></strong> will keep the selected account &#8217;pinned&#8217; to the top of ALL periods and be visable in any periods accounts list.',                                                      'fiscaat' ) . '</li>' .
 				'</ul>'
 		) );
 
@@ -183,7 +182,7 @@ class Fiscaat_Accounts_Admin {
 		get_current_screen()->set_help_sidebar(
 			'<p><strong>' . __( 'For more information:', 'fiscaat' ) . '</strong></p>' .
 			'<p>' . __( '<a href="http://codex.fiscaat.org" target="_blank">Fiscaat Documentation</a>',     'fiscaat' ) . '</p>' .
-			'<p>' . __( '<a href="http://fiscaat.org/years/" target="_blank">Fiscaat Support Years</a>',  'fiscaat' ) . '</p>'
+			'<p>' . __( '<a href="http://fiscaat.org/periods/" target="_blank">Fiscaat Support Periods</a>',  'fiscaat' ) . '</p>'
 		);
 	}
 
@@ -228,8 +227,8 @@ class Fiscaat_Accounts_Admin {
 			'content' =>
 				'<p>' . __( 'Select the attributes that your account should have:', 'fiscaat' ) . '</p>' .
 				'<ul>' .
-					'<li>' . __( '<strong>Year</strong> dropdown determines the parent year that the account belongs to. Select the year or category from the dropdown, or leave the default (No Year) to post the account without an assigned year.', 'fiscaat' ) . '</li>' .
-					'<li>' . __( '<strong>Account Type</strong> dropdown indicates the sticky status of the account. Selecting the super sticky option would stick the account to the front of your years, i.e. the account index, sticky option would stick the account to its respective year. Selecting normal would not stick the account anywhere.', 'fiscaat' ) . '</li>' .
+					'<li>' . __( '<strong>Period</strong> dropdown determines the parent period that the account belongs to. Select the period or category from the dropdown, or leave the default (No Period) to post the account without an assigned period.', 'fiscaat' ) . '</li>' .
+					'<li>' . __( '<strong>Account Type</strong> dropdown indicates the sticky status of the account. Selecting the super sticky option would stick the account to the front of your periods, i.e. the account index, sticky option would stick the account to its respective period. Selecting normal would not stick the account anywhere.', 'fiscaat' ) . '</li>' .
 				'</ul>'
 		) );
 
@@ -250,7 +249,7 @@ class Fiscaat_Accounts_Admin {
 		get_current_screen()->set_help_sidebar(
 			'<p><strong>' . __( 'For more information:', 'fiscaat' ) . '</strong></p>' .
 			'<p>' . __( '<a href="http://codex.fiscaat.org" target="_blank">Fiscaat Documentation</a>',    'fiscaat' ) . '</p>' .
-			'<p>' . __( '<a href="http://fiscaat.org/years/" target="_blank">Fiscaat Support Years</a>', 'fiscaat' ) . '</p>'
+			'<p>' . __( '<a href="http://fiscaat.org/periods/" target="_blank">Fiscaat Support Periods</a>', 'fiscaat' ) . '</p>'
 		);
 	}
 
@@ -311,8 +310,8 @@ class Fiscaat_Accounts_Admin {
 		if ( ! current_user_can( 'edit_account', $account_id ) )
 			return $account_id;
 
-		// Get the year ID
-		$year_id   = ! empty( $_POST['parent_id'] ) ? (int) $_POST['parent_id'] : fct_get_current_year_id();
+		// Get the period ID
+		$period_id   = ! empty( $_POST['parent_id'] ) ? (int) $_POST['parent_id'] : fct_get_current_period_id();
 
 		// Get the ledger ID
 		$ledger_id = ! empty( $_POST['fct_account_ledger_id'] ) ? (int) $_POST['fct_account_ledger_id'] : 0;
@@ -323,13 +322,13 @@ class Fiscaat_Accounts_Admin {
 		// Formally update the account
 		fct_update_account( array( 
 			'account_id'   => $account_id, 
-			'year_id'      => $year_id,
+			'period_id'    => $period_id,
 			'ledger_id'    => $ledger_id,
 			'account_type' => ! empty( $_POST['fct_account_type'] ) ? $_POST['fct_account_type'] : '',
 		) );
 
 		// Allow other fun things to happen
-		do_action( 'fct_account_attributes_metabox_save', $account_id, $year_id );
+		do_action( 'fct_account_attributes_metabox_save', $account_id, $period_id );
 
 		return $account_id;
 	}
@@ -339,7 +338,7 @@ class Fiscaat_Accounts_Admin {
 	/**
 	 * Add some general styling to the admin area
 	 *
-	 * @uses fct_get_year_post_type() To get the year post type
+	 * @uses fct_get_period_post_type() To get the period post type
 	 * @uses fct_get_account_post_type() To get the account post type
 	 * @uses fct_get_record_post_type() To get the record post type
 	 * @uses sanitize_html_class() To sanitize the classes
@@ -357,26 +356,26 @@ class Fiscaat_Accounts_Admin {
 				width: 60px;
 			}
 
-			.column-fct_year_account_count,
-			.column-fct_year_record_count,
+			.column-fct_period_account_count,
+			.column-fct_period_record_count,
 			.column-fct_account_ledger_id,
 			.column-fct_account_type,
 			.column-fct_account_record_count,
 			.column-fct_account_end_value {
-				width: 10% !important;
+				width: 10%;
 			}
 
 			.column-author,
 			.column-fct_record_author,
 			.column-fct_account_author {
-				width: 10% !important;
+				width: 10%;
 			}
 
 			.column-fct_account_value,
-			.column-fct_account_year,
-			.column-fct_record_year,
+			.column-fct_account_period,
+			.column-fct_record_period,
 			.column-fct_record_account {
-				width: 10% !important;
+				width: 10%;
 			}
 
 			.status-closed {
@@ -437,16 +436,16 @@ class Fiscaat_Accounts_Admin {
 	 *
 	 * @uses get_posts()
 	 * @uses fct_get_account_post_type()
-	 * @uses fct_get_account_year_id()
+	 * @uses fct_get_account_period_id()
 	 * @uses wp_send_json_error() To return that an account was found
 	 * @uses wp_send_json_success() To return that no account was found
 	 */
 	public function check_ledger_id() {
 
-		// Find any matching ledger id in the account's year
+		// Find any matching ledger id in the account's period
 		$query = get_posts( array(
 			'post_type'    => fct_get_account_post_type(),
-			'post_parent'  => fct_get_account_year_id( $_REQUEST['account_id'] ),
+			'post_parent'  => fct_get_account_period_id( $_REQUEST['account_id'] ),
 			'meta_key'     => '_fct_ledger_id',
 			'meta_value'   => (int) like_escape( $_REQUEST['ledger_id'] ),
 			'post__not_in' => array( (int) $_REQUEST['account_id'] ),
@@ -475,10 +474,10 @@ class Fiscaat_Accounts_Admin {
 		if ( $this->bail() ) 
 			return $columns;
 
-		// Hide year column if showing year accounts. When there
-		// is no year selection, current year accounts are showed.
-		if ( ! isset( $_GET['fct_year_id'] ) || ! empty( $_GET['fct_year_id'] ) ) {
-			unset( $columns['fct_account_year'] );
+		// Hide period column if showing period accounts. When there
+		// is no period selection, current period accounts are showed.
+		if ( ! isset( $_GET['fct_period_id'] ) || ! empty( $_GET['fct_period_id'] ) ) {
+			unset( $columns['fct_account_period'] );
 		}
 
 		return $columns;
@@ -507,9 +506,9 @@ class Fiscaat_Accounts_Admin {
 	}
 
 	/**
-	 * Add year dropdown to account and record list table filters
+	 * Add period dropdown to account and record list table filters
 	 *
-	 * @uses fct_dropdown() To generate a year dropdown
+	 * @uses fct_dropdown() To generate a period dropdown
 	 * @return bool False. If post type is not account or record
 	 */
 	public function filter_dropdown() {
@@ -522,18 +521,18 @@ class Fiscaat_Accounts_Admin {
 			'show_none' => '&mdash;'
 		) );
 
-		// Get which year is selected. Default to current year
-		$selected = isset( $_GET['fct_year_id'] ) ? $_GET['fct_year_id'] : fct_get_current_year_id();
+		// Get which period is selected. Default to current period
+		$selected = isset( $_GET['fct_period_id'] ) ? $_GET['fct_period_id'] : fct_get_current_period_id();
 
-		// Show the years dropdown
+		// Show the periods dropdown
 		fct_dropdown( array(
 			'selected'  => $selected,
-			'show_none' => __( 'In all years', 'fiscaat' )
+			'show_none' => __( 'In all periods', 'fiscaat' )
 		) );
 	}
 
 	/**
-	 * Adjust the request query and include the parent year id
+	 * Adjust the request query and include the parent period id
 	 *
 	 * @param array $query_vars Query variables from {@link WP_Query}
 	 * @return array Processed Query Vars
@@ -545,11 +544,11 @@ class Fiscaat_Accounts_Admin {
 		// Setup meta query
 		$meta_query = isset( $query_vars['meta_query'] ) ? $query_vars['meta_query'] : array();
 
-		/** Year **************************************************************/
+		/** Period **************************************************************/
 
-		// Set the parent from year id if given or current year. Empty
-		// year results in all years.
-		$query_vars['post_parent'] = isset( $_REQUEST['fct_year_id'] ) ? $_REQUEST['fct_year_id'] : fct_get_current_year_id();
+		// Set the parent from period id if given or current period. Empty
+		// period results in all periods.
+		$query_vars['post_parent'] = isset( $_REQUEST['fct_period_id'] ) ? $_REQUEST['fct_period_id'] : fct_get_current_period_id();
 
 		/** Ledger ************************************************************/
 
@@ -791,12 +790,12 @@ class Fiscaat_Accounts_Admin {
 	/**
 	 * Redirect user to record post-new page with correct message id
 	 *
-	 * @uses fct_has_open_year()
+	 * @uses fct_has_open_period()
 	 * @uses fct_get_record_post_type()
 	 * @uses add_query_arg()
 	 * @uses wp_safe_redirect()
 	 */
-	public function no_year_redirect() {
+	public function no_period_redirect() {
 		if ( $this->bail() ) 
 			return;
 
@@ -804,8 +803,8 @@ class Fiscaat_Accounts_Admin {
 		if ( isset( $_GET['message'] ) )
 			return;
 
-		// Install has no open year
-		if ( ! fct_has_open_year() ) {
+		// Install has no open period
+		if ( ! fct_has_open_period() ) {
 			$message = 11;
 
 		// Everything okay
@@ -885,8 +884,8 @@ class Fiscaat_Accounts_Admin {
 			// Account draft updated
 			10 => sprintf( __( 'Account draft updated. <a target="_blank" href="%s">Preview account</a>', 'fiscaat' ), esc_url( add_query_arg( 'preview', 'true', $account_url ) ) ),
 
-			// Require a year
-			11 => sprintf( __( 'Using Fiscaat requires an open year to register accounts in. <a href="%s">Create a year first</a>.', 'fiscaat' ), esc_url( add_query_arg( 'post_type', fct_get_year_post_type(), admin_url( 'post-new.php' ) ) ) ),
+			// Require a period
+			11 => sprintf( __( 'Using Fiscaat requires an open period to register accounts in. <a href="%s">Create a period first</a>.', 'fiscaat' ), esc_url( add_query_arg( 'post_type', fct_get_period_post_type(), admin_url( 'post-new.php' ) ) ) ),
 
 			// Account number already taken
 			12 => isset( $_GET['fct_ledger_id'] )
@@ -905,21 +904,21 @@ class Fiscaat_Accounts_Admin {
 	/**
 	 * Manipulate the accounts posts page title
 	 * 
-	 * @uses fct_get_year_title() To get the year title
+	 * @uses fct_get_period_title() To get the period title
 	 * @return array Modified arguments
 	 */
 	public function accounts_page_title( $title ) {
 
-		// Year accounts
-		if ( ! isset( $_GET['fct_year_id'] ) || ! empty( $_GET['fct_year_id'] ) ) {
+		// Period accounts
+		if ( ! isset( $_GET['fct_period_id'] ) || ! empty( $_GET['fct_period_id'] ) ) {
 
-			// Check year id
-			$selected = isset( $_GET['fct_year_id'] ) ? $_GET['fct_year_id'] : fct_get_current_year_id();
-			$year_id  = fct_get_year_id( $selected );
+			// Check period id
+			$selected  = isset( $_GET['fct_period_id'] ) ? $_GET['fct_period_id'] : fct_get_current_period_id();
+			$period_id = fct_get_period_id( $selected );
 
-			if ( ! empty( $year_id ) ) {
-				// Format: {title} -- {year title}
-				$title .= ' &mdash; '. fct_get_year_title( $year_id );
+			if ( ! empty( $period_id ) ) {
+				// Format: {title} -- {period title}
+				$title .= ' &mdash; '. fct_get_period_title( $period_id );
 			}
 		}
 
@@ -931,15 +930,15 @@ class Fiscaat_Accounts_Admin {
 	 *
 	 * @since 0.0.8
 	 *
-	 * @uses fct_has_open_year()
+	 * @uses fct_has_open_period()
 	 * @uses fct_admin_page_title_add_new()
 	 * @param string $title Page title
 	 * @return string Page title
 	 */
 	public function post_new_link( $title ) {
 
-		// Require open year
-		if ( fct_has_open_year() ) {
+		// Require open period
+		if ( fct_has_open_period() ) {
 			$title = fct_admin_page_title_add_new( $title );
 		}
 

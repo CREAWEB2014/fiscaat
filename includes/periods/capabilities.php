@@ -1,34 +1,34 @@
 <?php
 
 /**
- * Fiscaat Year Capabilites
+ * Fiscaat Period Capabilites
  *
- * Used to map year capabilities to WordPress's existing capabilities.
+ * Used to map period capabilities to WordPress's existing capabilities.
  *
  * @package Fiscaat
  * @subpackage Capabilities
  */
 
 /**
- * Return year capabilities
+ * Return period capabilities
  *
- * @uses apply_filters() Calls 'fct_get_year_caps' with the capabilities
- * @return array Year capabilities
+ * @uses apply_filters() Calls 'fct_get_period_caps' with the capabilities
+ * @return array Period capabilities
  */
-function fct_get_year_caps() {
-	return apply_filters( 'fct_get_year_caps', array (
-		'create_posts'        => 'create_years',
-		'edit_posts'          => 'edit_years',
-		'edit_others_posts'   => 'edit_others_years',
-		'publish_posts'       => 'publish_years',
-		'read_private_posts'  => 'read_private_years',
-		'delete_posts'        => 'delete_years',
-		'delete_others_posts' => 'delete_others_years'
+function fct_get_period_caps() {
+	return apply_filters( 'fct_get_period_caps', array (
+		'create_posts'        => 'create_periods',
+		'edit_posts'          => 'edit_periods',
+		'edit_others_posts'   => 'edit_others_periods',
+		'publish_posts'       => 'publish_periods',
+		'read_private_posts'  => 'read_private_periods',
+		'delete_posts'        => 'delete_periods',
+		'delete_others_posts' => 'delete_others_periods'
 	) );
 }
 
 /**
- * Maps year capabilities
+ * Maps period capabilities
  *
  * @param array $caps Capabilities for meta capability
  * @param string $cap Capability name
@@ -39,14 +39,14 @@ function fct_get_year_caps() {
  * @uses apply_filters() Filter capability map results
  * @return array Actual capabilities for meta capability
  */
-function fct_map_year_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
+function fct_map_period_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 
 	// What capability is being checked?
 	switch ( $cap ) {
 
 		/** Reading ***********************************************************/
 
-		case 'read_year' :
+		case 'read_period' :
 
 			// User cannot read
 			if ( ! user_can( $user_id, 'fct_spectate' ) ) {
@@ -63,21 +63,21 @@ function fct_map_year_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args
 
 		/** Publishing ********************************************************/
 
-		case 'publish_years' :
+		case 'publish_periods' :
 			$caps = array( 'fiscaat' );
 			break;
 
 		/** Editing ***********************************************************/
 
-		case 'edit_years'        :
-		case 'edit_others_years' :
+		case 'edit_periods'        :
+		case 'edit_others_periods' :
 			$caps = array( 'fiscaat' );
 			break;
 
-		case 'edit_year' :
+		case 'edit_period' :
 
-			// Year is closed
-			if ( fct_is_year_closed( $args[0] ) ) {
+			// Period is closed
+			if ( fct_is_period_closed( $args[0] ) ) {
 				$caps = array( 'do_not_allow' );
 
 			// Fisci can edit
@@ -89,11 +89,11 @@ function fct_map_year_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args
 
 		/** Deleting **********************************************************/
 
-		case 'delete_year'         :
-		case 'delete_years'        :
-		case 'delete_others_years' :
+		case 'delete_period'         :
+		case 'delete_periods'        :
+		case 'delete_others_periods' :
 
-			// Years are deleted on reset or uninstall
+			// Periods are deleted on reset or uninstall
 			if ( is_admin() && ( fct_is_reset() || fct_is_uninstall() ) ) {
 				$caps = array( 'administrator' );
 
@@ -101,8 +101,8 @@ function fct_map_year_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args
 			} elseif ( ! user_can( $user_id, 'fiscaat' ) ) {
 				$caps = array( 'do_not_allow' );
 
-			// Year has no records
-			} elseif ( ! fct_year_has_records() ) {
+			// Period has no records
+			} elseif ( ! fct_period_has_records() ) {
 				$caps = array( 'fiscaat' );
 
 			// Else not
@@ -114,12 +114,12 @@ function fct_map_year_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args
 
 		/** Admin *************************************************************/
 
-		// Only Fisci can admin years
-		case 'fct_years_admin' :
+		// Only Fisci can admin periods
+		case 'fct_periods_admin' :
 			$caps = array( 'fiscaat' );
 			break;
 	}
 
-	return apply_filters( 'fct_map_year_meta_caps', $caps, $cap, $user_id, $args );
+	return apply_filters( 'fct_map_period_meta_caps', $caps, $cap, $user_id, $args );
 }
 

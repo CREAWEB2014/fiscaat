@@ -47,7 +47,7 @@ add_action( 'custom_menu_order',       'fct_admin_custom_menu_order'       );
 add_action( 'menu_order',              'fct_admin_menu_order'              );
 
 // Hook on to admin_init
-add_action( 'fct_admin_init',          'fct_admin_years'                   );
+add_action( 'fct_admin_init',          'fct_admin_periods'                   );
 add_action( 'fct_admin_init',          'fct_admin_accounts'                );
 add_action( 'fct_admin_init',          'fct_admin_records'                 );
 add_action( 'fct_admin_init',          'fct_setup_updater',            999 );
@@ -168,14 +168,14 @@ function fct_admin_load_edit_records() {
 }
 
 /**
- * Dedicated action to load the edit years page
+ * Dedicated action to load the edit periods page
  *
  * @since 0.0.7
  *
- * @uses do_action() Calls 'fct_admin_load_edit_years'
+ * @uses do_action() Calls 'fct_admin_load_edit_periods'
  */
-function fct_admin_load_edit_years() {
-	do_action( 'fct_admin_load_edit_years' );
+function fct_admin_load_edit_periods() {
+	do_action( 'fct_admin_load_edit_periods' );
 }
 
 /**
@@ -201,12 +201,12 @@ function fct_admin_load_new_records() {
 }
 
 /**
- * Dedicated action to load the year's post-new.php page
+ * Dedicated action to load the period's post-new.php page
  *
  * @since 0.0.8
  *
- * @uses do_action() Calls 'fct_admin_load_new_years'
+ * @uses do_action() Calls 'fct_admin_load_new_periods'
  */
-function fct_admin_load_new_years() {
-	do_action( 'fct_admin_load_new_years' );
+function fct_admin_load_new_periods() {
+	do_action( 'fct_admin_load_new_periods' );
 }

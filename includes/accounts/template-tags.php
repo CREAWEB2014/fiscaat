@@ -45,8 +45,8 @@ function fct_account_post_type() {
  * @uses fct_get_account_post_type() To get the account post type
  * @uses WP_Query To make query and get the accounts
  * @uses is_page() To check if it's a page
- * @uses fct_is_single_year() To check if it's a year
- * @uses fct_get_year_id() To get the year id
+ * @uses fct_is_single_period() To check if it's a period
+ * @uses fct_get_period_id() To get the period id
  * @uses fct_get_paged() To get the current page value
  * @uses wpdb::get_results() To execute our query and get the results
  * @uses WP_Rewrite::using_permalinks() To check if the blog is using permalinks
@@ -66,13 +66,13 @@ function fct_has_accounts( $args = '' ) {
 	$post_statuses = array( fct_get_public_status_id(), fct_get_closed_status_id() );
 
 	$default_account_search = ! empty( $_REQUEST['ts'] ) ? $_REQUEST['ts'] : false;
-	$default_post_parent    = fct_is_single_year() ? fct_get_year_id() : 'any';
+	$default_post_parent    = fct_is_single_period() ? fct_get_period_id() : 'any';
 	$default_post_status    = join( ',', $post_statuses );
 
 	// Default argument array
 	$default = array(
 		'post_type'      => fct_get_account_post_type(), // Narrow query down to Fiscaat accounts
-		'post_parent'    => $default_post_parent,        // Year ID
+		'post_parent'    => $default_post_parent,        // Period ID
 		'post_status'    => $default_post_status,        // Post Status
 		'order'          => 'DESC',                      // 'ASC', 'DESC'
 		'posts_per_page' => fct_get_accounts_per_page(), // Accounts per page
@@ -197,6 +197,7 @@ function fct_the_account() {
 function fct_account_id( $account_id = 0) {
 	echo fct_get_account_id( $account_id );
 }
+
 	/**
 	 * Return the account id
 	 *
@@ -220,53 +221,54 @@ function fct_account_id( $account_id = 0) {
 		$fct = fiscaat();
 
 		// Easy empty checking
-		if ( ! empty( $account_id ) && is_numeric( $account_id ) )
+		if ( ! empty( $account_id ) && is_numeric( $account_id ) ) {
 			$fct_account_id = $account_id;
 
 		// Currently inside an account loop
-		elseif ( ! empty( $fct->account_query->in_the_loop ) && isset( $fct->account_query->post->ID ) )
+		} elseif ( ! empty( $fct->account_query->in_the_loop ) && isset( $fct->account_query->post->ID ) ) {
 			$fct_account_id = $fct->account_query->post->ID;
 
-		// Currently viewing a year
-		elseif ( ( fct_is_single_account() || fct_is_account_edit() ) && ! empty( $fct->current_account_id ) )
+		// Currently viewing a period
+		} elseif ( ( fct_is_single_account() || fct_is_account_edit() ) && ! empty( $fct->current_account_id ) ) {
 			$fct_account_id = $fct->current_account_id;
 
 		// Currently viewing an account
-		elseif ( ( fct_is_single_account() || fct_is_account_edit() ) && isset( $wp_query->post->ID ) )
+		} elseif ( ( fct_is_single_account() || fct_is_account_edit() ) && isset( $wp_query->post->ID ) ) {
 			$fct_account_id = $wp_query->post->ID;
 
 		// Currently viewing an account
-		elseif ( fct_is_single_record() )
+		} elseif ( fct_is_single_record() ) {
 			$fct_account_id = fct_get_record_account_id();
 
 		// Fallback
-		else
+		} else {
 			$fct_account_id = 0;
+		}
 
 		return (int) apply_filters( 'fct_get_account_id', (int) $fct_account_id, $account_id );
 	}
 
 /**
- * Return the account id of an account using the ledger id and year id
+ * Return the account id of an account using the ledger id and period id
  * 
  * @param int $ledger_id Ledger id
- * @param int $year_id Optional. Year id. Defaults to current year
- * @uses fct_get_year_id()
+ * @param int $period_id Optional. Period id. Defaults to current period
+ * @uses fct_get_period_id()
  * @uses fct_get_ledger_id()
  * @uses fct_get_account_post_type()
  * @uses apply_filters() Calls 'fct_get_account_id_by_ledger_id' with
- *                        account id, ledger id, and year id
+ *                        account id, ledger id, and period id
  * @return int Account's account id
  */
-function fct_get_account_id_by_ledger_id( $ledger_id, $year_id = 0 ) {
-	$year_id    = fct_get_year_id( $year_id );
+function fct_get_account_id_by_ledger_id( $ledger_id, $period_id = 0 ) {
+	$period_id  = fct_get_period_id( $period_id );
 	$ledger_id  = (int) $ledger_id;
 	$account_id = 0;
 
 	// Query for account with params
 	if ( $accounts = new WP_Query( array(
 		'post_type'      => fct_get_account_post_type(),
-		'post_parent'    => $year_id,
+		'post_parent'    => $period_id,
 		'posts_per_page' => 1,
 		'meta_key'       => '_fct_ledger_id',
 		'meta_value'     => $ledger_id,
@@ -276,7 +278,7 @@ function fct_get_account_id_by_ledger_id( $ledger_id, $year_id = 0 ) {
 			$account_id = fct_get_account_id( $account );
 	}
 
-	return (int) apply_filters( 'fct_get_account_id_by_ledger_id', (int) $account_id, $ledger_id, $year_id );
+	return (int) apply_filters( 'fct_get_account_id_by_ledger_id', (int) $account_id, $ledger_id, $period_id );
 }
 
 /**
@@ -333,6 +335,7 @@ function fct_get_account( $account, $output = OBJECT, $filter = 'raw' ) {
 function fct_account_permalink( $account_id = 0, $redirect_to = '' ) {
 	echo fct_get_account_permalink( $account_id, $redirect_to );
 }
+
 	/**
 	 * Return the link to the account
 	 *
@@ -370,6 +373,7 @@ function fct_account_permalink( $account_id = 0, $redirect_to = '' ) {
 function fct_account_title( $account_id = 0 ) {
 	echo fct_get_account_title( $account_id );
 }
+
 	/**
 	 * Return the title of the account
 	 *
@@ -395,6 +399,7 @@ function fct_account_title( $account_id = 0 ) {
 function fct_account_archive_title( $title = '' ) {
 	echo fct_get_account_archive_title( $title );
 }
+
 	/**
 	 * Return the account archive title
 	 *
@@ -438,6 +443,7 @@ function fct_account_archive_title( $title = '' ) {
 function fct_account_content( $account_id = 0 ) {
 	echo fct_get_account_content( $account_id );
 }
+
 	/**
 	 * Return the content of the account
 	 *
@@ -466,6 +472,7 @@ function fct_account_content( $account_id = 0 ) {
 function fct_account_pagination( $args = '' ) {
 	echo fct_get_account_pagination( $args );
 }
+
 	/**
 	 * Returns pagination links of an account within the account loop
 	 *
@@ -493,8 +500,8 @@ function fct_account_pagination( $args = '' ) {
 
 		$defaults = array(
 			'account_id' => fct_get_account_id(),
-			'before'   => '<span class="fiscaat-account-pagination">',
-			'after'    => '</span>',
+			'before'     => '<span class="fiscaat-account-pagination">',
+			'after'      => '</span>',
 		);
 		$r = fct_parse_args( $args, $defaults, 'get_account_pagination' );
 		extract( $r );
@@ -547,6 +554,7 @@ function fct_account_pagination( $args = '' ) {
 function fct_account_status( $account_id = 0 ) {
 	echo fct_get_account_status( $account_id );
 }
+
 	/**
 	 * Return the status of the account
 	 *
@@ -611,6 +619,7 @@ function fct_is_account_published( $account_id = 0 ) {
 function fct_account_author( $account_id = 0 ) {
 	echo fct_get_account_author( $account_id );
 }
+
 	/**
 	 * Return the author of the account
 	 *
@@ -638,6 +647,7 @@ function fct_account_author( $account_id = 0 ) {
 function fct_account_author_id( $account_id = 0 ) {
 	echo fct_get_account_author_id( $account_id );
 }
+
 	/**
 	 * Return the author ID of the account
 	 *
@@ -656,55 +666,57 @@ function fct_account_author_id( $account_id = 0 ) {
 	}
 
 /**
- * Output the title of the year an account belongs to
+ * Output the title of the period an account belongs to
  *
  * @param int $account_id Optional. Account id
- * @uses fct_get_account_year_title() To get the account's year title
+ * @uses fct_get_account_period_title() To get the account's period title
  */
-function fct_account_year_title( $account_id = 0 ) {
-	echo fct_get_account_year_title( $account_id );
+function fct_account_period_title( $account_id = 0 ) {
+	echo fct_get_account_period_title( $account_id );
 }
+
 	/**
-	 * Return the title of the year an account belongs to
+	 * Return the title of the period an account belongs to
 	 *
 	 * @param int $account_id Optional. Account id
 	 * @uses fct_get_account_id() To get account id
-	 * @uses fct_get_account_year_id() To get account's year id
-	 * @uses apply_filters() Calls 'fct_get_account_year' with the year
+	 * @uses fct_get_account_period_id() To get account's period id
+	 * @uses apply_filters() Calls 'fct_get_account_period' with the period
 	 *                        title and account id
-	 * @return string Account year title
+	 * @return string Account period title
 	 */
-	function fct_get_account_year_title( $account_id = 0 ) {
+	function fct_get_account_period_title( $account_id = 0 ) {
 		$account_id = fct_get_account_id( $account_id );
-		$year_id    = fct_get_account_year_id( $account_id );
+		$period_id  = fct_get_account_period_id( $account_id );
 
-		return apply_filters( 'fct_get_account_year', fct_get_year_title( $year_id ), $account_id, $year_id );
+		return apply_filters( 'fct_get_account_period', fct_get_period_title( $period_id ), $account_id, $period_id );
 	}
 
 /**
- * Output the year id an account belongs to
+ * Output the period id an account belongs to
  *
  * @param int $account_id Optional. Account id
- * @uses fct_get_account_year_id()
+ * @uses fct_get_account_period_id()
  */
-function fct_account_year_id( $account_id = 0 ) {
-	echo fct_get_account_year_id( $account_id );
+function fct_account_period_id( $account_id = 0 ) {
+	echo fct_get_account_period_id( $account_id );
 }
+
 	/**
-	 * Return the year id an account belongs to
+	 * Return the period id an account belongs to
 	 *
 	 * @param int $account_id Optional. Account id
 	 * @uses fct_get_account_id() To get account id
-	 * @uses fct_get_account_meta() To retrieve get account's year id meta
-	 * @uses apply_filters() Calls 'fct_get_account_year_id' with the year
+	 * @uses fct_get_account_meta() To retrieve get account's period id meta
+	 * @uses apply_filters() Calls 'fct_get_account_period_id' with the period
 	 *                        id and account id
-	 * @return int Account year id
+	 * @return int Account period id
 	 */
-	function fct_get_account_year_id( $account_id = 0 ) {
+	function fct_get_account_period_id( $account_id = 0 ) {
 		$account_id = fct_get_account_id( $account_id );
-		$year_id    = (int) fct_get_account_meta( $account_id, 'year_id' );
+		$period_id  = (int) fct_get_account_meta( $account_id, 'period_id' );
 
-		return (int) apply_filters( 'fct_get_account_year_id', $year_id, $account_id );
+		return (int) apply_filters( 'fct_get_account_period_id', $period_id, $account_id );
 	}
 
 /**
@@ -716,13 +728,14 @@ function fct_account_year_id( $account_id = 0 ) {
 function fct_account_ledger_id( $account_id = 0 ) {
 	echo fct_get_account_ledger_id( $account_id );
 }
+
 	/**
 	 * Return the ledger id of an account
 	 *
 	 * @param int $account_id Optional. Account id
 	 * @uses fct_get_account_id() To get account id
 	 * @uses fct_get_account_meta() To retrieve get account's ledger id meta
-	 * @uses apply_filters() Calls 'fct_get_account_ledger_id' with the year
+	 * @uses apply_filters() Calls 'fct_get_account_ledger_id' with the period
 	 *                        id and account id
 	 * @return int Account's ledger id
 	 */
@@ -742,13 +755,14 @@ function fct_account_ledger_id( $account_id = 0 ) {
 function fct_account_type( $account_id = 0 ) {
 	echo fct_get_account_type( $account_id );
 }
+
 	/**
 	 * Return the account type of an account
 	 *
 	 * @param int $account_id Optional. Account id
 	 * @uses fct_get_account_id() To get account id
 	 * @uses fct_get_account_meta() To retrieve get account's type meta
-	 * @uses apply_filters() Calls 'fct_get_account_type' with the year
+	 * @uses apply_filters() Calls 'fct_get_account_type' with the period
 	 *                        id and account id
 	 * @return int Account's account type
 	 */
@@ -768,13 +782,14 @@ function fct_account_type( $account_id = 0 ) {
 function fct_account_start_value( $account_id = 0 ) {
 	echo fct_get_account_start_value( $account_id );
 }
+
 	/**
 	 * Return the start value of an account
 	 *
 	 * @param int $account_id Optional. Account id
 	 * @uses fct_get_account_id() To get account id
 	 * @uses fct_get_account_meta() To retrieve get account's start value meta
-	 * @uses apply_filters() Calls 'fct_get_account_start_value' with the year
+	 * @uses apply_filters() Calls 'fct_get_account_start_value' with the period
 	 *                        id and account id
 	 * @return int Account's start value
 	 */
@@ -794,13 +809,14 @@ function fct_account_start_value( $account_id = 0 ) {
 function fct_account_end_value( $account_id = 0 ) {
 	echo fct_get_account_end_value( $account_id );
 }
+
 	/**
 	 * Return the end value of an account
 	 *
 	 * @param int $account_id Optional. Account id
 	 * @uses fct_get_account_id() To get account id
 	 * @uses fct_get_account_meta() To retrieve get account's end value meta
-	 * @uses apply_filters() Calls 'fct_get_account_end_value' with the year
+	 * @uses apply_filters() Calls 'fct_get_account_end_value' with the period
 	 *                        id and account id
 	 * @return int Account's end value
 	 */
@@ -817,7 +833,7 @@ function fct_account_end_value( $account_id = 0 ) {
  * @param int $account_id Optional. Account id
  * @uses fct_get_account_id() To get account id
  * @uses fct_get_account_meta() To retrieve get account's spectator ids meta
- * @uses apply_filters() Calls 'fct_get_account_spectators' with the year
+ * @uses apply_filters() Calls 'fct_get_account_spectators' with the period
  *                        id and account id
  * @return int Account's spectator ids
  */
@@ -879,6 +895,7 @@ function fct_account_records_link( $account_id = 0 ) {
 function fct_account_records_admin_link( $account_id = 0, $number = false ) {
 	echo fct_get_account_records_admin_link( $account_id, $number );
 }
+
 	/**
 	 * Return the records admin link of the account
 	 *
@@ -917,6 +934,7 @@ function fct_account_records_admin_link( $account_id = 0, $number = false ) {
 function fct_account_record_count( $account_id = 0, $integer = false ) {
 	echo fct_get_account_record_count( $account_id, $integer );
 }
+
 	/**
 	 * Return total record count of an account
 	 *
@@ -945,25 +963,26 @@ function fct_account_record_count( $account_id = 0, $integer = false ) {
 function fct_account_class( $account_id = 0 ) {
 	echo fct_get_account_class( $account_id );
 }
+
 	/**
 	 * Return the row class of an account
 	 *
 	 * @param int $account_id Optional. Account id
 	 * @uses fct_is_account_sticky() To check if the account is a sticky
 	 * @uses fct_is_account_super_sticky() To check if the account is a super sticky
-	 * @uses fct_get_account_year_id() To get the account year id
+	 * @uses fct_get_account_period_id() To get the account period id
 	 * @uses get_post_class() To get the account classes
 	 * @uses apply_filters() Calls 'fct_get_account_class' with the classes
 	 *                        and account id
 	 * @return string Row class of an account
 	 */
 	function fct_get_account_class( $account_id = 0 ) {
-		$fct    = fiscaat();
+		$fct        = fiscaat();
 		$account_id = fct_get_account_id( $account_id );
 		$count      = isset( $fct->account_query->current_post ) ? $fct->account_query->current_post : 1;
 		$classes    = array();
 		$classes[]  = ( (int) $count % 2 ) ? 'even' : 'odd';
-		$classes[]  = 'fiscaat-parent-year-' . fct_get_account_year_id( $account_id );
+		$classes[]  = 'fiscaat-parent-period-' . fct_get_account_period_id( $account_id );
 		$classes[]  = fct_is_account_closed( $account_id ) ? 'fiscaat-account-closed' : 'fiscaat-account-open';
 		$classes    = array_filter( $classes );
 		$classes    = get_post_class( $classes, $account_id );
@@ -984,6 +1003,7 @@ function fct_account_class( $account_id = 0 ) {
 function fct_account_admin_links( $args = '' ) {
 	echo fct_get_account_admin_links( $args );
 }
+
 	/**
 	 * Return admin links for account.
 	 *
@@ -1112,6 +1132,7 @@ function fct_account_edit_link( $args = '' ) {
 function fct_account_edit_url( $account_id = 0 ) {
 	echo fct_get_account_edit_url( $account_id );
 }
+
 	/**
 	 * Return URL to the account edit page
 	 *
@@ -1219,22 +1240,23 @@ function fct_account_close_link( $args = '' ) {
  *
  * @since 0.0.1
  *
- * @uses fct_get_year_pagination_count() To get the year pagination count
+ * @uses fct_get_period_pagination_count() To get the period pagination count
  */
-function fct_year_pagination_count() {
-	echo fct_get_year_pagination_count();
+function fct_period_pagination_count() {
+	echo fct_get_period_pagination_count();
 }
+
 	/**
 	 * Return the pagination count
 	 *
 	 * @since 0.0.1
 	 *
 	 * @uses fct_number_format() To format the number value
-	 * @uses apply_filters() Calls 'fct_get_year_pagination_count' with the
+	 * @uses apply_filters() Calls 'fct_get_period_pagination_count' with the
 	 *                        pagination count
-	 * @return string Year Pagintion count
+	 * @return string Period Pagintion count
 	 */
-	function fct_get_year_pagination_count() {
+	function fct_get_period_pagination_count() {
 		$fct = fiscaat();
 
 		if ( empty( $fct->account_query ) )
@@ -1247,11 +1269,11 @@ function fct_year_pagination_count() {
 		$total_int = (int) ! empty( $fct->account_query->found_posts ) ? $fct->account_query->found_posts : $fct->account_query->post_count;
 		$total     = fct_number_format( $total_int );
 
-		// Several accounts in a year with a single page
+		// Several accounts in a period with a single page
 		if ( empty( $to_num ) ) {
 			$retstr = sprintf( _n( 'Viewing %1$s account', 'Viewing %1$s accounts', $total_int, 'fiscaat' ), $total );
 
-		// Several accounts in a year with several pages
+		// Several accounts in a period with several pages
 		} else {
 			$retstr = sprintf( _n( 'Viewing account %2$s (of %4$s total)', 'Viewing %1$s accounts - %2$s through %3$s (of %4$s total)', $total_int, 'fiscaat' ), $fct->account_query->post_count, $from_num, $to_num, $total );
 		}
@@ -1265,11 +1287,12 @@ function fct_year_pagination_count() {
  *
  * @since 0.0.1
  *
- * @uses fct_get_year_pagination_links() To get the pagination links
+ * @uses fct_get_period_pagination_links() To get the pagination links
  */
-function fct_year_pagination_links() {
-	echo fct_get_year_pagination_links();
+function fct_period_pagination_links() {
+	echo fct_get_period_pagination_links();
 }
+
 	/**
 	 * Return pagination links
 	 *
@@ -1278,13 +1301,13 @@ function fct_year_pagination_links() {
 	 * @uses Fiscaat::account_query::pagination_links To get the links
 	 * @return string Pagination links
 	 */
-	function fct_get_year_pagination_links() {
+	function fct_get_period_pagination_links() {
 		$fct = fiscaat();
 
 		if ( empty( $fct->account_query ) )
 			return false;
 
-		return apply_filters( 'fct_get_year_pagination_links', $fct->account_query->pagination_links );
+		return apply_filters( 'fct_get_period_pagination_links', $fct->account_query->pagination_links );
 	}
 
 /** Single Account **************************************************************/
@@ -1301,6 +1324,7 @@ function fct_year_pagination_links() {
 function fct_single_account_description( $args = '' ) {
 	echo fct_get_single_account_description( $args );
 }
+
 	/**
 	 * Return a fancy description of the current account, including total accounts,
 	 * total records, and last activity.
@@ -1326,10 +1350,10 @@ function fct_single_account_description( $args = '' ) {
 
 		// Default arguments
 		$defaults = array (
-			'account_id'  => 0,
-			'before'    => '<div class="fiscaat-template-notice info"><p class="fiscaat-account-description">',
-			'after'     => '</p></div>',
-			'size'      => 14
+			'account_id' => 0,
+			'before'     => '<div class="fiscaat-template-notice info"><p class="fiscaat-account-description">',
+			'after'      => '</p></div>',
+			'size'       => 14
 		);
 		$r = fct_parse_args( $args, $defaults, 'get_single_account_description' );
 		extract( $r );
@@ -1383,6 +1407,7 @@ function fct_single_account_description( $args = '' ) {
 function fct_form_account_title() {
 	echo fct_get_form_account_title();
 }
+
 	/**
 	 * Return the value of account title field
 	 *
@@ -1393,16 +1418,17 @@ function fct_form_account_title() {
 	function fct_get_form_account_title() {
 
 		// Get _POST data
-		if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['fct_account_title'] ) )
+		if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['fct_account_title'] ) ) {
 			$account_title = $_POST['fct_account_title'];
 
 		// Get edit data
-		elseif ( fct_is_account_edit() )
+		} elseif ( fct_is_account_edit() ) {
 			$account_title = fct_get_global_post_field( 'post_title', 'raw' );
 
 		// No data
-		else
+		} else {
 			$account_title = '';
+		}
 
 		return apply_filters( 'fct_get_form_account_title', esc_attr( $account_title ) );
 	}
@@ -1415,6 +1441,7 @@ function fct_form_account_title() {
 function fct_form_account_content() {
 	echo fct_get_form_account_content();
 }
+
 	/**
 	 * Return the value of account content field
 	 *
@@ -1425,16 +1452,17 @@ function fct_form_account_content() {
 	function fct_get_form_account_content() {
 
 		// Get _POST data
-		if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['fct_account_content'] ) )
+		if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['fct_account_content'] ) ) {
 			$account_content = $_POST['fct_account_content'];
 
 		// Get edit data
-		elseif ( fct_is_account_edit() )
+		} elseif ( fct_is_account_edit() ) {
 			$account_content = fct_get_global_post_field( 'post_content', 'raw' );
 
 		// No data
-		else
+		} else {
 			$account_content = '';
+		}
 
 		return apply_filters( 'fct_get_form_account_content', esc_textarea( $account_content ) );
 	}
@@ -1450,36 +1478,38 @@ function fct_account_row_actions() {
 }
 
 /**
- * Output value of account year
+ * Output value of account period
  *
- * @uses fct_get_form_account_year() To get the account's year id
+ * @uses fct_get_form_account_period() To get the account's period id
  */
-function fct_form_account_year() {
-	echo fct_get_form_account_year();
+function fct_form_account_period() {
+	echo fct_get_form_account_period();
 }
+
 	/**
-	 * Return value of account year
+	 * Return value of account period
 	 *
 	 * @uses fct_is_account_edit() To check if it's the account edit page
-	 * @uses fct_get_account_year_id() To get the account year id
-	 * @uses apply_filters() Calls 'fct_get_form_account_year' with the year
+	 * @uses fct_get_account_period_id() To get the account period id
+	 * @uses apply_filters() Calls 'fct_get_form_account_period' with the period
 	 * @return string Value of account content field
 	 */
-	function fct_get_form_account_year() {
+	function fct_get_form_account_period() {
 
 		// Get _POST data
-		if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['parent_id'] ) )
-			$account_year = $_POST['parent_id'];
+		if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['parent_id'] ) ) {
+			$account_period = $_POST['parent_id'];
 
 		// Get edit data
-		elseif ( fct_is_account_edit() )
-			$account_year = fct_get_account_year_id();
+		} elseif ( fct_is_account_edit() ) {
+			$account_period = fct_get_account_period_id();
 
 		// No data
-		else
-			$account_year = 0;
+		} else {
+			$account_period = 0;
+		}
 
-		return apply_filters( 'fct_get_form_account_year', esc_attr( $account_year ) );
+		return apply_filters( 'fct_get_form_account_period', esc_attr( $account_period ) );
 	}
 
 /**
@@ -1491,6 +1521,7 @@ function fct_form_account_year() {
 function fct_form_account_type_select( $account_id = 0 ) {
 	echo fct_get_form_account_type_select( $account_id );
 }
+
 	/**
 	 * Return the account's account type select
 	 * 
@@ -1527,10 +1558,10 @@ function fct_form_account_type_select( $account_id = 0 ) {
  *
  * @param mixed $args See {@link fct_get_dropdown()} for arguments
  */
-
 function fct_account_dropdown( $args = '' ) {
 	echo fct_get_account_dropdown( $args );
 }
+
 	/**
 	 * Return a select box allowing to pick which account to show.
 	 * 
@@ -1545,7 +1576,7 @@ function fct_account_dropdown( $args = '' ) {
 			'post_type'          => fct_get_account_post_type(),
 			'selected'           => 0,
 			'sort_column'        => 'title',
-			'child_of'           => fct_get_current_year_id(),
+			'child_of'           => fct_get_current_period_id(),
 			'orderby'            => 'title',
 
 			// Output-related
@@ -1570,6 +1601,7 @@ function fct_account_dropdown( $args = '' ) {
 function fct_ledger_dropdown( $args = '' ) {
 	echo fct_get_ledger_dropdown( $args );
 }
+
 	/**
 	 * Return a select box allowing to pick which account to show ledger id
 	 * 
@@ -1584,7 +1616,7 @@ function fct_ledger_dropdown( $args = '' ) {
 			'post_type'          => fct_get_account_post_type(),
 			'selected'           => 0,
 			'sort_column'        => 'meta_value_num',
-			'child_of'           => fct_get_current_year_id(),
+			'child_of'           => fct_get_current_period_id(),
 			'meta_key'           => '_fct_ledger_id',
 			'orderby'            => 'meta_value_num',
 
@@ -1631,4 +1663,3 @@ function fct_ledger_dropdown( $args = '' ) {
 
 		return apply_filters( 'fct_filter_ledger_dropdown_title', $post_title, $account_id );
 	}
-

@@ -11,77 +11,77 @@ class phpBB extends Fiscaat_Converter_Base {
 
 	public function setup_globals() {
 
-		/** Year Section ******************************************************/
+		/** Period Section ******************************************************/
 
-		// Year id. Stored in postmeta.
+		// Period id. Stored in postmeta.
 		$this->field_map[] = array(
-			'from_tablename' => 'years',
-			'from_fieldname' => 'year_id',
-			'to_type'        => 'year',
-			'to_fieldname'   => '_fct_year_id'
+			'from_tablename' => 'periods',
+			'from_fieldname' => 'period_id',
+			'to_type'        => 'period',
+			'to_fieldname'   => '_fct_period_id'
 		);
 		
-		// Year parent id.  If no parent, than 0. Stored in postmeta.
+		// Period parent id.  If no parent, than 0. Stored in postmeta.
 		$this->field_map[] = array(
-			'from_tablename' => 'years',
+			'from_tablename' => 'periods',
 			'from_fieldname' => 'parent_id',
-			'to_type'        => 'year',
+			'to_type'        => 'period',
 			'to_fieldname'   => '_fct_parent_id'
 		);
 		
-		// Year title.
+		// Period title.
 		$this->field_map[] = array(
-			'from_tablename' => 'years',
-			'from_fieldname' => 'year_name',
-			'to_type'        => 'year',
+			'from_tablename' => 'periods',
+			'from_fieldname' => 'period_name',
+			'to_type'        => 'period',
 			'to_fieldname'   => 'post_title'
 		);
 		
-		// Year slug. Clean name.
+		// Period slug. Clean name.
 		$this->field_map[] = array(
-			'from_tablename'  => 'years',
-			'from_fieldname'  => 'year_name',
-			'to_type'         => 'year',
+			'from_tablename'  => 'periods',
+			'from_fieldname'  => 'period_name',
+			'to_type'         => 'period',
 			'to_fieldname'    => 'post_name',
 			'callback_method' => 'callback_slug'
 		);
 		
-		// Year description.
+		// Period description.
 		$this->field_map[] = array(
-			'from_tablename'  => 'years',
-			'from_fieldname'  => 'year_desc',
-			'to_type'         => 'year',
+			'from_tablename'  => 'periods',
+			'from_fieldname'  => 'period_desc',
+			'to_type'         => 'period',
 			'to_fieldname'    => 'post_content',
 			'callback_method' => 'callback_null'
 		);
 		
-		// Year display order.  Starts from 1.
+		// Period display order.  Starts from 1.
 		$this->field_map[] = array(
-			'from_tablename' => 'years',
+			'from_tablename' => 'periods',
 			'from_fieldname' => 'display_on_index',
-			'to_type'        => 'year',
+			'to_type'        => 'period',
 			'to_fieldname'   => 'menu_order'
 		);
 		
-		// Year date update.
+		// Period date update.
 		$this->field_map[] = array(
-			'to_type'      => 'years',
-			'to_fieldname' => 'year_last_post_time',
+			'to_type'      => 'periods',
+			'to_fieldname' => 'period_last_post_time',
 			'default'      => date('Y-m-d H:i:s')
 		);
 		$this->field_map[] = array(
-			'to_type'      => 'years',
-			'to_fieldname' => 'year_last_post_time',
+			'to_type'      => 'periods',
+			'to_fieldname' => 'period_last_post_time',
 			'default'      => date('Y-m-d H:i:s')
 		);
 		$this->field_map[] = array(
-			'to_type'      => 'years',
-			'to_fieldname' => 'year_last_post_time',
+			'to_type'      => 'periods',
+			'to_fieldname' => 'period_last_post_time',
 			'default'      => date('Y-m-d H:i:s')
 		);
 		$this->field_map[] = array(
-			'to_type'      => 'years',
-			'to_fieldname' => 'year_last_post_time',
+			'to_type'      => 'periods',
+			'to_fieldname' => 'period_last_post_time',
 			'default'      => date('Y-m-d H:i:s')
 		);
 
@@ -95,13 +95,13 @@ class phpBB extends Fiscaat_Converter_Base {
 			'to_fieldname'   => '_fct_account_id'
 		);
 		
-		// Year id. Stored in postmeta.
+		// Period id. Stored in postmeta.
 		$this->field_map[] = array(
 			'from_tablename'  => 'accounts',
-			'from_fieldname'  => 'year_id',
+			'from_fieldname'  => 'period_id',
 			'to_type'         => 'account',
-			'to_fieldname'    => '_fct_year_id',
-			'callback_method' => 'callback_yearid'
+			'to_fieldname'    => '_fct_period_id',
+			'callback_method' => 'callback_periodid'
 		);
 				
 		// Account author.
@@ -142,13 +142,13 @@ class phpBB extends Fiscaat_Converter_Base {
 			'callback_method' => 'callback_slug'
 		);
 		
-		// Year id.  If no parent, than 0.
+		// Period id.  If no parent, than 0.
 		$this->field_map[] = array(
 			'from_tablename'  => 'accounts',
-			'from_fieldname'  => 'year_id',
+			'from_fieldname'  => 'period_id',
 			'to_type'         => 'account',
 			'to_fieldname'    => 'post_parent',
-			'callback_method' => 'callback_yearid'
+			'callback_method' => 'callback_periodid'
 		);
 
 		// Account date update.
@@ -224,13 +224,13 @@ class phpBB extends Fiscaat_Converter_Base {
 			'to_type'         => 'record'
 		);	
 		
-		// Year id. Stores in postmeta.
+		// Period id. Stores in postmeta.
 		$this->field_map[] = array(
 			'from_tablename'  => 'posts',
-			'from_fieldname'  => 'year_id',
+			'from_fieldname'  => 'period_id',
 			'to_type'         => 'record',
-			'to_fieldname'    => '_fct_year_id',
-			'callback_method' => 'callback_accountid_to_yearid'
+			'to_fieldname'    => '_fct_period_id',
+			'callback_method' => 'callback_accountid_to_periodid'
 		);
 		
 		// Account id. Stores in postmeta.

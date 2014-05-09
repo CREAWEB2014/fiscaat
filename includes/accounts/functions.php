@@ -19,12 +19,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 function fct_get_account_default_meta(){
 	return (array) apply_filters( 'fct_get_account_default_meta', array(
-		'year_id'      => fct_get_current_year_id(), // Year 
-		'ledger_id'    => 0,                         // Account ledger id
-		'account_type' => '',                        // 'revenue' or 'capital'
-		'record_count' => 0,                         // Record count
-		'start_value'  => 0,                         // Balance value at start
-		'end_value'    => 0,                         // Balance value at end
+		'period_id'    => fct_get_current_period_id(), // Period 
+		'ledger_id'    => 0,                           // Account ledger id
+		'account_type' => '',                          // 'revenue' or 'capital'
+		'record_count' => 0,                           // Record count
+		'start_value'  => 0,                           // Balance value at start
+		'end_value'    => 0,                           // Balance value at end
 	) );
 }
 
@@ -34,7 +34,7 @@ function fct_get_account_default_meta(){
  * @uses get_post_meta()
  * 
  * @param string $meta_key Meta key
- * @param int $account_id Year id
+ * @param int $account_id Period id
  * @return mixed $meta_value
  */
 function fct_get_account_meta( $account_id, $meta_key ){
@@ -78,14 +78,14 @@ function fct_delete_account_meta( $account_id, $meta_key ){
  * @uses wp_insert_post()
  * @uses update_post_meta()
  *
- * @param array $account_data Year post data
- * @param arrap $account_meta Year meta data
+ * @param array $account_data Period post data
+ * @param arrap $account_meta Period meta data
  */
 function fct_insert_account( $account_data = array(), $account_meta = array() ) {
 
 	// Account
 	$default_account = array(
-		'post_parent'    => fct_get_current_year_id(), // Year id
+		'post_parent'    => fct_get_current_period_id(), // Period id
 		'post_status'    => fct_get_public_status_id(),
 		'post_type'      => fct_get_account_post_type(),
 		'post_author'    => fct_get_current_user_id(),
@@ -114,10 +114,10 @@ function fct_insert_account( $account_data = array(), $account_meta = array() ) 
 		fct_update_account_meta( $account_id, $meta_key, $meta_value );
 	}
 
-	// Update the year
-	$year_id = fct_get_account_year_id( $account_id );
-	if ( ! empty( $year_id ) ) {
-		fct_update_year( array( 'year_id' => $year_id ) );
+	// Update the period
+	$period_id = fct_get_account_period_id( $account_id );
+	if ( ! empty( $period_id ) ) {
+		fct_update_period( array( 'period_id' => $period_id ) );
 	}
 
 	// Return new account ID
@@ -205,28 +205,28 @@ function fct_bump_account_end_value( $account_id = 0, $amount = 0, $record_type 
 /** Account Updaters ************************************************************/
 
 /**
- * Update the account's year id
+ * Update the account's period id
  *
  * @param int $account_id Optional. Account id to update
- * @param int $year_id Optional. Year id
+ * @param int $period_id Optional. Period id
  * @uses fct_get_account_id() To get the account id
  * @uses get_post_field() To get the post parent of the account id
- * @uses fct_get_year_id() To get the year id
- * @uses fct_update_account_meta() To update the account year id meta
- * @uses apply_filters() Calls 'fct_update_account_year_id' with the year id
+ * @uses fct_get_period_id() To get the period id
+ * @uses fct_update_account_meta() To update the account period id meta
+ * @uses apply_filters() Calls 'fct_update_account_period_id' with the period id
  *                        and account id
- * @return int Year id
+ * @return int Period id
  */
-function fct_update_account_year_id( $account_id = 0, $year_id = 0 ) {
+function fct_update_account_period_id( $account_id = 0, $period_id = 0 ) {
 	$account_id = fct_get_account_id( $account_id );
 
-	if ( empty( $year_id ) ) {
-		$year_id = get_post_field( 'post_parent', $account_id );
+	if ( empty( $period_id ) ) {
+		$period_id = get_post_field( 'post_parent', $account_id );
 	}
 
-	fct_update_account_meta( $account_id, 'year_id', (int) $year_id );
+	fct_update_account_meta( $account_id, 'period_id', (int) $period_id );
 
-	return apply_filters( 'fct_update_account_year_id', (int) $year_id, $account_id );
+	return apply_filters( 'fct_update_account_period_id', (int) $period_id, $account_id );
 }
 
 /**
@@ -267,7 +267,7 @@ function fct_check_ledger_id( $account_id, $ledger_id ) {
 	$old_ledger_id = fct_get_account_ledger_id( $account_id );
 
 	// Ledger id already taken
-	if ( ! empty( $ledger_id ) && ! in_array( (int) $ledger_id, array_diff( fct_get_year_ledger_ids(), array( $old_ledger_id ) ) ) )
+	if ( ! empty( $ledger_id ) && ! in_array( (int) $ledger_id, array_diff( fct_get_period_ledger_ids(), array( $old_ledger_id ) ) ) )
 		return;
 
 	// Set the right message
@@ -432,19 +432,19 @@ function fct_update_account_spectators( $account_id = 0, $spectators = false ) {
  *
  * @param string|array $args Optional. Update arguments
  * @uses fct_get_account_id() To get the account id
- * @uses fct_get_year_id() To get the year id
- * @uses fct_get_account_year_id() To get the account year id
- * @uses fct_update_account_year_id() To update the account's year id
+ * @uses fct_get_period_id() To get the period id
+ * @uses fct_get_account_period_id() To get the account period id
+ * @uses fct_update_account_period_id() To update the account's period id
  * @uses fct_update_account_id() To update the account's account id
  * @uses fct_update_account_record_count() To update the account record count
  * @uses fct_update_account_record_count_declined() To udpate the account declined record count
  * @uses fct_update_account_record_count_unapproved() To udpate the account unapproved record count
- * @uses fct_update_year() To udpate the account's year
+ * @uses fct_update_period() To udpate the account's period
  */
 function fct_update_account( $args = '' ) {
 	$defaults = array(
 		'account_id'   => 0,
-		'year_id'      => 0,
+		'period_id'    => 0,
 		'ledger_id'    => 0,
 		'account_type' => '',
 		'end_value'    => false,
@@ -461,12 +461,12 @@ function fct_update_account( $args = '' ) {
 	if ( empty( $account_id ) )
 		return;
 
-	// Check year_id
-	if ( empty( $year_id ) )
-		$year_id = fct_get_account_year_id( $account_id );
+	// Check period_id
+	if ( empty( $period_id ) )
+		$period_id = fct_get_account_period_id( $account_id );
 
-	// Year account meta
-	fct_update_account_year_id( $account_id, $year_id );
+	// Period account meta
+	fct_update_account_period_id( $account_id, $period_id );
 
 	// Account type
 	fct_update_account_type( $account_id, $account_type );
@@ -487,8 +487,8 @@ function fct_update_account( $args = '' ) {
 		// fct_update_account_record_count_declined  ( $account_id, 0         );
 		// fct_update_account_record_count_unapproved( $account_id, 0         );
 
-		// Update account year
-		fct_update_year( array( 'year_id' => $year_id ) );
+		// Update account period
+		fct_update_period( array( 'period_id' => $period_id ) );
 	}
 }
 
@@ -497,8 +497,8 @@ function fct_update_account( $args = '' ) {
 /**
  * Returns whether there exists an open account in Fiscaat
  *
- * Since closed years are supposed to have only closed accounts, assume
- * that the open account belongs to the current year.
+ * Since closed periods are supposed to have only closed accounts, assume
+ * that the open account belongs to the current period.
  *
  * @uses wp_count_posts()
  * @uses fct_get_account_post_type()
@@ -516,13 +516,13 @@ function fct_has_open_account() {
 /**
  * Returns whether the account has any records
  * 
- * @param int $account_id Year id
+ * @param int $account_id Period id
  * @uses fct_get_public_child_count()
  * @uses fct_get_account_id()
  * @uses fct_get_record_post_type()
  * @uses apply_filters() Calls 'fct_account_has_records' with account
  *                        has records and account id
- * @return bool Year has records
+ * @return bool Period has records
  */
 function fct_account_has_records( $account_id = 0 ) {
 	$record_count = fct_get_public_child_count( fct_get_account_id( $account_id ), fct_get_record_post_type() );
@@ -531,23 +531,23 @@ function fct_account_has_records( $account_id = 0 ) {
 }
 
 /**
- * Returns an array of all ledger id for the year
+ * Returns an array of all ledger id for the period
  *
- * @param int $year_id Optional. Year id
- * @uses fct_get_year_id()
+ * @param int $period_id Optional. Period id
+ * @uses fct_get_period_id()
  * @uses fct_get_account_post_type()
  * @uses fct_get_account_ledger_id()
- * @uses apply_filters() Calls 'fct_get_year_ledger_ids' with
- *                        the ids and year id
- * @return array Year ledger ids
+ * @uses apply_filters() Calls 'fct_get_period_ledger_ids' with
+ *                        the ids and period id
+ * @return array Period ledger ids
  */
-function fct_get_year_ledger_ids( $year_id = 0 ) {
-	$year_id = fct_get_year_id( $year_id );
-	$ids     = array();
+function fct_get_period_ledger_ids( $period_id = 0 ) {
+	$period_id = fct_get_period_id( $period_id );
+	$ids       = array();
 
 	if ( $accounts = new WP_Query( array(
 		'post_type' => fct_get_account_post_type(),
-		'parent'    => $year_id,
+		'parent'    => $period_id,
 		'meta_key'  => '_fct_ledger_id',
 		'fields'    => 'ids'
 	) ) ) {
@@ -563,7 +563,7 @@ function fct_get_year_ledger_ids( $year_id = 0 ) {
 	// Sort array by ledger ids
 	asort( $ids );
 
-	return apply_filters( 'fct_get_year_ledger_ids', $ids, $year_id );
+	return apply_filters( 'fct_get_period_ledger_ids', $ids, $period_id );
 }
 
 /** Account Actions *************************************************************/

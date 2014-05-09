@@ -4,7 +4,7 @@
  * Fiscaat Common Functions
  *
  * Common functions are ones that are used by more than one component, like
- * years, accounts, records, users, account tags, etc...
+ * periods, accounts, records, users, account tags, etc...
  *
  * @package Fiscaat
  * @subpackage Functions
@@ -171,7 +171,7 @@ function fct_time_since( $older_date, $newer_date = false ) {
 
 		// array of time period chunks
 		$chunks = array(
-			array( 60 * 60 * 24 * 365 , __( 'year',   'fiscaat' ), __( 'years',   'fiscaat' ) ),
+			array( 60 * 60 * 24 * 365 , __( 'period',   'fiscaat' ), __( 'periods',   'fiscaat' ) ),
 			array( 60 * 60 * 24 * 30 ,  __( 'month',  'fiscaat' ), __( 'months',  'fiscaat' ) ),
 			array( 60 * 60 * 24 * 7,    __( 'week',   'fiscaat' ), __( 'weeks',   'fiscaat' ) ),
 			array( 60 * 60 * 24 ,       __( 'day',    'fiscaat' ), __( 'days',    'fiscaat' ) ),
@@ -199,7 +199,7 @@ function fct_time_since( $older_date, $newer_date = false ) {
 			$output = $unknown_text;
 
 		// We only want to output two chunks of time here, eg:
-		//     x years, xx months
+		//     x periods, xx months
 		//     x days, xx hours
 		// so there's only two bits of calculation below:
 		} else {
@@ -334,19 +334,19 @@ function fct_get_paged() {
  *                     default to true):
  *  - count_users: Count users? If set to false, Fisci, Controllers and
  *                              Spectators are not counted.
- *  - count_years: Count years?
+ *  - count_periods: Count periods?
  *  - count_accounts: Count accounts?
  *  - count_records: Count records? 
- *  - count_current_records: Count records of current year? If set to false,
+ *  - count_current_records: Count records of current period? If set to false,
  *                           diapproved, unapproved, approved and closed records 
  *                           are also not counted.
- *  - count_end_value: Count to balance value of the current year?
- *  - count_current_comments: Count comments of the current year?
+ *  - count_end_value: Count to balance value of the current period?
+ *  - count_current_comments: Count comments of the current period?
  * @uses fct_count_users() To count the number of registered users
- * @uses fct_get_year_post_type() To get the year post type
+ * @uses fct_get_period_post_type() To get the period post type
  * @uses fct_get_account_post_type() To get the account post type
  * @uses fct_get_record_post_type() To get the record post type
- * @uses wp_count_posts() To count the number of years, accounts and records
+ * @uses wp_count_posts() To count the number of periods, accounts and records
  * @uses wp_count_terms() To count the number of account tags
  * @uses current_user_can() To check if the user is capable of doing things
  * @uses number_format_i18n() To format the number
@@ -357,7 +357,7 @@ function fct_get_statistics( $args = '' ) {
 
 	$defaults = array (
 		'count_users'              => true,
-		'count_years'              => true,
+		'count_periods'              => true,
 		'count_accounts'           => true,
 		'count_records'            => true,
 		'count_current_records'    => true,
@@ -373,10 +373,10 @@ function fct_get_statistics( $args = '' ) {
 		$spectator_count = fct_get_total_spectators();	
 	}
 
-	// Years
-	if ( ! empty( $count_years ) ) {
-		$year_count = wp_count_posts( fct_get_year_post_type() );
-		$year_count = array_sum( (array) $year_count ) - $year_count->{'auto-draft'};
+	// Periods
+	if ( ! empty( $count_periods ) ) {
+		$period_count = wp_count_posts( fct_get_period_post_type() );
+		$period_count = array_sum( (array) $period_count ) - $period_count->{'auto-draft'};
 	}
 
 	// Accounts
@@ -395,7 +395,7 @@ function fct_get_statistics( $args = '' ) {
 	if ( ! empty( $count_current_records ) ) {
 
 		// wp_count_posts has no filtering so use fct_count_posts
-		$current_records = fct_count_posts( array( 'type' => fct_get_record_post_type(), 'year_id' => fct_get_current_year_id() ) );
+		$current_records = fct_count_posts( array( 'type' => fct_get_record_post_type(), 'period_id' => fct_get_current_period_id() ) );
 
 		// All records published
 		$current_record_count = array_sum( (array) $current_records ) - $current_records->{'auto-draft'};
@@ -403,7 +403,7 @@ function fct_get_statistics( $args = '' ) {
 
 	// To Balance
 	if ( ! empty( $count_end_value ) ) {
-		$current_end_value = fct_get_year_end_value( fct_get_current_year_id() );
+		$current_end_value = fct_get_period_end_value( fct_get_current_period_id() );
 	}
 
 	// Comments
@@ -414,7 +414,7 @@ function fct_get_statistics( $args = '' ) {
 	}
 
 	// Tally the tallies
-	$stats = compact( 'fiscus_count', 'spectator_count', 'year_count', 'account_count', 'record_count', 'current_record_count', 'current_comment_count' );
+	$stats = compact( 'fiscus_count', 'spectator_count', 'period_count', 'account_count', 'record_count', 'current_record_count', 'current_comment_count' );
 	$stats = array_map( 'absint',             $stats );
 	$stats = array_map( 'number_format_i18n', $stats );
 
@@ -621,8 +621,8 @@ function fct_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	// Extra post statuses based on post type
 	switch ( $post_type ) {
 
-		// Year
-		case fct_get_year_post_type() :
+		// Period
+		case fct_get_period_post_type() :
 			break;
 
 		// Account
@@ -653,7 +653,7 @@ function fct_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 /**
  * Add checks for Fiscaat conditions to parse_query action
  *
- * If it's a year edit, WP_Query::fct_is_year_edit is set to true
+ * If it's a period edit, WP_Query::fct_is_period_edit is set to true
  * If it's a account edit, WP_Query::fct_is_account_edit is set to true
  * If it's a record edit, WP_Query::fct_is_record_edit is set to true.
  *
@@ -662,7 +662,7 @@ function fct_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
  * @param WP_Query $posts_query
  *
  * @uses get_query_var() To get {@link WP_Query} query var
- * @uses fct_get_year_post_type() To get the year post type
+ * @uses fct_get_period_post_type() To get the period post type
  * @uses fct_get_account_post_type() To get the account post type
  * @uses fct_get_record_post_type() To get the record post type
  * @uses remove_action() To remove the auto save post revision action
@@ -684,7 +684,7 @@ function fct_parse_query( $posts_query ) {
 	// Get query variables
 	$is_edit  = $posts_query->get( fct_get_edit_rewrite_id() );
 
-	// Year/Account/Record Edit Page
+	// Period/Account/Record Edit Page
 	if ( ! empty( $is_edit ) ) {
 
 		// Get the post type from the main query loop
@@ -694,9 +694,9 @@ function fct_parse_query( $posts_query ) {
 		if ( ! empty( $post_type ) ) {
 			switch( $post_type ) {
 
-				// We are editing a year
-				case fct_get_year_post_type() :
-					$posts_query->fct_is_year_edit = true;
+				// We are editing a period
+				case fct_get_period_post_type() :
+					$posts_query->fct_is_period_edit = true;
 					$posts_query->fct_is_edit      = true;
 					break;
 
@@ -724,7 +724,7 @@ function fct_parse_query( $posts_query ) {
 /**
  * Get the unfiltered value of a global $post's key
  *
- * Used most frequently when editing a year/account/record
+ * Used most frequently when editing a period/account/record
  *
  * @global WP_Query $post
  * @param string $field Name of the key
@@ -771,7 +771,7 @@ function fct_get_page_by_path( $path = '' ) {
 /**
  * Sets the 404 status.
  *
- * Used primarily with years/accounts/records on the front.
+ * Used primarily with periods/accounts/records on the front.
  *
  * @global WP_Query $wp_query
  * @uses WP_Query::set_404()

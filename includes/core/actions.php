@@ -122,7 +122,7 @@ add_action( 'fct_register', 'fct_register_shortcodes',     10 );
 // add_action( 'fct_after_setup_theme', 'fct_load_theme_functions', 10 );
 
 // Widgets
-// add_action( 'fct_widgets_init', array( 'Fiscaat_Years_Widget',    'register_widget' ), 10 );
+// add_action( 'fct_widgets_init', array( 'Fiscaat_Periods_Widget',  'register_widget' ), 10 );
 // add_action( 'fct_widgets_init', array( 'Fiscaat_Accounts_Widget', 'register_widget' ), 10 );
 // add_action( 'fct_widgets_init', array( 'Fiscaat_Records_Widget',  'register_widget' ), 10 );
 
@@ -131,29 +131,29 @@ add_action( 'fct_register', 'fct_register_shortcodes',     10 );
 // add_action( 'fct_template_notices', 'fct_template_notices' );
 
 // Before Delete/Trash/Untrash Account
-add_action( 'wp_trash_post', 'fct_trash_year'   );
-add_action( 'trash_post',    'fct_trash_year'   );
-add_action( 'untrash_post',  'fct_untrash_year' );
-add_action( 'delete_post',   'fct_delete_year'  );
+add_action( 'wp_trash_post', 'fct_trash_period'   );
+add_action( 'trash_post',    'fct_trash_period'   );
+add_action( 'untrash_post',  'fct_untrash_period' );
+add_action( 'delete_post',   'fct_delete_period'  );
 
 // After Deleted/Trashed/Untrashed Account
-add_action( 'trashed_post',   'fct_trashed_year'   );
-add_action( 'untrashed_post', 'fct_untrashed_year' );
-add_action( 'deleted_post',   'fct_deleted_year'   );
+add_action( 'trashed_post',   'fct_trashed_period'   );
+add_action( 'untrashed_post', 'fct_untrashed_period' );
+add_action( 'deleted_post',   'fct_deleted_period'   );
 
-// Auto trash/untrash/delete a years accounts
-add_action( 'fct_delete_year',  'fct_delete_year_accounts',  10 );
-add_action( 'fct_trash_year',   'fct_trash_year_accounts',   10 );
-add_action( 'fct_untrash_year', 'fct_untrash_year_accounts', 10 );
+// Auto trash/untrash/delete a periods accounts
+add_action( 'fct_delete_period',  'fct_delete_period_accounts',  10 );
+add_action( 'fct_trash_period',   'fct_trash_period_accounts',   10 );
+add_action( 'fct_untrash_period', 'fct_untrash_period_accounts', 10 );
 
-// New/Edit Year
-add_action( 'fct_new_year',  'fct_update_year', 10 );
-add_action( 'fct_edit_year', 'fct_update_year', 10 );
+// New/Edit Period
+add_action( 'fct_new_period',  'fct_update_period', 10 );
+add_action( 'fct_edit_period', 'fct_update_period', 10 );
 
-// Save year extra metadata
-add_action( 'fct_new_year_post_extras',         'fct_save_year_extras', 2 );
-add_action( 'fct_edit_year_post_extras',        'fct_save_year_extras', 2 );
-add_action( 'fct_year_attributes_metabox_save', 'fct_save_year_extras', 2 );
+// Save period extra metadata
+add_action( 'fct_new_period_post_extras',         'fct_save_period_extras', 2 );
+add_action( 'fct_edit_period_post_extras',        'fct_save_period_extras', 2 );
+add_action( 'fct_period_attributes_metabox_save', 'fct_save_period_extras', 2 );
 
 // New/Edit Record
 add_action( 'fct_new_record',  'fct_update_record', 10, 6 );
@@ -206,8 +206,8 @@ add_action( 'fct_profile_update', 'fct_profile_update_block_commenter'  );
 add_action( 'fct_user_edit_after', 'fct_user_edit_after' );
 
 // Caches
-add_action( 'fct_new_year_pre_extras',     'fct_clean_post_cache' );
-add_action( 'fct_new_year_post_extras',    'fct_clean_post_cache' );
+add_action( 'fct_new_period_pre_extras',   'fct_clean_post_cache' );
+add_action( 'fct_new_period_post_extras',  'fct_clean_post_cache' );
 add_action( 'fct_new_account_pre_extras',  'fct_clean_post_cache' );
 add_action( 'fct_new_account_post_extras', 'fct_clean_post_cache' );
 add_action( 'fct_new_record_pre_extras',   'fct_clean_post_cache' );
@@ -216,20 +216,20 @@ add_action( 'fct_new_record_post_extras',  'fct_clean_post_cache' );
 /**
  * Fiscaat needs to redirect the user around in a few different circumstances:
  *
- * 1. Accessing content (years/accounts/records)
+ * 1. Accessing content (periods/accounts/records)
  * 2. Form submission within a theme (new and edit)
- * 3. Editing years, accounts, and records
+ * 3. Editing periods, accounts, and records
  */
 add_action( 'fct_template_redirect', 'fct_enforce_404',            -1 );
-// add_action( 'fct_template_redirect', 'fct_new_year_handler',       10 );
+// add_action( 'fct_template_redirect', 'fct_new_period_handler',     10 );
 // add_action( 'fct_template_redirect', 'fct_new_account_handler',    10 );
 // add_action( 'fct_template_redirect', 'fct_new_record_handler',     10 );
-// add_action( 'fct_template_redirect', 'fct_edit_year_handler',      1  );
+// add_action( 'fct_template_redirect', 'fct_edit_period_handler',    1  );
 // add_action( 'fct_template_redirect', 'fct_edit_record_handler',    1  );
 // add_action( 'fct_template_redirect', 'fct_edit_account_handler',   1  );
 // add_action( 'fct_template_redirect', 'fct_toggle_account_handler', 1  );
 // add_action( 'fct_template_redirect', 'fct_toggle_record_handler',  1  );
-add_action( 'fct_template_redirect', 'fct_check_year_edit',        10 );
+add_action( 'fct_template_redirect', 'fct_check_period_edit',      10 );
 add_action( 'fct_template_redirect', 'fct_check_account_edit',     10 );
 add_action( 'fct_template_redirect', 'fct_check_record_edit',      10 );
 

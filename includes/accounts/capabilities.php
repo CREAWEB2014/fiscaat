@@ -66,7 +66,7 @@ function fct_map_account_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 		case 'publish_accounts'  :
 
 			// Restrain when requirements lack
-			if ( ! fct_has_open_year() ) {
+			if ( ! fct_has_open_period() ) {
 				$caps = array( 'do_not_allow' );
 
 			// Publish on activation 
@@ -139,4 +139,3 @@ function fct_map_account_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 
 	return apply_filters( 'fct_map_account_meta_caps', $caps, $cap, $user_id, $args );
 }
-

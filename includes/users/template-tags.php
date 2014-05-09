@@ -123,6 +123,7 @@ function fct_user_display_role( $user_id = 0 ) {
 			$role = __( 'Fiscus', 'fiscaat' );
 
 		// Controller
+		// @todo Move to Control
 		} elseif ( user_can( $user_id, 'control' ) ) {
 			$role = __( 'Controller', 'fiscaat' );
 
@@ -303,34 +304,34 @@ function fct_user_can_view_account( $account_id = 0, $user_id = 0 ) {
 /** Forms *********************************************************************/
 
 /**
- * Performs a series of checks to ensure the current user can create years.
+ * Performs a series of checks to ensure the current user can create periods.
  *
  * Super admins are not privileged.
  *
  * @since 0.0.1
  *
- * @uses fct_is_year_edit()
+ * @uses fct_is_period_edit()
  * @uses current_user_can()
- * @uses fct_get_year_id()
+ * @uses fct_get_period_id()
  *
  * @return bool
  */
-function fct_current_user_can_access_create_year_form() {
+function fct_current_user_can_access_create_period_form() {
 
 	// Users need to earn access
 	$retval = false;
 
-	// Looking at a single year & year is open
-	if ( ( is_page() || is_single() ) && fct_is_year_open() ) {
-		$retval = fct_current_user_can_publish_years();
+	// Looking at a single period & period is open
+	if ( ( is_page() || is_single() ) && fct_is_period_open() ) {
+		$retval = fct_current_user_can_publish_periods();
 
 	// User can edit this account
-	} elseif ( fct_is_year_edit() ) {
-		$retval = current_user_can( 'edit_year', fct_get_year_id() );
+	} elseif ( fct_is_period_edit() ) {
+		$retval = current_user_can( 'edit_period', fct_get_period_id() );
 	}
 
 	// Allow access to be filtered
-	return (bool) apply_filters( 'fct_current_user_can_access_create_year_form', (bool) $retval );
+	return (bool) apply_filters( 'fct_current_user_can_access_create_period_form', (bool) $retval );
 }
 
 /**
@@ -353,8 +354,8 @@ function fct_current_user_can_access_create_account_form() {
 	// Users need to earn access
 	$retval = false;
 
-	// Looking at a single year & year is open
-	if ( ( fct_is_single_year() || is_page() || is_single() ) && fct_is_year_open() ) {
+	// Looking at a single period & period is open
+	if ( ( fct_is_single_period() || is_page() || is_single() ) && fct_is_period_open() ) {
 		$retval = fct_current_user_can_publish_accounts();
 
 	// User can edit this account
@@ -386,8 +387,8 @@ function fct_current_user_can_access_create_record_form() {
 	// Users need to earn access
 	$retval = false;
 
-	// Looking at a single account, account is open, and year is open
-	if ( ( fct_is_single_account() || is_page() || is_single() ) && fct_is_account_open() && fct_is_year_open() ) {
+	// Looking at a single account, account is open, and period is open
+	if ( ( fct_is_single_account() || is_page() || is_single() ) && fct_is_account_open() && fct_is_period_open() ) {
 		$retval = fct_current_user_can_publish_records();
 
 	// User can edit this account

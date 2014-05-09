@@ -129,9 +129,9 @@ function fct_ctrl_record_status_dropdown_option_disable( $disable, $option ) {
  * Add record post status counts to default Fiscaat statistics args
  * 
  * The following args will be added:
- *  - count_approved_records: Count approved records of the current year?
- *  - count_unapproved_records: Count unapproved records of the current year?
- *  - count_declined_records: Count declined records of the current year?
+ *  - count_approved_records: Count approved records of the current period?
+ *  - count_unapproved_records: Count unapproved records of the current period?
+ *  - count_declined_records: Count declined records of the current period?
  * 
  * @param array $args 
  * @return array Args
@@ -139,11 +139,11 @@ function fct_ctrl_record_status_dropdown_option_disable( $disable, $option ) {
 function fct_ctrl_get_statistics_default_args( $args ) {
 
 	// Merge record post status counts
-	$args = array_merge( array(
+	$args = array_merge( $args, array(
 		'count_approved_records'   => true,
 		'count_unapproved_records' => true,
 		'count_declined_records'   => true
-	), $args );
+	) );
 
 	return $args;
 }
@@ -222,7 +222,7 @@ function fct_ctrl_admin_bar_menu( $menu_items ) {
 
 	// Unapproved Records
 	if ( current_user_can( 'fct_control' ) ) {	
-		$count = fct_get_year_record_count_unapproved( fct_get_current_year_id() );
+		$count = fct_get_period_record_count_unapproved( fct_get_current_period_id() );
 		
 		// Create node with unapproved records
 		if ( ! empty( $count ) ) {
@@ -242,7 +242,7 @@ function fct_ctrl_admin_bar_menu( $menu_items ) {
 
 	// Declined Records
 	if ( current_user_can( 'fiscaat' ) || current_user_can( 'fct_control' ) ) {
-		$count = fct_get_year_record_count_declined( fct_get_current_year_id() );
+		$count = fct_get_period_record_count_declined( fct_get_current_period_id() );
 		
 		// Create node with declined records
 		if ( ! empty( $count ) ) {
@@ -262,4 +262,3 @@ function fct_ctrl_admin_bar_menu( $menu_items ) {
 
 	return $menu_items;
 }
-

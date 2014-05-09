@@ -48,10 +48,10 @@ add_filter( 'plugin_locale',           'fct_plugin_locale',      10, 2 );
 add_filter( 'editable_roles', 'fct_filter_blog_editable_roles' );
 
 // Links
-add_filter( 'paginate_links',                'fct_add_view_all' );
+add_filter( 'paginate_links',            'fct_add_view_all' );
 add_filter( 'fct_get_account_permalink', 'fct_add_view_all' );
 add_filter( 'fct_get_record_permalink',  'fct_add_view_all' );
-add_filter( 'fct_get_year_permalink',    'fct_add_view_all' );
+add_filter( 'fct_get_period_permalink',  'fct_add_view_all' );
 
 // wp_filter_kses on new/edit account/record title
 add_filter( 'fct_new_record_pre_title',     'wp_filter_kses' );
@@ -92,8 +92,8 @@ add_filter( 'fct_get_account_content', 'convert_smilies',        20   );
 add_filter( 'fct_get_account_content', 'wpautop',                30   );
 
 // Add number format filter to functions requiring numeric output
-add_filter( 'fct_get_year_account_count',   'fct_number_format', 10 );
-add_filter( 'fct_get_year_record_count',    'fct_number_format', 10 );
+add_filter( 'fct_get_period_account_count', 'fct_number_format', 10 );
+add_filter( 'fct_get_period_record_count',  'fct_number_format', 10 );
 add_filter( 'fct_get_account_record_count', 'fct_number_format', 10 );
 
 // Run wp_kses_data on account/record content in admin section
@@ -104,6 +104,6 @@ if ( is_admin() ) {
 
 // Capabilities
 add_filter( 'fct_map_meta_caps', 'fct_map_primary_meta_caps', 10, 4 ); // Primary caps
-add_filter( 'fct_map_meta_caps', 'fct_map_year_meta_caps',    10, 4 ); // Years
+add_filter( 'fct_map_meta_caps', 'fct_map_period_meta_caps',  10, 4 ); // Periods
 add_filter( 'fct_map_meta_caps', 'fct_map_account_meta_caps', 10, 4 ); // Accounts
 add_filter( 'fct_map_meta_caps', 'fct_map_record_meta_caps',  10, 4 ); // Records

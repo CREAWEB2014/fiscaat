@@ -51,7 +51,7 @@ function fct_get_default_options() {
 
 		/** Per Page **********************************************************/
 
-		'_fct_years_per_page'        => 15,           // Years per page
+		'_fct_periods_per_page'      => 15,           // Periods per page
 		'_fct_accounts_per_page'     => 25,           // Accounts per page
 		'_fct_records_per_page'      => 50,           // Records per page
 
@@ -65,7 +65,7 @@ function fct_get_default_options() {
 		'_fct_include_root'          => 1,            // Include fiscaat-archive before single slugs
 		'_fct_record_slug'           => 'record',     // Record slug
 		'_fct_account_slug'          => 'account',    // Account slug
-		'_fct_year_slug'             => 'year',       // Year slug
+		'_fct_period_slug'           => 'period',     // Period slug
 
 		/** Records ***********************************************************/
 
@@ -250,12 +250,12 @@ function fct_get_ledger_slug( $default = 'ledger' ) {
 }
 
 /**
- * Return the year slug
+ * Return the period slug
  *
  * @return string
  */
-function fct_get_year_slug( $default = 'year' ) {
-	return apply_filters( 'fct_get_year_slug', fct_maybe_get_root_slug() . get_option( '_fct_year_slug', $default ) );
+function fct_get_period_slug( $default = 'period' ) {
+	return apply_filters( 'fct_get_period_slug', fct_maybe_get_root_slug() . get_option( '_fct_period_slug', $default ) );
 }
 
 /**

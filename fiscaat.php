@@ -186,7 +186,7 @@ final class Fiscaat {
 		// Post type identifiers
 		$this->record_post_type    = apply_filters( 'fct_record_post_type',  'fct_record'  );
 		$this->account_post_type   = apply_filters( 'fct_account_post_type', 'fct_account' );
-		$this->year_post_type      = apply_filters( 'fct_year_post_type',    'fct_year'    );
+		$this->period_post_type    = apply_filters( 'fct_period_post_type',  'fct_period'  );
 
 		// Status identifiers
 		$this->public_status_id    = apply_filters( 'fct_public_post_status',   'publish'  );
@@ -207,28 +207,28 @@ final class Fiscaat {
 		// Other identifiers
 		$this->rcrd_id             = apply_filters( 'fct_rcrd_id',  'fct_rcrd' );
 		$this->acnt_id             = apply_filters( 'fct_acnt_id',  'fct_acnt' );
-		$this->year_id             = apply_filters( 'fct_year_id',  'fct_year' );
+		$this->prid_id             = apply_filters( 'fct_prid_id',  'fct_prid' );
 		$this->edit_id             = apply_filters( 'fct_edit_id',  'edit'     );
 		$this->paged_id            = apply_filters( 'fct_paged_id', 'paged'    );
 
 		/** Queries ***********************************************************/
 
-		$this->current_record_id   = 0; // Current record id
-		$this->current_account_id  = 0; // Current account id
-		$this->current_year_id     = 0; // Current year id
-		$this->the_current_year_id = 0; // The actual current year id
+		$this->current_record_id     = 0; // Current record id
+		$this->current_account_id    = 0; // Current account id
+		$this->current_period_id     = 0; // Current period id
+		$this->the_current_period_id = 0; // The actual current period id
 
-		$this->record_query        = new WP_Query(); // Main record query
-		$this->account_query       = new WP_Query(); // Main account query
-		$this->year_query          = new WP_Query(); // Main year query
+		$this->record_query          = new WP_Query(); // Main record query
+		$this->account_query         = new WP_Query(); // Main account query
+		$this->period_query          = new WP_Query(); // Main period query
 
 		/** Misc **************************************************************/
 
-		$this->domain              = 'fiscaat';        // Unique identifier for retrieving translated strings
-		$this->currency            = '';               // Currency iso code
-		$this->extend              = new stdClass();   // Plugins add data here
-		$this->errors              = new WP_Error();   // Feedback
-		$this->tab_index           = apply_filters( 'fct_default_tab_index', 100 );
+		$this->domain                = 'fiscaat';        // Unique identifier for retrieving translated strings
+		$this->currency              = '';               // Currency iso code
+		$this->extend                = new stdClass();   // Plugins add data here
+		$this->errors                = new WP_Error();   // Feedback
+		$this->tab_index             = apply_filters( 'fct_default_tab_index', 100 );
 
 		/** Cache *************************************************************/
 
@@ -269,10 +269,10 @@ final class Fiscaat {
 		require( $this->includes_dir . 'accounts/functions.php'     );
 		require( $this->includes_dir . 'accounts/template-tags.php' );
 
-		// Years
-		require( $this->includes_dir . 'years/capabilities.php'     );
-		require( $this->includes_dir . 'years/functions.php'        );
-		require( $this->includes_dir . 'years/template-tags.php'    );
+		// Periods
+		require( $this->includes_dir . 'periods/capabilities.php'   );
+		require( $this->includes_dir . 'periods/functions.php'      );
+		require( $this->includes_dir . 'periods/template-tags.php'  );
 
 		// Users
 		require( $this->includes_dir . 'users/capabilities.php'     );
@@ -289,7 +289,7 @@ final class Fiscaat {
 		// require( $this->includes_dir . 'control/functions.php'      );
 		// require( $this->includes_dir . 'control/records.php'        );
 		// require( $this->includes_dir . 'control/template-tags.php'  );
-		// require( $this->includes_dir . 'control/years.php'          );
+		// require( $this->includes_dir . 'control/periods.php'        );
 
 		/** Hooks *************************************************************/
 
@@ -323,7 +323,7 @@ final class Fiscaat {
 
 		// Array of Fiscaat core actions
 		$actions = array(
-			'register_post_types',    // Register post types (record|account|year)
+			'register_post_types',    // Register post types (record|account|period)
 			'register_post_statuses', // Register post statuses (closed)
 			'load_textdomain',        // Load textdomain (fiscaat)
 			'add_rewrite_tags',       // Add rewrite tags (edit)
@@ -331,8 +331,9 @@ final class Fiscaat {
 		);
 
 		// Add the actions
-		foreach( $actions as $class_action )
+		foreach( $actions as $class_action ) {
 			add_action( 'fct_' . $class_action, array( $this, $class_action ), 5 );
+		}
 
 		// All Fiscaat actions are setup (includes fiscaat-core-hooks.php)
 		do_action_ref_array( 'fct_after_setup_actions', array( &$this ) );
@@ -378,7 +379,7 @@ final class Fiscaat {
 	}
 
 	/**
-	 * Setup the post types for records, accounts and years
+	 * Setup the post types for records, accounts and periods
 	 *
 	 * @uses register_post_type() To register the post types
 	 * @uses apply_filters() Calls various filters to modify the arguments
@@ -502,46 +503,46 @@ final class Fiscaat {
 			) )
 		);
 
-		/** Booking Year **************************************************/
+		/** Booking Period **************************************************/
 
-		// Year labels
+		// Period labels
 		$post_type['labels'] = array(
-			'name'               => __( 'Years',                   'fiscaat' ),
-			'singular_name'      => __( 'Year',                    'fiscaat' ),
-			'all_items'          => __( 'All Years',               'fiscaat' ),
-			'add_new'            => __( 'New Year',                'fiscaat' ),
-			'add_new_item'       => __( 'Add New Year',            'fiscaat' ),
-			'edit'               => __( 'Edit',                    'fiscaat' ),
-			'edit_item'          => __( 'Edit Year',               'fiscaat' ),
-			'new_item'           => __( 'New Year',                'fiscaat' ),
-			'view'               => __( 'View Year',               'fiscaat' ),
-			'view_item'          => __( 'View Year',               'fiscaat' ),
-			'search_items'       => __( 'Search Years',            'fiscaat' ),
-			'not_found'          => __( 'No years found',          'fiscaat' ),
-			'not_found_in_trash' => __( 'No years found in Trash', 'fiscaat' )
+			'name'               => __( 'Periods',                   'fiscaat' ),
+			'singular_name'      => __( 'Period',                    'fiscaat' ),
+			'all_items'          => __( 'All Periods',               'fiscaat' ),
+			'add_new'            => __( 'New Period',                'fiscaat' ),
+			'add_new_item'       => __( 'Add New Period',            'fiscaat' ),
+			'edit'               => __( 'Edit',                      'fiscaat' ),
+			'edit_item'          => __( 'Edit Period',               'fiscaat' ),
+			'new_item'           => __( 'New Period',                'fiscaat' ),
+			'view'               => __( 'View Period',               'fiscaat' ),
+			'view_item'          => __( 'View Period',               'fiscaat' ),
+			'search_items'       => __( 'Search Periods',            'fiscaat' ),
+			'not_found'          => __( 'No periods found',          'fiscaat' ),
+			'not_found_in_trash' => __( 'No periods found in Trash', 'fiscaat' )
 		);
 
-		// Year rewrite
+		// Period rewrite
 		$post_type['rewrite'] = array(
-			'slug'       => fct_get_year_slug(),
+			'slug'       => fct_get_period_slug(),
 			'with_front' => false
 		);
 
-		// Year supports
+		// Period supports
 		$post_type['supports'] = array(
 			'title'
 		);
 
-		// Register Year content type
+		// Register Period content type
 		register_post_type(
-			fct_get_year_post_type(),
-			apply_filters( 'fct_register_year_post_type', array(
+			fct_get_period_post_type(),
+			apply_filters( 'fct_register_period_post_type', array(
 				'labels'              => $post_type['labels'],
 				'rewrite'             => $post_type['rewrite'],
 				'supports'            => $post_type['supports'],
-				'description'         => __('Fiscaat Years', 'fiscaat'),
-				'capabilities'        => fct_get_year_caps(),
-				'capability_type'     => array( 'year', 'years' ),
+				'description'         => __('Fiscaat Periods', 'fiscaat'),
+				'capabilities'        => fct_get_period_caps(),
+				'capability_type'     => array( 'period', 'periods' ),
 				'menu_position'       => 333333,
 				'has_archive'         => fct_get_root_slug(),
 				'exclude_from_search' => true,
@@ -598,18 +599,18 @@ final class Fiscaat {
 		/** Setup *************************************************************/
 
 		// Add rules to top or bottom?
-		$priority       = 'top';
+		$priority     = 'top';
 
 		// Single Slugs
-		$year_slug      = fct_get_year_slug();
-		$account_slug   = fct_get_account_slug();
-		$record_slug    = fct_get_record_slug();
+		$period_slug  = fct_get_period_slug();
+		$account_slug = fct_get_account_slug();
+		$record_slug  = fct_get_record_slug();
 
 		// Secondary Slugs
-		$edit_slug      = 'edit';
+		$edit_slug    = 'edit';
 
 		// Unique rewrite ID's
-		$edit_id        = fct_get_edit_rewrite_id();
+		$edit_id      = fct_get_edit_rewrite_id();
 
 		/** Add ***************************************************************/
 
@@ -618,7 +619,7 @@ final class Fiscaat {
 
 		// New Fiscaat specific rules to merge with existing that are not
 		// handled automatically by custom post types or taxonomy types
-		add_rewrite_rule( $year_slug    . $edit_rule, 'index.php?' . fct_get_year_post_type()    . '=$matches[1]&' . $edit_id . '=1', $priority );
+		add_rewrite_rule( $period_slug  . $edit_rule, 'index.php?' . fct_get_period_post_type()  . '=$matches[1]&' . $edit_id . '=1', $priority );
 		add_rewrite_rule( $account_slug . $edit_rule, 'index.php?' . fct_get_account_post_type() . '=$matches[1]&' . $edit_id . '=1', $priority );
 		add_rewrite_rule( $record_slug  . $edit_rule, 'index.php?' . fct_get_record_post_type()  . '=$matches[1]&' . $edit_id . '=1', $priority );
 	}
