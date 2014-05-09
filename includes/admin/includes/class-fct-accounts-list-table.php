@@ -56,7 +56,7 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 	function _get_columns() {
 		$columns = array(
 			'cb'                       => '<input type="checkbox" />',
-			'fct_account_period'         => __( 'Period',               'fiscaat' ),
+			'fct_account_period'       => __( 'Period',             'fiscaat' ),
 			'fct_account_ledger_id'    => _x( 'No.', 'column name', 'fiscaat' ),
 			'title'                    => __( 'Account',            'fiscaat' ),
 			'fct_account_type'         => __( 'Type',               'fiscaat' ),
@@ -81,7 +81,7 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 	 */
 	function _get_sortable_columns() {
 		return array(
-			'fct_account_period'         => 'parent',
+			'fct_account_period'       => 'parent',
 			'fct_account_ledger_id'    => 'account_ledger_id',
 			'title'                    => 'title',
 			'fct_account_type'         => 'account_type',

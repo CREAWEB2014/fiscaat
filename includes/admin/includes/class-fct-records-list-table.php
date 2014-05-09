@@ -176,11 +176,11 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			'cb'                           => '<input type="checkbox" />',
 			'fct_record_post_date'         => _x( 'Inserted', 'column name', 'fiscaat' ),
 			'author'                       => __( 'Author' ),
-			'fct_record_period'              => _x( 'Period',   'column name',   'fiscaat' ),
-			'fct_record_account_ledger_id' => _x( 'No.',    'column name',   'fiscaat' ),
+			'fct_record_period'            => _x( 'Period',   'column name', 'fiscaat' ),
+			'fct_record_account_ledger_id' => _x( 'No.',      'column name', 'fiscaat' ),
 			'fct_record_account'           => __( 'Account',                 'fiscaat' ),
-			'fct_record_date'              => __( 'Date' ),
 			'fct_record_description'       => __( 'Description',             'fiscaat' ),
+			'fct_record_date'              => __( 'Date' ),
 			'fct_record_offset_account'    => __( 'Offset Account',          'fiscaat' ),
 			'fct_record_amount'            => _x( 'Amount', 'column name',   'fiscaat' ),
 		);
@@ -430,14 +430,6 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		// Check column name
 		switch ( $column_name ) {
 
-			// Record date
-			case 'fct_record_date': ?>
-
-				<input name="records[date][]" type="text" class="fct_record_date medium-text" value="" <?php fct_tab_index_attr(); ?>/>
-
-				<?php
-				break;
-
 			// Record account ledger id
 			case 'fct_record_account_ledger_id' :
 				fct_ledger_dropdown( array(
@@ -460,6 +452,14 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			case 'fct_record_description' : ?>
 
 				<textarea name="records[description][]" class="fct_record_description" rows="1" <?php fct_tab_index_attr(); ?>></textarea>
+
+				<?php
+				break;
+
+			// Record date
+			case 'fct_record_date': ?>
+
+				<input name="records[date][]" type="text" class="fct_record_date medium-text" value="" <?php fct_tab_index_attr(); ?>/>
 
 				<?php
 				break;
@@ -555,12 +555,6 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date ) . '">' . apply_filters( 'post_date_column_time', mysql2date( 'Y/m/d', $date ), $record_id, $column_name, 'list' ) . '</abbr>';
 				break;
 
-			// Record date
-			case 'fct_record_date':
-				$date = fct_get_record_date( $record_id );
-				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date ) . '">' . apply_filters( 'post_date_column_time', mysql2date( 'Y/m/d', $date ), $record_id, $column_name, 'list' ) . '</abbr>';
-				break;
-
 			// Record account ledger id
 			case 'fct_record_account_ledger_id' :
 				if ( ! empty( $account_id ) ) {
@@ -585,6 +579,12 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			// Record content
 			case 'fct_record_description' :
 				fct_record_excerpt( $record_id );
+				break;
+
+			// Record date
+			case 'fct_record_date':
+				$date = fct_get_record_date( $record_id );
+				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date ) . '">' . apply_filters( 'post_date_column_time', mysql2date( 'Y/m/d', $date ), $record_id, $column_name, 'list' ) . '</abbr>';
 				break;
 
 			// Record offset account

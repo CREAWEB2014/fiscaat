@@ -309,13 +309,9 @@ function fct_version_updater() {
 
 	/** 0.0 Branch ************************************************************/
 
-	// 0.0.8
-	if ( $raw_db_version < 008 ) {
-		
-		/**
-		 * Translate all years to periods
-		 */
-		fct_update_years_to_periods();
+	// 1.0.0
+	if ( $raw_db_version < 100 ) {
+		// Nothing changed		
 	}
 
 	/** All done! *************************************************************/
@@ -372,62 +368,4 @@ function fct_make_current_user_fiscus() {
 
 	// Reload the current user so caps apply immediately
 	wp_get_current_user();
-}
-
-/**
- * Translate all database year references to periods
- *
- * This concerns post types and post meta keys.
- *
- * @since 0.0.8
- *
- * @uses WP_Query
- * @uses wp_update_post()
- * @uses fct_get_period_post_type()
- * @uses fct_get_account_post_type()
- * @uses fct_get_record_post_type()
- * @uses get_post_meta()
- * @uses update_post_meta()
- * @uses delete_post_meta()
- */
-function fct_update_years_to_periods() {
-
-	// Query all posts with post type fct_year
-	if ( $years = new WP_Query( array(
-		'suppress_filters' => true,
-		'post_type'        => 'fct_year',
-		'nopaging'         => true,
-		'fields'           => 'ids'
-	) ) ) {
-
-		// Update post type
-		foreach ( $years->posts as $year_id ) {
-			wp_update_post( array(
-				'ID'        => $year_id, 
-				'post_type' => fct_get_period_post_type()
-			) );
-		}
-	}
-
-	// Query all accounts and records which have period_id meta
-	if ( $posts = new WP_Query( array(
-		'suppress_filters' => true,
-		'post_type'        => array( fct_get_account_post_type(), fct_get_record_post_type() ),
-		'nopaging'         => true,
-		'fields'           => 'ids'
-	) ) ) {
-
-		// Update post meta
-		foreach ( $posts->posts as $post_id ) {
-
-			// Get current year id meta value
-			$period_id = get_post_meta( $post_id, '_fct_year_id', true );
-
-			// Update period id meta value
-			update_post_meta( $post_id, '_fct_period_id', $period_id );
-
-			// Delete year id meta value
-			delete_post_meta( $post_id, '_fct_year_id' );
-		}
-	}
 }

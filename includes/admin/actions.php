@@ -47,7 +47,7 @@ add_action( 'custom_menu_order',       'fct_admin_custom_menu_order'       );
 add_action( 'menu_order',              'fct_admin_menu_order'              );
 
 // Hook on to admin_init
-add_action( 'fct_admin_init',          'fct_admin_periods'                   );
+add_action( 'fct_admin_init',          'fct_admin_periods'                 );
 add_action( 'fct_admin_init',          'fct_admin_accounts'                );
 add_action( 'fct_admin_init',          'fct_admin_records'                 );
 add_action( 'fct_admin_init',          'fct_setup_updater',            999 );

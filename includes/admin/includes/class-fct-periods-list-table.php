@@ -59,11 +59,11 @@ class FCT_Periods_List_Table extends FCT_Posts_List_Table {
 			'cb'                       => '<input type="checkbox" />',
 			'title'                    => __( 'Title' ),
 			'author'                   => __( 'Author' ),
-			'fct_period_started'         => _x( 'Opened', 'column name', 'fiscaat' ),
-			'fct_period_closed'          => _x( 'Closed', 'column name', 'fiscaat' ),
-			'fct_period_account_count'   => __( 'Accounts',              'fiscaat' ),
-			'fct_period_record_count'    => __( 'Records',               'fiscaat' ),
-			'fct_period_end_value'       => __( 'Value',                 'fiscaat' ),
+			'fct_period_started'       => _x( 'Opened', 'column name', 'fiscaat' ),
+			'fct_period_closed'        => _x( 'Closed', 'column name', 'fiscaat' ),
+			'fct_period_account_count' => __( 'Accounts',              'fiscaat' ),
+			'fct_period_record_count'  => __( 'Records',               'fiscaat' ),
+			'fct_period_end_value'     => __( 'Value',                 'fiscaat' ),
 		);
 
 		if ( ! current_user_can( 'edit_periods' ) ) {
@@ -82,11 +82,11 @@ class FCT_Periods_List_Table extends FCT_Posts_List_Table {
 	 */
 	function _get_sortable_columns() {
 		return array(
-			'fct_period_started'         => array( 'date',               true ),
-			'fct_period_closed'          => array( 'period_closed',        true ),
-			'fct_period_account_count'   => array( 'period_account_count', true ),
-			'fct_period_record_count'    => array( 'period_record_count',  true ),
-			'fct_period_end_value'       => array( 'period_end_value',     true ),
+			'fct_period_started'       => array( 'date',                 true ),
+			'fct_period_closed'        => array( 'period_closed',        true ),
+			'fct_period_account_count' => array( 'period_account_count', true ),
+			'fct_period_record_count'  => array( 'period_record_count',  true ),
+			'fct_period_end_value'     => array( 'period_end_value',     true ),
 		);
 	}
 
