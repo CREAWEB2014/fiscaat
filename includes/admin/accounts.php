@@ -589,23 +589,22 @@ class Fiscaat_Accounts_Admin {
 		// Setup meta query
 		$meta_query = isset( $query_vars['meta_query'] ) ? $query_vars['meta_query'] : array();
 
-		/** Drafts **************************************************************/
-
-		// When querying drafts...
-		if ( isset( $query_vars['post_status'] ) && 'draft' == $query_vars['post_status'] ) {
-
-			// ... Order by title and bail early
-			$query_vars['orderby'] = 'title';
-			$query_vars['order']   = isset( $_REQUEST['order'] ) ? strtoupper( $_REQUEST['order'] ) : 'ASC';
-
-			return $query_vars;
-		}
-
 		/** Period **************************************************************/
 
-		// Set the parent from period id if given or current period. Empty
-		// period results in all periods.
-		$query_vars['post_parent'] = isset( $_REQUEST['fct_period_id'] ) ? $_REQUEST['fct_period_id'] : fct_get_current_period_id();
+		// Set the parent from period id
+		if ( isset( $_REQUEST['fct_period_id'] ) ) {
+			$query_vars['post_parent'] = (int) $_REQUEST['fct_period_id'];
+
+		// Default to current period
+		} else {
+
+			// Not when querying drafts or trash
+			if ( ! isset( $_REQUEST['post_status'] )
+				|| ! in_array( $_REQUEST['post_status'], array( 'draft', fct_get_trash_status_id() ) ) 
+			) {
+				$query_vars['post_parent'] = fct_get_current_period_id();
+			}
+		}
 
 		/** Ledger ************************************************************/
 

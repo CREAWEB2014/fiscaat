@@ -38,9 +38,14 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 			$actions['close'] = __( 'Close', 'fiscaat' );
 		}
 
-		// Accounts are not trashed, only deleted
-		if ( current_user_can( 'delete_accounts' ) ) {
-			$actions['delete'] = __( 'Delete', 'fiscaat' );
+		if ( $this->is_trash && current_user_can( 'delete_accounts' ) ) {
+			$actions['untrash'] = __( 'Restore' );
+		}
+
+		if ( current_user_can( 'delete_accounts' ) && ( $this->is_trash || ! EMPTY_TRASH_DAYS ) ) {
+			$actions['delete'] = __( 'Delete Permanently' );
+		} elseif ( current_user_can( 'delete_accounts' ) ) {
+			$actions['trash'] = __( 'Move to Trash' );
 		}
 
 		return $actions;

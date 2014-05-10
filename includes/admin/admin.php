@@ -441,7 +441,7 @@ class Fiscaat_Admin {
 		 */
 		$doaction = $wp_list_table->current_action();
 		if ( $doaction ) {
-			check_admin_referer('bulk-posts');
+			check_admin_referer( "bulk-{$wp_list_table->_args['plural']}" );
 
 			$sendback = remove_query_arg( array('trashed', 'untrashed', 'deleted', 'locked', 'ids'), wp_get_referer() );
 			if ( ! $sendback )
