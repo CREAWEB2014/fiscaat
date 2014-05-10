@@ -744,7 +744,7 @@ class Fiscaat_Admin {
 			}
 
 				span.dashicons.fct-badge-success:before {
-					content: '\f147';
+					content: '\f147'; /* .dashicons-yes */
 				}
 
 			span.dashicons.fct-badge-error {
@@ -758,7 +758,7 @@ class Fiscaat_Admin {
 			}
 
 				span.dashicons.fct-badge-error:before {
-					content: '\f335';
+					content: '\f335'; /* .dashicons-no-alt */
 				}
 
 			<?php if ( isset( get_current_screen()->id ) && 'dashboard' == get_current_screen()->id ) : ?>
