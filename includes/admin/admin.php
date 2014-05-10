@@ -311,9 +311,9 @@ class Fiscaat_Admin {
 
 			// Setup page specific hooks
 			foreach ( $hooks as $k => $hook ) {
-				add_action( "load-$hook",        array( $this, 'setup_edit_posts' ), 0 );
-				add_action( 'load-post-new.php', array( $this, 'setup_post_post'  ), 0 );
-				add_action( 'load-post.php',     array( $this, 'setup_post_post'  ), 0 );
+				add_action( "load-$hook",        array( $this, 'setup_edit_posts' ) );
+				add_action( 'load-post-new.php', array( $this, 'setup_post_post'  ) );
+				add_action( 'load-post.php',     array( $this, 'setup_post_post'  ) );
 				unset( $hooks[ $k ] );
 			}
 		}
@@ -369,51 +369,189 @@ class Fiscaat_Admin {
 	/**
 	 * Setup edit posts page, globals, screen, list table, and hooks
 	 *
+	 * This function mimics the behavior of wp-admin/edit.php by
+	 * manually calling and instatiating the following:
+	 *  - set page post type globals
+	 *  - setup screen page data
+	 *  - run page specific load hook
+	 *  - instantiate list table
+	 *  - process bulk posts actions
+	 *  - prepare list table items
+	 *  - hook list table views
+	 *
 	 * @since 0.0.7
 	 *
+	 * @global string $post_type
+	 * @global object $post_type_object
+	 * @global string $post_new_file
+	 * @global WP_List_Table $wp_list_table
+	 * @global int $pagenum
+	 * 
 	 * @uses fct_admin_get_page_type()
 	 * @uses fct_admin_get_page_post_type()
 	 * @uses get_post_type_object()
 	 * @uses fct_get_list_table()
-	 * @uses add_action() Hooks 'fct_admin_load_{$type}s_page' on the current
-	 *                     action at priority 10.
-	 * @global $post_type
-	 * @global $post_type_object
-	 * @global $post_new_file
 	 * @uses current_filter()
 	 */
 	public function setup_edit_posts() {
-		global $post_type, $post_type_object, $post_new_file, $wp_list_table;
+		global $post_type, $post_type_object, $post_new_file, $wp_list_table, $pagenum;
 
 		// Get the current page type. Bail if empty
 		$type = fct_admin_get_page_type();
 		if ( empty( $type ) )
 			return;
 
-		// Set globals
+		// Set page globals
 		$post_type        = fct_admin_get_page_post_type();
 		$post_type_object = get_post_type_object( $post_type );
-		$post_new_file    = fct_admin_get_post_new_file(); 
+		$post_new_file    = fct_admin_get_post_new_file();
 
 		/**
+		 * Set the correct edit-post_type screen data for the page.
+		 * 
 		 * Previous to this moment set_current_screen() ran without a
 		 * correct $typenow variable for setting up the proper post type
 		 * editing environment, so here we run it again. This sets the 
 		 * $typenow global, among others.
 		 */
-		set_current_screen( 'edit-' . $post_type );
+		set_current_screen( "edit-{$post_type}" );
 
-		// Setup page type list table
+		/**
+		 * Run page type specific load hook.
+		 *
+		 * Runs before instantiating the list table. Based on the 
+		 * load-* hook. Fires before the particular post type edit 
+		 * screen is loaded.
+		 * 
+		 * The dynamic portion of the hook name, $type, refers to the
+		 * type of object on the page. This can be one of Fiscaat's
+		 * types 'record', 'account' or 'period'.
+		 */
+		do_action( "fct_admin_load_edit_{$type}s" );
+
+		// Setup page type list table.
 		$class         = sprintf( 'FCT_%s_List_Table', ucfirst( $type . 's' ) );
 		$wp_list_table = fct_get_list_table( $class, array( 'screen' => get_current_screen() ) );
+		$pagenum       = $wp_list_table->get_pagenum();
 
-		// Setup type specific load hook
-		add_action( current_filter(), "fct_admin_load_edit_{$type}s" );
+		/**
+		 * Process bulk post actions and properly redirect.
+		 *
+		 * @see wp-admin/edit.php
+		 */
+		$doaction = $wp_list_table->current_action();
+		if ( $doaction ) {
+			check_admin_referer('bulk-posts');
 
-		// Load up list table items for this specific hook
-		add_action( current_filter(), array( $wp_list_table, 'prepare_items' ), 60 );
+			$sendback = remove_query_arg( array('trashed', 'untrashed', 'deleted', 'locked', 'ids'), wp_get_referer() );
+			if ( ! $sendback )
+				$sendback = admin_url( $parent_file );
+			$sendback = add_query_arg( 'paged', $pagenum, $sendback );
 
-		// Display list views
+			// Get selectd post ids
+			if ( 'delete_all' == $doaction ) {
+				$post_status = preg_replace('/[^a-z0-9_-]+/i', '', $_REQUEST['post_status']);
+				if ( get_post_status_object($post_status) ) // Check the post status exists first
+					$post_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_type=%s AND post_status = %s", $post_type, $post_status ) );
+				$doaction = 'delete';
+			} elseif ( isset( $_REQUEST['ids'] ) ) {
+				$post_ids = explode( ',', $_REQUEST['ids'] );
+			} elseif ( ! empty( $_REQUEST['post'] ) ) {
+				$post_ids = array_map('intval', $_REQUEST['post']);
+			}
+
+			// No post ids found or selected, so redirect
+			if ( ! isset( $post_ids ) ) {
+				wp_redirect( $sendback );
+				exit;
+			}
+
+			// Process bulk posts action
+			switch ( $doaction ) {
+				case 'trash':
+					$trashed = $locked = 0;
+					foreach( (array) $post_ids as $post_id ) {
+						if ( ! current_user_can( 'delete_post', $post_id) )
+							wp_die( __('You are not allowed to move this item to the Trash.') );
+
+						if ( wp_check_post_lock( $post_id ) ) {
+							$locked++;
+							continue;
+						}
+
+						if ( ! wp_trash_post( $post_id ) )
+							wp_die( __('Error in moving to Trash.') );
+
+						$trashed++;
+					}
+					$sendback = add_query_arg( array('trashed' => $trashed, 'ids' => join(',', $post_ids), 'locked' => $locked ), $sendback );
+					break;
+				case 'untrash':
+					$untrashed = 0;
+					foreach( (array) $post_ids as $post_id ) {
+						if ( ! current_user_can( 'delete_post', $post_id ) )
+							wp_die( __('You are not allowed to restore this item from the Trash.') );
+
+						if ( ! wp_untrash_post($post_id) )
+							wp_die( __('Error in restoring from Trash.') );
+
+						$untrashed++;
+					}
+					$sendback = add_query_arg('untrashed', $untrashed, $sendback);
+					break;
+				case 'delete':
+					$deleted = 0;
+					foreach( (array) $post_ids as $post_id ) {
+						$post_del = get_post($post_id);
+
+						if ( ! current_user_can( 'delete_post', $post_id ) )
+							wp_die( __('You are not allowed to delete this item.') );
+
+						if ( ! wp_delete_post($post_id) )
+							wp_die( __('Error in deleting.') );
+
+						$deleted++;
+					}
+					$sendback = add_query_arg('deleted', $deleted, $sendback);
+					break;
+
+				// Provide hook to execute custom bulk post actions
+				default :
+
+					/**
+					 * Execute a custom bulk post action.
+					 *
+					 * The first dynamic portion of the hook name, $type, refers 
+					 * to the type of object on the page. This can be one of 
+					 * Fiscaat's types 'record', 'account' or 'period'.
+					 *
+					 * The second dynamic portion of the hook name, $doaction, 
+					 * holds the bulk action being called.
+					 * 
+					 * @param string $sendback Redirect url
+					 * @param array  $post_ids Post ids
+					 * @return string Redirect url
+					 */
+					$sendback = apply_filters( 'fct_admin_{$type}s_bulk_action_{$doaction}', $sendback, $post_ids );
+					break;
+			}
+
+			// Sanitize redirect url
+			$sendback = remove_query_arg( array('action', 'action2', 'tags_input', 'post_author', 'comment_status', 'ping_status', '_status', 'post', 'bulk_edit', 'post_view'), $sendback );
+
+			wp_redirect( $sendback );
+			exit();
+
+		// No bulk action selected, so redirect sanitized
+		} elseif ( ! empty( $_REQUEST['_wp_http_referer'] ) ) {
+			 wp_redirect( remove_query_arg( array('_wp_http_referer', '_wpnonce'), wp_unslash($_SERVER['REQUEST_URI']) ) );
+			 exit;
+		}
+
+		// Prepare list table items
+		$wp_list_table->prepare_items();
+
+		// Hook to display list table views
 		add_action( 'fct_admin_before_posts_form', array( $wp_list_table, 'views' ), 20 );
 	}
 
