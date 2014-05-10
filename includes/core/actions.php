@@ -104,7 +104,7 @@ add_action( 'fct_after_setup_theme', 'fct_add_fiscaat_roles', 1 );
  *
  * We also hook to 'fct_setup_current_user' -- naturally.
  */
-// add_action( 'switch_blog',                'fct_set_current_user_default_role' );
+// add_action( 'switch_blog',            'fct_set_current_user_default_role' );
 // add_action( 'fct_setup_current_user', 'fct_set_current_user_default_role' );
 
 /**

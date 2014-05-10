@@ -88,9 +88,8 @@ class Fiscaat_Accounts_Admin {
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
 		// Account columns (in post row)
-		add_filter( 'fct_admin_accounts_get_columns',          array( $this, 'accounts_column_headers'   )        );
-		add_filter( 'fct_admin_accounts_get_sortable_columns', array( $this, 'accounts_columns_sortable' )        );
-		add_filter( 'post_row_actions',                        array( $this, 'accounts_row_actions'      ), 10, 2 );
+		add_filter( 'fct_admin_accounts_get_columns', array( $this, 'accounts_column_headers' )        );
+		add_filter( 'post_row_actions',               array( $this, 'accounts_row_actions'    ), 10, 2 );
 
 		// Add ability to filter accounts and records per period
 		add_action( 'restrict_manage_posts', array( $this, 'filter_dropdown'  ) );
@@ -490,37 +489,11 @@ class Fiscaat_Accounts_Admin {
 
 		// Hide period column if showing period accounts. When there
 		// is no period selection, current period accounts are showed.
-		if ( ! isset( $_GET['fct_period_id'] ) || ! empty( $_GET['fct_period_id'] ) ) {
-			unset( $columns['fct_account_period'] );
-		}
+		if ( ! isset( $_REQUEST['fct_period_id'] ) || ! empty( $_REQUEST['fct_period_id'] ) ) {
 
-		return $columns;
-	}
-
-	/**
-	 * Manage the sortable columns for the accounts page
-	 *
-	 * @since 0.0.9
-	 * 
-	 * @param array $columns Sortable columns
-	 * @return array Sortable columns
-	 */
-	public function accounts_columns_sortable( $columns ) {
-
-		// When querying drafts, deselect columns
-		if ( isset( $_REQUEST['post_status'] ) && 'draft' == $_REQUEST['post_status'] ) {
-
-			// Remove columns
-			foreach ( $columns as $k => $column ) {
-				switch ( $column ) {
-					case 'fct_account_period'       :
-					case 'fct_account_ledger_id'    :
-					case 'fct_account_type'         :
-					case 'fct_account_record_count' :
-					case 'fct_account_end_value'    :
-						unset( $columns[$k] );
-						break;
-				}
+			// But not when querying drafts or trash
+			if ( ! isset( $_REQUEST['post_status'] ) || ! in_array( $_REQUEST['post_status'], array( 'draft', fct_get_trash_status_id() ) ) ) {
+				unset( $columns['fct_account_period'] );
 			}
 		}
 
@@ -595,15 +568,10 @@ class Fiscaat_Accounts_Admin {
 		if ( isset( $_REQUEST['fct_period_id'] ) ) {
 			$query_vars['post_parent'] = (int) $_REQUEST['fct_period_id'];
 
-		// Default to current period
-		} else {
-
-			// Not when querying drafts or trash
-			if ( ! isset( $_REQUEST['post_status'] )
-				|| ! in_array( $_REQUEST['post_status'], array( 'draft', fct_get_trash_status_id() ) ) 
-			) {
-				$query_vars['post_parent'] = fct_get_current_period_id();
-			}
+		// Default to current period...
+		// ... but not when querying drafts or trash
+		} elseif ( ! isset( $_REQUEST['post_status'] ) || ! in_array( $_REQUEST['post_status'], array( 'draft', fct_get_trash_status_id() ) ) ) {
+			$query_vars['post_parent'] = fct_get_current_period_id();
 		}
 
 		/** Ledger ************************************************************/

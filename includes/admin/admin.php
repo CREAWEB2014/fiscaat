@@ -426,6 +426,8 @@ class Fiscaat_Admin {
 		 * The dynamic portion of the hook name, $type, refers to the
 		 * type of object on the page. This can be one of Fiscaat's
 		 * types 'record', 'account' or 'period'.
+		 *
+		 * @since 0.0.9
 		 */
 		do_action( "fct_admin_load_edit_{$type}s" );
 
@@ -527,6 +529,8 @@ class Fiscaat_Admin {
 					 *
 					 * The second dynamic portion of the hook name, $doaction, 
 					 * holds the bulk action being called.
+					 *
+					 * @since 0.0.9
 					 * 
 					 * @param string $sendback Redirect url
 					 * @param array  $post_ids Post ids
