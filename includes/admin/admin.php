@@ -396,9 +396,10 @@ class Fiscaat_Admin {
 		$post_new_file    = fct_admin_get_post_new_file(); 
 
 		/**
-		 * set_current_screen() ran previous to this moment without a
-		 * correct $typenow variable, so here we run it again. This sets
-		 * the $typenow global, among others.
+		 * Previous to this moment set_current_screen() ran without a
+		 * correct $typenow variable for setting up the proper post type
+		 * editing environment, so here we run it again. This sets the 
+		 * $typenow global, among others.
 		 */
 		set_current_screen( 'edit-' . $post_type );
 
@@ -655,8 +656,7 @@ class Fiscaat_Admin {
 			}
 		}
 
-		// Remove the Fiscaat submenu
-		// It is of no further use.
+		// Remove the Fiscaat submenu since it is of no further use
 		remove_submenu_page( 'fiscaat', 'fiscaat' );
 
 		// Remove the individual recount and converter menus.
@@ -666,9 +666,9 @@ class Fiscaat_Admin {
 		remove_submenu_page( 'tools.php', 'fct-reset'     );
 
 		// Top level menu classes
-		$period_class  = sanitize_html_class( fct_get_period_post_type() );
+		$period_class  = sanitize_html_class( fct_get_period_post_type()  );
 		$account_class = sanitize_html_class( fct_get_account_post_type() );
-		$record_class  = sanitize_html_class( fct_get_record_post_type() ); ?>
+		$record_class  = sanitize_html_class( fct_get_record_post_type()  ); ?>
 
 		<script type="text/javascript">
 
@@ -695,11 +695,10 @@ class Fiscaat_Admin {
 				$.each( dropdowns, function( i ){
 					var other_dd = ( i == 1 ) ? 0 : 1;
 
-					// For each change in the first selection, change the 
-					// matching one in the other.
+					// For each change in a dropdown of the one kind, change the 
+					// matching dropdown of the other kind.
 					$.each( this, function( j ) {
 						$(this).change( function(){
-
 							$( dropdowns[other_dd][j] ).find('option[value="'+ this.value +'"]').attr('selected', true );
 						});
 					});
