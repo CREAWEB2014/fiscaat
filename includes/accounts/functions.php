@@ -430,16 +430,24 @@ function fct_update_account_spectators( $account_id = 0, $spectators = false ) {
 /**
  * Handle all the extra meta stuff from posting a new account
  *
- * @param string|array $args Optional. Update arguments
  * @uses fct_get_account_id() To get the account id
  * @uses fct_get_period_id() To get the period id
  * @uses fct_get_account_period_id() To get the account period id
- * @uses fct_update_account_period_id() To update the account's period id
  * @uses fct_update_account_id() To update the account's account id
+ * @uses fct_update_account_period_id() To update the account's period id
+ * @uses fct_update_account_type() To update the account's type
  * @uses fct_update_account_record_count() To update the account record count
  * @uses fct_update_account_record_count_declined() To udpate the account declined record count
  * @uses fct_update_account_record_count_unapproved() To udpate the account unapproved record count
  * @uses fct_update_period() To udpate the account's period
+ *
+ * @param mixed $args Optional. Supports these arguments:
+ *  - account_id: Account id
+ *  - period_id: Period id
+ *  - ledger_id: Account ledger id
+ *  - account_type: Account type
+ *  - end_value: Account end value
+ *  - is_edit: Optional. Is the post being edited? Defaults to false.
  */
 function fct_update_account( $args = '' ) {
 
@@ -457,6 +465,7 @@ function fct_update_account( $args = '' ) {
 
 	// Validate the ID's passed from 'fct_new_account' action
 	$account_id = fct_get_account_id( $account_id );
+	$period_id  = fct_get_period_id( $account_id );
 
 	// Bail if there is no account
 	if ( empty( $account_id ) )
@@ -467,6 +476,7 @@ function fct_update_account( $args = '' ) {
 		$period_id = fct_get_account_period_id( $account_id );
 
 	// Period account meta
+	fct_update_account_id( $account_id, $period_id );
 	fct_update_account_period_id( $account_id, $period_id );
 
 	// Account type

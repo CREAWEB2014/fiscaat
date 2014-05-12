@@ -453,12 +453,14 @@ function fct_update_period_end_value( $period_id = 0, $end_value = 0 ) {
  * database to get their results. As such, this function can be costly to run
  * but is necessary to keep everything accurate.
  *
- * @param mixed $args Supports these arguments:
+ * @uses fct_get_period_id() To get the period id
+ * @uses fct_update_period_account_count() To update the period's account count
+ * @uses fct_update_period_record_count() To update the period's record count
+ * @uses fct_update_period_end_value() To update the period's to balance value
+ * 
+ * @param mixed $args Optional. Supports these arguments:
  *  - period_id: Period id
  *  - end_value: Period end value
- * @uses fct_update_period_account_count() To update the period account count
- * @uses fct_update_period_record_count() To update the period record count
- * @uses fct_update_period_end_value() To update the period to balance value
  */
 function fct_update_period( $args = '' ) {
 

@@ -349,23 +349,28 @@ function fct_update_record_offset_account( $record_id = 0, $offset_account = 0 )
 /**
  * Handle all the extra meta stuff from posting a new record or editing a record
  *
- * @param int $record_id Optional. Record id
- * @param int $account_id Optional. Topic id
- * @param int $period_id Optional. Forum id
- * @param bool|array $anonymous_data Optional. If it is an array, it is
- *                    extracted and anonymous user info is saved
- * @param int $author_id Author id
- * @param bool $is_edit Optional. Is the post being edited? Defaults to false.
  * @uses fct_get_record_id() To get the record id
  * @uses fct_get_account_id() To get the account id
  * @uses fct_get_period_id() To get the period id
- * @uses fct_get_current_user_id() To get the current user id
  * @uses fct_get_record_account_id() To get the record account id
  * @uses fct_get_account_period_id() To get the account period id
- * @uses update_post_meta() To update the record metas
- * @uses fct_update_user_last_posted() To update the users last posted time
- * @uses fct_update_record_period_id() To update the record period id
- * @uses fct_update_record_account_id() To update the record account id
+ * @uses fct_update_record_period_id() To update the record's period id
+ * @uses fct_update_record_account_id() To update the record's account id
+ * @uses fct_update_record_date() To update the record's date
+ * @uses fct_update_record_type() To update the record's type
+ * @uses fct_update_record_offset_account() To update the record's offset account
+ * @uses fct_update_record_amount() To update the record's amount
+ * @uses fct_update_account() To update the record's account
+ * 
+ * @param mixed $args Optional. Supports these arguments:
+ *  - record_id: Record id
+ *  - account_id: Account id
+ *  - period_id: Period id
+ *  - record_type: Record type
+ *  - record_date: Record date
+ *  - amount: Record amount
+ *  - offset_account: Record offset account
+ *  - is_edit: Optional. Is the post being edited? Defaults to false.
  */
 function fct_update_record( $args = '' ) {
 
@@ -400,7 +405,7 @@ function fct_update_record( $args = '' ) {
 		$period_id = fct_get_account_period_id( $account_id );
 
 	// Record meta relating to record position in tree
-	fct_update_record_period_id   ( $record_id, $period_id    );
+	fct_update_record_period_id ( $record_id, $period_id  );
 	fct_update_record_account_id( $record_id, $account_id );
 
 	// Record date
