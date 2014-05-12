@@ -546,11 +546,13 @@ function fct_get_period_ledger_ids( $period_id = 0 ) {
 	$period_id = fct_get_period_id( $period_id );
 	$ids       = array();
 
+	// Query accounts of any post status
 	if ( $accounts = new WP_Query( array(
-		'post_type' => fct_get_account_post_type(),
-		'parent'    => $period_id,
-		'meta_key'  => '_fct_ledger_id',
-		'fields'    => 'ids'
+		'post_type'   => fct_get_account_post_type(),
+		'parent'      => $period_id,
+		'post_status' => 'any',
+		'meta_key'    => '_fct_ledger_id',
+		'fields'      => 'ids'
 	) ) ) {
 
 		// Walk query result
@@ -577,7 +579,7 @@ function fct_get_period_ledger_ids( $period_id = 0 ) {
  * @uses do_action() Calls 'fct_close_account' with the account id
  * @uses add_post_meta() To add the previous status to a meta
  * @uses wp_insert_post() To update the account with the new status
- * @uses do_action() Calls 'fct_opened_account' with the account id
+ * @uses do_action() Calls 'fct_closed_account' with the account id
  * @return mixed False or {@link WP_Error} on failure, account id on success
  */
 function fct_close_account( $account_id = 0 ) {
@@ -624,18 +626,18 @@ function fct_close_account( $account_id = 0 ) {
 function fct_open_account( $account_id = 0 ) {
 
 	// Get account
-	if ( !$account = get_post( $account_id, ARRAY_A ) )
+	if ( ! $account = get_post( $account_id ) )
 		return $account;
 
 	// Bail if already open
-	if ( fct_get_closed_status_id() != $account['post_status'])
+	if ( fct_get_closed_status_id() != $account->post_status )
 		return false;
 
 	// Execute pre open code
 	do_action( 'fct_open_account', $account_id );
 
 	// Set previous status
-	$account['post_status'] = fct_get_public_status_id();
+	$account->post_status = fct_get_public_status_id();
 
 	// No revisions
 	remove_action( 'pre_post_update', 'wp_save_post_revision' );

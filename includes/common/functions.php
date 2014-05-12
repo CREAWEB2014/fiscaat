@@ -535,6 +535,7 @@ function fct_parse_args( $args, $defaults = '', $filter_key = '' ) {
  *
  * @param int $parent_id Parent id
  * @param string $post_type Post type. Defaults to 'post'
+ * @uses fct_get_post_stati() To get the public post stati
  * @uses wp_cache_get() To check if there is a cache of the children count
  * @uses wpdb::prepare() To prepare the query
  * @uses wpdb::get_var() To get the result of the query in a variable
@@ -556,7 +557,11 @@ function fct_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
 	// Check for cache and set if needed
 	$child_count = wp_cache_get( $cache_id, 'fiscaat' );
 	if ( empty( $child_count ) ) {
-		$child_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_type = '%s';", $parent_id, $post_type ) );
+
+		// Join post statuses together
+		$post_status = "'" . implode( "', '", fct_get_post_stati( $post_type ) ) . "'";
+
+		$child_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s';", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_count, 'fiscaat' );
 	}
 
@@ -569,7 +574,7 @@ function fct_get_public_child_count( $parent_id = 0, $post_type = 'post' ) {
  *
  * @param int $parent_id Parent id
  * @param string $post_type Post type. Defaults to 'post'
- * @uses fct_get_account_post_type() To get the account post type
+ * @uses fct_get_post_stati() To get the public post stati
  * @uses wp_cache_get() To check if there is a cache of the children
  * @uses wpdb::prepare() To prepare the query
  * @uses wpdb::get_col() To get the result of the query in an array
@@ -591,7 +596,11 @@ function fct_get_public_child_ids( $parent_id = 0, $post_type = 'post' ) {
 	// Check for cache and set if needed
 	$child_ids = wp_cache_get( $cache_id, 'fiscaat' );
 	if ( empty( $child_ids ) ) {
-		$child_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_type = %s ORDER BY ID DESC;", $parent_id, $post_type ) );
+
+		// Join post statuses together
+		$post_status = "'" . implode( "', '", fct_get_post_stati( $post_type ) ) . "'";
+
+		$child_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = %s ORDER BY ID DESC;", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_ids, 'fiscaat' );
 	}
 
@@ -621,39 +630,52 @@ function fct_get_all_child_ids( $parent_id = 0, $post_type = 'post' ) {
 		return false;
 
 	// The ID of the cached query
-	$cache_id    = 'fct_parent_all_' . $parent_id . '_type_' . $post_type . '_child_ids';
-	$post_status = array( fct_get_public_status_id() );
-
-	// Extra post statuses based on post type
-	switch ( $post_type ) {
-
-		// Period
-		case fct_get_period_post_type() :
-			break;
-
-		// Account
-		case fct_get_account_post_type() :
-			$post_status[] = fct_get_closed_status_id();
-			break;
-
-		// Record
-		case fct_get_record_post_type() :
-			$post_status[] = fct_get_closed_status_id();
-			break;
-	}
-
-	// Join post statuses together
-	$post_status = "'" . join( "', '", $post_status ) . "'";
+	$cache_id = 'fct_parent_all_' . $parent_id . '_type_' . $post_type . '_child_ids';
 
 	// Check for cache and set if needed
 	$child_ids = wp_cache_get( $cache_id, 'fiscaat' );
 	if ( empty( $child_ids ) ) {
+
+		// Join post statuses together
+		$post_status = "'" . join( "', '", fct_get_post_stati( $post_type, 'all' ) ) . "'";
+
 		$child_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent = %d AND post_status IN ( {$post_status} ) AND post_type = '%s' ORDER BY ID DESC;", $parent_id, $post_type ) );
 		wp_cache_set( $cache_id, $child_ids, 'fiscaat' );
 	}
 
 	// Filter and return
 	return apply_filters( 'fct_get_all_child_ids', $child_ids, (int) $parent_id, $post_type );
+}
+
+/**
+ * Return the public post stati per post type
+ *
+ * @since 0.0.9
+ *
+ * @uses fct_get_public_status_id() To get the publish post status
+ * @uses fct_get_closed_status_id() To get the close post status
+ * @uses fct_get_trash_status_id() To get the trash post status
+ * @uses apply_filters() Calls 'fct_get_post_stati' with the
+ *                        post stati and post type
+ * 
+ * @param string $post_type Post type
+ * @param string $which Optional. Defaults to 'public'.
+ * @return array Post stati
+ */
+function fct_get_post_stati( $post_type = '', $which = 'public' ) {
+
+	// Setup default public post stati
+	$post_stati = array( 
+		fct_get_public_status_id(),
+		fct_get_closed_status_id()
+	);
+
+	// Add to all post stati
+	if ( 'all' == $which ) {
+		$post_stati[] = fct_get_trash_status_id();
+	}
+
+	return apply_filters( 'fct_get_post_stati', $post_stati, $post_type, $which );
 }
 
 /**
