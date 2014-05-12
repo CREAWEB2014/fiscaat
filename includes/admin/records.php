@@ -684,8 +684,6 @@ class Fiscaat_Records_Admin {
 		if ( $this->bail() ) 
 			return $actions;
 
-		unset( $actions['inline hide-if-no-js'] );
-
 		// Record view links to account
 		$actions['view'] = '<a href="' . fct_get_record_url( $record->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'fiscaat' ), fct_get_record_title( $record->ID ) ) ) . '" rel="permalink">' . __( 'View', 'fiscaat' ) . '</a>';
 
@@ -710,7 +708,7 @@ class Fiscaat_Records_Admin {
 		if ( current_user_can( 'delete_record', $record->ID ) ) {
 			if ( fct_get_trash_status_id() == $record->post_status ) {
 				$post_type_object = get_post_type_object( fct_get_record_post_type() );
-				$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'page' => 'fct-records' ), admin_url( 'admin.php' ) ) ), wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $record->ID ) ), 'untrash-' . $record->post_type . '_' . $record->ID ) ) . "'>" . __( 'Restore', 'fiscaat' ) . "</a>";
+				$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'page' => 'fct-records' ), admin_url( 'admin.php' ) ) ), wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $record->ID ) ), 'untrash-post_' . $record->ID ) ) . "'>" . __( 'Restore', 'fiscaat' ) . "</a>";
 			} elseif ( EMPTY_TRASH_DAYS ) {
 				$actions['trash'] = "<a class='submitdelete' title='" . esc_attr__( 'Move this item to the Trash', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'page' => 'fct-records' ), admin_url( 'admin.php' ) ) ), get_delete_post_link( $record->ID ) ) . "'>" . __( 'Trash', 'fiscaat' ) . "</a>";
 			}

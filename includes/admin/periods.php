@@ -480,7 +480,7 @@ class Fiscaat_Periods_Admin {
 		if ( current_user_can( 'delete_period', $period->ID ) && ( fct_is_period_closed() || ! fct_period_has_records() ) ) {
 			if ( fct_get_trash_status_id() == $period->post_status ) {
 				$post_type_object = get_post_type_object( fct_get_period_post_type() );
-				$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'page' => 'fct-periods' ), admin_url( 'admin.php' ) ) ), wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $period->ID ) ), 'untrash-' . $period->post_type . '_' . $period->ID ) ) . "'>" . __( 'Restore', 'fiscaat' ) . "</a>";
+				$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'page' => 'fct-periods' ), admin_url( 'admin.php' ) ) ), wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $period->ID ) ), 'untrash-post_' . $period->ID ) ) . "'>" . __( 'Restore', 'fiscaat' ) . "</a>";
 			} elseif ( EMPTY_TRASH_DAYS ) {
 				$actions['trash'] = "<a class='submitdelete' title='" . esc_attr__( 'Move this item to the Trash', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'page' => 'fct-periods' ), admin_url( 'admin.php' ) ) ), get_delete_post_link( $period->ID ) ) . "'>" . __( 'Trash', 'fiscaat' ) . "</a>";
 			}
