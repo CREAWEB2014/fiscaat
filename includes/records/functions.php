@@ -368,7 +368,9 @@ function fct_update_record_offset_account( $record_id = 0, $offset_account = 0 )
  * @uses fct_update_record_account_id() To update the record account id
  */
 function fct_update_record( $args = '' ) {
-	$defaults = array(
+
+	// Parse arguments against default values
+	$r = fct_parse_args( $args, array(
 		'record_id'      => 0,
 		'account_id'     => 0,
 		'period_id'      => 0,
@@ -377,8 +379,7 @@ function fct_update_record( $args = '' ) {
 		'amount'         => 0,
 		'offset_account' => 0,
 		'is_edit'        => false
-	);
-	$r = fct_parse_args( $args, $defaults, 'update_record' );
+	), 'update_record' );
 	extract( $r );	
 
 	// Validate the ID's passed from 'fct_new_record' action
@@ -437,20 +438,18 @@ function fct_update_record( $args = '' ) {
 function fct_close_record( $record_id = 0 ) {
 
 	// Get record
-	$record = get_post( $record_id, ARRAY_A );
-	if ( empty( $record ) )
+	if ( ! $record = get_post( $record_id ) )
 		return $record;
 
 	// Bail if already closed
-	$bail = fct_get_closed_status_id() == $record['post_status'];
-	if ( apply_filters( 'fct_no_close_record', $bail, $record ) )
+	if ( fct_get_closed_status_id() === $record->post_status );
 		return false;
 
 	// Execute pre close code
 	do_action( 'fct_close_record', $record_id );
 
 	// Set post status to closed
-	$record['post_status'] = fct_get_closed_status_id();
+	$record->post_status = fct_get_closed_status_id();
 
 	// No revisions
 	remove_action( 'pre_post_update', 'wp_save_post_revision' );

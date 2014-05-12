@@ -462,8 +462,23 @@ class Fiscaat_Admin {
 				$post_ids = array_map('intval', $_REQUEST['post']);
 			}
 
+			/**
+			 * Filter the bulk action post ids.
+			 *
+			 * The first dynamic portion of the hook name, $type, refers 
+			 * to the type of object on the page. This can be one of 
+			 * Fiscaat's types 'record', 'account' or 'period'.
+			 *
+			 * @since 0.0.9
+			 * 
+			 * @param array $post_ids Selected post ids
+			 * @param string $doaction Bulk action
+			 * @return array Post ids
+			 */
+			$post_ids = apply_filters( "fct_admin_{$type}s_bulk_posts", $post_ids, $doaction );
+
 			// No post ids found or selected, so redirect
-			if ( ! isset( $post_ids ) ) {
+			if ( ! isset( $post_ids ) || empty( $post_ids ) ) {
 				wp_redirect( $sendback );
 				exit;
 			}
@@ -515,6 +530,19 @@ class Fiscaat_Admin {
 						$deleted++;
 					}
 					$sendback = add_query_arg('deleted', $deleted, $sendback);
+					break;
+				case 'close':
+					$closed = 0;
+					foreach ( $post_ids as $post_id ) {
+						if ( ! current_user_can( 'edit_post', $post_id ) )
+							wp_die( __( 'You are not allowed to close this item.', 'fiscaat' ) );
+
+						if ( ! fct_close_account( $post_ids ) )
+							wp_die( __( 'Error in closing.', 'fiscaat' ) );
+
+						$closed++;
+					}
+					$sendback = add_query_arg( 'closed', $closed, $sendback );
 					break;
 
 				// Provide hook to execute custom bulk post actions

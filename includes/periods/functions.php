@@ -132,22 +132,21 @@ function fct_insert_period( $period_data = array(), $period_meta = array() ) {
 function fct_close_period( $period_id = 0 ) {
 
 	// Get period
-	if ( ! $period = get_post( $period_id, ARRAY_A ) )
+	if ( ! $period = get_post( $period_id ) )
 		return $period;
 
 	// Bail if already closed
-	$bail = fct_get_closed_status_id() == $period['post_status'];
-	if ( apply_filters( 'fct_no_close_period', $bail, $period ) )
+	if ( fct_get_closed_status_id() == $period->post_status )
 		return false;
 
 	// Execute pre close code
 	do_action( 'fct_close_period', $period_id );
 
 	// Add pre close status
-	add_post_meta( $period_id, '_fct_status', $period['post_status'] );
+	add_post_meta( $period_id, '_fct_status', $period->post_status );
 
 	// Set closed status
-	$period['post_status'] = fct_get_closed_status_id();
+	$period->post_status = fct_get_closed_status_id();
 
 	// Set closed date
 	fct_update_period_closed( $period_id );
@@ -462,11 +461,12 @@ function fct_update_period_end_value( $period_id = 0, $end_value = 0 ) {
  * @uses fct_update_period_end_value() To update the period to balance value
  */
 function fct_update_period( $args = '' ) {
-	$defaults = array(
+
+	// Parse arguments against default values
+	$r = fct_parse_args( $args, array(
 		'period_id'     => 0,
 		'end_value'     => 0
-	);
-	$r = fct_parse_args( $args, $defaults, 'update_period' );
+	), 'update_period' );
 	extract( $r );
 
 	// Check period id

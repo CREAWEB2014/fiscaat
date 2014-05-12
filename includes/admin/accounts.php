@@ -87,13 +87,16 @@ class Fiscaat_Accounts_Admin {
 		// Messages
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
+		// Add ability to filter accounts and records per period
+		add_action( 'restrict_manage_posts', array( $this, 'filter_dropdown'  ) );
+		add_filter( 'fct_request',           array( $this, 'filter_post_rows' ) );
+
 		// Account columns (in post row)
 		add_filter( 'fct_admin_accounts_get_columns', array( $this, 'accounts_column_headers' )        );
 		add_filter( 'post_row_actions',               array( $this, 'accounts_row_actions'    ), 10, 2 );
 
-		// Add ability to filter accounts and records per period
-		add_action( 'restrict_manage_posts', array( $this, 'filter_dropdown'  ) );
-		add_filter( 'fct_request',           array( $this, 'filter_post_rows' ) );
+		// Bulk actions
+		add_filter( 'fct_admin_accounts_bulk_action_close', array( $this, 'bulk_action_close' ), 10, 2 );
 
 		// Account records view link
 		// add_filter( 'get_edit_post_link', array( $this, 'accounts_edit_post_link' ), 10, 3 ); // Uncontrolled behavior
@@ -325,6 +328,7 @@ class Fiscaat_Accounts_Admin {
 			'period_id'    => $period_id,
 			'ledger_id'    => $ledger_id,
 			'account_type' => ! empty( $_POST['fct_account_type'] ) ? $_POST['fct_account_type'] : '',
+			'is_edit'      => (bool) isset( $_POST['save'] ),
 		) );
 
 		// Allow other fun things to happen
@@ -628,6 +632,33 @@ class Fiscaat_Accounts_Admin {
 
 		// Return manipulated query_vars
 		return $query_vars;
+	}
+
+	/** Bulk Actions **********************************************************/
+
+	/**
+	 * Process accounts close bulk action
+	 *
+	 * @since 0.0.9
+	 * 
+	 * @param string $sendback Redirect url
+	 * @param string $doaction Bulk action
+	 * @param array $post_ids Post ids
+	 * @return string Redirect url
+	 */
+	public function bulk_action_close( $sendback, $post_ids ) {
+		$closed = 0;
+		foreach ( $post_ids as $post_id ) {
+			if ( ! current_user_can( 'edit_account', $post_id ) )
+				wp_die( __( 'You are not allowed to close this item.', 'fiscaat' ) );
+
+			if ( ! fct_close_account( $post_ids ) )
+				wp_die( __( 'Error in closing.', 'fiscaat' ) );
+
+			$closed++;
+		}
+		$sendback = add_query_arg( 'closed', $closed, $sendback );
+		return $sendback;
 	}
 
 	/** Post Actions **********************************************************/

@@ -86,13 +86,13 @@ class Fiscaat_Records_Admin {
 		// Messages
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
-		// Record columns (in post row)
-		add_filter( 'fct_admin_records_get_columns', array( $this, 'records_column_headers' )        );
-		add_filter( 'post_row_actions',              array( $this, 'records_row_actions'    ), 10, 2 );
-
 		// Add ability to filter accounts and records per period
 		add_filter( 'restrict_manage_posts', array( $this, 'filter_dropdown'             )        );
 		add_filter( 'fct_request',           array( $this, 'filter_post_rows'            )        );
+
+		// Record columns (in post row)
+		add_filter( 'fct_admin_records_get_columns', array( $this, 'records_column_headers' )        );
+		add_filter( 'post_row_actions',              array( $this, 'records_row_actions'    ), 10, 2 );
 	}
 
 	/**
@@ -323,8 +323,8 @@ class Fiscaat_Records_Admin {
 			return $record_id;
 
 		// Get the record meta post values
-		$account_id = ! empty( $_POST['parent_id'] )          ? (int) $_POST['parent_id'] : 0;
-		$period_id    = ! empty( $_POST['fct_record_period_id'] ) ? (int) $_POST['fct_record_period_id'] : fct_get_account_period_id( $account_id );
+		$account_id = ! empty( $_POST['parent_id'] ) ? (int) $_POST['parent_id'] : 0;
+		$period_id  = ! empty( $_POST['fct_record_period_id'] ) ? (int) $_POST['fct_record_period_id'] : fct_get_account_period_id( $account_id );
 
 		// Formally update the record
 		fct_update_record( array( 
@@ -337,6 +337,7 @@ class Fiscaat_Records_Admin {
 
 			// @todo Move to Control
 			'status'         => ! empty( $_POST['fct_record_status'] )         ? $_POST['fct_record_status']         : '',
+			'is_edit'        => (bool) isset( $_POST['save'] ),
 		) );
 
 		// Allow other fun things to happen

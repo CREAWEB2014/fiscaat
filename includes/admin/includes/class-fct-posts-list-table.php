@@ -42,7 +42,7 @@ class FCT_Posts_List_Table extends WP_List_Table {
 	}
 
 	function prepare_items() {
-		global $avail_post_stati, $wp_query, $per_page, $mode;
+		global $avail_post_stati, $wp_query, $per_page;
 
 		// Setup post query. Post type is never given in $_GET params
 		$query_args = array( 'post_type' => $this->screen->post_type );
@@ -266,9 +266,8 @@ class FCT_Posts_List_Table extends WP_List_Table {
 	}
 
 	function single_row( $post, $level = 0 ) {
-		global $mode;
-		$alternate =& $this->alternate;
 
+		// Setup current post
 		$global_post = get_post();
 		$GLOBALS['post'] = $post;
 		setup_postdata( $post );
@@ -278,7 +277,11 @@ class FCT_Posts_List_Table extends WP_List_Table {
 		$post_type_object = get_post_type_object( $post->post_type );
 		$can_edit_post = current_user_can( 'edit_post', $post->ID );
 
+		// Handle row alternatation
+		$alternate =& $this->alternate;
 		$alternate = 'alternate' == $alternate ? '' : 'alternate';
+
+		// Setup row class
 		$classes = $alternate . ' iedit author-' . ( get_current_user_id() == $post->post_author ? 'self' : 'other' );
 
 		$lock_holder = wp_check_post_lock( $post->ID );
@@ -368,18 +371,7 @@ class FCT_Posts_List_Table extends WP_List_Table {
 					}
 				}
 
-				/**
-				 * Filter the array of row action links on the Posts list table.
-				 *
-				 * The filter is evaluated only for non-hierarchical post types.
-				 *
-				 * @since 2.8.0
-				 *
-				 * @param array   $actions An array of row action links. Defaults are
-				 *                         'Edit', 'Quick Edit', 'Restore, 'Trash',
-				 *                         'Delete Permanently', 'Preview', and 'View'.
-				 * @param WP_Post $post    The post object.
-				 */
+				/** This filter is documented in wp-admin/includes/class-wp-posts-list-table.php */
 				$actions = apply_filters( 'post_row_actions', $actions, $post );
 				echo $this->row_actions( $actions );
 
@@ -405,21 +397,8 @@ class FCT_Posts_List_Table extends WP_List_Table {
 
 				echo '<td ' . $attributes . '>';
 
-				/**
-				 * Filter the published time of the post.
-				 *
-				 * If $mode equals 'excerpt', the published time and date are both displayed.
-				 * If $mode equals 'list' (default), the publish date is displayed, with the
-				 * time and date together available as an abbreviation definition.
-				 *
-				 * @since 2.5.1
-				 *
-				 * @param array   $t_time      The published time.
-				 * @param WP_Post $post        Post object.
-				 * @param string  $column_name The column name.
-				 * @param string  $mode        The list display mode ('excerpt' or 'list').
-				 */
-				echo '<abbr title="' . $t_time . '">' . apply_filters( 'post_date_column_time', $h_time, $post, $column_name, $mode ) . '</abbr>';
+				/** This filter is documented in wp-admin/includes/class-wp-posts-list-table.php */
+				echo '<abbr title="' . $t_time . '">' . apply_filters( 'post_date_column_time', $h_time, $post, $column_name, 'list' ) . '</abbr>';
 
 				echo '<br />';
 				if ( 'publish' == $post->post_status ) {

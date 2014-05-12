@@ -442,16 +442,17 @@ function fct_update_account_spectators( $account_id = 0, $spectators = false ) {
  * @uses fct_update_period() To udpate the account's period
  */
 function fct_update_account( $args = '' ) {
-	$defaults = array(
+
+	// Parse arguments against default values
+	$r = fct_parse_args( $args, array(
 		'account_id'   => 0,
 		'period_id'    => 0,
 		'ledger_id'    => 0,
 		'account_type' => '',
 		'end_value'    => false,
 		'spectators'   => false,
-		'is_edit'      => true
-	);
-	$r = fct_parse_args( $args, $defaults, 'update_account' );
+		'is_edit'      => false
+	), 'update_account' );
 	extract( $r );	
 
 	// Validate the ID's passed from 'fct_new_account' action
@@ -582,19 +583,18 @@ function fct_get_period_ledger_ids( $period_id = 0 ) {
 function fct_close_account( $account_id = 0 ) {
 
 	// Get account
-	if ( ! $account = get_post( $account_id, ARRAY_A ) )
+	if ( ! $account = get_post( $account_id ) )
 		return $account;
 
 	// Bail if already closed
-	$bail = fct_get_closed_status_id() == $account['post_status'];
-	if ( apply_filters( 'fct_no_close_account', $bail, $account ) )
+	if ( fct_get_closed_status_id() === $account->post_status )
 		return false;
 
 	// Execute pre close code
 	do_action( 'fct_close_account', $account_id );
 
 	// Set closed status
-	$account['post_status'] = fct_get_closed_status_id();
+	$account->post_status = fct_get_closed_status_id();
 
 	// No revisions
 	remove_action( 'pre_post_update', 'wp_save_post_revision' );
