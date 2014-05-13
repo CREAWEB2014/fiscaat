@@ -143,7 +143,7 @@ function fct_close_period( $period_id = 0 ) {
 	do_action( 'fct_close_period', $period_id );
 
 	// Add pre close status
-	add_post_meta( $period_id, '_fct_status', $period->post_status );
+	fct_update_period_meta( $period_id, 'status', $period->post_status );
 
 	// Set closed status
 	$period->post_status = fct_get_closed_status_id();
@@ -180,27 +180,27 @@ function fct_close_period( $period_id = 0 ) {
 function fct_open_period( $period_id = 0 ) {
 
 	// Get period
-	if ( !$period = get_post( $period_id, ARRAY_A ) )
+	if ( ! $period = get_post( $period_id ) )
 		return $period;
 
 	// Bail if already open
-	if ( fct_get_closed_status_id() != $period['post_status'])
+	if ( fct_get_closed_status_id() != $period->post_status )
 		return false;
 
 	// Execute pre open code
 	do_action( 'fct_open_period', $period_id );
 
 	// Get previous status
-	$period_status         = get_post_meta( $period_id, '_fct_status', true );
+	$period_status = fct_get_period_meta( $period_id, 'status' );
 
 	// Set previous status
-	$period['post_status'] = $period_status;
+	$period->post_status = $period_status;
 
 	// Unset closed date
 	fct_update_period_meta( $period_id, 'closed', 0 );
 
 	// Remove old status meta
-	delete_post_meta( $period_id, '_fct_status' );
+	fct_delete_period_meta( $period_id, 'status' );
 
 	// No revisions
 	remove_action( 'pre_post_update', 'wp_save_post_revision' );
@@ -523,7 +523,7 @@ function fct_period_has_records( $period_id = 0 ) {
 /**
  * Returns the period's account ids
  *
- * Accounts with all statuses are returned.
+ * Accounts with all public statuses are returned.
  *
  * @param int $period_id Period id
  * @param string $account_type Optional. Account type restriction
@@ -540,11 +540,12 @@ function fct_period_query_account_ids( $period_id, $account_type = '' ) {
 
 		// Run query
 		$query = new WP_Query( array(
-			'post_type'  => fct_get_account_post_type(),
-			'parent'     => $period_id,
-			'meta_key'   => '_fct_account_type',
-			'meta_value' => $account_type,
-			'fields'     => 'ids',
+			'post_type'   => fct_get_account_post_type(),
+			'parent'      => $period_id,
+			'post_status' => fct_get_post_stati( fct_get_account_post_type() ),
+			'meta_key'    => '_fct_account_type',
+			'meta_value'  => $account_type,
+			'fields'      => 'ids',
 		) );
 		$account_ids = $query->posts;
 		

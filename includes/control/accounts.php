@@ -140,22 +140,3 @@ function fct_update_account_record_count_declined( $account_id = 0, $record_coun
 
 	return apply_filters( 'fct_update_account_record_count_declined', (int) $record_count, $account_id );
 }
-
-/**
- * Return whether to bail before closing a account
- *
- * Bail account closing if it has unapproved records.
- * 
- * @param bool $bail Whether to bail
- * @param object $account Account object
- * @return bool Bail
- */
-function fct_ctrl_no_close_account( $bail, $account ) {
-
-	// Get unapproved records of account
-	$unapproved = fct_get_account_meta( $account_id, 'record_count_unapproved' );
-	
-	// Bail if account has unapproved records
-	return ! empty( $unapproved );
-}
-

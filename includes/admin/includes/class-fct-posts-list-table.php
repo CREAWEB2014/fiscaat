@@ -359,9 +359,12 @@ class FCT_Posts_List_Table extends WP_List_Table {
 				}
 
 				$actions = array();
-				if ( $can_edit_post && 'trash' != $post->post_status ) {
+
+				// Edit action. Not when trashed or closed
+				if ( $can_edit_post && fct_get_trash_status_id() != $post->post_status ) {
 					$actions['edit'] = '<a href="' . get_edit_post_link( $post->ID, true ) . '" title="' . esc_attr( __( 'Edit this item' ) ) . '">' . __( 'Edit' ) . '</a>';
 				}
+
 				if ( $post_type_object->public ) {
 					if ( in_array( $post->post_status, array( 'pending', 'draft', 'future' ) ) ) {
 						if ( $can_edit_post )

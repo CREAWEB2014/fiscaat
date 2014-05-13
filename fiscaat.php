@@ -561,6 +561,9 @@ final class Fiscaat {
 	 * Register the post statuses used by Fiscaat
 	 *
 	 * @uses register_post_status() To register post statuses
+	 * @uses fc_get_closed_status_id()
+	 * @uses apply_filters() Calls 'fct_register_closed_post_status' with the
+	 *                        post status arguments
 	 */
 	public static function register_post_statuses() {
 
@@ -569,10 +572,10 @@ final class Fiscaat {
 			fct_get_closed_status_id(),
 			apply_filters( 'fct_register_closed_post_status', array(
 				'label'                     => _x( 'Closed', 'post', 'fiscaat' ),
-				'label_count'               => _nx_noop( 'Closed <span class="count">(%s)</span>', 'Closed <span class="count">(%s)</span>', 'fiscaat' ),
+				'label_count'               => _nx_noop( 'Closed <span class="count">(%s)</span>', 'Closed <span class="count">(%s)</span>', 'post', 'fiscaat' ),
 				'public'                    => true,
-				'show_in_admin_status_list' => false,
-				'show_in_admin_all_list'    => false
+				'show_in_admin_status_list' => true,
+				'show_in_admin_all_list'    => true
 			) )
 		);
 	}

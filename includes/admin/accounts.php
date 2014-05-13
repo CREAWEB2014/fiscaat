@@ -72,6 +72,9 @@ class Fiscaat_Accounts_Admin {
 
 		// Redirect
 		add_action( 'fct_admin_load_post_account',   array( $this, 'no_period_redirect'    ) );
+
+		// Post stati
+		add_action( 'fct_admin_load_edit_accounts',  array( $this, 'arrange_post_statuses' ) );
 		
 		// Page title
 		add_action( 'fct_admin_accounts_page_title', array( $this, 'accounts_page_title'   ) );
@@ -93,6 +96,7 @@ class Fiscaat_Accounts_Admin {
 
 		// Account columns (in post row)
 		add_filter( 'fct_admin_accounts_get_columns', array( $this, 'accounts_column_headers' )        );
+		add_filter( 'display_post_states',            array( $this, 'accounts_post_states'    ), 10, 2 );
 		add_filter( 'post_row_actions',               array( $this, 'accounts_row_actions'    ), 10, 2 );
 
 		// Bulk actions
@@ -634,6 +638,74 @@ class Fiscaat_Accounts_Admin {
 		return $query_vars;
 	}
 
+	/**
+	 * Do some ordering and renaming with account post statuses
+	 *
+	 * Manipulates the $wp_post_statuses global to rename the publish 
+	 * post status label to 'Open' to better reflect the opposite state 
+	 * of 'Close'. Also moves the close post status next to publish.
+	 * 
+	 * @since 0.0.9
+	 *
+	 * @global $wp_post_statuses
+	 * @uses fct_get_public_status_id()
+	 * @uses fct_get_closed_status_id()
+	 */
+	public function arrange_post_statuses() {
+		global $wp_post_statuses;
+
+		if ( $this->bail() )
+			return;
+
+		// Get all post status ids
+		$statuses = array_keys( $wp_post_statuses );
+
+		// Rename publish post status labels
+		if ( in_array( fct_get_public_status_id(), $statuses ) ) {
+			$wp_post_statuses[ fct_get_public_status_id() ]->label       = __( 'Open', 'post', 'fiscaat' );
+			$wp_post_statuses[ fct_get_public_status_id() ]->label_count = _nx_noop( 'Open <span class="count">(%s)</span>', 'Open <span class="count">(%s)</span>', 'post', 'fiscaat' );
+		}
+
+		// Move close post status in array
+		if ( in_array( fct_get_closed_status_id(), $statuses ) ) {
+
+			// Get close post status
+			$post_status = $wp_post_statuses[ fct_get_closed_status_id() ];
+
+			// Remove post status from array
+			unset( $wp_post_statuses[ fct_get_closed_status_id() ] );
+
+			// Insert post status in position
+			array_splice( $wp_post_statuses, array_search( fct_get_public_status_id(), $statuses ) + 1, 0, array( 
+				fct_get_closed_status_id() => $post_status
+			) );
+		}
+	}
+
+	/**
+	 * Define post states that are displayed after the post title
+	 *
+	 * @since 0.0.9
+	 *
+	 * @uses fct_is_account_closed()
+	 * @uses fct_get_closed_status_id()
+	 * 
+	 * @param array $post_states Post states
+	 * @param object $account Account post data
+	 * @return array Post states
+	 */
+	public function accounts_post_states( $post_states, $account ) {
+		if ( $this->bail() )
+			return $post_states;
+
+		// Closed post state
+		if ( fct_is_account_closed( $account->ID ) ) {
+			$post_states[ fct_get_closed_status_id() ] = __( 'Closed', 'fiscaat' );
+		}
+
+		return $post_states;
+	}
+
 	/** Bulk Actions **********************************************************/
 
 	/**
@@ -702,12 +774,12 @@ class Fiscaat_Accounts_Admin {
 			}
 
 			// Show the close and open link
-			if ( current_user_can( 'edit_account', $account->ID ) ) {
-				$toggle_uri = esc_url( wp_nonce_url( add_query_arg( array( 'account_id' => $account->ID, 'action' => 'fct_toggle_account_close' ), remove_query_arg( array( 'fct_account_toggle_notice', 'account_id', 'failed', 'super' ) ) ), 'close-account_' . $account->ID ) );
+			if ( current_user_can( 'close_account', $account->ID ) ) {
+				$close_uri = esc_url( wp_nonce_url( add_query_arg( array( 'account_id' => $account->ID, 'action' => 'fct_toggle_account_close' ), remove_query_arg( array( 'fct_account_toggle_notice', 'account_id', 'failed', 'super' ) ) ), 'close-account_' . $account->ID ) );
 				if ( fct_is_account_open( $account->ID ) ) {
-					$actions['closed'] = '<a href="' . $toggle_uri . '" title="' . esc_attr__( 'Close this account', 'fiscaat' ) . '">' . _x( 'Close', 'Close the account', 'fiscaat' ) . '</a>';
+					$actions['closed'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Close this account', 'fiscaat' ) . '">' . _x( 'Close', 'Close the account', 'fiscaat' ) . '</a>';
 				} else {
-					$actions['open'] = '<a href="' . $toggle_uri . '" title="' . esc_attr__( 'Open this account',  'fiscaat' ) . '">' . _x( 'Open',  'Open the account',  'fiscaat' ) . '</a>';
+					$actions['open']   = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Open this account',  'fiscaat' ) . '">' . _x( 'Open',  'Open the account',  'fiscaat' ) . '</a>';
 				}
 			}
 		}
@@ -752,7 +824,7 @@ class Fiscaat_Accounts_Admin {
 		if ( $this->bail() ) 
 			return;
 
-		// Only proceed if GET is a account toggle action
+		// Only proceed if GET is an account toggle action
 		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'fct_toggle_account_close' ) ) && ! empty( $_GET['account_id'] ) ) {
 			$action     = $_GET['action'];                // What action is taking place?
 			$account_id = (int) $_GET['account_id'];      // What's the account id?
@@ -764,12 +836,12 @@ class Fiscaat_Accounts_Admin {
 			if ( empty( $account ) )
 				wp_die( __( 'The account was not found!', 'fiscaat' ) );
 
-			if ( !current_user_can( 'control', $account->ID ) ) // What is the user doing here?
-				wp_die( __( 'You do not have the permission to do that!', 'fiscaat' ) );
-
 			switch ( $action ) {
 				case 'fct_toggle_account_close' :
 					check_admin_referer( 'close-account_' . $account_id );
+
+					if ( ! current_user_can( 'close_account', $account->ID ) ) // What is the user doing here?
+						wp_die( __( 'You do not have the permission to do that!', 'fiscaat' ) );
 
 					$is_open = fct_is_account_open( $account_id );
 					$message = true == $is_open ? 'closed' : 'opened';
@@ -787,7 +859,7 @@ class Fiscaat_Accounts_Admin {
 			do_action( 'fct_toggle_account_admin', $success, $post_data, $action, $message );
 
 			// Redirect back to the account
-			$redirect = add_query_arg( $message, remove_query_arg( array( 'action', 'account_id' ) ) );
+			$redirect = add_query_arg( $message, remove_query_arg( array( 'action', 'account_id', '_wpnonce' ) ) );
 			wp_safe_redirect( $redirect );
 
 			// For good measure

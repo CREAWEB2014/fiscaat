@@ -66,6 +66,9 @@ class Fiscaat_Periods_Admin {
 		add_action( 'fct_admin_load_edit_periods',  array( $this, 'edit_help' ) );
 		add_action( 'fct_admin_load_post_period',   array( $this, 'new_help'  ) );
 
+		// Post stati
+		add_action( 'fct_admin_load_edit_accounts', array( $this, 'arrange_post_statuses' ) );
+
 		// Page title
 		add_action( 'fct_admin_periods_page_title', array( $this, 'post_new_link' ) );
 
@@ -78,7 +81,8 @@ class Fiscaat_Periods_Admin {
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
 		// Columns (in post row)
-		add_filter( 'post_row_actions', array( $this, 'row_actions' ), 10, 2 );
+		add_filter( 'display_post_states', array( $this, 'periods_post_states' ), 10, 2 );
+		add_filter( 'post_row_actions',    array( $this, 'periods_row_actions' ), 10, 2 );
 	}
 
 	/**
@@ -436,6 +440,74 @@ class Fiscaat_Periods_Admin {
 		return $query_vars;
 	}
 
+	/**
+	 * Do some ordering and renaming with account post statuses
+	 *
+	 * Manipulates the $wp_post_statuses global to rename the publish 
+	 * post status label to 'Open' to better reflect the opposite state 
+	 * of 'Close'. Also moves the close post status next to publish.
+	 * 
+	 * @since 0.0.9
+	 *
+	 * @global $wp_post_statuses
+	 * @uses fct_get_public_status_id()
+	 * @uses fct_get_closed_status_id()
+	 */
+	public function arrange_post_statuses() {
+		global $wp_post_statuses;
+
+		if ( $this->bail() )
+			return;
+
+		// Get all post status ids
+		$statuses = array_keys( $wp_post_statuses );
+
+		// Rename publish post status labels
+		if ( in_array( fct_get_public_status_id(), $statuses ) ) {
+			$wp_post_statuses[ fct_get_public_status_id() ]->label       = __( 'Open', 'post', 'fiscaat' );
+			$wp_post_statuses[ fct_get_public_status_id() ]->label_count = _nx_noop( 'Open <span class="count">(%s)</span>', 'Open <span class="count">(%s)</span>', 'post', 'fiscaat' );
+		}
+
+		// Move close post status in array
+		if ( in_array( fct_get_closed_status_id(), $statuses ) ) {
+
+			// Get close post status
+			$post_status = $wp_post_statuses[ fct_get_closed_status_id() ];
+
+			// Remove post status from array
+			unset( $wp_post_statuses[ fct_get_closed_status_id() ] );
+
+			// Insert post status in position
+			array_splice( $wp_post_statuses, array_search( fct_get_public_status_id(), $statuses ) + 1, 0, array( 
+				fct_get_closed_status_id() => $post_status
+			) );
+		}
+	}
+
+	/**
+	 * Define post states that are displayed after the post title
+	 *
+	 * @since 0.0.9
+	 *
+	 * @uses fct_is_period_closed()
+	 * @uses fct_get_closed_status_id()
+	 * 
+	 * @param array $post_states Post states
+	 * @param object $period Period post data
+	 * @return array Post states
+	 */
+	public function periods_post_states( $post_states, $period ) {
+		if ( $this->bail() )
+			return $post_states;
+
+		// Closed post state
+		if ( fct_is_period_closed( $period->ID ) ) {
+			$post_states[ fct_get_closed_status_id() ] = __( 'Closed', 'fiscaat' );
+		}
+
+		return $post_states;
+	}
+
 	/** Post Actions **********************************************************/
 
 	/**
@@ -449,7 +521,7 @@ class Fiscaat_Periods_Admin {
 	 * @uses the_content() To output period description
 	 * @return array $actions Actions
 	 */
-	public function row_actions( $actions, $period ) {
+	public function periods_row_actions( $actions, $period ) {
 		if ( $this->bail() ) 
 			return $actions;
 

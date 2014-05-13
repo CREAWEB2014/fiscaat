@@ -42,7 +42,7 @@ function fct_ctrl_register_post_statuses() {
 		fct_get_approved_status_id(),
 		apply_filters( 'fct_register_approved_post_status', array(
 			'label'                     => _x( 'Approved', 'post', 'fiscaat' ),
-			'label_count'               => _nx_noop( 'Approved <span class="count">(%s)</span>', 'Approved <span class="count">(%s)</span>', 'fiscaat' ),
+			'label_count'               => _nx_noop( 'Approved <span class="count">(%s)</span>', 'Approved <span class="count">(%s)</span>', 'post', 'fiscaat' ),
 			'public'                    => true,
 			'show_in_admin_status_list' => true,
 			'show_in_admin_all'         => true
@@ -54,7 +54,7 @@ function fct_ctrl_register_post_statuses() {
 		fct_get_declined_status_id(),
 		apply_filters( 'fct_register_declined_post_status', array(
 			'label'                     => _x( 'Declined', 'post', 'fiscaat' ),
-			'label_count'               => _nx_noop( 'Declined <span class="count">(%s)</span>', 'Declined <span class="count">(%s)</span>', 'fiscaat' ),
+			'label_count'               => _nx_noop( 'Declined <span class="count">(%s)</span>', 'Declined <span class="count">(%s)</span>', 'post', 'fiscaat' ),
 			'public'                    => true,
 			'show_in_admin_status_list' => true,
 			'show_in_admin_all_list'    => true
@@ -71,7 +71,7 @@ function fct_ctrl_register_post_statuses() {
 function fct_ctrl_record_statuses( $statuses ) {
 
 	// Insert statuses after 'publish' and before 'close'
-	$statuses = array_splice( $statuses, 1, 0, array(
+	array_splice( $statuses, 1, 0, array(
 		fct_get_declined_status_id() => __('Declined', 'fiscaat'),
 		fct_get_approved_status_id() => __('Approved', 'fiscaat'),
 	) );

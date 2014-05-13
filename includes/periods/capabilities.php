@@ -71,7 +71,10 @@ function fct_map_period_meta_caps( $caps = array(), $cap = '', $user_id = 0, $ar
 
 		case 'edit_periods'        :
 		case 'edit_others_periods' :
+
+			// Only Fisci can always edit
 			$caps = array( 'fiscaat' );
+
 			break;
 
 		case 'edit_period' :
@@ -85,6 +88,33 @@ function fct_map_period_meta_caps( $caps = array(), $cap = '', $user_id = 0, $ar
 				$caps = array( 'fiscaat' );
 			}
 
+			break;
+
+		/** Closing ***********************************************************/
+
+		/**
+		 * Periods are closed in order to ensure their final state in the
+		 * accounting system history. Once closed, neither details or its 
+		 * accounts can be edited, nor records can be added to it.
+		 */
+		case 'close_periods' :
+
+			// Fisci can close/open periods
+			$caps = array( 'fiscaat' );
+
+			break;
+
+		case 'close_period'  :
+
+			// Period has open account
+			if ( fct_has_open_account() ) {
+				$caps = array( 'do_not_allow' );
+
+			// Fisci can close
+			} else {
+				$caps = array( 'fiscaat' );
+			}
+			
 			break;
 
 		/** Deleting **********************************************************/

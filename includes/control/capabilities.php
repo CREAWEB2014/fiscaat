@@ -23,41 +23,66 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 function fct_ctrl_map_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args = array() ) {
 
-	// Bail if user is not a Controller
-	if ( ! user_can( $user_id, 'fct_control' ) )
-		return $caps;
-
 	// Which capability is being checked?	
 	switch ( $cap ) {
 
 		/** Reading ***********************************************************/
 
 		// Controllers can read all
-		case 'read_period'    :
+		case 'read_period'  :
 		case 'read_account' :
 		case 'read_record'  :
-			$caps = array( 'fct_control' );
+			if ( user_can( $user_id, 'fct_control' ) )
+				$caps = array( 'fct_control' );
 			break;
 
 		/** Editing ***********************************************************/
 
 		// Controllers can edit post stati
 		case 'edit_record' :
+			if ( user_can( $user_id, 'fct_control' ) ) {
 
-			// Do some post ID based logic
-			$_post = get_post( $args[0] );
-			if ( ! empty( $_post ) ){
+				// Do some post ID based logic
+				$_post = get_post( $args[0] );
+				if ( ! empty( $_post ) ){
 
-				// Record is not closed
-				if ( fct_get_closed_status_id() != $_post->post_status )
-					$caps = array( 'fct_control' );
+					// Record is not closed
+					if ( fct_get_closed_status_id() != $_post->post_status )
+						$caps = array( 'fct_control' );
+				}
 			}
 
 			break;
 
 		case 'edit_records'        :
 		case 'edit_others_records' :
-			$caps = array( 'fct_control' );
+			if ( user_can( $user_id, 'fct_control' ) )
+				$caps = array( 'fct_control' );
+
+			break;
+
+		/** Closing ***********************************************************/
+
+		/**
+		 * Accounts are closed when all its records are approved by
+		 * a Controller. This means that any unapproved or declined
+		 * record inhibits a Fiscus from closing its account. Since
+		 * this consequently flows through to closing the account's
+		 * period, there are no checks for a period's unapproved
+		 * record count.
+		 */
+		case 'close_account' :
+			if ( user_can( $user_id, 'close_accounts' ) ) {
+
+				// Do some post ID based logic
+				$_post = get_post( $args[0] );
+				if ( ! empty( $_post ) ){
+
+					// Account has unapproved records
+					if ( (bool) fct_get_account_record_count_unapproved( $args[0] ) )
+						$caps = array( 'do_not_allow' );
+			}
+
 			break;
 	}
 

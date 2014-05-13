@@ -426,49 +426,6 @@ function fct_update_record( $args = '' ) {
 	}
 }
 
-/** Record Actions *************************************************************/
-
-/**
- * Closes a record
- *
- * @param int $record_id Record id
- * @uses get_post() To get the record
- * @uses do_action() Calls 'fct_close_record' with the record ID
- * @uses get_post_meta() To get the previous status meta
- * @uses delete_post_meta() To delete the previous status meta
- * @uses wp_insert_post() To insert the updated post
- * @uses do_action() Calls 'fct_closed_record' with the record ID
- * @return mixed False or {@link WP_Error} on failure, record id on success
- */
-function fct_close_record( $record_id = 0 ) {
-
-	// Get record
-	if ( ! $record = get_post( $record_id ) )
-		return $record;
-
-	// Bail if already closed
-	if ( fct_get_closed_status_id() === $record->post_status );
-		return false;
-
-	// Execute pre close code
-	do_action( 'fct_close_record', $record_id );
-
-	// Set post status to closed
-	$record->post_status = fct_get_closed_status_id();
-
-	// No revisions
-	remove_action( 'pre_post_update', 'wp_save_post_revision' );
-
-	// Update the record
-	$record_id = wp_insert_post( $record );
-
-	// Execute post close code
-	do_action( 'fct_closed_record', $record_id );
-
-	// Return record_id
-	return $record_id;
-}
-
 /** Before Delete/Trash/Untrash ***********************************************/
 
 /**

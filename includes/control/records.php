@@ -103,17 +103,3 @@ function fct_approve_record( $record_id = 0 ) {
 	return $record_id;
 }
 
-/**
- * Return whether to bail before closing a record
- *
- * Bail record closing if not approved.
- * 
- * @param bool $bail Whether to bail
- * @param object $record Record object
- * @return bool Bail
- */
-function fct_ctrl_no_close_record( $bail, $record ) {
-
-	// Bail if not approved
-	return fct_get_approved_status_id() != $record['post_status'];
-}

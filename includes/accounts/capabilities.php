@@ -65,13 +65,13 @@ function fct_map_account_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 
 		case 'publish_accounts'  :
 
-			// Restrain when requirements lack
+			// Accounts require an open period
 			if ( ! fct_has_open_period() ) {
 				$caps = array( 'do_not_allow' );
 
 			// Publish on activation 
 			} elseif ( fct_is_install() ){
-				$caps = array( 'administrator' );
+				$caps = array( 'install_plugins' );
 
 			// Only Fisci can always publish
 			} else {
@@ -105,6 +105,21 @@ function fct_map_account_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 				$caps = array( 'fiscaat' );
 			}
 		
+		/** Closing ***********************************************************/
+
+		/**
+		 * Accounts are closed in order to ensure their final state before
+		 * closing their parent period. Closing an account does not require
+		 * any of its records.
+		 */
+		case 'close_account'  :
+		case 'close_accounts' :
+
+			// Fisci can close/open accounts
+			$caps = array( 'fiscaat' );
+
+			break;
+
 		/** Deleting **********************************************************/
 
 		case 'delete_account'         :
@@ -113,7 +128,7 @@ function fct_map_account_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 
 			// Accounts are deleted on reset or uninstall
 			if ( is_admin() && ( fct_is_reset() || fct_is_uninstall() ) ){
-				$caps = array( 'administrator' );
+				$caps = array( 'install_plugins' );
 
 			// User cannot delete
 			} elseif ( ! user_can( $user_id, 'fiscaat' ) ) {
