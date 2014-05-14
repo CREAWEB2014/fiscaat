@@ -839,8 +839,9 @@ function fct_dropdown( $args = '' ) {
 		}
 
 		// Force 0
-		if ( is_numeric( $r['selected'] ) && $r['selected'] < 0 )
+		if ( is_numeric( $r['selected'] ) && $r['selected'] < 0 ) {
 			$r['selected'] = 0;
+		}
 
 		// Force array
 		if ( ! empty( $r['exclude'] ) && ! is_array( $r['exclude'] ) ) {
@@ -1120,7 +1121,7 @@ function fct_the_content( $args = array() ) {
 	function fct_get_the_content( $args = array() ) {
 
 		// Default arguments
-		$defaults = array(
+		$r = fct_parse_args( $args, array(
 			'context'       => 'account',
 			'before'        => '<div class="fiscaat-the-content-wrapper">',
 			'after'         => '</div>',
@@ -1132,8 +1133,7 @@ function fct_the_content( $args = array() ) {
 			'tinymce'       => true,
 			'teeny'         => true,
 			'quicktags'     => true
-		);
-		$r = fct_parse_args( $args, $defaults, 'get_the_content' );
+		), 'get_the_content' );
 		extract( $r );
 
 		// Assume we are not editing
@@ -1350,7 +1350,7 @@ function fct_breadcrumb( $args = array() ) {
 		/** Parse Args ********************************************************/
 
 		// Parse args
-		$defaults = array(
+		$r = fct_parse_args( $args, array(
 
 			// HTML
 			'before'          => '<div class="fiscaat-breadcrumb"><p>',
@@ -1379,8 +1379,7 @@ function fct_breadcrumb( $args = array() ) {
 			'current_text'    => $pre_current_text,
 			'current_before'  => '<span class="fiscaat-breadcrumb-current">',
 			'current_after'   => '</span>',
-		);
-		$r = fct_parse_args( $args, $defaults, 'get_breadcrumb' );
+		), 'get_breadcrumb' );
 		extract( $r );
 
 		/** Ancestors *********************************************************/
@@ -1774,7 +1773,7 @@ function fct_currency_dropdown( $args = '' ) {
 
 		/** Arguments *********************************************************/
 
-		$defaults = array(
+		$r = fct_parse_args( $args, array(
 			'selected'           => 0,
 
 			// Output-related
@@ -1783,41 +1782,77 @@ function fct_currency_dropdown( $args = '' ) {
 			'options_only'       => false,
 			'none_found'         => false,
 			'disabled'           => ''
-		);
+		), 'get_currency_dropdown' );
 
-		$r = fct_parse_args( $args, $defaults, 'get_currency_dropdown' );
-		extract( $r );
+		// Force 0
+		if ( is_numeric( $r['selected'] ) && $r['selected'] < 0 ) {
+			$r['selected'] = 0;
+		}
 
 		/** Setup variables ***************************************************/
 
-		$name      = esc_attr( $select_id );
-		$select_id = $name;
-		$tab       = (int) $tab;
 		$retval    = '';
 		$items     = fct_get_currencies();
-		$disabled  = disabled( isset( fiscaat()->options[$disabled] ), true, false );
 
 		/** Drop Down *********************************************************/
 
-		// Items found
+		// Build the opening tag for the select element
+		if ( empty( $r['options_only'] ) ) {
+
+			// Setup the name attribute
+			$name     = ! empty( $r['select_name'] ) ? esc_attr( $r['select_name'] ) : esc_attr( $r['select_id'] );
+
+			// Setup the class attribute
+			$class    = ! empty( $r['class'] ) ? ' class="' . implode( ' ', (array) $r['class'] ) . '"' : '';
+
+			// Should this select appear disabled?
+			$disabled = disabled( $r['disabled'], true, false );
+
+			// Setup the tab index attribute
+			$tab      = ! empty( $r['tab'] ) ? ' tabindex="' . intval( $r['tab'] ) . '"' : '';
+
+			// Open the select tag
+			$retval  .= '<select name="' . esc_attr( $name ) . '" id="' . esc_attr( $r['select_id'] ) . '"' . $class . $disabled . $tab . '>' . "\n";
+		}
+
+		// Display a leading 'no-value' option, with or without custom text
+		if ( ! empty( $r['show_none'] ) || ! empty( $r['none_found'] ) ) {
+
+			// Open the 'no-value' option tag
+			$retval .= "\t<option value=\"\" class=\"level-0\">";
+
+			// Use deprecated 'none_found' first for backpat
+			if ( ! empty( $r['none_found'] ) && is_string( $r['none_found'] ) ) {
+				$retval .= esc_html( $r['none_found'] );
+
+			// Use 'show_none' second
+			} elseif ( ! empty( $r['show_none'] ) && is_string( $r['show_none'] ) ) {
+				$retval .= esc_html( $r['show_none'] );
+
+			// Otherwise, create one ourselves
+			} else {
+				$retval = __( '&mdash; No Currencies &mdash;', 'fiscaat' );
+			}
+
+			// Close the 'no-value' option tag
+			$retval .= '</option>';
+		}
+
+		// Items found so walk the items
 		if ( ! empty( $items ) ) {
-			if ( empty( $options_only ) ) {
-				$tab     = ! empty( $tab ) ? ' tabindex="' . $tab . '"' : '';
-				$retval .= '<select name="' . $name . '" id="' . $select_id . '"' . $tab  . $disabled . '>' . "\n";
-			}
-
-			// Loop all currency items
 			foreach ( $items as $iso => $args ) {
-				$retval .= "\t<option value=\"$iso\" class=\"level-0\"". selected( $selected, $iso, false ) . ">" . $args['name'] ." (" . $args['symbol'] . ")</option>\n";
-			}
 
-			if ( empty( $options_only ) ) {
-				$retval .= '</select>';
-			}
+				// Should this option be selected?
+				$selected = ! empty( $r['selected'] ) ? selected( $r['selected'], $iso, false ) : '';
 
-		// No items found - Display feedback if no custom message was passed
-		} elseif ( empty( $none_found ) ) {
-			$retval = __( '&mdash; No Currencies &mdash;', 'fiscaat' );
+				// Setup item option tag
+				$retval .= "\t<option value=\"$iso\" class=\"level-0\" $selected>" . $args['name'] ." (" . $args['symbol'] . ')</option>';
+			}
+		}
+
+		// Close the select tag
+		if ( empty( $options_only ) ) {
+			$retval .= '</select>';
 		}
 
 		return apply_filters( 'fct_get_currency_dropdown', $retval, $args );

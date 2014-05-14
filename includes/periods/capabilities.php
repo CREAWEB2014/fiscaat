@@ -16,7 +16,7 @@
  * @return array Period capabilities
  */
 function fct_get_period_caps() {
-	return apply_filters( 'fct_get_period_caps', array (
+	return apply_filters( 'fct_get_period_caps', array(
 		'create_posts'        => 'create_periods',
 		'edit_posts'          => 'edit_periods',
 		'edit_others_posts'   => 'edit_others_periods',

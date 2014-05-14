@@ -70,7 +70,7 @@ function fct_has_accounts( $args = '' ) {
 	$default_post_status    = join( ',', $post_statuses );
 
 	// Default argument array
-	$default = array(
+	$fct_t = fct_parse_args( $args, array(
 		'post_type'      => fct_get_account_post_type(), // Narrow query down to Fiscaat accounts
 		'post_parent'    => $default_post_parent,        // Period ID
 		'post_status'    => $default_post_status,        // Post Status
@@ -79,9 +79,7 @@ function fct_has_accounts( $args = '' ) {
 		'paged'          => fct_get_paged(),             // Page Number
 		's'              => $default_account_search,     // Account Search
 		'max_num_pages'  => false,                       // Maximum number of pages to show
-	);
-
-	$fct_t = fct_parse_args( $args, $default, 'has_accounts' );
+	), 'has_accounts' );
 
 	// Extract the query variables
 	extract( $fct_t );
@@ -140,7 +138,7 @@ function fct_has_accounts( $args = '' ) {
 		}
 
 		// Pagination settings with filter
-		$fct_account_pagination = apply_filters( 'fct_account_pagination', array (
+		$fct_account_pagination = apply_filters( 'fct_account_pagination', array(
 			'base'      => $base,
 			'format'    => '',
 			'total'     => $posts_per_page == $fct->account_query->found_posts ? 1 : ceil( (int) $fct->account_query->found_posts / (int) $posts_per_page ),
@@ -498,12 +496,11 @@ function fct_account_pagination( $args = '' ) {
 	function fct_get_account_pagination( $args = '' ) {
 		global $wp_rewrite;
 
-		$defaults = array(
+		$r = fct_parse_args( $args, array(
 			'account_id' => fct_get_account_id(),
 			'before'     => '<span class="fiscaat-account-pagination">',
 			'after'      => '</span>',
-		);
-		$r = fct_parse_args( $args, $defaults, 'get_account_pagination' );
+		), 'get_account_pagination' );
 		extract( $r );
 
 		// If pretty permalinks are enabled, make our pagination pretty
@@ -1030,14 +1027,13 @@ function fct_account_admin_links( $args = '' ) {
 		if ( ! fct_is_single_account() )
 			return;
 
-		$defaults = array (
+		$r = fct_parse_args( $args, array(
 			'id'     => fct_get_account_id(),
 			'before' => '<span class="fiscaat-admin-links">',
 			'after'  => '</span>',
 			'sep'    => ' | ',
 			'links'  => array()
-		);
-		$r = fct_parse_args( $args, $defaults, 'get_account_admin_links' );
+		), 'get_account_admin_links' );
 
 		if ( ! current_user_can( 'edit_account', $r['id'] ) )
 			return;
@@ -1089,13 +1085,12 @@ function fct_account_edit_link( $args = '' ) {
 	 * @return string Account edit link
 	 */
 	function fct_get_account_edit_link( $args = '' ) {
-		$defaults = array (
+		$r = fct_parse_args( $args, array(
 			'id'           => 0,
 			'link_before'  => '',
 			'link_after'   => '',
 			'edit_text'    => __( 'Edit', 'fiscaat' )
-		);
-		$r = fct_parse_args( $args, $defaults, 'get_account_edit_link' );
+		), 'get_account_edit_link' );
 		extract( $r );
 
 		$account = fct_get_account( fct_get_account_id( (int) $id ) );
@@ -1209,15 +1204,14 @@ function fct_account_close_link( $args = '' ) {
 	 * @return string Account close link
 	 */
 	function fct_get_account_close_link( $args = '' ) {
-		$defaults = array (
+		$r = fct_parse_args( $args, array(
 			'id'          => 0,
 			'link_before' => '',
 			'link_after'  => '',
 			'sep'         => ' | ',
 			'close_text'  => _x( 'Close', 'Account Status', 'fiscaat' ),
 			'open_text'   => _x( 'Open',  'Account Status', 'fiscaat' )
-		);
-		$r = fct_parse_args( $args, $defaults, 'get_account_close_link' );
+		), 'get_account_close_link' );
 		extract( $r );
 
 		$account = fct_get_account( fct_get_account_id( (int) $id ) );
@@ -1349,13 +1343,12 @@ function fct_single_account_description( $args = '' ) {
 	function fct_get_single_account_description( $args = '' ) {
 
 		// Default arguments
-		$defaults = array (
+		$r = fct_parse_args( $args, array(
 			'account_id' => 0,
 			'before'     => '<div class="fiscaat-template-notice info"><p class="fiscaat-account-description">',
 			'after'      => '</p></div>',
 			'size'       => 14
-		);
-		$r = fct_parse_args( $args, $defaults, 'get_single_account_description' );
+		), 'get_single_account_description' );
 		extract( $r );
 
 		// Validate account_id
@@ -1572,7 +1565,7 @@ function fct_account_dropdown( $args = '' ) {
 
 		/** Arguments *********************************************************/
 
-		$defaults = array (
+		$r = fct_parse_args( $args, array(
 			'post_type'          => fct_get_account_post_type(),
 			'selected'           => 0,
 			'sort_column'        => 'title',
@@ -1583,9 +1576,7 @@ function fct_account_dropdown( $args = '' ) {
 			// Output-related
 			'select_id'          => 'fct_account_id',
 			'show_none'          => __( 'In all accounts', 'fiscaat' ),
-		);
-
-		$r = fct_parse_args( $args, $defaults, 'get_account_dropdown' );
+		), 'get_account_dropdown' );
 
 		/** Drop Down *********************************************************/
 
@@ -1613,7 +1604,7 @@ function fct_account_ledger_dropdown( $args = '' ) {
 
 		/** Arguments *********************************************************/
 
-		$defaults = array (
+		$r = fct_parse_args( $args, array(
 			'post_type'          => fct_get_account_post_type(),
 			'selected'           => 0,
 			'sort_column'        => 'meta_value_num',
@@ -1624,9 +1615,7 @@ function fct_account_ledger_dropdown( $args = '' ) {
 			// Output-related
 			'select_id'          => 'fct_account_ledger_id',
 			'show_none'          => '',
-		);
-
-		$r = fct_parse_args( $args, $defaults, 'get_account_ledger_dropdown' );
+		), 'get_account_ledger_dropdown' );
 
 		/** Drop Down *********************************************************/
 
@@ -1709,8 +1698,9 @@ function fct_ledger_dropdown( $args = '' ) {
 		), 'get_ledger_dropdown' );
 
 		// Force 0
-		if ( is_numeric( $r['selected'] ) && $r['selected'] < 0 )
+		if ( is_numeric( $r['selected'] ) && $r['selected'] < 0 ) {
 			$r['selected'] = 0;
+		}
 
 		// Force array
 		if ( ! empty( $r['exclude'] ) && ! is_array( $r['exclude'] ) ) {
@@ -1734,7 +1724,7 @@ function fct_ledger_dropdown( $args = '' ) {
 			$r['post_status'][] = fct_get_closed_status_id();
 		}
 
-		/** Query *************************************************************/
+		/** Setup Variables ***************************************************/
 
 		// Build query elements
 		$select  = "SELECT DISTINCT pm.meta_value";
@@ -1759,9 +1749,8 @@ function fct_ledger_dropdown( $args = '' ) {
 		$query_args = apply_filters( 'fct_get_ledger_dropdown_query_args', compact( 'select', 'from', 'where', 'orderby', 'order' ), $r );
 		extract( $query_args );
 
-		// Build and run query
-		$posts   = $wpdb->get_col( "$select$from$where$orderby$order" );
 		$retval  = '';
+		$posts   = $wpdb->get_col( "$select$from$where$orderby$order" );
 
 		/** Drop Down *********************************************************/
 
@@ -1800,7 +1789,7 @@ function fct_ledger_dropdown( $args = '' ) {
 
 			// Otherwise, create one ourselves
 			} else {
-				$retval .= esc_html__( '&mdash; None &mdash;', 'bbpress' );
+				$retval .= esc_html__( '&mdash; None &mdash;', 'fiscaat' );
 			}
 
 			// Close the 'no-value' option tag

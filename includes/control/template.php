@@ -195,13 +195,12 @@ function fct_record_approve_link( $args = '' ) {
 	 * @return string Record approve link
 	 */
 	function fct_get_record_approve_link( $args = '' ) {
-		$defaults = array (
+		$r = fct_parse_args( $args, array(
 			'id'           => 0,
 			'link_before'  => '',
 			'link_after'   => '',
 			'approve_text' => __( 'Approve', 'fiscaat' )
-		);
-		$r = fct_parse_args( $args, $defaults, 'get_record_approve_link' );
+		), 'get_record_approve_link' );
 		extract( $r );
 
 		$record = fct_get_record( fct_get_record_id( (int) $id ) );
@@ -247,13 +246,12 @@ function fct_record_decline_link( $args = '' ) {
 	 * @return string Record decline link
 	 */
 	function fct_get_record_decline_link( $args = '' ) {
-		$defaults = array (
+		$r = fct_parse_args( $args, array(
 			'id'           => 0,
 			'link_before'  => '',
 			'link_after'   => '',
 			'decline_text' => __( 'Decline', 'fiscaat' )
-		);
-		$r = fct_parse_args( $args, $defaults, 'get_record_decline_link' );
+		), 'get_record_decline_link' );
 		extract( $r );
 
 		$record = fct_get_record( fct_get_record_id( (int) $id ) );

@@ -69,8 +69,8 @@ function fct_has_records( $args = '' ) {
 	$default_post_type     = ( fct_is_single_account() && fct_show_lead_account() ) ? fct_get_record_post_type() : array( fct_get_account_post_type(), fct_get_record_post_type() );
 	$default_post_status   = join( ',', $post_statuses );
 
-	// Default query args
-	$default = array(
+	// Default query args and set up account variables
+	$fct_r = fct_parse_args( $args, array(
 		'post_type'      => $default_post_type,         // Only records
 		'post_parent'    => $default_post_parent,       // Of this account
 		'post_status'    => $default_post_status,       // Of this status
@@ -79,10 +79,7 @@ function fct_has_records( $args = '' ) {
 		'orderby'        => 'date',                     // Sorted by date
 		'order'          => 'ASC',                      // Oldest to newest
 		's'              => $default_record_search,     // Maybe search
-	);
-
-	// Set up account variables
-	$fct_r = fct_parse_args( $args, $default, 'has_records' );
+	), 'has_records' );
 
 	// Extract the query variables
 	extract( $fct_r );
@@ -994,15 +991,13 @@ function fct_record_admin_links( $args = '' ) {
 	 * @return string Record admin links
 	 */
 	function fct_get_record_admin_links( $args = '' ) {
-
-		$defaults = array (
+		$r = fct_parse_args( $args, array(
 			'id'     => 0,
 			'before' => '<span class="fiscaat-admin-links">',
 			'after'  => '</span>',
 			'sep'    => ' | ',
 			'links'  => array()
-		);
-		$r = fct_parse_args( $args, $defaults, 'get_record_admin_links' );
+		), 'get_record_admin_links' );
 
 		$r['id'] = fct_get_record_id( (int) $r['id'] );
 
@@ -1024,7 +1019,7 @@ function fct_record_admin_links( $args = '' ) {
 
 		// If no links were passed, default to the standard
 		if ( empty( $r['links'] ) ) {
-			$r['links'] = array (
+			$r['links'] = array(
 				'edit'    => fct_get_record_edit_link   ( $r ),
 				'decline' => fct_get_record_decline_link( $r ),
 				'approve' => fct_get_record_approve_link( $r ),
@@ -1080,13 +1075,12 @@ function fct_record_edit_link( $args = '' ) {
 	 * @return string Record edit link
 	 */
 	function fct_get_record_edit_link( $args = '' ) {
-		$defaults = array (
+		$r = fct_parse_args( $args, array(
 			'id'           => 0,
 			'link_before'  => '',
 			'link_after'   => '',
 			'edit_text'    => __( 'Edit', 'fiscaat' )
-		);
-		$r = fct_parse_args( $args, $defaults, 'get_record_edit_link' );
+		), 'get_record_edit_link' );
 		extract( $r );
 
 		$record = fct_get_record( fct_get_record_id( (int) $id ) );
@@ -1161,6 +1155,8 @@ function fct_record_edit_url( $record_id = 0 ) {
 
 /**
  * Output the decline link of the record
+ * 
+ * @todo  Move to Control
  *
  * @param mixed $args See {@link fct_get_record_decline_link()}
  * @uses fct_get_record_decline_link() To get the record decline link
@@ -1171,6 +1167,8 @@ function fct_record_decline_link( $args = '' ) {
 
 	/**
 	 * Return the decline link of the record
+	 * 
+	 * @todo  Move to Control
 	 *
 	 * @param mixed $args This function supports these arguments:
 	 *  - id: Record id
@@ -1190,13 +1188,12 @@ function fct_record_decline_link( $args = '' ) {
 	 * @return string Record decline link
 	 */
 	function fct_get_record_decline_link( $args = '' ) {
-		$defaults = array (
+		$r = fct_parse_args( $args, array(
 			'id'           => 0,
 			'link_before'  => '',
 			'link_after'   => '',
 			'decline_text' => __( 'Decline', 'fiscaat' )
-		);
-		$r = fct_parse_args( $args, $defaults, 'get_record_decline_link' );
+		), 'get_record_decline_link' );
 		extract( $r );
 
 		$record = fct_get_record( fct_get_record_id( (int) $id ) );

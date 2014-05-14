@@ -16,7 +16,7 @@
  * @return array Account capabilities
  */
 function fct_get_account_caps() {
-	return apply_filters( 'fct_get_account_caps', array (
+	return apply_filters( 'fct_get_account_caps', array(
 		'create_posts'        => 'create_accounts',
 		'edit_posts'          => 'edit_accounts',
 		'edit_others_posts'   => 'edit_others_accounts',

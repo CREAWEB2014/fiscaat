@@ -354,17 +354,15 @@ function fct_get_paged() {
  * @return array Fiscaat statistics
  */
 function fct_get_statistics( $args = '' ) {
-
-	$defaults = array (
-		'count_users'              => true,
-		'count_periods'              => true,
-		'count_accounts'           => true,
-		'count_records'            => true,
-		'count_current_records'    => true,
-		'count_end_value'         => true,
-		'count_comments'           => true
-	);
-	$r = fct_parse_args( $args, $defaults, 'get_statistics' );
+	$r = fct_parse_args( $args, array(
+		'count_users'           => true,
+		'count_periods'         => true,
+		'count_accounts'        => true,
+		'count_records'         => true,
+		'count_current_records' => true,
+		'count_end_value'       => true,
+		'count_comments'        => true
+	), 'get_statistics' );
 	extract( $r );
 
 	// Users
@@ -440,12 +438,11 @@ function fct_get_statistics( $args = '' ) {
 function fct_count_posts( $args = '' ) {
 	global $wpdb;
 
-	$defaults = array(
+	$r = fct_parse_args( $args, array(
 		'type'   => 'post',
 		'perm'   => '',
 		'parent' => false
-	);
-	$r = fct_parse_args( $args, $defaults, 'count_posts' );
+	), 'count_posts' );
 	extract( $r );
 
 	$user = wp_get_current_user();

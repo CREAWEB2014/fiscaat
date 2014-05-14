@@ -52,7 +52,7 @@ function fct_has_periods( $args = '' ) {
 	$fct = fiscaat();
 
 	// The default period query for most circumstances
-	$defaults = array (
+	$defaults = array(
 		'post_type'      => fct_get_period_post_type(),
 		'posts_per_page' => get_option( '_fct_periods_per_page', 25 ),
 		'orderby'        => 'post_date',
