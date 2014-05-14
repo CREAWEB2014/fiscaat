@@ -1698,8 +1698,8 @@ function fct_ledger_dropdown( $args = '' ) {
 
 			// Output-related
 			'select_id'          => 'fct_ledger_id',
-			'select_name'        => false, // Custom
-			'class'              => false, // Custom
+			'select_name'        => false,
+			'class'              => false,
 			'tab'                => fct_get_tab_index(),
 			'options_only'       => false,
 			'show_none'          => false,
@@ -1768,14 +1768,20 @@ function fct_ledger_dropdown( $args = '' ) {
 		// Build the opening tag for the select element
 		if ( empty( $r['options_only'] ) ) {
 
+			// Setup the name attribute
+			$name     = ! empty( $r['select_name'] ) ? esc_attr( $r['select_name'] ) : esc_attr( $r['select_id'] );
+
+			// Setup the class attribute
+			$class    = ! empty( $r['class'] ) ? ' class="' . implode( ' ', (array) $r['class'] ) . '"' : '';
+
 			// Should this select appear disabled?
-			$disabled  = disabled( $r['disabled'], true, false );
+			$disabled = disabled( $r['disabled'], true, false );
 
 			// Setup the tab index attribute
-			$tab       = !empty( $r['tab'] ) ? ' tabindex="' . intval( $r['tab'] ) . '"' : '';
+			$tab      = ! empty( $r['tab'] ) ? ' tabindex="' . intval( $r['tab'] ) . '"' : '';
 
 			// Open the select tag
-			$retval   .= '<select name="' . esc_attr( $r['select_id'] ) . '" id="' . esc_attr( $r['select_id'] ) . '"' . $disabled . $tab . '>' . "\n";
+			$retval  .= '<select name="' . esc_attr( $name ) . '" id="' . esc_attr( $r['select_id'] ) . '"' . $class . $disabled . $tab . '>' . "\n";
 		}
 
 		// Display a leading 'no-value' option, with or without custom text

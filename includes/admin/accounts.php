@@ -521,15 +521,6 @@ class Fiscaat_Accounts_Admin {
 			'show_none' => '&mdash;',
 		) );
 
-		// Show the account number dropdown
-		// @todo Show ledger ids in *all* periods
-		fct_account_ledger_dropdown( array(
-			'selected'  => isset( $_GET['fct_account_ledger_id'] ) ? $_GET['fct_account_ledger_id'] : '',
-			'show_none' => '&mdash;',
-			'orderby'   => 'meta_value_num',
-			'meta_key'  => '_fct_ledger_id',
-		) );
-
 		// Get which period is selected. Default to current period
 		$selected = isset( $_GET['fct_period_id'] ) ? $_GET['fct_period_id'] : fct_get_current_period_id();
 
@@ -557,7 +548,11 @@ class Fiscaat_Accounts_Admin {
 
 		// Set the parent from period id
 		if ( isset( $_REQUEST['fct_period_id'] ) ) {
-			$query_vars['post_parent'] = (int) $_REQUEST['fct_period_id'];
+
+			// Use only when not empty
+			if ( ! empty( $_REQUEST['fct_period_id'] ) ) {
+				$query_vars['post_parent'] = (int) $_REQUEST['fct_period_id'];
+			}
 
 		// Default to current period...
 		// ... but not when querying drafts or trash
@@ -568,10 +563,10 @@ class Fiscaat_Accounts_Admin {
 		/** Ledger ************************************************************/
 
 		// Query by ledger id
-		if ( ! empty( $_REQUEST['fct_account_ledger_id'] ) ) {
+		if ( ! empty( $_REQUEST['fct_ledger_id'] ) ) {
 			$meta_query[] = array(
 				'key'   => '_fct_ledger_id',
-				'value' => fct_get_account_ledger_id( (int) $_REQUEST['fct_account_ledger_id'] )
+				'value' => (int) $_REQUEST['fct_ledger_id'],
 			);
 		}
 
