@@ -1576,8 +1576,9 @@ function fct_account_dropdown( $args = '' ) {
 			'post_type'          => fct_get_account_post_type(),
 			'selected'           => 0,
 			'sort_column'        => 'title',
-			'child_of'           => fct_get_current_period_id(),
+			'post_parent'        => fct_get_current_period_id(),
 			'orderby'            => 'title',
+			'disable_closed'     => false,
 
 			// Output-related
 			'select_id'          => 'fct_account_id',
@@ -1590,7 +1591,7 @@ function fct_account_dropdown( $args = '' ) {
 
 		$retval = fct_get_dropdown( $r );
 
-		return apply_filters( 'fct_get_account_dropdown', $retval, $args );
+		return apply_filters( 'fct_get_account_dropdown', $retval, $r );
 	}
 
 /**
@@ -1598,17 +1599,17 @@ function fct_account_dropdown( $args = '' ) {
  *
  * @param mixed $args See {@link fct_get_dropdown()} for arguments
  */
-function fct_ledger_dropdown( $args = '' ) {
-	echo fct_get_ledger_dropdown( $args );
+function fct_account_ledger_dropdown( $args = '' ) {
+	echo fct_get_account_ledger_dropdown( $args );
 }
 
 	/**
-	 * Return a select box allowing to pick which account to show ledger id
+	 * Return a select box allowing to pick which account to show by ledger id
 	 * 
 	 * @param mixed $args See {@link fct_get_dropdown()} for arguments
 	 * @return string The dropdown
 	 */
-	function fct_get_ledger_dropdown( $args = '' ) {
+	function fct_get_account_ledger_dropdown( $args = '' ) {
 
 		/** Arguments *********************************************************/
 
@@ -1616,29 +1617,29 @@ function fct_ledger_dropdown( $args = '' ) {
 			'post_type'          => fct_get_account_post_type(),
 			'selected'           => 0,
 			'sort_column'        => 'meta_value_num',
-			'child_of'           => fct_get_current_period_id(),
+			'post_parent'        => fct_get_current_period_id(),
 			'meta_key'           => '_fct_ledger_id',
 			'orderby'            => 'meta_value_num',
 
 			// Output-related
-			'select_id'          => 'fct_ledger_account_id',
+			'select_id'          => 'fct_account_ledger_id',
 			'show_none'          => '',
 		);
 
-		$r = fct_parse_args( $args, $defaults, 'get_ledger_dropdown' );
+		$r = fct_parse_args( $args, $defaults, 'get_account_ledger_dropdown' );
 
 		/** Drop Down *********************************************************/
 
 		// Adjust dropdown title
-		add_filter( 'fct_walker_dropdown_post_title', 'fct_filter_ledger_dropdown_title', 10, 5 );
+		add_filter( 'fct_walker_dropdown_post_title', 'fct_filter_account_ledger_dropdown_title', 10, 5 );
 
 		// Get the dropdown
 		$retval = fct_get_dropdown( $r );
 
 		// Remove filter
-		remove_filter( 'fct_walker_dropdown_post_title', 'fct_filter_ledger_dropdown_title' );
+		remove_filter( 'fct_walker_dropdown_post_title', 'fct_filter_account_ledger_dropdown_title' );
 
-		return apply_filters( 'fct_get_ledger_dropdown', $retval, $args );
+		return apply_filters( 'fct_get_account_ledger_dropdown', $retval, $r );
 	}
 
 	/**
@@ -1651,7 +1652,7 @@ function fct_ledger_dropdown( $args = '' ) {
 	 * @param array $args 
 	 * @return string Post title
 	 */
-	function fct_filter_ledger_dropdown_title( $post_title, $output, $_post, $depth, $args ) {
+	function fct_filter_account_ledger_dropdown_title( $post_title, $output, $_post, $depth, $args ) {
 		$account_id = fct_get_account_id( $_post->ID );
 
 		// Validate account
@@ -1661,5 +1662,156 @@ function fct_ledger_dropdown( $args = '' ) {
 		// Set post title
 		$post_title = fct_get_account_ledger_id( $account_id );
 
-		return apply_filters( 'fct_filter_ledger_dropdown_title', $post_title, $account_id );
+		return apply_filters( 'fct_filter_account_ledger_dropdown_title', $post_title, $account_id );
+	}
+
+/**
+ * Output a select box allowing to pick a ledger id
+ *
+ * @since 0.0.9
+ *
+ * @param mixed $args See {@link fct_get_dropdown()} for arguments
+ */
+function fct_ledger_dropdown( $args = '' ) {
+	echo fct_get_ledger_dropdown( $args );
+}
+
+	/**
+	 * Return a select box allowing to pick a ledger id
+	 * 
+	 * @since 0.0.9
+	 * 
+	 * @param mixed $args See {@link fct_get_dropdown()} for arguments
+	 * @return string The dropdown
+	 */
+	function fct_get_ledger_dropdown( $args = '' ) {
+		global $wpdb;
+
+		/** Arguments *********************************************************/
+
+		$r = fct_parse_args( $args, array(
+			'post_parent'        => null,
+			'post_status'        => null,
+			'selected'           => 0,
+			'exclude'            => array(),
+			'order'              => 'ASC',
+
+			// Output-related
+			'select_id'          => 'fct_ledger_id',
+			'select_name'        => false, // Custom
+			'class'              => false, // Custom
+			'tab'                => fct_get_tab_index(),
+			'options_only'       => false,
+			'show_none'          => false,
+			'none_found'         => false,
+			'disable_closed'     => false,
+			'disabled'           => ''
+		), 'get_ledger_dropdown' );
+
+		// Force 0
+		if ( is_numeric( $r['selected'] ) && $r['selected'] < 0 )
+			$r['selected'] = 0;
+
+		// Force array
+		if ( ! empty( $r['exclude'] ) && ! is_array( $r['exclude'] ) ) {
+			$r['exclude'] = explode( ',', $r['exclude'] );
+		}
+
+		/** Post Status *******************************************************/
+
+		// Force array
+		if ( ! empty( $r['post_status'] ) && ! is_array( $r['post_status'] ) ) {
+			$r['post_status'] = explode( ',', $r['post_status'] );
+		}
+
+		// Public
+		if ( empty( $r['post_status'] ) ) {
+			$r['post_status'] = array( fct_get_public_status_id() );
+		}
+
+		// Closed
+		if ( ! $r['disable_closed'] && ! in_array( fct_get_closed_status_id(), $r['post_status'] ) ) {
+			$r['post_status'][] = fct_get_closed_status_id();
+		}
+
+		/** Query *************************************************************/
+
+		// Build query elements
+		$select  = "SELECT DISTINCT pm.meta_value";
+		$from    = " FROM {$wpdb->posts} p INNER JOIN {$wpdb->postmeta} pm ON (p.ID = pm.post_id)";
+		$where   = $wpdb->prepare( " WHERE p.post_type = %s AND pm.meta_key = %s", fct_get_account_post_type(), '_fct_ledger_id' );
+		$orderby = " ORDER BY pm.meta_value+0";
+		$order   = ( 'DESC' == strtoupper( $order ) ) ? ' DESC' : ' ASC';
+
+		// Select by post status
+		if ( ! empty( $r['post_status'] ) ) {
+			$where .= $wpdb->prepare( " AND (p.post_status = %s)", implode( "' OR p.post_status = '", $r['post_status'] ) );
+		}
+
+		// Select by period parent
+		if ( ! empty( $r['post_parent'] ) ) {
+			$where .= $wpdb->prepare( " AND p.post_parent = %s", (int) $r['post_parent'] );
+		}
+
+		list( $select, $from, $where, $orderby, $order ) = apply_filters( 'fct_get_ledger_dropdown_query_args', compact( 'select', 'from', 'where', 'orderby', 'order' ), $r );
+
+		// Build and run query
+		$posts   = $wpdb->get_col( "$select$from$where$orderby$order" );
+
+		/** Drop Down *********************************************************/
+
+		// Build the opening tag for the select element
+		if ( empty( $r['options_only'] ) ) {
+
+			// Should this select appear disabled?
+			$disabled  = disabled( $r['disabled'], true, false );
+
+			// Setup the tab index attribute
+			$tab       = !empty( $r['tab'] ) ? ' tabindex="' . intval( $r['tab'] ) . '"' : '';
+
+			// Open the select tag
+			$retval   .= '<select name="' . esc_attr( $r['select_id'] ) . '" id="' . esc_attr( $r['select_id'] ) . '"' . $disabled . $tab . '>' . "\n";
+		}
+
+		// Display a leading 'no-value' option, with or without custom text
+		if ( ! empty( $r['show_none'] ) || ! empty( $r['none_found'] ) ) {
+
+			// Open the 'no-value' option tag
+			$retval .= "\t<option value=\"\" class=\"level-0\">";
+
+			// Use deprecated 'none_found' first for backpat
+			if ( ! empty( $r['none_found'] ) && is_string( $r['none_found'] ) ) {
+				$retval .= esc_html( $r['none_found'] );
+
+			// Use 'show_none' second
+			} elseif ( ! empty( $r['show_none'] ) && is_string( $r['show_none'] ) ) {
+				$retval .= esc_html( $r['show_none'] );
+
+			// Otherwise, create one ourselves
+			} else {
+				$retval .= esc_html__( '&mdash; None &mdash;', 'bbpress' );
+			}
+
+			// Close the 'no-value' option tag
+			$retval .= '</option>';
+		}
+
+		// Items found so walk the posts
+		if ( ! empty( $posts ) ) {
+			foreach ( $posts as $ledger_id ) {
+
+				// Should this option be selected?
+				$selected = ! empty( $r['selected'] ) ? selected( $r['selected'], $ledger_id, false ) : '';
+
+				// Setup post option tag
+				$retval .= "\t<option value=\"$ledger_id\" class=\"level-0\" $selected>" . $ledger_id . '</option>';
+			}
+		}
+
+		// Close the select tag
+		if ( empty( $options_only ) ) {
+			$retval .= '</select>';
+		}
+
+		return apply_filters( 'fct_get_ledger_dropdown', $retval, $r );
 	}

@@ -516,9 +516,15 @@ class Fiscaat_Accounts_Admin {
 			return;
 
 		// Show the number dropdown
-		// @todo Show ledger ids in *all* periods
 		fct_ledger_dropdown( array(
-			'selected'  => isset( $_GET['fct_ledger_account_id'] ) ? $_GET['fct_ledger_account_id'] : '',
+			'selected'  => isset( $_GET['fct_ledger_id'] ) ? $_GET['fct_ledger_id'] : '',
+			'show_none' => '&mdash;'
+		) );
+
+		// Show the account number dropdown
+		// @todo Show ledger ids in *all* periods
+		fct_account_ledger_dropdown( array(
+			'selected'  => isset( $_GET['fct_account_ledger_id'] ) ? $_GET['fct_account_ledger_id'] : '',
 			'show_none' => '&mdash;'
 		) );
 
@@ -560,10 +566,10 @@ class Fiscaat_Accounts_Admin {
 		/** Ledger ************************************************************/
 
 		// Query by ledger id
-		if ( ! empty( $_REQUEST['fct_ledger_account_id'] ) ) {
+		if ( ! empty( $_REQUEST['fct_account_ledger_id'] ) ) {
 			$meta_query[] = array(
 				'key'   => '_fct_ledger_id',
-				'value' => fct_get_account_ledger_id( (int) $_REQUEST['fct_ledger_account_id'] )
+				'value' => fct_get_account_ledger_id( (int) $_REQUEST['fct_account_ledger_id'] )
 			);
 		}
 

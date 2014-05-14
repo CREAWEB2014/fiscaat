@@ -354,9 +354,9 @@ function fct_record_metabox() {
 	<p>
 		<strong class="label"><?php _e( 'Account Number:', 'fiscaat' ); ?></strong>
 		<label class="screen-reader-text" for="fct_record_account_ledger_id"><?php _e( 'Account Number', 'fiscaat' ); ?></label>
-		<?php fct_ledger_dropdown( array(
+		<?php fct_account_ledger_dropdown( array(
 			'selected'           => $record_account_id,
-			'child_of'           => $record_period_id,
+			'post_parent'           => $record_period_id,
 
 			// Output-related
 			'select_id'          => 'fct_record_account_ledger_id',
@@ -371,7 +371,7 @@ function fct_record_metabox() {
 		<label class="screen-reader-text" for="parent_id"><?php _e( 'Account Title', 'fiscaat' ); ?></label>
 		<?php fct_account_dropdown( array(
 			'selected'           => $record_account_id,
-			'child_of'           => $record_period_id,
+			'post_parent'           => $record_period_id,
 
 			// Output-related
 			'select_id'          => 'parent_id',

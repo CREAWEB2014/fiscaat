@@ -525,14 +525,14 @@ class Fiscaat_Records_Admin {
 		
 		// Get which account is selected. With account id or ledger id
 		$account_id = ! empty( $_REQUEST['fct_account_id'] )         ? (int) $_REQUEST['fct_account_id']         : 0;
-		$ledger_id  = ! empty( $_REQUEST['fct_ledger_account_id']  ) ? (int) $_REQUEST['fct_ledger_account_id']  : '';
+		$ledger_id  = ! empty( $_REQUEST['fct_account_ledger_id']  ) ? (int) $_REQUEST['fct_account_ledger_id']  : '';
 
 		// Ledger id was set, account id not
 		if ( ! empty( $ledger_id ) && empty( $account_id ) )
 			$account_id = fct_get_account_id_by_ledger_id( $ledger_id, $period_id );
 
 		// Show the ledger dropdown
-		fct_ledger_dropdown( array(
+		fct_account_ledger_dropdown( array(
 			'selected'   => $account_id,
 			'period_id'  => $period_id,
 			'show_none'  => '&mdash;',
@@ -575,8 +575,8 @@ class Fiscaat_Records_Admin {
 			$query_vars['post_parent'] = (int) $_REQUEST['fct_account_id'];
 
 		// Set the parent from ledger_id if given
-		} elseif ( ! empty( $_REQUEST['fct_ledger_account_id'] ) ) {
-			$query_vars['post_parent'] = (int) $_REQUEST['fct_ledger_account_id'];
+		} elseif ( ! empty( $_REQUEST['fct_account_ledger_id'] ) ) {
+			$query_vars['post_parent'] = (int) $_REQUEST['fct_account_ledger_id'];
 		}
 
 		/** Approval **********************************************************/

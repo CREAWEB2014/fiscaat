@@ -477,7 +477,7 @@ function fct_admin_setting_callback_accounts_section() {
  *
  * @uses fct_form_option() To output the option value
  *
- * @todo Use fct_ledger_dropdown ?
+ * @todo Use fct_account_ledger_dropdown ?
  */
 function fct_admin_setting_callback_main_bank_account() {
 ?>

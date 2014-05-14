@@ -246,50 +246,50 @@ final class Fiscaat {
 
 		/** Core **************************************************************/
 
-		require( $this->includes_dir . 'core/sub-actions.php'       );
-		require( $this->includes_dir . 'core/functions.php'         );
-		require( $this->includes_dir . 'core/options.php'           );
-		require( $this->includes_dir . 'core/capabilities.php'      );
-		require( $this->includes_dir . 'core/update.php'            );
+		require( $this->includes_dir . 'core/sub-actions.php'      );
+		require( $this->includes_dir . 'core/functions.php'        );
+		require( $this->includes_dir . 'core/options.php'          );
+		require( $this->includes_dir . 'core/capabilities.php'     );
+		require( $this->includes_dir . 'core/update.php'           );
 
 		/** Components ********************************************************/
 
 		// Common
-		require( $this->includes_dir . 'common/classes.php'         );
-		require( $this->includes_dir . 'common/functions.php'       );
-		require( $this->includes_dir . 'common/template-tags.php'   );
+		require( $this->includes_dir . 'common/classes.php'        );
+		require( $this->includes_dir . 'common/functions.php'      );
+		require( $this->includes_dir . 'common/template.php'       );
 
 		// Records
-		require( $this->includes_dir . 'records/capabilities.php'   );
-		require( $this->includes_dir . 'records/functions.php'      );
-		require( $this->includes_dir . 'records/template-tags.php'  );
+		require( $this->includes_dir . 'records/capabilities.php'  );
+		require( $this->includes_dir . 'records/functions.php'     );
+		require( $this->includes_dir . 'records/template.php'      );
 
 		// Accounts
-		require( $this->includes_dir . 'accounts/capabilities.php'  );
-		require( $this->includes_dir . 'accounts/functions.php'     );
-		require( $this->includes_dir . 'accounts/template-tags.php' );
+		require( $this->includes_dir . 'accounts/capabilities.php' );
+		require( $this->includes_dir . 'accounts/functions.php'    );
+		require( $this->includes_dir . 'accounts/template.php'     );
 
 		// Periods
-		require( $this->includes_dir . 'periods/capabilities.php'   );
-		require( $this->includes_dir . 'periods/functions.php'      );
-		require( $this->includes_dir . 'periods/template-tags.php'  );
+		require( $this->includes_dir . 'periods/capabilities.php'  );
+		require( $this->includes_dir . 'periods/functions.php'     );
+		require( $this->includes_dir . 'periods/template.php'      );
 
 		// Users
-		require( $this->includes_dir . 'users/capabilities.php'     );
-		require( $this->includes_dir . 'users/functions.php'        );
-		require( $this->includes_dir . 'users/template-tags.php'    );
-		require( $this->includes_dir . 'users/options.php'          );
+		require( $this->includes_dir . 'users/capabilities.php'    );
+		require( $this->includes_dir . 'users/functions.php'       );
+		require( $this->includes_dir . 'users/template.php'        );
+		require( $this->includes_dir . 'users/options.php'         );
 
 		// Control
-		// require( $this->includes_dir . 'control/accounts.php'       );
-		// require( $this->includes_dir . 'control/actions.php'        );
-		// require( $this->includes_dir . 'control/admin.php'          );
-		// require( $this->includes_dir . 'control/capabilities.php'   );
-		// require( $this->includes_dir . 'control/filters.php'        );
-		// require( $this->includes_dir . 'control/functions.php'      );
-		// require( $this->includes_dir . 'control/records.php'        );
-		// require( $this->includes_dir . 'control/template-tags.php'  );
-		// require( $this->includes_dir . 'control/periods.php'        );
+		// require( $this->includes_dir . 'control/accounts.php'      );
+		// require( $this->includes_dir . 'control/actions.php'       );
+		// require( $this->includes_dir . 'control/admin.php'         );
+		// require( $this->includes_dir . 'control/capabilities.php'  );
+		// require( $this->includes_dir . 'control/filters.php'       );
+		// require( $this->includes_dir . 'control/functions.php'     );
+		// require( $this->includes_dir . 'control/records.php'       );
+		// require( $this->includes_dir . 'control/template.php'      );
+		// require( $this->includes_dir . 'control/periods.php'       );
 
 		/** Hooks *************************************************************/
 

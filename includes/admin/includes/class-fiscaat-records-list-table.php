@@ -199,7 +199,7 @@ class Fiscaat_Records_List_Table extends WP_List_Table {
 				?>
 
 					<td <?php echo $attributes; ?>>
-						<?php fct_ledger_dropdown( array(
+						<?php fct_account_ledger_dropdown( array(
 							'select_name' => sprintf( 'fct_new_record[ledger_id][%s]', ! empty( $post->ID ) ? $post->ID : '' ),
 							'select_id'   => 'fct_new_record_ledger_id', // Unique?
 							'class'       => 'fct_new_record_ledger_id',

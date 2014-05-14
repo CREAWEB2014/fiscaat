@@ -108,16 +108,11 @@ class Fiscaat_Admin {
 		require( $this->admin_dir . 'functions.php' );
 		require( $this->admin_dir . 'import.php'    );
 		require( $this->admin_dir . 'metaboxes.php' );
+		require( $this->admin_dir . 'periods.php'   );
 		require( $this->admin_dir . 'records.php'   );
 		require( $this->admin_dir . 'settings.php'  );
 		require( $this->admin_dir . 'tools.php'     );
 		require( $this->admin_dir . 'users.php'     );
-		require( $this->admin_dir . 'periods.php'   );
-
-		// Record new/edit pages
-		// require( $this->admin_dir . 'includes/class-fiscaat-admin-records.php' );
-		// require( $this->admin_dir . 'records-edit.php' );
-		// require( $this->admin_dir . 'records-new.php'  );
 	}
 
 	/**
@@ -857,7 +852,7 @@ class Fiscaat_Admin {
 			/* Connect primary account id and ledger id dropdowns */
 			jQuery(document).ready(function($) {
 				var dropdowns = [ 
-					$('select#fct_ledger_account_id, select#fct_record_account_ledger_id'), // Account ledger dropdowns
+					$('select#fct_account_ledger_id, select#fct_record_account_ledger_id'), // Account ledger dropdowns
 					$('select#fct_account_id, select#parent_id') // Account dropdowns
 				];
 

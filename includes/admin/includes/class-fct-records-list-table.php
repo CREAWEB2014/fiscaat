@@ -421,7 +421,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 *
 	 * @since 0.0.8
 	 *
-	 * @uses fct_ledger_dropdown()
+	 * @uses fct_account_ledger_dropdown()
 	 * @uses fct_account_dropdown()
 	 * @param string $column_name Column name
 	 */
@@ -432,19 +432,21 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 			// Record account ledger id
 			case 'fct_record_account_ledger_id' :
-				fct_ledger_dropdown( array(
-					'select_name' => 'records[ledger_account_id][]', 
-					'class'       => 'fct_record_ledger_id',
-					'show_none'   => '&mdash;',
+				fct_account_ledger_dropdown( array(
+					'select_name'    => 'records[ledger_account_id][]', 
+					'class'          => 'fct_record_ledger_id',
+					'show_none'      => '&mdash;',
+					'disable_closed' => true,
 				) );
 				break;
 
 			// Record account
 			case 'fct_record_account' :
 				fct_account_dropdown( array(
-					'select_name' => 'records[account_id][]',
-					'class'       => 'fct_record_account_id',
-					'show_none'   => __( '&mdash; No Account &mdash;', 'fiscaat' ),
+					'select_name'    => 'records[account_id][]',
+					'class'          => 'fct_record_account_id',
+					'show_none'      => __( '&mdash; No Account &mdash;', 'fiscaat' ),
+					'disable_closed' => true,
 				) );
 				break;
 

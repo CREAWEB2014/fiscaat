@@ -775,7 +775,7 @@ function fct_dropdown( $args = '' ) {
 	 *               box, the first value would of course be selected -
 	 *               though you can have that as none (pass 'show_none' arg))
 	 *  - sort_column: Sort by? Defaults to 'menu_order, post_title'
-	 *  - child_of: Child of. Defaults to 0
+	 *  - post_parent: Child of. Defaults to 0
 	 *  - post_status: Which all post_statuses to find in? Can be an array
 	 *                  or CSV of publish, category, closed, private, spam,
 	 *                  trash (based on post type) - if not set, these are
@@ -807,13 +807,14 @@ function fct_dropdown( $args = '' ) {
 
 		/** Arguments *********************************************************/
 
-		$defaults = array (
+		$r = fct_parse_args( $args, array(
 			'post_type'          => fct_get_period_post_type(),
+			'post_parent'        => null,
+			'post_status'        => null,
 			'selected'           => 0,
-			'sort_column'        => 'menu_order',
-			'child_of'           => '0',
+			'exclude'            => array(),
 			'numberposts'        => -1,
-			'orderby'            => 'menu_order',
+			'orderby'            => 'menu_order title',
 			'order'              => 'ASC',
 			'walker'             => '',
 
@@ -825,10 +826,9 @@ function fct_dropdown( $args = '' ) {
 			'options_only'       => false,
 			'show_none'          => false,
 			'none_found'         => false,
-			'disable_closed'     => true,
+			'disable_closed'     => false,
 			'disabled'           => ''
-		);
-		$r = fct_parse_args( $args, $defaults, 'get_dropdown' );
+		), 'get_dropdown' );
 
 		if ( empty( $r['walker'] ) ) {
 			$r['walker']            = new Fiscaat_Walker_Dropdown();
@@ -839,82 +839,111 @@ function fct_dropdown( $args = '' ) {
 		if ( is_numeric( $r['selected'] ) && $r['selected'] < 0 )
 			$r['selected'] = 0;
 
-		extract( $r );
-
-		// Unset the args not needed for WP_Query to avoid any possible conflicts.
-		// Note: walker and disable_categories are not unset
-		unset( $r['select_id'], $r['tab'], $r['options_only'], $r['show_none'], $r['none_found'] );
+		// Force array
+		if ( ! empty( $r['exclude'] ) && ! is_array( $r['exclude'] ) ) {
+			$r['exclude'] = explode( ',', $r['exclude'] );
+		}
 
 		/** Post Status *******************************************************/
 
-		// Define local variable(s)
-		$post_stati = array();
+		// Force array
+		if ( ! empty( $r['post_status'] ) && ! is_array( $r['post_status'] ) ) {
+			$r['post_status'] = explode( ',', $r['post_status'] );
+		}
 
 		// Public
-		$post_stati[] = fct_get_public_status_id();
+		if ( empty( $r['post_status'] ) ) {
+			$r['post_status'] = array( fct_get_public_status_id() );
+		}
 
 		// Closed
-		if ( ! $r['disable_closed'] )
-			$post_stati[] = fct_get_closed_status_id();
-
-		// Setup the post statuses
-		$r['post_status'] = implode( ',', $post_stati );
+		if ( ! $r['disable_closed'] && ! in_array( fct_get_closed_status_id(), $r['post_status'] ) ) {
+			$r['post_status'][] = fct_get_closed_status_id();
+		}
 
 		/** Setup variables ***************************************************/
 
-		$name      = ! empty( $select_name ) ? esc_attr( $select_name ) : esc_attr( $select_id );
-		$select_id = ! empty( $select_id   ) ? esc_attr( $select_id   ) : $name;
-		$class     = ! empty( $class       ) ? ' class="'. $class .'"'  : '';
-		$tab       = (int) $tab;
-		$retval    = '';
-		$posts     = get_posts( $r );
-		// $disabled  = disabled( isset( fiscaat()->options[$disabled] ), true, false );
-		$disabled  = disabled( $disabled, true, false );
+		$retval = '';
+		$posts  = get_posts( array(
+			'post_type'          => $r['post_type'],
+			'post_status'        => $r['post_status'],
+			'exclude'            => $r['exclude'],
+			'post_parent'        => $r['post_parent'],
+			'numberposts'        => $r['numberposts'],
+			'orderby'            => $r['orderby'],
+			'order'              => $r['order'],
+			'walker'             => $r['walker'],
+			'disable_categories' => $r['disable_categories']
+		) );
 
 		/** Drop Down *********************************************************/
 
-		// Items found
-		if ( ! empty( $posts ) ) {
-			if ( empty( $options_only ) ) {
-				$tab     = ! empty( $tab ) ? ' tabindex="' . $tab . '"' : '';
-				$retval .= '<select name="' . $name . '" id="' . $select_id . '"' . $tab  . $class . $disabled . '>' . "\n";
-			}
+		// Build the opening tag for the select element
+		if ( empty( $r['options_only'] ) ) {
 
-			$retval .= ! empty( $show_none ) ? "\t<option value=\"\" class=\"level-0\">" . $show_none . '</option>' : '';
-			$retval .= walk_page_dropdown_tree( $posts, 0, $r );
+			// Should this select appear disabled?
+			$disabled  = disabled( $r['disabled'], true, false );
 
-			if ( empty( $options_only ) )
-				$retval .= '</select>';
+			// Setup the tab index attribute
+			$tab       = !empty( $r['tab'] ) ? ' tabindex="' . intval( $r['tab'] ) . '"' : '';
 
-		// No items found - Display feedback if no custom message was passed
-		} elseif ( empty( $none_found ) ) {
-
-			// Setup empty select
-			$retval = '<select name="'. $name .'" id="'. $select_id .'"><option value"">';
-
-			// Switch the response based on post type
-			switch ( $post_type ) {
-
-				// Accounts
-				case fct_get_account_post_type() :
-					$retval .= __( '&mdash; No accounts &mdash;', 'fiscaat' );
-					break;
-
-				// Periods
-				case fct_get_period_post_type() :
-					$retval .=  __('&mdash; No periods &mdash;', 'fiscaat');
-					break;
-
-				// Any other
-				default :
-					$retval .= __( '&mdash; None &mdash;', 'fiscaat' );
-					break;
-			}
-
-			$retval .= '</option></select>';
+			// Open the select tag
+			$retval   .= '<select name="' . esc_attr( $r['select_id'] ) . '" id="' . esc_attr( $r['select_id'] ) . '"' . $disabled . $tab . '>' . "\n";
 		}
 
-		return apply_filters( 'fct_get_dropdown', $retval, $args );
+		// Display a leading 'no-value' option, with or without custom text
+		if ( ! empty( $r['show_none'] ) || ! empty( $r['none_found'] ) ) {
+
+			// Open the 'no-value' option tag
+			$retval .= "\t<option value=\"\" class=\"level-0\">";
+
+			// Use deprecated 'none_found' first for backpat
+			if ( ! empty( $r['none_found'] ) && is_string( $r['none_found'] ) ) {
+				$retval .= esc_html( $r['none_found'] );
+
+			// Use 'show_none' second
+			} elseif ( ! empty( $r['show_none'] ) && is_string( $r['show_none'] ) ) {
+				$retval .= esc_html( $r['show_none'] );
+
+			// Otherwise, make some educated guesses
+			} else {
+
+				// Switch the response based on post type
+				switch ( $post_type ) {
+
+					// Accounts
+					case fct_get_account_post_type() :
+						$retval .= __( '&mdash; No accounts &mdash;', 'fiscaat' );
+						break;
+
+					// Periods
+					case fct_get_period_post_type() :
+						$retval .= __( '&mdash; No periods &mdash;', 'fiscaat' );
+						break;
+
+					// Any other
+					default :
+						$retval .= __( '&mdash; None &mdash;', 'fiscaat' );
+						break;
+				}
+
+			}
+
+			// Close the 'no-value' option tag
+			$retval .= '</option>';
+		}
+
+		// Items found so walk the tree
+		if ( ! empty( $posts ) ) {
+			$retval .= walk_page_dropdown_tree( $posts, 0, $r );
+		}
+
+		// Close the select tag
+		if ( empty( $options_only ) ) {
+			$retval .= '</select>';
+		}
+
+		return apply_filters( 'fct_get_dropdown', $retval, $r );
 	}
 
 /**
