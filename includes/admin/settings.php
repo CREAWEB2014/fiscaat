@@ -467,7 +467,7 @@ function fct_admin_setting_callback_editing_section() {
 function fct_admin_setting_callback_accounts_section() {
 ?>
 
-	<p><?php _e( 'Here you can connect the dots between this system and your real life bank acccounts. Fiscaat uses the ledger ids to recognize and set the right record accounts when importing banking data.', 'fiscaat' ); ?></p>
+	<p><?php _e( 'Here you can connect the dots between this system and your physical bank acccounts. Fiscaat uses the account numbers to recognize and set the right record accounts when importing banking data.', 'fiscaat' ); ?></p>
 
 <?php
 }
@@ -475,88 +475,94 @@ function fct_admin_setting_callback_accounts_section() {
 /**
  * Main bank account setting field
  *
- * @uses fct_form_option() To output the option value
- *
- * @todo Use fct_account_ledger_dropdown ?
+ * @uses fct_get_ledger_dropdown() To get the ledger id dropdown
+ * @uses fct_get_form_option() To output the option value
  */
 function fct_admin_setting_callback_main_bank_account() {
-?>
 
-	<input name="_fct_main_bank_account" type="text" id="_fct_main_bank_account" value="<?php fct_form_option( '_fct_main_bank_account', '' ); ?>" />
-	<label for="_fct_main_bank_account"><?php _e( 'Account number', 'fiscaat' ); ?></label>
-
-	<br/>
-
-	<input name="_fct_main_bank_ledger_id" type="text" id="_fct_main_bank_ledger_id" value="<?php fct_form_option( '_fct_main_bank_ledger_id', 102 ); ?>" />
-	<label for="_fct_main_bank_ledger_id"><?php _e( 'Fiscaat Ledger id', 'fiscaat' ); ?></label>
-
-<?php
+	/* translators: 1: Fiscaat account number dropdown, 2: Bank account number input field. */
+	printf( __( 'Use account %s to hold all records from the main bank account, which has number %s.', 'fiscaat' ),
+		fct_get_ledger_dropdown( array( 
+			'select_id' => '_fct_main_bank_ledger_id',
+			'selected'  => fct_get_form_option( '_fct_main_bank_ledger_id', 102 ),
+			'show_none' => '&mdash;',
+		) ),
+		"<input name=\"_fct_main_bank_account\" type=\"text\" id=\"_fct_main_bank_account\" value=\"" . fct_get_form_option( '_fct_main_bank_account', '' ) . '" />'
+	);
 }
 
 /**
  * Second bank account setting field
  *
- * @uses fct_form_option() To output the option value
+ * @uses fct_get_ledger_dropdown() To get the ledger id dropdown
+ * @uses fct_get_form_option() To output the option value
  */
 function fct_admin_setting_callback_second_bank_account() {
-?>
 
-	<input name="_fct_second_bank_account" type="text" id="_fct_second_bank_account" value="<?php fct_form_option( '_fct_second_bank_account', '' ); ?>" />
-	<label for="_fct_second_bank_account"><?php _e( 'Account number', 'fiscaat' ); ?></label>
-
-	<br/>
-
-	<input name="_fct_second_bank_ledger_id" type="text" id="_fct_second_bank_ledger_id" value="<?php fct_form_option( '_fct_second_bank_ledger_id', '' ); ?>" />
-	<label for="_fct_second_bank_ledger_id"><?php _e( 'Fiscaat Ledger id', 'fiscaat' ); ?></label>
-
-<?php
+	/* translators: 1: Fiscaat account number dropdown, 2: Bank account number input field. */
+	printf( __( 'Use account %s to hold all records from the second bank account, which has number %s.', 'fiscaat' ),
+		fct_get_ledger_dropdown( array( 
+			'select_id' => '_fct_second_bank_ledger_id',
+			'selected'  => fct_get_form_option( '_fct_second_bank_ledger_id', 103 ),
+			'show_none' => '&mdash;',
+		) ),
+		"<input name=\"_fct_second_bank_account\" type=\"text\" id=\"_fct_second_bank_account\" value=\"" . fct_get_form_option( '_fct_main_bank_account', '' ) . '" />'
+	);
 }
 
 /**
  * Third bank account setting field
  *
- * @uses fct_form_option() To output the option value
+ * @uses fct_get_ledger_dropdown() To get the ledger id dropdown
+ * @uses fct_get_form_option() To output the option value
  */
 function fct_admin_setting_callback_third_bank_account() {
-?>
 
-	<input name="_fct_third_bank_account" type="text" id="_fct_third_bank_account" value="<?php fct_form_option( '_fct_third_bank_account', '' ); ?>" />
-	<label for="_fct_third_bank_account"><?php _e( 'Account number', 'fiscaat' ); ?></label>
-
-	<br/>
-
-	<input name="_fct_third_bank_ledger_id" type="text" id="_fct_third_bank_ledger_id" value="<?php fct_form_option( '_fct_third_bank_ledger_id', '' ); ?>" />
-	<label for="_fct_third_bank_ledger_id"><?php _e( 'Fiscaat Ledger id', 'fiscaat' ); ?></label>
-
-<?php
+	/* translators: 1: Fiscaat account number dropdown, 2: Bank account number input field. */
+	printf( __( 'Use account %s to hold all records from the third bank account, which has number %s.', 'fiscaat' ),
+		fct_get_ledger_dropdown( array( 
+			'select_id' => '_fct_third_bank_ledger_id',
+			'selected'  => fct_get_form_option( '_fct_third_bank_ledger_id', 104 ),
+			'show_none' => '&mdash;',
+		) ),
+		"<input name=\"_fct_third_bank_account\" type=\"text\" id=\"_fct_third_bank_account\" value=\"" . fct_get_form_option( '_fct_main_bank_account', '' ) . '" />'
+	);
 }
 
 /**
  * Balance account setting field
  *
- * @uses get_option() To get the option value
+ * @uses fct_get_ledger_dropdown() To get the ledger id dropdown
+ * @uses fct_get_form_option() To get the option value
  */
 function fct_admin_setting_callback_balance_ledger_id() {
-?>
 
-	<input name="_fct_balance_ledger_id" type="text" id="_fct_balance_ledger_id" value="<?php fct_form_option( '_fct_balance_ledger_id', 199 ); ?>" />
-	<label for="_fct_balance_ledger_id"><?php _e( 'Fiscaat Ledger id', 'fiscaat' ); ?></label>
-
-<?php
+	/* translators: 1: Fiscaat account number dropdown. */
+	printf( __( 'Use account %s to hold all records that are moved between bank accounts you account for in Fiscaat.', 'fiscaat' ),
+		fct_get_ledger_dropdown( array( 
+			'select_id' => '_fct_balance_ledger_id',
+			'selected'  => fct_get_form_option( '_fct_balance_ledger_id', 199 ),
+			'show_none' => '&mdash;',
+		) )
+	);
 }
 
 /**
  * Suspense account setting field
  *
- * @uses get_option() To get the option value
+ * @uses fct_get_ledger_dropdown() To get the ledger id dropdown
+ * @uses fct_get_get_option() To get the option value
  */
 function fct_admin_setting_callback_suspense_ledger_id() {
-?>
 
-	<input name="_fct_suspense_ledger_id" type="text" id="_fct_suspense_ledger_id" value="<?php fct_form_option( '_fct_suspense_ledger_id', 999 ); ?>" />
-	<label for="_fct_suspense_ledger_id"><?php _e( 'Fiscaat Ledger id', 'fiscaat' ); ?></label>
-
-<?php
+	/* translators: 1: Fiscaat account number dropdown. */
+	printf( __( 'Use account %s to hold all records that you want to give a temporary location.', 'fiscaat' ),
+		fct_get_ledger_dropdown( array( 
+			'select_id' => '_fct_suspense_ledger_id',
+			'selected'  => fct_get_form_option( '_fct_suspense_ledger_id', 999 ),
+			'show_none' => '&mdash;',
+		) )
+	);
 }
 
 /** Per Page Section **********************************************************/
