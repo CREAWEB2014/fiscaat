@@ -518,14 +518,16 @@ class Fiscaat_Accounts_Admin {
 		// Show the number dropdown
 		fct_ledger_dropdown( array(
 			'selected'  => isset( $_GET['fct_ledger_id'] ) ? $_GET['fct_ledger_id'] : '',
-			'show_none' => '&mdash;'
+			'show_none' => '&mdash;',
 		) );
 
 		// Show the account number dropdown
 		// @todo Show ledger ids in *all* periods
 		fct_account_ledger_dropdown( array(
 			'selected'  => isset( $_GET['fct_account_ledger_id'] ) ? $_GET['fct_account_ledger_id'] : '',
-			'show_none' => '&mdash;'
+			'show_none' => '&mdash;',
+			'orderby'   => 'meta_value_num',
+			'meta_key'  => '_fct_ledger_id',
 		) );
 
 		// Get which period is selected. Default to current period
@@ -534,7 +536,7 @@ class Fiscaat_Accounts_Admin {
 		// Show the periods dropdown
 		fct_dropdown( array(
 			'selected'  => $selected,
-			'show_none' => __( 'In all periods', 'fiscaat' )
+			'show_none' => __( 'In all periods', 'fiscaat' ),
 		) );
 	}
 

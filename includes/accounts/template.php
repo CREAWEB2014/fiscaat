@@ -1741,11 +1741,11 @@ function fct_ledger_dropdown( $args = '' ) {
 		$from    = " FROM {$wpdb->posts} p INNER JOIN {$wpdb->postmeta} pm ON (p.ID = pm.post_id)";
 		$where   = $wpdb->prepare( " WHERE p.post_type = %s AND pm.meta_key = %s", fct_get_account_post_type(), '_fct_ledger_id' );
 		$orderby = " ORDER BY pm.meta_value+0";
-		$order   = ( 'DESC' == strtoupper( $order ) ) ? ' DESC' : ' ASC';
+		$order   = ( 'DESC' == strtoupper( $r['order'] ) ) ? ' DESC' : ' ASC';
 
 		// Select by post status
 		if ( ! empty( $r['post_status'] ) ) {
-			$where .= $wpdb->prepare( " AND (p.post_status = %s)", implode( "' OR p.post_status = '", $r['post_status'] ) );
+			$where .= sprintf( " AND (p.post_status = '%s')", implode( "' OR p.post_status = '", $r['post_status'] ) );
 		}
 
 		// Select by period parent
@@ -1753,10 +1753,15 @@ function fct_ledger_dropdown( $args = '' ) {
 			$where .= $wpdb->prepare( " AND p.post_parent = %s", (int) $r['post_parent'] );
 		}
 
-		list( $select, $from, $where, $orderby, $order ) = apply_filters( 'fct_get_ledger_dropdown_query_args', compact( 'select', 'from', 'where', 'orderby', 'order' ), $r );
+		// @todo Handle exclude
+
+		// Enable filtering of query args
+		$query_args = apply_filters( 'fct_get_ledger_dropdown_query_args', compact( 'select', 'from', 'where', 'orderby', 'order' ), $r );
+		extract( $query_args );
 
 		// Build and run query
 		$posts   = $wpdb->get_col( "$select$from$where$orderby$order" );
+		$retval  = '';
 
 		/** Drop Down *********************************************************/
 
