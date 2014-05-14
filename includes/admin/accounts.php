@@ -101,9 +101,6 @@ class Fiscaat_Accounts_Admin {
 
 		// Bulk actions
 		add_filter( 'fct_admin_accounts_bulk_action_close', array( $this, 'bulk_action_close' ), 10, 2 );
-
-		// Account records view link
-		// add_filter( 'get_edit_post_link', array( $this, 'accounts_edit_post_link' ), 10, 3 ); // Uncontrolled behavior
 	}
 
 	/**
@@ -509,28 +506,6 @@ class Fiscaat_Accounts_Admin {
 	}
 
 	/**
-	 * Return account records view link instead of edit post link
-	 * 
-	 * @param string $link Edit post link
-	 * @param int $post_id Current post id
-	 * @param mixed $context Context
-	 * @return string Account records view link
-	 */
-	public function accounts_edit_post_link( $link, $post_id, $context ) {
-		if ( $this->bail() ) 
-			return $link;
-
-		// Distinguish edit post links
-		if ( true === $context )
-			return $link;
-
-		// Build account records view link
-		$link = add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'fct_account_id' => $post_id ), admin_url( 'edit.php' ) );
-
-		return apply_filters( 'fct_admin_accounts_edit_post_link', $link, $post_id, $context );
-	}
-
-	/**
 	 * Add period dropdown to account and record list table filters
 	 *
 	 * @uses fct_dropdown() To generate a period dropdown
@@ -639,7 +614,7 @@ class Fiscaat_Accounts_Admin {
 	}
 
 	/**
-	 * Do some ordering and renaming with account post statuses
+	 * Reorder and rename account post statuses
 	 *
 	 * Manipulates the $wp_post_statuses global to rename the publish 
 	 * post status label to 'Open' to better reflect the opposite state 
@@ -670,14 +645,14 @@ class Fiscaat_Accounts_Admin {
 		if ( in_array( fct_get_closed_status_id(), $statuses ) ) {
 
 			// Get close post status
-			$post_status = $wp_post_statuses[ fct_get_closed_status_id() ];
+			$close_status = $wp_post_statuses[ fct_get_closed_status_id() ];
 
 			// Remove post status from array
 			unset( $wp_post_statuses[ fct_get_closed_status_id() ] );
 
 			// Insert post status in position
 			array_splice( $wp_post_statuses, array_search( fct_get_public_status_id(), $statuses ) + 1, 0, array( 
-				fct_get_closed_status_id() => $post_status
+				fct_get_closed_status_id() => $close_status
 			) );
 		}
 	}

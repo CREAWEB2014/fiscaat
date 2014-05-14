@@ -87,8 +87,8 @@ class Fiscaat_Records_Admin {
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
 		// Add ability to filter accounts and records per period
-		add_filter( 'restrict_manage_posts', array( $this, 'filter_dropdown'             )        );
-		add_filter( 'fct_request',           array( $this, 'filter_post_rows'            )        );
+		add_filter( 'restrict_manage_posts', array( $this, 'filter_dropdown'  ) );
+		add_filter( 'fct_request',           array( $this, 'filter_post_rows' ) );
 
 		// Record columns (in post row)
 		add_filter( 'fct_admin_records_get_columns', array( $this, 'records_column_headers' )        );

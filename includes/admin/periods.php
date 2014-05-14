@@ -441,7 +441,7 @@ class Fiscaat_Periods_Admin {
 	}
 
 	/**
-	 * Do some ordering and renaming with account post statuses
+	 * Reorder and rename period post statuses
 	 *
 	 * Manipulates the $wp_post_statuses global to rename the publish 
 	 * post status label to 'Open' to better reflect the opposite state 
