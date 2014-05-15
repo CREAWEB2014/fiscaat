@@ -398,6 +398,12 @@ class Fiscaat_Accounts_Admin {
 		<?php if ( isset( get_current_screen()->base ) && 'post' == get_current_screen()->base ) : ?>
 
 		<script type="text/javascript">
+
+			/**
+			 * Make an AJAX request to check if a ledger id already exists
+			 *
+			 * @since 0.0.1
+			 */
 			jQuery(document).ready( function($) {
 				var $ledger_id = $('input#fct_account_ledger_id'),
 				    orig_val   = $ledger_id.attr('value');
@@ -417,16 +423,16 @@ class Fiscaat_Accounts_Admin {
 								ledger_id: new_value
 							}, 
 							function ( response ) {
-								var resp = response.success ? 'success' : 'error',
-								    msg  = response.success ? '' : response.data.post.post_title;
+								var resp    = response.success ? 'success' : 'error',
+								    account = response.success ? '' : response.data.post.post_title;
 
 								// Show response icon
-								$('<span class="dashicons fct-badge-' + resp + '" title="' + msg + '"></span>')
+								$('<span class="dashicons fct-badge-' + resp + '" title="' + account + '"></span>')
 									.appendTo( $loader.hide().parent() ).delay(1500).fadeOut( function() {
 										$(this).remove(); // Remove element
 									});
 
-								// Reset original value on error
+								// Ledger id exists. Reset original value
 								if ( ! response.success ) {
 									$ledger_id.attr('value', orig_val);
 
