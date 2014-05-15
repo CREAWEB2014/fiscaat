@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 function fct_get_period_default_meta(){
 	return (array) apply_filters( 'fct_get_period_default_meta', array(
-		'closed'        => 0, // Period date closed
+		'close_date'    => 0, // Period close date
 		'account_count' => 0, // Total period account count
 		'record_count'  => 0, // Total record count
 		'end_value'     => 0, // Current period end value
@@ -197,7 +197,7 @@ function fct_open_period( $period_id = 0 ) {
 	$period->post_status = $period_status;
 
 	// Unset closed date
-	fct_update_period_meta( $period_id, 'closed', 0 );
+	fct_update_period_meta( $period_id, 'close_date', 0 );
 
 	// Remove old status meta
 	fct_delete_period_meta( $period_id, 'status' );
@@ -288,10 +288,10 @@ function fct_save_period_extras( $period_id = 0 ) {
 
 	/** Period Status ******************************************************/
 
-	if ( ! empty( $_POST['fct_period_status'] ) && in_array( $_POST['fct_period_status'], array( 'open', 'closed' ) ) ) {
-		if ( 'closed' == $_POST['fct_period_status'] && ! fct_is_period_closed( $period_id, false ) ) {
+	if ( ! empty( $_POST['fct_period_status'] ) && in_array( $_POST['fct_period_status'], array( fct_get_public_status_id(), fct_get_closed_status_id() ) ) ) {
+		if ( fct_get_closed_status_id() == $_POST['fct_period_status'] && ! fct_is_period_closed( $period_id, false ) ) {
 			fct_close_period( $period_id );
-		} elseif ( 'open' == $_POST['fct_period_status'] && fct_is_period_closed( $period_id, false ) ) {
+		} elseif ( fct_get_public_status_id() == $_POST['fct_period_status'] && fct_is_period_closed( $period_id, false ) ) {
 			fct_open_period( $period_id );
 		}
 	}
@@ -321,7 +321,7 @@ function fct_update_period_closed( $period_id = 0, $date = '' ) {
 		$date = fct_current_time( 'mysql', true );
 	}
 
-	fct_update_period_meta( $period_id, 'closed', $date );
+	fct_update_period_meta( $period_id, 'close_date', $date );
 
 	return apply_filters( 'fct_update_period_closed', $date, $period_id );
 }

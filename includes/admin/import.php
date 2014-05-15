@@ -56,9 +56,9 @@ class Fiscaat_Records_Importer {
 		add_action( 'fct_before_new_records_list_table', array( $this, 'import_button'   ) );
 
 		// Import modal
-		add_action( 'fct_admin_head',    array( $this, 'admin_head'      ) );
+		add_action( 'fct_admin_head',        array( $this, 'admin_head'      ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-		add_action( 'fct_admin_footer',  array( $this, 'import_modal'    ) );
+		add_action( 'fct_admin_footer',      array( $this, 'import_modal'    ) );
 
 		// Handle import file
 		add_action( 'wp_ajax_fct_records_import_process', array( $this, 'import_process' ) );
@@ -120,7 +120,7 @@ class Fiscaat_Records_Importer {
 
 			div#fct_import_message p.loading {
 				padding: 2px 20px 2px 2px;
-				background-image: url('<?php echo admin_url(); ?>images/wpspin_light.gif');
+				background-image: url('<?php echo admin_url(); ?>images/spinner.gif');
 				background-repeat: no-repeat;
 				background-position: center right;
 			}
@@ -139,20 +139,20 @@ class Fiscaat_Records_Importer {
 	 * Enqueue any import scripts we might need
 	 */
 	public function enqueue_scripts() {
-
-		if ( $this->bail() ) return;
+		if ( $this->bail() ) 
+			return;
 
 		// Ajax form handling
 		wp_enqueue_script( 'jquery-form' );
 
 		// Import script
-		wp_register_script( 'fiscaat-import', fiscaat()->admin->admin_url . 'scripts/fiscaat-import.js', array( 'jquery', 'jquery-form' ) );
-		wp_enqueue_script( 'fiscaat-import' );
-		wp_localize_script( 'fiscaat-import', 'fct_importL10n', array( 
-			'uploading' => __('Uploading file', 'fiscaat'),
-			'error'     => __('Import failed. Please try again.', 'fiscaat'),
-			'complete'  => __('Conversion Complete', 'fiscaat'),
-			'redirect'  => __('Importing Records', 'fiscaat'),
+		wp_register_script( 'fct-import', fiscaat()->admin->admin_url . 'scripts/fct-import.js', array( 'jquery', 'jquery-form' ) );
+		wp_enqueue_script( 'fct-import' );
+		wp_localize_script( 'fct-import', 'fct_importL10n', array( 
+			'uploading' => __( 'Uploading file',                   'fiscaat' ),
+			'error'     => __( 'Import failed. Please try again.', 'fiscaat' ),
+			'complete'  => __( 'Conversion Complete',              'fiscaat' ),
+			'redirect'  => __( 'Importing Records',                'fiscaat' ),
 		) );
 	}
 
@@ -160,8 +160,8 @@ class Fiscaat_Records_Importer {
 	 * Output the import records modal
 	 */
 	public function import_modal(){
-
-		if ( $this->bail() ) return;
+		if ( $this->bail() ) 
+			return;
 
 	?>
 		<div id="fct_import_modal" style="display: none;">
@@ -401,11 +401,9 @@ function fct_records_import_get_filetype( $type = '' ) {
  *                        the import methods
  */
 function fct_records_import_filetypes() {
+	return apply_filters( 'fct_records_import_filetypes', array(
 
-	// Create types array as extension => attributes
-	$types = array(
-
-		// CSV
+		// Comma Separated Values
 		'csv' => array(
 			'label'     => __('Comma separated', 'fiscaat'),
 			'extension' => 'csv',
@@ -417,7 +415,7 @@ function fct_records_import_filetypes() {
 				'application/vnd.ms-excel',
 				'application/vnd.msexcel',
 				'text/anytext',
-				),
+			),
 			'callback'  => 'fct_records_import_csv',
 		),
 
@@ -427,7 +425,7 @@ function fct_records_import_filetypes() {
 			'extension' => '940',
 			'mimetypes' => array(
 				'application/octet-stream' // Unknown type
-				),
+			),
 			'callback'  => 'fct_records_import_940',
 		),
 
@@ -437,10 +435,8 @@ function fct_records_import_filetypes() {
 			'extension' => 'sfc',
 			'mimetypes' => array(
 				'application/octet-stream' // Unknown type
-				),
+			),
 			'callback'  => 'fct_records_import_sfc',
 		),
-	);
-
-	return apply_filters( 'fct_records_import_filetypes', $types );
+	) );
 }
