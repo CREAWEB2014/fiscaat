@@ -485,7 +485,6 @@ function fct_admin_setting_callback_main_bank_account() {
 		fct_get_ledger_dropdown( array( 
 			'select_id' => '_fct_main_bank_ledger_id',
 			'selected'  => fct_get_form_option( '_fct_main_bank_ledger_id', 102 ),
-			'show_none' => '&mdash;',
 		) ),
 		"<input name=\"_fct_main_bank_account\" type=\"text\" id=\"_fct_main_bank_account\" value=\"" . fct_get_form_option( '_fct_main_bank_account', '' ) . '" />'
 	);
@@ -504,7 +503,6 @@ function fct_admin_setting_callback_second_bank_account() {
 		fct_get_ledger_dropdown( array( 
 			'select_id' => '_fct_second_bank_ledger_id',
 			'selected'  => fct_get_form_option( '_fct_second_bank_ledger_id', 103 ),
-			'show_none' => '&mdash;',
 		) ),
 		"<input name=\"_fct_second_bank_account\" type=\"text\" id=\"_fct_second_bank_account\" value=\"" . fct_get_form_option( '_fct_main_bank_account', '' ) . '" />'
 	);
@@ -523,7 +521,6 @@ function fct_admin_setting_callback_third_bank_account() {
 		fct_get_ledger_dropdown( array( 
 			'select_id' => '_fct_third_bank_ledger_id',
 			'selected'  => fct_get_form_option( '_fct_third_bank_ledger_id', 104 ),
-			'show_none' => '&mdash;',
 		) ),
 		"<input name=\"_fct_third_bank_account\" type=\"text\" id=\"_fct_third_bank_account\" value=\"" . fct_get_form_option( '_fct_main_bank_account', '' ) . '" />'
 	);
@@ -542,7 +539,6 @@ function fct_admin_setting_callback_balance_ledger_id() {
 		fct_get_ledger_dropdown( array( 
 			'select_id' => '_fct_balance_ledger_id',
 			'selected'  => fct_get_form_option( '_fct_balance_ledger_id', 199 ),
-			'show_none' => '&mdash;',
 		) )
 	);
 }
@@ -556,11 +552,10 @@ function fct_admin_setting_callback_balance_ledger_id() {
 function fct_admin_setting_callback_suspense_ledger_id() {
 
 	/* translators: 1: Fiscaat account number dropdown. */
-	printf( __( 'Use account %s to hold all records that you want to give a temporary location.', 'fiscaat' ),
+	printf( __( 'Use account %s to hold all records that you want to give a temporary destination.', 'fiscaat' ),
 		fct_get_ledger_dropdown( array( 
 			'select_id' => '_fct_suspense_ledger_id',
 			'selected'  => fct_get_form_option( '_fct_suspense_ledger_id', 999 ),
-			'show_none' => '&mdash;',
 		) )
 	);
 }

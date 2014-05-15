@@ -1726,7 +1726,7 @@ function fct_ledger_dropdown( $args = '' ) {
 
 		/** Setup Variables ***************************************************/
 
-		// Build query elements
+		// Build query args
 		$select  = "SELECT DISTINCT pm.meta_value";
 		$from    = " FROM {$wpdb->posts} p INNER JOIN {$wpdb->postmeta} pm ON (p.ID = pm.post_id)";
 		$where   = $wpdb->prepare( " WHERE p.post_type = %s AND pm.meta_key = %s", fct_get_account_post_type(), '_fct_ledger_id' );
@@ -1746,11 +1746,10 @@ function fct_ledger_dropdown( $args = '' ) {
 		// @todo Handle exclude
 
 		// Enable filtering of query args
-		$query_args = apply_filters( 'fct_get_ledger_dropdown_query_args', compact( 'select', 'from', 'where', 'orderby', 'order' ), $r );
-		extract( $query_args );
+		$qargs = apply_filters( 'fct_get_ledger_dropdown_query_args', compact( 'select', 'from', 'where', 'orderby', 'order' ), $r );
 
 		$retval  = '';
-		$posts   = $wpdb->get_col( "$select$from$where$orderby$order" );
+		$posts   = $wpdb->get_col( "{$qargs['select']}{$qargs['from']}{$qargs['where']}{$qargs['orderby']}{$qargs['order']}" );
 
 		/** Drop Down *********************************************************/
 
@@ -1789,7 +1788,9 @@ function fct_ledger_dropdown( $args = '' ) {
 
 			// Otherwise, create one ourselves
 			} else {
-				$retval .= esc_html__( '&mdash; None &mdash;', 'fiscaat' );
+
+				/* translators: 'no-value' select ledger id */
+				$retval .= esc_html_x( '&mdash;', 'select no-value', 'fiscaat' );
 			}
 
 			// Close the 'no-value' option tag
