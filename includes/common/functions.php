@@ -109,14 +109,15 @@ function fct_float_format( $value = '' ) {
 /**
  * Convert time supplied from database query into specified date format.
  *
+ * @uses mysql2date() To convert the format
+ * @uses apply_filters() Calls 'fct_convert_date' with the time, date format
+ *                        and translate bool
+ *
  * @param int|object $time The database time to be converted
  * @param string $d Optional. Default is 'U'. Either 'G', 'U', or php date
  *                   format
  * @param bool $translate Optional. Default is false. Whether to translate the
  *                         result
- * @uses mysql2date() To convert the format
- * @uses apply_filters() Calls 'fct_convert_date' with the time, date format
- *                        and translate bool
  * @return string Returns timestamp
  */
 function fct_convert_date( $time, $d = 'U', $translate = false ) {
@@ -128,11 +129,12 @@ function fct_convert_date( $time, $d = 'U', $translate = false ) {
 /**
  * Return current time in given format
  * 
- * @param string $type Optional. Defaults to 'mysql' database format
- * @param boolean $gmt Optional. Whether to return GMT
  * @uses current_time() To get the current time
  * @uses apply_filters() Calls 'fct_current_time' with the current time
  *                        and the format type
+ *
+ * @param string $type Optional. Defaults to 'mysql' database format
+ * @param boolean $gmt Optional. Whether to return GMT
  * @return string Current time
  */
 function fct_current_time( $type = 'mysql', $gmt = false ){

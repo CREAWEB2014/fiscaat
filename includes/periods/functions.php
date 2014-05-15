@@ -20,10 +20,11 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 function fct_get_period_default_meta(){
 	return (array) apply_filters( 'fct_get_period_default_meta', array(
-		'close_date'    => 0, // Period close date
-		'account_count' => 0, // Total period account count
-		'record_count'  => 0, // Total record count
-		'end_value'     => 0, // Current period end value
+		'open_date'     => fct_current_time( 'mysql', true ), // Period open time
+		'close_date'    => 0,                                 // Period close date
+		'account_count' => 0,                                 // Total period account count
+		'record_count'  => 0,                                 // Total record count
+		'end_value'     => 0,                                 // Current period end value
 	) );
 }
 
