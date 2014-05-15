@@ -709,9 +709,9 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 				switch ( fct_get_account_type( $account_id ) ) {
 					case fct_get_capital_account_type_id() :
 						if ( $start ) {
-							_e( 'Start Balance', 'fiscaat' );
+							_e( 'Beginning Balance', 'fiscaat' );
 						} else {
-							_e( 'End Balance',   'fiscaat' );
+							_e( 'Ending Balance',    'fiscaat' );
 						}
 						break;
 
