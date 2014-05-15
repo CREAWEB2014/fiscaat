@@ -564,6 +564,13 @@ class Fiscaat_Accounts_Admin {
 			$query_vars['post_parent'] = fct_get_current_period_id();
 		}
 
+		/** Post Status *******************************************************/
+
+		// Query only public post statuses (no draft) by default
+		if ( ! isset( $_REQUEST['post_status'] ) || empty( $_REQUEST['post_status'] ) ) {
+			$query_vars['post_status'] = implode( ',', fct_get_post_stati( fct_get_account_post_type() ) );
+		}
+
 		/** Ledger ************************************************************/
 
 		// Query by ledger id
@@ -639,28 +646,46 @@ class Fiscaat_Accounts_Admin {
 		if ( $this->bail() )
 			return;
 
-		// Get all post status ids
-		$statuses = array_keys( $wp_post_statuses );
+		// Loop all post status ids
+		foreach ( array_keys( $wp_post_statuses ) as $status ) {
 
-		// Rename publish post status labels
-		if ( in_array( fct_get_public_status_id(), $statuses ) ) {
-			$wp_post_statuses[ fct_get_public_status_id() ]->label       = __( 'Open', 'post', 'fiscaat' );
-			$wp_post_statuses[ fct_get_public_status_id() ]->label_count = _nx_noop( 'Open <span class="count">(%s)</span>', 'Open <span class="count">(%s)</span>', 'post', 'fiscaat' );
-		}
+			// Check post status
+			switch ( $status ) {
 
-		// Move close post status in array
-		if ( in_array( fct_get_closed_status_id(), $statuses ) ) {
+				// Publish
+				case fct_get_public_status_id() :
 
-			// Get close post status
-			$close_status = $wp_post_statuses[ fct_get_closed_status_id() ];
+					// Rename publish post status labels
+					$wp_post_statuses[ fct_get_public_status_id() ]->label       = __( 'Open', 'post', 'fiscaat' );
+					$wp_post_statuses[ fct_get_public_status_id() ]->label_count = _nx_noop( 'Open <span class="count">(%s)</span>', 'Open <span class="count">(%s)</span>', 'post', 'fiscaat' );
 
-			// Remove post status from array
-			unset( $wp_post_statuses[ fct_get_closed_status_id() ] );
+					break;
 
-			// Insert post status in position
-			array_splice( $wp_post_statuses, array_search( fct_get_public_status_id(), $statuses ) + 1, 0, array( 
-				fct_get_closed_status_id() => $close_status
-			) );
+				// Draft
+				case 'draft' :
+
+					// Remove from admin all list and show in admin status list conditionally
+					$wp_post_statuses['draft']->show_in_admin_all_list    = false;
+					$wp_post_statuses['draft']->show_in_admin_status_list = current_user_can( 'edit_accounts' );
+
+					break;
+
+				// Closed
+				case fct_get_closed_status_id() :
+
+					// Get close post status
+					$close_status = $wp_post_statuses[ fct_get_closed_status_id() ];
+
+					// Remove post status from array
+					unset( $wp_post_statuses[ fct_get_closed_status_id() ] );
+
+					// Insert post status in position
+					array_splice( $wp_post_statuses, array_search( fct_get_public_status_id(), array_keys( $wp_post_statuses ) ) + 1, 0, array( 
+						fct_get_closed_status_id() => $close_status
+					) );
+
+					break;
+			}
 		}
 	}
 
