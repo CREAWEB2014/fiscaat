@@ -25,7 +25,33 @@ function fct_get_record_default_meta(){
 		'record_date'    => '',                          // Physical record date
 		'record_type'    => '',                          // 'debit' or 'credit'
 		'amount'         => 0,                           // Amount
-		'offset_account' => '',                          // External account received from or sent to
+		'offset_account' => '',                          // Bank account received from or sent to
+
+		/**
+		 * Suggested single-entry record meta setup
+		 *
+		 * This would eliminate the need for double record entries while 
+		 * keeping the same amount of record meta items (record_type is 
+		 * replaced by a second account_id). The only side note thus far 
+		 * seems to be the lacking possibility for a separate description 
+		 * field on both debit and credit sides. An additional meta field
+		 * can solve this.
+		 *
+		 * With the new setup accounts can calculate their ending balances
+		 * by comparing all records that have an associated debit_account_id
+		 * meta and credit_account_id value respectively.
+		 *
+		 * This means though that a record has not one single parent account,
+		 * but two. This will reflect on how record parenting is used
+		 * throughout Fiscaat, so this may receive a second opinion. One 
+		 * option is to make the period the direct post parent.
+		 */
+		// 'period_id'         => fct_get_current_period_id(), // Period
+		// 'debit_account_id'  => 0,                           // Debited account
+		// 'credit_account_id' => 0,                           // Credited account
+		// 'record_date'       => '',                          // Physical record date
+		// 'amount'            => 0,                           // Amount
+		// 'offset_account'    => '',                          // Bank account received from or sent to
 	) );
 }
 
