@@ -402,6 +402,14 @@ class Fiscaat_Admin {
 		$post_new_file    = fct_admin_get_post_new_file();
 
 		/**
+		 * Notify user when things are wrong. Though do not check
+		 * if user can edit posts, since Spectators are allowed
+		 * to view Fiscaat.
+		 */
+		if ( ! $post_type_object )
+			wp_die( __( 'Invalid post type' ) );
+
+		/**
 		 * Set the correct edit-post_type screen data for the page.
 		 * 
 		 * Previous to this moment set_current_screen() ran without a
