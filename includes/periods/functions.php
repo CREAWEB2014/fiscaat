@@ -84,7 +84,7 @@ function fct_delete_period_meta( $period_id, $meta_key ){
 function fct_insert_period( $period_data = array(), $period_meta = array() ) {
 
 	// Period
-	$default_period = array(
+	$period_data = fct_parse_args( $period_data, array(
 		'post_parent'    => 0, // period ID
 		'post_status'    => fct_get_public_status_id(),
 		'post_type'      => fct_get_period_post_type(),
@@ -94,8 +94,7 @@ function fct_insert_period( $period_data = array(), $period_meta = array() ) {
 		'post_title'     => '',
 		'menu_order'     => 0,
 		'comment_status' => 'closed'
-	);
-	$period_data = fct_parse_args( $period_data, $default_period, 'insert_period' );
+	), 'insert_period' );
 
 	// Insert period
 	$period_id   = wp_insert_post( $period_data );
@@ -242,6 +241,18 @@ function fct_bump_period_record_count( $period_id = 0, $difference = 1 ) {
 	return (int) apply_filters( 'fct_bump_period_record_count', (int) $new_count, $period_id, (int) $difference );
 }
 
+	/**
+	 * Less the total record count of a period
+	 *
+	 * @since 0.0.9
+	 *
+	 * @param int $period_id Period ID
+	 * @return int Period record count
+	 */
+	function fct_less_period_record_count( $period_id = 0 ) {
+		return fct_bump_period_record_count( $period_id, -1 );
+	}
+
 /**
  * Bump the total account count of a period
  *
@@ -266,6 +277,18 @@ function fct_bump_period_account_count( $period_id = 0, $difference = 1 ) {
 
 	return (int) apply_filters( 'fct_bump_period_account_count', (int) $new_count, $period_id, (int) $difference );
 }
+
+	/**
+	 * Less the total account count of a period
+	 *
+	 * @since 0.0.9
+	 *
+	 * @param int $period_id Period ID
+	 * @return int Period account count
+	 */
+	function fct_less_period_account_count( $period_id = 0 ) {
+		return fct_bump_period_account_count( $period_id, -1 );
+	}
 
 /** Period Updaters ************************************************************/
 

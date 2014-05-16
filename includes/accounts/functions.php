@@ -84,7 +84,7 @@ function fct_delete_account_meta( $account_id, $meta_key ){
 function fct_insert_account( $account_data = array(), $account_meta = array() ) {
 
 	// Account
-	$default_account = array(
+	$account_data = fct_parse_args( $account_data, array(
 		'post_parent'    => fct_get_current_period_id(), // Period id
 		'post_status'    => fct_get_public_status_id(),
 		'post_type'      => fct_get_account_post_type(),
@@ -94,10 +94,7 @@ function fct_insert_account( $account_data = array(), $account_meta = array() ) 
 		'post_title'     => '',
 		'comment_status' => 'closed',
 		'menu_order'     => 0,
-	);
-
-	// Parse args
-	$account_data = fct_parse_args( $account_data, $default_account, 'insert_account' );
+	), 'insert_account' );
 
 	// Insert account
 	$account_id   = wp_insert_post( $account_data );

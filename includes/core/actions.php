@@ -185,18 +185,6 @@ add_action( 'trashed_post',   'fct_trashed_account'   );
 add_action( 'untrashed_post', 'fct_untrashed_account' );
 add_action( 'deleted_post',   'fct_deleted_account'   );
 
-// Update account branch
-// add_action( 'fct_trashed_account',   'fct_update_account_walker' );
-// add_action( 'fct_untrashed_account', 'fct_update_account_walker' );
-// add_action( 'fct_deleted_account',   'fct_update_account_walker' );
-
-// Update record branch
-// add_action( 'fct_trashed_record',    'fct_update_record_walker' );
-// add_action( 'fct_untrashed_record',  'fct_update_record_walker' );
-// add_action( 'fct_deleted_record',    'fct_update_record_walker' );
-// add_action( 'fct_disallowed_record', 'fct_update_record_walker' );
-// add_action( 'fct_allowed_record',    'fct_update_record_walker' );
-
 // User role and meta
 add_action( 'fct_profile_update', 'fct_profile_update_role'             );
 add_action( 'fct_profile_update', 'fct_profile_update_global_spectator' );

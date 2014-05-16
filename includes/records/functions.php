@@ -28,23 +28,33 @@ function fct_get_record_default_meta(){
 		'offset_account' => '',                          // Bank account received from or sent to
 
 		/**
-		 * Suggested single-entry record meta setup
+		 * Suggested single-entry record meta schema
 		 *
 		 * This would eliminate the need for double record entries while 
 		 * keeping the same amount of record meta items (record_type is 
 		 * replaced by a second account_id). The only side note thus far 
-		 * seems to be the lacking possibility for a separate description 
-		 * field on both debit and credit sides. An additional meta field
-		 * can solve this.
+		 * seems to be the lacking direct possibility for a separate 
+		 * description field on both debit and credit sides. An additional 
+		 * meta field can solve this.
 		 *
-		 * With the new setup accounts can calculate their ending balances
-		 * by comparing all records that have an associated debit_account_id
-		 * meta and credit_account_id value respectively.
+		 * Main benefits of this schema are:
+		 *  - less (half) record entries
+		 *  - tracebility by directly linking a single record to two accounts
+		 *  - reduced error rate in amount miscalculations
+		 *  - 
 		 *
 		 * This means though that a record has not one single parent account,
 		 * but two. This will reflect on how record parenting is used
 		 * throughout Fiscaat, so this may receive a second opinion. One 
-		 * option is to make the period the direct post parent.
+		 * option is to make the period the direct post parent, which means
+		 * that accounts no longer would have children posts. Since querying
+		 * records by account is already mostly done through the account_id
+		 * post meta, this makes no big difference.
+		 *
+		 * With the new sechma accounts can calculate their ending balances
+		 * by comparing all records that have an associated debit_account_id
+		 * meta and credit_account_id value respectively. So there's nothing
+		 * new.
 		 */
 		// 'period_id'         => fct_get_current_period_id(), // Period
 		// 'debit_account_id'  => 0,                           // Debited account
@@ -111,7 +121,7 @@ function fct_delete_record_meta( $record_id, $meta_key ){
 function fct_insert_record( $record_data = array(), $record_meta = array() ) {
 
 	// Record
-	$default_record = array(
+	$record_data = fct_parse_args( $record_data, array(
 		'post_parent'    => 0, // Account ID
 		'post_status'    => fct_get_public_status_id(),
 		'post_type'      => fct_get_record_post_type(),
@@ -121,8 +131,7 @@ function fct_insert_record( $record_data = array(), $record_meta = array() ) {
 		'post_title'     => '',
 		'menu_order'     => 0,
 		'comment_status' => 'open' // @todo Fix comment system
-	);
-	$record_data = fct_parse_args( $record_data, $default_record, 'insert_record' );
+	), 'insert_record' );
 
 	// Insert record
 	$record_id   = wp_insert_post( $record_data );

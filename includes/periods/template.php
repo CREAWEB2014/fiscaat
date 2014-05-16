@@ -52,13 +52,12 @@ function fct_has_periods( $args = '' ) {
 	$fct = fiscaat();
 
 	// The default period query for most circumstances
-	$defaults = array(
+	$fct_f = fct_parse_args( $args, array(
 		'post_type'      => fct_get_period_post_type(),
 		'posts_per_page' => get_option( '_fct_periods_per_page', 25 ),
 		'orderby'        => 'post_date',
 		'order'          => 'DESC'
-	);
-	$fct_f = fct_parse_args( $args, $defaults, 'has_periods' );
+	), 'has_periods' );
 
 	// Run the query
 	$fct->period_query = new WP_Query( $fct_f );
