@@ -722,6 +722,9 @@ class Fiscaat_Accounts_Admin {
 	 * Add accounts bulk actions
 	 *
 	 * @since 0.0.9
+	 *
+	 * @uses fct_get_trash_status_id()
+	 * @uses fct_get_closed_status_id()
 	 * 
 	 * @param array $actions Bulk actions
 	 * @return array Bulk actions
@@ -753,6 +756,9 @@ class Fiscaat_Accounts_Admin {
 	 * Process accounts close bulk action
 	 *
 	 * @since 0.0.9
+	 *
+	 * @uses fct_is_account_closed()
+	 * @uses fct_close_account()
 	 * 
 	 * @param string $sendback Redirect url
 	 * @param string $doaction Bulk action
@@ -784,6 +790,9 @@ class Fiscaat_Accounts_Admin {
 	 * Process accounts open bulk action
 	 *
 	 * @since 0.0.9
+	 *
+	 * @uses fct_is_account_open()
+	 * @uses fct_open_account()
 	 * 
 	 * @param string $sendback Redirect url
 	 * @param string $doaction Bulk action
