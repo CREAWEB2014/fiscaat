@@ -784,9 +784,9 @@ class Fiscaat_Accounts_Admin {
 			if ( current_user_can( 'close_account', $account->ID ) ) {
 				$close_uri = esc_url( wp_nonce_url( add_query_arg( array( 'account_id' => $account->ID, 'action' => 'fct_toggle_account_close' ), remove_query_arg( array( 'fct_account_toggle_notice', 'account_id', 'failed', 'super' ) ) ), 'close-account_' . $account->ID ) );
 				if ( fct_is_account_open( $account->ID ) ) {
-					$actions['closed'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Close this account', 'fiscaat' ) . '">' . _x( 'Close', 'Close the account', 'fiscaat' ) . '</a>';
+					$actions['close'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Close this account', 'fiscaat' ) . '">' . _x( 'Close', 'Close the account', 'fiscaat' ) . '</a>';
 				} else {
-					$actions['open']   = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Open this account',  'fiscaat' ) . '">' . _x( 'Open',  'Open the account',  'fiscaat' ) . '</a>';
+					$actions['open']  = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Open this account',  'fiscaat' ) . '">' . _x( 'Open',  'Open the account',  'fiscaat' ) . '</a>';
 				}
 			}
 		}
@@ -802,6 +802,13 @@ class Fiscaat_Accounts_Admin {
 
 			if ( fct_get_trash_status_id() == $account->post_status || ! EMPTY_TRASH_DAYS ) {
 				$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'page' => 'fct-accounts' ), admin_url( 'admin.php' ) ) ), get_delete_post_link( $account->ID, '', true ) ) . "'>" . __( 'Delete', 'fiscaat' ) . "</a>";
+			}
+		}
+
+		// Remove manipulative actions when parent period is closed
+		if ( fct_is_period_closed( fct_get_account_period_id( $account->ID ) ) ) {
+			foreach ( array( 'edit', 'close', 'open', 'untrash', 'trash', 'delete' ) as $action ) {
+				unset( $actions[ $action ] );
 			}
 		}
 
