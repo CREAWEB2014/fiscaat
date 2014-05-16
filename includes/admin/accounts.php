@@ -100,7 +100,10 @@ class Fiscaat_Accounts_Admin {
 		add_filter( 'post_row_actions',               array( $this, 'accounts_row_actions'    ), 10, 2 );
 
 		// Bulk actions
-		add_filter( 'fct_admin_accounts_bulk_action_close', array( $this, 'bulk_action_close' ), 10, 2 );
+		add_filter( 'fct_admin_accounts_get_bulk_actions',  array( $this, 'accounts_bulk_actions'  ), 10, 2 );
+		add_filter( 'fct_admin_accounts_bulk_action_close', array( $this, 'bulk_action_close'      ), 10, 2 );
+		add_filter( 'fct_admin_accounts_bulk_action_open',  array( $this, 'bulk_action_open'       ), 10, 2 );
+		add_filter( 'fct_admin_remove_bulk_query_args',     array( $this, 'bulk_remove_query_args' )        );
 	}
 
 	/**
@@ -690,7 +693,7 @@ class Fiscaat_Accounts_Admin {
 	}
 
 	/**
-	 * Define post states that are displayed after the post title
+	 * Define post states that are appended to the post title
 	 *
 	 * @since 0.0.9
 	 *
@@ -716,6 +719,37 @@ class Fiscaat_Accounts_Admin {
 	/** Bulk Actions **********************************************************/
 
 	/**
+	 * Add accounts bulk actions
+	 *
+	 * @since 0.0.9
+	 * 
+	 * @param array $actions Bulk actions
+	 * @return array Bulk actions
+	 */
+	public function accounts_bulk_actions( $actions ) {
+
+		// Setup local vars
+		$_actions    = array();
+		$post_status = isset( $_REQUEST['post_status'] ) ? $_REQUEST['post_status'] : '';
+
+		// Not on trash or draft pages
+		if ( ! in_array( $post_status, array( 'draft', fct_get_trash_status_id() ) ) && current_user_can( 'close_accounts' ) ) {
+
+			// Close
+			if ( fct_get_closed_status_id() != $post_status ) {
+				$_actions['close'] = _x( 'Close', 'bulk action', 'fiscaat' );
+			}
+
+			// Open
+			$_actions['open'] = _x( 'Open', 'bulk action', 'fiscaat' );
+		}
+
+		// Prepend close/open actions
+		$actions = array_merge( $_actions, $actions );
+		return $actions;
+	}
+
+	/**
 	 * Process accounts close bulk action
 	 *
 	 * @since 0.0.9
@@ -726,18 +760,74 @@ class Fiscaat_Accounts_Admin {
 	 * @return string Redirect url
 	 */
 	public function bulk_action_close( $sendback, $post_ids ) {
+
+		// Setup local var
 		$closed = 0;
+
 		foreach ( $post_ids as $post_id ) {
-			if ( ! current_user_can( 'edit_account', $post_id ) )
+			if ( ! current_user_can( 'close_account', $post_id ) )
 				wp_die( __( 'You are not allowed to close this item.', 'fiscaat' ) );
 
-			if ( ! fct_close_account( $post_ids ) )
+			if ( fct_is_account_closed( $post_id ) )
+				continue;
+
+			if ( ! fct_close_account( $post_id ) )
 				wp_die( __( 'Error in closing.', 'fiscaat' ) );
 
 			$closed++;
 		}
-		$sendback = add_query_arg( 'closed', $closed, $sendback );
-		return $sendback;
+
+		return add_query_arg( 'closed', $closed, $sendback );
+	}
+
+	/**
+	 * Process accounts open bulk action
+	 *
+	 * @since 0.0.9
+	 * 
+	 * @param string $sendback Redirect url
+	 * @param string $doaction Bulk action
+	 * @param array $post_ids Post ids
+	 * @return string Redirect url
+	 */
+	public function bulk_action_open( $sendback, $post_ids ) {
+
+		// Setup local var
+		$opened = 0;
+
+		foreach ( $post_ids as $post_id ) {
+			if ( ! current_user_can( 'close_account', $post_id ) )
+				wp_die( __( 'You are not allowed to open this item.', 'fiscaat' ) );
+
+			if ( fct_is_account_open( $post_id ) )
+				continue;
+
+			if ( ! fct_open_account( $post_id ) )
+				wp_die( __( 'Error in opening.', 'fiscaat' ) );
+
+			$opened++;
+		}
+
+		return add_query_arg( 'opened', $opened, $sendback );
+	}
+
+	/**
+	 * Add to the args to remove from the bulk query
+	 *
+	 * @since 0.0.9
+	 * 
+	 * @param array $args Query args
+	 * @return array Query args
+	 */
+	public function bulk_remove_query_args( $args ) {
+		if ( $this->bail() )
+			return $args;
+
+		// Add query args
+		$args[] = 'closed';
+		$args[] = 'opened';
+
+		return $args;
 	}
 
 	/** Post Actions **********************************************************/

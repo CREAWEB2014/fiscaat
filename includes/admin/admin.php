@@ -414,9 +414,9 @@ class Fiscaat_Admin {
 		/**
 		 * Run page type specific load hook.
 		 *
-		 * Runs before instantiating the list table. Based on the 
-		 * load-* hook. Fires before the particular post type edit 
-		 * screen is loaded.
+		 * Based on the load-* hook. Fires before the particular 
+		 * post type edit screen is loaded. Runs before instantiating 
+		 * the list table. 
 		 * 
 		 * The dynamic portion of the hook name, $type, refers to the
 		 * type of object on the page. This can be one of Fiscaat's
@@ -440,7 +440,15 @@ class Fiscaat_Admin {
 		if ( $doaction ) {
 			check_admin_referer( "bulk-{$wp_list_table->_args['plural']}" );
 
-			$sendback = remove_query_arg( array('trashed', 'untrashed', 'deleted', 'locked', 'ids'), wp_get_referer() );
+			/**
+			 * Remove query args from the redirect url.
+			 *
+			 * @since 0.0.9
+			 * 
+			 * @param array $query_args Query args
+			 * @return array Query args
+			 */
+			$sendback = remove_query_arg( apply_filters( 'fct_admin_remove_bulk_query_args', array('trashed', 'untrashed', 'deleted', 'locked', 'ids') ), wp_get_referer() );
 			if ( ! $sendback )
 				$sendback = admin_url( $parent_file );
 			$sendback = add_query_arg( 'paged', $pagenum, $sendback );
@@ -484,7 +492,7 @@ class Fiscaat_Admin {
 					$trashed = $locked = 0;
 					foreach( (array) $post_ids as $post_id ) {
 						if ( ! current_user_can( 'delete_post', $post_id) )
-							wp_die( __('You are not allowed to move this item to the Trash.') );
+							wp_die( __( 'You are not allowed to move this item to the Trash.' ) );
 
 						if ( wp_check_post_lock( $post_id ) ) {
 							$locked++;
@@ -492,7 +500,7 @@ class Fiscaat_Admin {
 						}
 
 						if ( ! wp_trash_post( $post_id ) )
-							wp_die( __('Error in moving to Trash.') );
+							wp_die( __( 'Error in moving to Trash.' ) );
 
 						$trashed++;
 					}
@@ -502,10 +510,10 @@ class Fiscaat_Admin {
 					$untrashed = 0;
 					foreach( (array) $post_ids as $post_id ) {
 						if ( ! current_user_can( 'delete_post', $post_id ) )
-							wp_die( __('You are not allowed to restore this item from the Trash.') );
+							wp_die( __( 'You are not allowed to restore this item from the Trash.' ) );
 
 						if ( ! wp_untrash_post($post_id) )
-							wp_die( __('Error in restoring from Trash.') );
+							wp_die( __( 'Error in restoring from Trash.' ) );
 
 						$untrashed++;
 					}
@@ -514,30 +522,15 @@ class Fiscaat_Admin {
 				case 'delete':
 					$deleted = 0;
 					foreach( (array) $post_ids as $post_id ) {
-						$post_del = get_post($post_id);
-
 						if ( ! current_user_can( 'delete_post', $post_id ) )
-							wp_die( __('You are not allowed to delete this item.') );
+							wp_die( __( 'You are not allowed to delete this item.' ) );
 
-						if ( ! wp_delete_post($post_id) )
-							wp_die( __('Error in deleting.') );
+						if ( ! wp_delete_post( $post_id ) )
+							wp_die( __( 'Error in deleting.' ) );
 
 						$deleted++;
 					}
-					$sendback = add_query_arg('deleted', $deleted, $sendback);
-					break;
-				case 'close':
-					$closed = 0;
-					foreach ( $post_ids as $post_id ) {
-						if ( ! current_user_can( 'edit_post', $post_id ) )
-							wp_die( __( 'You are not allowed to close this item.', 'fiscaat' ) );
-
-						if ( ! fct_close_account( $post_ids ) )
-							wp_die( __( 'Error in closing.', 'fiscaat' ) );
-
-						$closed++;
-					}
-					$sendback = add_query_arg( 'closed', $closed, $sendback );
+					$sendback = add_query_arg( 'deleted', $deleted, $sendback );
 					break;
 
 				// Provide hook to execute custom bulk post actions
@@ -551,7 +544,7 @@ class Fiscaat_Admin {
 					 * Fiscaat's types 'record', 'account' or 'period'.
 					 *
 					 * The second dynamic portion of the hook name, $doaction, 
-					 * holds the bulk action being called.
+					 * holds the bulk action name being called.
 					 *
 					 * @since 0.0.9
 					 * 
@@ -559,7 +552,7 @@ class Fiscaat_Admin {
 					 * @param array  $post_ids Post ids
 					 * @return string Redirect url
 					 */
-					$sendback = apply_filters( 'fct_admin_{$type}s_bulk_action_{$doaction}', $sendback, $post_ids );
+					$sendback = apply_filters( "fct_admin_{$type}s_bulk_action_{$doaction}", $sendback, $post_ids );
 					break;
 			}
 

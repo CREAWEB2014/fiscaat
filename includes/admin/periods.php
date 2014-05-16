@@ -510,7 +510,7 @@ class Fiscaat_Periods_Admin {
 	}
 
 	/**
-	 * Define post states that are displayed after the post title
+	 * Define post states that are appended to the post title
 	 *
 	 * @since 0.0.9
 	 *

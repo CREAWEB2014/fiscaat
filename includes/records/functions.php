@@ -38,10 +38,14 @@ function fct_get_record_default_meta(){
 		 * meta field can solve this.
 		 *
 		 * Main benefits of this schema are:
-		 *  - less (half) record entries
-		 *  - tracebility by directly linking a single record to two accounts
-		 *  - reduced error rate in amount miscalculations
-		 *  - 
+		 *  - Less record entries (half)
+		 *  - Traceability by directly linking a single record to two accounts
+		 *  - Reduced error rate in amount miscalculations
+		 *
+		 * Main issues of this schema are:
+		 *  - Lost possibility of multiple opposite entries
+		 *  - Records cannot have a single parent account (post_parent)
+		 *  - One description field for two accounts (post_content)
 		 *
 		 * This means though that a record has not one single parent account,
 		 * but two. This will reflect on how record parenting is used

@@ -1691,7 +1691,7 @@ function fct_ledger_dropdown( $args = '' ) {
 			'class'              => false,
 			'tab'                => fct_get_tab_index(),
 			'options_only'       => false,
-			'show_none'          => false,
+			'show_none'          => '&mdash;',
 			'none_found'         => false,
 			'disable_closed'     => false,
 			'disabled'           => ''
@@ -1790,7 +1790,7 @@ function fct_ledger_dropdown( $args = '' ) {
 			} else {
 
 				/* translators: 'no-value' select ledger id */
-				$retval .= esc_html_x( '&mdash;', 'select no-value', 'fiscaat' );
+				$retval .= esc_html_x( '&mdash; None &mdash;', 'select no-value', 'fiscaat' );
 			}
 
 			// Close the 'no-value' option tag
