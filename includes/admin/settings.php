@@ -153,24 +153,38 @@ function fct_admin_get_settings_fields() {
 
 			// Main Bank Account
 			'_fct_main_bank_account' => array(
-				'title'             => __( 'Main Bank Account', 'fiscaat' ),
-				'callback'          => 'fct_admin_setting_callback_main_bank_account',
-				'sanitize_callback' => 'intval',
+				'title'             => __( 'Associate Bank Accounts', 'fiscaat' ),
+				'callback'          => 'fct_admin_setting_callback_associate_bank_accounts',
+				'sanitize_callback' => '',
 				'args'              => array()
 			),
 
-			// Second Bank Account
+			// Second Bank Account. See Main Bank Account
 			'_fct_second_bank_account' => array(
-				'title'             => __( 'Second Bank Account', 'fiscaat' ),
-				'callback'          => 'fct_admin_setting_callback_second_bank_account',
+				'sanitize_callback' => '',
+				'args'              => array()
+			),
+
+			// Third Bank Account. See Main Bank Account
+			'_fct_third_bank_account' => array(
+				'sanitize_callback' => '',
+				'args'              => array()
+			),
+
+			// Main Bank Account Ledger ID. See Main Bank Account
+			'_fct_main_bank_ledger_id' => array(
 				'sanitize_callback' => 'intval',
 				'args'              => array()
 			),
 
-			// Third Bank Account
-			'_fct_third_bank_account' => array(
-				'title'             => __( 'Third Bank Account', 'fiscaat' ),
-				'callback'          => 'fct_admin_setting_callback_third_bank_account',
+			// Second Bank Account Ledger ID. See Main Bank Account
+			'_fct_second_bank_ledger_id' => array(
+				'sanitize_callback' => 'intval',
+				'args'              => array()
+			),
+
+			// Third Bank Account Ledger ID. See Main Bank Account
+			'_fct_third_bank_ledger_id' => array(
 				'sanitize_callback' => 'intval',
 				'args'              => array()
 			),
@@ -380,7 +394,8 @@ function fct_admin_setting_callback_currency() {
 	fct_currency_dropdown( array( 
 		'select_id' => '_fct_currency',
 		'selected'  => fct_get_currency(),
-		'disabled'  => fct_maybe_admin_setting_disabled( '_fct_currency' )
+		'disabled'  => fct_maybe_admin_setting_disabled( '_fct_currency' ),
+		'tab'       => false,
 	) );
 }
 
@@ -391,13 +406,14 @@ function fct_admin_setting_callback_currency() {
  * @uses fct_get_amount() To get a currency value representation
  */
 function fct_admin_setting_callback_currency_position() {
-	$options = fct_get_currency_positions(); ?>
+	$options = fct_get_currency_positions(); 
+	$option  = fct_get_form_option( '_fct_currency_position' ); ?>
 
 	<select id="_fct_currency_position" name="_fct_currency_position" <?php fct_maybe_admin_setting_disabled( '_fct_currency_position' ); ?>>
 
 		<?php foreach ( $options as $position => $label ) :
 
-			echo "<option value='$position' " . selected( fct_get_form_option( '_fct_currency_position' ), $position, false ) . ">$label (" . fct_get_currency_format( '99.99', $position ) . ")</option>";
+			echo "<option value=\"$position\" " . selected( $option, $position, false ) . ">$label (" . fct_get_currency_format( '99.99', $position ) . ')</option>';
 
 		endforeach; ?>
 
@@ -467,7 +483,7 @@ function fct_admin_setting_callback_editing_section() {
 function fct_admin_setting_callback_accounts_section() {
 ?>
 
-	<p><?php _e( 'Here you can connect the dots between this system and your physical bank acccounts. Fiscaat uses the account numbers to recognize and set the right record accounts when importing banking data.', 'fiscaat' ); ?></p>
+	<p><?php _e( 'Settings for using accounts in Fiscaat.', 'fiscaat' ); ?></p>
 
 <?php
 }
@@ -475,55 +491,35 @@ function fct_admin_setting_callback_accounts_section() {
 /**
  * Main bank account setting field
  *
+ * @todo Make list of associations dynamic. Store as array?
+ * 
  * @uses fct_get_ledger_dropdown() To get the ledger id dropdown
  * @uses fct_get_form_option() To output the option value
  */
-function fct_admin_setting_callback_main_bank_account() {
+function fct_admin_setting_callback_associate_bank_accounts() {
+?>
 
-	/* translators: 1: Fiscaat account number dropdown, 2: Bank account number input field. */
-	printf( __( 'Use account %s to hold all records from the main bank account, which has number %s.', 'fiscaat' ),
-		fct_get_ledger_dropdown( array( 
-			'select_id' => '_fct_main_bank_ledger_id',
-			'selected'  => fct_get_form_option( '_fct_main_bank_ledger_id', 102 ),
-		) ),
-		"<input name=\"_fct_main_bank_account\" type=\"text\" id=\"_fct_main_bank_account\" value=\"" . fct_get_form_option( '_fct_main_bank_account', '' ) . '" />'
-	);
-}
+	<p><?php _e( 'Let Fiscaat know which bank accounts should be associated with any account in Fiscaat. When importing banking record data this helps Fiscaat to select the right accounts for you. Note: Fiscaat does not try to make a connection with your bank.', 'fiscaat' ); ?></p>
 
-/**
- * Second bank account setting field
- *
- * @uses fct_get_ledger_dropdown() To get the ledger id dropdown
- * @uses fct_get_form_option() To output the option value
- */
-function fct_admin_setting_callback_second_bank_account() {
+	<ol><?php
 
-	/* translators: 1: Fiscaat account number dropdown, 2: Bank account number input field. */
-	printf( __( 'Use account %s to hold all records from the second bank account, which has number %s.', 'fiscaat' ),
-		fct_get_ledger_dropdown( array( 
-			'select_id' => '_fct_second_bank_ledger_id',
-			'selected'  => fct_get_form_option( '_fct_second_bank_ledger_id', 103 ),
-		) ),
-		"<input name=\"_fct_second_bank_account\" type=\"text\" id=\"_fct_second_bank_account\" value=\"" . fct_get_form_option( '_fct_main_bank_account', '' ) . '" />'
-	);
-}
+	// Loop all associations
+	foreach ( array( 'main', 'second', 'third' ) as $name ) {
 
-/**
- * Third bank account setting field
- *
- * @uses fct_get_ledger_dropdown() To get the ledger id dropdown
- * @uses fct_get_form_option() To output the option value
- */
-function fct_admin_setting_callback_third_bank_account() {
+		/* translators: 1: Bank account number input field, 2: Fiscaat account number dropdown. */
+		printf( '<li>' . __( 'Associate bank account %s with account %s in Fiscaat.', 'fiscaat' ) . '</li>',
+			"<input name=\"_fct_{$name}_bank_account\" type=\"text\" id=\"_fct_{$name}_bank_account\" value=\"" . fct_get_form_option( "_fct_{$name}_bank_account", '' ) . '" />',
+			fct_get_ledger_dropdown( array( 
+				'select_id' => "_fct_{$name}_bank_ledger_id",
+				'selected'  => fct_get_form_option( "_fct_{$name}_bank_ledger_id" ),
+				'tab'       => false,
+			) )
+		);
+	}
 
-	/* translators: 1: Fiscaat account number dropdown, 2: Bank account number input field. */
-	printf( __( 'Use account %s to hold all records from the third bank account, which has number %s.', 'fiscaat' ),
-		fct_get_ledger_dropdown( array( 
-			'select_id' => '_fct_third_bank_ledger_id',
-			'selected'  => fct_get_form_option( '_fct_third_bank_ledger_id', 104 ),
-		) ),
-		"<input name=\"_fct_third_bank_account\" type=\"text\" id=\"_fct_third_bank_account\" value=\"" . fct_get_form_option( '_fct_main_bank_account', '' ) . '" />'
-	);
+	?></ol>
+
+<?php
 }
 
 /**
@@ -539,6 +535,7 @@ function fct_admin_setting_callback_balance_ledger_id() {
 		fct_get_ledger_dropdown( array( 
 			'select_id' => '_fct_balance_ledger_id',
 			'selected'  => fct_get_form_option( '_fct_balance_ledger_id', 199 ),
+			'tab'       => false,
 		) )
 	);
 }
@@ -556,6 +553,7 @@ function fct_admin_setting_callback_suspense_ledger_id() {
 		fct_get_ledger_dropdown( array( 
 			'select_id' => '_fct_suspense_ledger_id',
 			'selected'  => fct_get_form_option( '_fct_suspense_ledger_id', 999 ),
+			'tab'       => false,
 		) )
 	);
 }

@@ -34,7 +34,7 @@ class FCT_Periods_List_Table extends FCT_Posts_List_Table {
 	function _get_bulk_actions() {
 		$actions = array();
 
-		if ( $this->is_trash && current_user_can( 'edit_posts' ) ) {
+		if ( $this->is_trash && current_user_can( 'delete_periods' ) ) {
 			$actions['untrash'] = __( 'Restore' );
 		}
 

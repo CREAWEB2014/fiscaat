@@ -370,14 +370,6 @@ class Fiscaat_Periods_Admin {
 				background-color: #eaeaea;
 			}
 
-			.status-declined {
-				background-color: #faeaea;
-			}
-
-			.status-unapproved {
-				background-color: #eafeaf;
-			}
-
 		/*]]>*/
 		</style>
 

@@ -403,8 +403,8 @@ class Fiscaat_Admin {
 
 		/**
 		 * Notify user when things are wrong. Though do not check
-		 * if user can edit posts, since Spectators are allowed
-		 * to view Fiscaat.
+		 * for user edit capabilities (like edit.php does), since 
+		 * Spectators are allowed to view Fiscaat.
 		 */
 		if ( ! $post_type_object )
 			wp_die( __( 'Invalid post type' ) );
@@ -650,7 +650,9 @@ class Fiscaat_Admin {
 			foreach ( (array) $fields as $field_id => $field ) {
 
 				// Add the field
-				add_settings_field( $field_id, $field['title'], $field['callback'], $section['page'], $section_id, $field['args'] );
+				if ( ! empty( $field['callback'] ) && ! empty( $field['title'] ) ) {
+					add_settings_field( $field_id, $field['title'], $field['callback'], $section['page'], $section_id, $field['args'] );
+				}
 
 				// Register the setting
 				register_setting( $section['page'], $field_id, $field['sanitize_callback'] );
