@@ -59,8 +59,8 @@ class FCT_Periods_List_Table extends FCT_Posts_List_Table {
 			'cb'                       => '<input type="checkbox" />',
 			'title'                    => __( 'Title' ),
 			'author'                   => __( 'Author' ),
-			'fct_period_started'       => _x( 'Opened', 'column name', 'fiscaat' ),
-			'fct_period_closed'        => _x( 'Closed', 'column name', 'fiscaat' ),
+			'fct_period_post_date'     => _x( 'Opened', 'column name', 'fiscaat' ),
+			'fct_period_close_date'    => _x( 'Closed', 'column name', 'fiscaat' ),
 			'fct_period_account_count' => __( 'Accounts',              'fiscaat' ),
 			'fct_period_record_count'  => __( 'Records',               'fiscaat' ),
 			'fct_period_end_value'     => __( 'Value',                 'fiscaat' ),
@@ -82,8 +82,8 @@ class FCT_Periods_List_Table extends FCT_Posts_List_Table {
 	 */
 	function _get_sortable_columns() {
 		return array(
-			'fct_period_started'       => array( 'date',                 true ),
-			'fct_period_closed'        => array( 'period_closed',        true ),
+			'fct_period_post_date'     => array( 'date',                 true ),
+			'fct_period_close_date'    => array( 'period_closed',        true ),
 			'fct_period_account_count' => array( 'period_account_count', true ),
 			'fct_period_record_count'  => array( 'period_record_count',  true ),
 			'fct_period_end_value'     => array( 'period_end_value',     true ),
@@ -108,8 +108,8 @@ class FCT_Periods_List_Table extends FCT_Posts_List_Table {
 	 *
 	 * @since 0.0.8
 	 *
-	 * @uses fct_period_started()
-	 * @uses fct_period_closed()
+	 * @uses fct_period_post_date()
+	 * @uses fct_period_close_date()
 	 * @uses fct_period_account_count()
 	 * @uses fct_period_record_count()
 	 * @uses fct_currency_format()
@@ -123,14 +123,14 @@ class FCT_Periods_List_Table extends FCT_Posts_List_Table {
 		switch ( $column_name ) {
 
 			// Period start date
-			case 'fct_period_started':
-				$date = fct_get_period_started( $period_id );
+			case 'fct_period_post_date':
+				$date = fct_get_period_post_date( $period_id );
 				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date ) . '">' . apply_filters( 'post_date_column_time', mysql2date( 'Y/m/d', $date ), $period_id, $column_name, 'list' ) . '</abbr>';
 				break;
 
 			// Period close date
-			case 'fct_period_closed':
-				$date = fct_get_period_closed( $period_id );
+			case 'fct_period_close_date':
+				$date = fct_get_period_close_date( $period_id );
 				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date )  . '">' . apply_filters( 'post_date_column_time', mysql2date( 'Y/m/d', $date ), $period_id, $column_name, 'list' ) . '</abbr>';
 				break;
 

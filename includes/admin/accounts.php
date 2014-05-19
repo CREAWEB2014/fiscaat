@@ -463,7 +463,7 @@ class Fiscaat_Accounts_Admin {
 	 * @uses wp_send_json_success() To return that no account was found
 	 */
 	public function check_ledger_id() {
-		$period_id = fct_get_account_period_id( $_REQUEST['account_id'] );
+		$period_id = fct_get_account_period_id( (int) $_REQUEST['account_id'] );
 		$period_id = fct_get_period_id( $period_id );
 
 		// Find any matching ledger id in the account's period

@@ -354,31 +354,31 @@ function fct_period_row_actions() {
  * @param bool $gmt Optional. Use GMT
  * @return string Period's raw start date 
  */
-function fct_get_period_started( $period_id, $gmt = false ) {
+function fct_get_period_post_date( $period_id, $gmt = false ) {
 	$period_id = fct_get_period_id( $period_id );
 	$date      = get_post_time( 'Y-m-d H:i:s', $gmt, $period_id );
 
-	return apply_filters( 'fct_get_period_started', $date, $period_id, $gmt );
+	return apply_filters( 'fct_get_period_post_date', $date, $period_id, $gmt );
 }
 
 /**
  * Output the period's start date 
  * 
- * @uses fct_get_period_started_date() To get the period's start date
+ * @uses fct_get_period_started() To get the period's start date
  * 
  * @param int $period_id Period id
  * @param bool $at Whether to use 'date at time' format or other
  * @param bool $gmt Optional. Use GMT
  */
-function fct_period_started_date( $period_id = 0, $at = true, $gmt = false ) {
-	echo fct_get_period_started_date( $period_id, $at, $gmt );
+function fct_period_started( $period_id = 0, $at = true, $gmt = false ) {
+	echo fct_get_period_started( $period_id, $at, $gmt );
 }
 	/**
 	 * Return the period's start date 
 	 * 
 	 * @uses fct_get_period_id() To get the period id
-	 * @uses fct_get_period_started() To get the period's raw start date
-	 * @uses apply_filters() Calls 'fct_get_period_started_date' with
+	 * @uses fct_get_period_post_date() To get the period's raw start date
+	 * @uses apply_filters() Calls 'fct_get_period_started' with
 	 *                        the close date and period id
 	 * 
 	 * @param int $period_id Period id
@@ -386,9 +386,9 @@ function fct_period_started_date( $period_id = 0, $at = true, $gmt = false ) {
 	 * @param bool $gmt Optional. Use GMT
 	 * @return string Period's start date
 	 */
-	function fct_get_period_started_date( $period_id = 0, $at = true, $gmt = false ){
+	function fct_get_period_started( $period_id = 0, $at = true, $gmt = false ){
 		$period_id = fct_get_period_id( $period_id );
-		$started   = fct_get_period_started( $period_id, $gmt );
+		$started   = fct_get_period_post_date( $period_id, $gmt );
 
 		$date = fct_convert_date( $started, get_option( 'date_format' ) );
 		$time = fct_convert_date( $started, get_option( 'time_format' ) );
@@ -402,7 +402,7 @@ function fct_period_started_date( $period_id = 0, $at = true, $gmt = false ) {
 			$result = sprintf( _x( '%1$s <br /> %2$s', 'date <br/> time', 'fiscaat' ), $date, $time );
 		}
 
-		return apply_filters( 'fct_get_period_started_date', $result, $period_id, $gmt, $date, $time );
+		return apply_filters( 'fct_get_period_started', $result, $period_id, $gmt, $date, $time );
 	}
 
 /**
@@ -412,16 +412,16 @@ function fct_period_started_date( $period_id = 0, $at = true, $gmt = false ) {
  *
  * @uses fct_get_period_id() To get the period id
  * @uses fct_get_period_meta() To get the period's close date
- * @uses apply_filters() Calls 'fct_get_period_closed' with
+ * @uses apply_filters() Calls 'fct_get_period_close_date' with
  *                        the close date and period id
  *
  * @param int $period_id Period id
  * @param bool $gmt Optional. Use GMT
  * @return string Period's raw close date
  */
-function fct_get_period_closed( $period_id, $gmt = false ) {
+function fct_get_period_close_date( $period_id, $gmt = false ) {
 	$period_id = fct_get_period_id( $period_id );
-	$date      = fct_get_period_meta( $period_id, 'closed' );
+	$date      = fct_get_period_meta( $period_id, 'close_date' );
 
 	// Period is closed
 	if ( ! empty( $date ) ) {
@@ -436,27 +436,27 @@ function fct_get_period_closed( $period_id, $gmt = false ) {
 		$date = '';
 	}
 
-	return apply_filters( 'fct_get_period_closed', $date, $period_id, $gmt );
+	return apply_filters( 'fct_get_period_close_date', $date, $period_id, $gmt );
 }
 
 /**
  * Output the period's close date
  * 
- * @uses fct_get_period_closed_date() To get the period's close date
+ * @uses fct_get_period_closed() To get the period's close date
  * 
  * @param int $period_id Period id
  * @param bool $at Whether to use 'date at time' format or other
  * @param bool $gmt Optional. Use GMT
  */
-function fct_period_closed_date( $period_id = 0, $at = true, $gmt = false ) {
-	echo fct_get_period_closed_date( $period_id, $at, $gmt );
+function fct_period_closed( $period_id = 0, $at = true, $gmt = false ) {
+	echo fct_get_period_closed( $period_id, $at, $gmt );
 }
 	/**
 	 * Return the period's close date
 	 * 
 	 * @uses fct_get_period_id() To get the period id
-	 * @uses fct_get_period_closed() To get the period's raw close date
-	 * @uses apply_filters() Calls 'fct_get_period_closed_date' with
+	 * @uses fct_get_period_close_date() To get the period's raw close date
+	 * @uses apply_filters() Calls 'fct_get_period_closed' with
 	 *                        the close date and period id
 	 * 
 	 * @param int $period_id Period id
@@ -464,9 +464,9 @@ function fct_period_closed_date( $period_id = 0, $at = true, $gmt = false ) {
 	 * @param bool $gmt Optional. Use GMT
 	 * @return string Period's close date
 	 */
-	function fct_get_period_closed_date( $period_id = 0, $at = true, $gmt = false ){
+	function fct_get_period_closed( $period_id = 0, $at = true, $gmt = false ){
 		$period_id = fct_get_period_id( $period_id );
-		$closed    = fct_get_period_closed( $period_id, $gmt );
+		$closed    = fct_get_period_close_date( $period_id, $gmt );
 
 		// Period is closed
 		if ( ! empty( $date ) ) {
@@ -487,7 +487,7 @@ function fct_period_closed_date( $period_id = 0, $at = true, $gmt = false ) {
 			$result = $date = $time = '';
 		}
 
-		return apply_filters( 'fct_get_period_closed_date', $result, $period_id, $date, $time );
+		return apply_filters( 'fct_get_period_closed', $result, $period_id, $date, $time );
 	}
 
 /**
@@ -801,10 +801,10 @@ function fct_form_period_title() {
  * 
  * @param int $period_id Period id
  * @param bool $gmt Optional. Use GMT
- * @uses fct_get_form_period_started() To get the period start date input
+ * @uses fct_get_form_period_post_date() To get the period start date input
  */
-function fct_form_period_started( $period_id = 0, $gmt = false ) {
-	echo fct_get_form_period_started( $period_id, $gmt );
+function fct_form_period_post_date( $period_id = 0, $gmt = false ) {
+	echo fct_get_form_period_post_date( $period_id, $gmt );
 }
 	/**
 	 * Return the period start date input
@@ -812,11 +812,11 @@ function fct_form_period_started( $period_id = 0, $gmt = false ) {
 	 * @param int $period_id The period id to use
 	 * @param bool $gmt Optional. Use GMT
 	 * @uses fct_get_period_id()
-	 * @uses fct_get_period_started()
+	 * @uses fct_get_period_post_date()
 	 * @uses fct_convert_date()
 	 * @return string HTML input for setting the period start date
 	 */
-	function fct_get_form_period_started( $period_id = 0, $gmt = false ) {
+	function fct_get_form_period_post_date( $period_id = 0, $gmt = false ) {
 
 		// Get _POST data
 		if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['fct_period_post_date'] ) ) {
@@ -831,43 +831,43 @@ function fct_form_period_started( $period_id = 0, $gmt = false ) {
 			$period_start = '';
 		}
 
-		return apply_filters( 'fct_get_form_period_started', esc_attr( $period_start ) );
+		return apply_filters( 'fct_get_form_period_post_date', esc_attr( $period_start ) );
 	}
 
 /**
  * Output the period close date input
  * 
  * @param int $period_id Period id
- * @uses fct_get_form_period_closed() To get the period close date input
+ * @uses fct_get_form_period_close_date() To get the period close date input
  */
-function fct_form_period_closed( $period_id = 0 ) {
-	echo fct_get_form_period_closed( $period_id );
+function fct_form_period_close_date( $period_id = 0 ) {
+	echo fct_get_form_period_close_date( $period_id );
 }
 	/**
 	 * Return the period close date input
 	 * 
 	 * @param int $period_id The period id to use
 	 * @uses fct_get_period_id()
-	 * @uses fct_get_period_closed()
+	 * @uses fct_get_period_close_date()
 	 * @uses fct_convert_date()
 	 * @return string HTML input for setting the period close date
 	 */
-	function fct_get_form_period_closed( $period_id = 0 ) {
+	function fct_get_form_period_close_date( $period_id = 0 ) {
 
 		// Get _POST data
-		if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['fct_period_closed'] ) ) {
-			$period_close = $_POST['fct_period_closed'];
+		if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['fct_period_close_date'] ) ) {
+			$period_close = $_POST['fct_period_close_date'];
 
 		// Get edit data
 		} elseif ( fct_is_period_edit() ) {
-			$period_close = fct_get_period_closed( $period_id );
+			$period_close = fct_get_period_close_date( $period_id );
 
 		// No data
 		} else {
 			$period_close = '';
 		}
 
-		return apply_filters( 'fct_get_form_period_closed', esc_attr( $period_close ) );
+		return apply_filters( 'fct_get_form_period_close_date', esc_attr( $period_close ) );
 	}
 
 /** Form Dropdows *************************************************************/

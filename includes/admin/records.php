@@ -85,7 +85,7 @@ class Fiscaat_Records_Admin {
 
 		/** Redirect **********************************************************/
 
-		add_action( 'load-post-new.php', array( $this, 'redirect_post_new' ), 0 );
+		add_action( 'load-post-new.php', array( $this, 'redirect_post_new_page' ), 0 );
 
 		/** Filters ***********************************************************/
 

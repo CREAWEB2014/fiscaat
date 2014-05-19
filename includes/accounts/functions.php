@@ -96,8 +96,12 @@ function fct_insert_account( $account_data = array(), $account_meta = array() ) 
 		'menu_order'     => 0,
 	), 'insert_account' );
 
+	// Bail when inserting in closed period
+	if ( fct_is_period_closed( $account_data['post_parent'] ) )
+		return false;
+
 	// Insert account
-	$account_id   = wp_insert_post( $account_data );
+	$account_id = wp_insert_post( $account_data );
 
 	// Bail if no account was added
 	if ( empty( $account_id ) )
@@ -610,6 +614,9 @@ function fct_close_account( $account_id = 0 ) {
 
 	// Update account
 	$account_id = wp_insert_post( $account );
+
+	// Update end value
+	fct_update_account_end_value( $accound_id );
 
 	// Execute post close code
 	do_action( 'fct_closed_account', $account_id );

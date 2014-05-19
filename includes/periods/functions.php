@@ -157,6 +157,9 @@ function fct_close_period( $period_id = 0 ) {
 	// Update period
 	$period_id = wp_insert_post( $period );
 
+	// Update end value
+	fct_update_period_end_value( $period_id );
+
 	// Execute post close code
 	do_action( 'fct_closed_period', $period_id );
 
@@ -166,6 +169,8 @@ function fct_close_period( $period_id = 0 ) {
 
 /**
  * Opens a period
+ *
+ * Keeps the close_date meta as indication of reopened status.
  *
  * @param int $period_id period id
  * @uses get_post() To get the period
@@ -195,9 +200,6 @@ function fct_open_period( $period_id = 0 ) {
 
 	// Set previous status
 	$period->post_status = $period_status;
-
-	// Unset closed date
-	fct_update_period_meta( $period_id, 'close_date', 0 );
 
 	// Remove old status meta
 	fct_delete_period_meta( $period_id, 'status' );

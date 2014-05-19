@@ -61,6 +61,7 @@ class Fiscaat_Periods_Admin {
 		// Metabox actions
 		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox'      ) );
 		add_action( 'save_post',      array( $this, 'attributes_metabox_save' ) );
+		add_action( 'fct_period_attributes_metabox_save', array( $this, 'inherit_period_accounts' ) );
 
 		// Check if there are any fct_toggle_period_* requests on admin_init, also have a message displayed
 		add_action( 'fct_admin_load_edit_periods',  array( $this, 'toggle_period'        ) );
@@ -310,7 +311,67 @@ class Fiscaat_Periods_Admin {
 		return $period_id;
 	}
 
-	/** Styles ****************************************************************/
+	/**
+	 * [inherit_period_accounts description]
+	 * @param  [type] $period_id [description]
+	 * @return [type]            [description]
+	 */
+	public function inherit_period_accounts( $period_id ) {
+		global $wpdb;
+
+		// Does the period already have accounts?
+		if ( fct_get_period_account_count( $period_id ) )
+			return;
+		
+		// Bail on unchecked.
+		if ( ! isset( $_POST['fct_period_inherit_accounts'] ) )
+			return;
+
+		// Inherit from period id
+		$_period_id = (int) $_POST['fct_period_inherit_from'];
+
+		// Query all inheriting accounts
+		if ( ! $accounts = new WP_Query( array(
+			'post_type'   => fct_get_account_post_type(),
+			'post_parent' => $_period_id,
+			'post_status' => fct_get_closed_status_id(),
+			'numberposts' => -1,
+		) ) )
+			return;
+
+		// Get posts from query
+		$accounts = $accounts->posts;
+
+		// Query all post meta
+		$query_meta   = $wpdb->get_results( sprintf( "SELECT * FROM {$wpdb->postmeta} WHERE post_id IN (%s) AND meta_key IN (%s)", implode( ',', wp_list_pluck( $accounts, 'ID' ) ), implode( ',', array( "'_fct_ledger_id'", "'_fct_account_type'", "'_fct_end_value'" ) ) ) );
+		$account_meta = array();
+
+		// Collect account meta
+		foreach ( $query_meta as $key => $value) {
+
+			// Setup meta per queried account
+			if ( ! isset( $account_meta[ $value->post_id ] ) )
+				$account_meta[ $value->post_id ] = array( 'period_id' => $period_id );
+
+			$account_meta[ $value->post_id ][ str_replace( '_fct_', '', $value->meta_key ) ] = $value->meta_value;
+		}
+
+		// Loop all inheriting accounts
+		foreach ( $accounts as $account ) {
+
+			// Create new account
+			fct_insert_account( array(
+				'post_parent'  => $period_id,
+				'post_title'   => $account->post_title,
+				'post_content' => $account->post_content,
+			), $account_meta[ $account->ID ] );
+		}
+
+		// Update period's account count
+		fct_update_period_account_count( $period_id, count( $accounts ) );
+	}
+
+	/**  ****************************************************************/
 
 	/**
 	 * Add some general styling to the admin area
@@ -364,8 +425,8 @@ class Fiscaat_Periods_Admin {
 			}
 
 			.column-date,
-			.column-fct_period_started,
-			.column-fct_period_closed,
+			.column-fct_period_post_date,
+			.column-fct_period_close_date,
 			.column-fct_record_created {
 				width: 10%;
 			}

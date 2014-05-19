@@ -206,11 +206,39 @@ function fct_period_metabox() {
 
 	<p>
 		<strong class="label"><?php _e( 'Status:', 'fiscaat' ); ?></strong>
-		<label class="screen-reader-text" for="fct_period_status_select"><?php _e( 'Status:', 'fiscaat' ) ?></label>
+		<label class="screen-reader-text" for="fct_period_status_select"><?php _e( 'Status:', 'fiscaat' ); ?></label>
 		<?php fct_form_period_status_dropdown( $post_id ); ?>
 	</p>
 
 	<?php
+
+	/** Inherit ***************************************************************/
+
+	// Should new period inherit accounts from previous period
+	if ( ! fct_get_period_account_count( $post_id )
+
+		// Query latest period
+		&& $prev_period = get_posts( array( 
+			'post_type'   => fct_get_period_post_type(),
+			'post_status' => fct_get_closed_status_id(),
+			'meta_key'    => '_fct_close_date', 
+			'orderby'     => 'meta_value',
+			'order'       => 'ASC',
+			'fields'      => 'ids',
+			'numberposts' => 1,
+	) ) ) : 
+
+		$_period = $prev_period[0]; ?>
+
+	<p>
+		<strong class="label"><?php _e( 'Inherit:', 'fiscaat' ); ?></strong>
+		<label class="screen-reader-text" for="fct_period_inherit_accounts"><?php _e( 'Inherit:', 'fiscaat' ); ?></label>
+		<input name="fct_period_inherit_from" type="hidden" value="<?php echo $_period; ?>" />
+		<input name="fct_period_inherit_accounts" type="checkbox" value="1" id="fct_period_inherit_accounts" checked="checked" /><br />
+		<label for="fct_period_inherit_accounts"><?php printf( __( 'Inherit all accounts from "%s".', 'fiscaat' ), fct_get_period_title( $_period ) ); ?></label>
+	</p>
+
+	<?php endif;
 
 	/** Start date ************************************************************/
 
@@ -219,21 +247,21 @@ function fct_period_metabox() {
 
 	<p>
 		<strong class="label"><?php _e( 'Start:', 'Period start date', 'fiscaat' ); ?></strong>
-		<label class="screen-reader-text" for="fct_period_started"><?php _e( 'Start date:', 'fiscaat' ) ?></label>
-		<?php fct_form_period_started( $post_id ); ?>
+		<label class="screen-reader-text" for="fct_period_post_date"><?php _e( 'Start date:', 'fiscaat' ); ?></label>
+		<?php fct_form_period_post_date( $post_id ); ?>
 	</p>
 
 	<?php endif;
 
 	/** Close date ************************************************************/
 
-	if ( fct_is_period_closed( $post_id ) ) : ?>
+	// Period is closed or reopened.
+	if ( $date = fct_get_period_close_date( $post_id ) && ! empty( $date ) ) : ?>
 
 	<p>
 		<strong class="label"><?php _e( 'Closed:', 'Period close date', 'fiscaat' ); ?></strong>
-		<label class="screen-reader-text" for="fct_period_closed"><?php _e( 'Close date:', 'fiscaat' ) ?></label>
+		<label class="screen-reader-text" for="fct_period_closed"><?php _e( 'Close date:', 'fiscaat' ); ?></label>
 		<?php fct_form_period_closed( $post_id ); ?>
-
 	</p>
 
 	<?php endif;
