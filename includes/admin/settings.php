@@ -499,7 +499,7 @@ function fct_admin_setting_callback_accounts_section() {
 function fct_admin_setting_callback_associate_bank_accounts() {
 ?>
 
-	<p><?php _e( 'Let Fiscaat know which bank accounts should be associated with any account in Fiscaat. When importing banking record data this helps Fiscaat to select the right accounts for you. Note: Fiscaat does not try to make a connection with your bank.', 'fiscaat' ); ?></p>
+	<p><?php _e( 'Make Fiscaat associate bank account numbers with certain accounts within Fiscaat. When importing banking record data this helps Fiscaat to select the right accounts for you. Note: Fiscaat does not try to make a connection with your bank.', 'fiscaat' ); ?></p>
 
 	<ol><?php
 
