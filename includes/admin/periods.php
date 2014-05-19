@@ -62,12 +62,16 @@ class Fiscaat_Periods_Admin {
 		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox'      ) );
 		add_action( 'save_post',      array( $this, 'attributes_metabox_save' ) );
 
+		// Check if there are any fct_toggle_period_* requests on admin_init, also have a message displayed
+		add_action( 'fct_admin_load_edit_periods',  array( $this, 'toggle_period'        ) );
+		add_action( 'fct_admin_notices',            array( $this, 'toggle_period_notice' ) );
+
 		// Contextual Help
 		add_action( 'fct_admin_load_edit_periods',  array( $this, 'edit_help' ) );
 		add_action( 'fct_admin_load_post_period',   array( $this, 'new_help'  ) );
 
 		// Post stati
-		add_action( 'fct_admin_load_edit_periods', array( $this, 'arrange_post_statuses' ) );
+		add_action( 'fct_admin_load_edit_periods',  array( $this, 'arrange_post_statuses' ) );
 
 		// Page title
 		add_action( 'fct_admin_periods_page_title', array( $this, 'post_new_link' ) );
@@ -552,16 +556,16 @@ class Fiscaat_Periods_Admin {
 		$actions['records']  = '<a href="' . add_query_arg( array( 'page' => 'fct-records',  'fct_period_id' => $period->ID ), admin_url( 'admin.php' ) ) .'" title="' . esc_attr( sprintf( __( 'Show all records of &#8220;%s&#8221;',  'fiscaat' ), fct_get_period_title( $period->ID ) ) ) . '">' . __( 'Records',  'fiscaat' ) . '</a>';
 
 		// Show the close and open link
-		if ( current_user_can( 'edit_period', $period->ID ) ) {
-			$toggle_uri = esc_url( wp_nonce_url( add_query_arg( array( 'period_id' => $period->ID, 'action' => 'fct_toggle_period_close' ), remove_query_arg( array( 'fct_period_toggle_notice', 'account_id', 'failed', 'super' ) ) ), 'close-period_' . $period->ID ) );
+		if ( current_user_can( 'close_period', $period->ID ) ) {
+			$close_uri = esc_url( wp_nonce_url( add_query_arg( array( 'period_id' => $period->ID, 'action' => 'fct_toggle_period_close' ), remove_query_arg( array( 'fct_period_toggle_notice', 'account_id', 'failed', 'super' ) ) ), 'close-period_' . $period->ID ) );
 			if ( fct_is_period_open( $period->ID ) ) {
 
 				// Show close link if the period has no open accounts
 				if ( ! fct_has_open_account() ) {
-					$actions['closed'] = '<a href="' . $toggle_uri . '" title="' . esc_attr__( 'Close this period', 'fiscaat' ) . '">' . _x( 'Close', 'Close the period', 'fiscaat' ) . '</a>';
+					$actions['close'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Close this period', 'fiscaat' ) . '">' . _x( 'Close', 'Close the period', 'fiscaat' ) . '</a>';
 				}
 			} else {
-				$actions['open'] = '<a href="' . $toggle_uri . '" title="' . esc_attr__( 'Open this period',  'fiscaat' ) . '">' . _x( 'Open',  'Open the period',  'fiscaat' ) . '</a>';
+				$actions['open'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Open this period',  'fiscaat' ) . '">' . _x( 'Open',  'Open the period',  'fiscaat' ) . '</a>';
 			}
 		}
 
@@ -580,6 +584,130 @@ class Fiscaat_Periods_Admin {
 		}
 
 		return $actions;
+	}
+
+	/**
+	 * Toggle period
+	 *
+	 * Handles the admin-side opening/closing of periods
+	 *
+	 * @uses fct_get_period() To get the period
+	 * @uses current_user_can() To check if the user is capable of editing
+	 *                           the period
+	 * @uses wp_die() To die if the user isn't capable or the post wasn't
+	 *                 found
+	 * @uses check_admin_referer() To verify the nonce and check referer
+	 * @uses fct_is_period_open() To check if the period is open
+	 * @uses fct_close_period() To close the period
+	 * @uses fct_open_period() To open the period
+	 * @uses do_action() Calls 'fct_toggle_period_admin' with success, post
+	 *                    data, action and message
+	 * @uses add_query_arg() To add custom args to the url
+	 * @uses wp_safe_redirect() Redirect the page to custom url
+	 */
+	public function toggle_period() {
+		if ( $this->bail() ) 
+			return;
+
+		// Only proceed if GET is an period toggle action
+		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'fct_toggle_period_close' ) ) && ! empty( $_GET['period_id'] ) ) {
+			$action    = $_GET['action'];             // What action is taking place?
+			$period_id = (int) $_GET['period_id'];    // What's the period id?
+			$success   = false;                       // Flag
+			$post_data = array( 'ID' => $period_id ); // Prelim array
+			$period    = fct_get_period( $period_id );
+
+			// Bail if period is missing
+			if ( empty( $period ) )
+				wp_die( __( 'The period was not found!', 'fiscaat' ) );
+
+			switch ( $action ) {
+				case 'fct_toggle_period_close' :
+					check_admin_referer( 'close-period_' . $period_id );
+
+					if ( ! current_user_can( 'close_period', $period->ID ) ) // What is the user doing here?
+						wp_die( __( 'You do not have the permission to do that!', 'fiscaat' ) );
+
+					$is_open = fct_is_period_open( $period_id );
+					$message = true == $is_open ? 'closed' : 'opened';
+					$success = true == $is_open ? fct_close_period( $period_id ) : fct_open_period( $period_id );
+
+					break;
+			}
+
+			$message = array( 'fct_period_toggle_notice' => $message, 'period_id' => $period->ID );
+
+			if ( false == $success || is_wp_error( $success ) )
+				$message['failed'] = '1';
+
+			// Do additional period toggle actions (admin side)
+			do_action( 'fct_toggle_period_admin', $success, $post_data, $action, $message );
+
+			// Redirect back to the period
+			$redirect = add_query_arg( $message, remove_query_arg( array( 'action', 'period_id', '_wpnonce' ) ) );
+			wp_safe_redirect( $redirect );
+
+			// For good measure
+			exit();
+		}
+	}
+
+	/**
+	 * Toggle period notices
+	 *
+	 * Display the success/error notices from
+	 * {@link Fiscaat_Accounts_Admin::toggle_period()}
+	 *
+	 * @since 0.0.1
+	 *
+	 * @uses fct_get_period() To get the period
+	 * @uses fct_get_period_title() To get the period title of the period
+	 * @uses esc_html() To sanitize the period title
+	 * @uses apply_filters() Calls 'fct_toggle_period_notice_admin' with
+	 *                        message, period id, notice and is it a failure
+	 */
+	public function toggle_period_notice() {
+		if ( $this->bail() ) 
+			return;
+
+		// Only proceed if GET is a period toggle action
+		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_GET['fct_period_toggle_notice'] ) && in_array( $_GET['fct_period_toggle_notice'], array( 'opened', 'closed' ) ) && !empty( $_GET['period_id'] ) ) {
+			$notice     = $_GET['fct_period_toggle_notice'];        // Which notice?
+			$period_id  = (int) $_GET['period_id'];                 // What's the period id?
+			$is_failure = !empty( $_GET['failed'] ) ? true : false; // Was that a failure?
+
+			// Bais if no period_id or notice
+			if ( empty( $notice ) || empty( $period_id ) )
+				return;
+
+			// Bail if period is missing
+			$period = fct_get_period( $period_id );
+			if ( empty( $period ) )
+				return;
+
+			$period_title = esc_html( fct_get_period_title( $period->ID ) );
+
+			switch ( $notice ) {
+				case 'opened' :
+					$message = $is_failure == true ? sprintf( __( 'There was a problem opening the period "%1$s".', 'fiscaat' ), $period_title ) : sprintf( __( 'Period "%1$s" successfully opened.', 'fiscaat' ), $period_title );
+					break;
+
+				case 'closed' :
+					$message = $is_failure == true ? sprintf( __( 'There was a problem closing the period "%1$s".', 'fiscaat' ), $period_title ) : sprintf( __( 'Period "%1$s" successfully closed.', 'fiscaat' ), $period_title );
+					break;
+			}
+
+			// Do additional period toggle notice filters (admin side)
+			$message = apply_filters( 'fct_toggle_period_notice_admin', $message, $period->ID, $notice, $is_failure );
+
+			?>
+
+			<div id="message" class="<?php echo $is_failure == true ? 'error' : 'updated'; ?> fade">
+				<p style="line-height: 150%"><?php echo $message; ?></p>
+			</div>
+
+			<?php
+		}
 	}
 
 	/** Messages **************************************************************/
