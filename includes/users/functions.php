@@ -299,59 +299,63 @@ function fct_get_total_spectators() {
  */
 function fct_admin_bar_menu( $wp_admin_bar ) {
 
-	// Remove any New Fiscaat post type nodes
-	foreach ( array( fct_get_period_post_type(), fct_get_account_post_type(), fct_get_record_post_type() ) as $post_type ) {
-		$wp_admin_bar->remove_node( 'new-' . $post_type );
-	}
-
 	// Bail if not on the front-end or user is not capable
 	if ( is_admin() || ! current_user_can( 'fct_spectate' ) )
 		return;
+
+	// Get post type objects
+	$rpto = get_post_type_object( fct_get_record_post_type()  );
+	$apto = get_post_type_object( fct_get_account_post_type() );
+	$ppto = get_post_type_object( fct_get_period_post_type()  );
 
 	// Setup nodes as id => other attrs
 	$nodes = array( 
 		
 		// Top level menu
 		'fiscaat' => array(
-			'title'  => _x('Fiscaat', 'Admin bar menu title', 'fiscaat'),
-			'href'   => add_query_arg( array( 'post_type' => fct_get_period_post_type() ), admin_url( 'edit.php' ) ),
+			'title'  => __( 'Fiscaat', 'fiscaat' ),
+			'href'   => add_query_arg( array( 'page' => 'fct-records' ), admin_url( 'admin.php' ) ),
 			'meta'   => array()
 		),
 
-		// General Ledger
-		'fct-general-ledger' => array(
+		// Records
+		'fct-records' => array(
 			'parent' => 'fiscaat',
-			'title'  =>  __('General Ledger', 'fiscaat'),
-			'href'   => add_query_arg( array( 'post_type' => fct_get_account_post_type() ), admin_url( 'edit.php' ) ),
+			'title'  => $rpto->labels->menu_name,
+			'href'   => add_query_arg( array( 'page' => 'fct-records' ), admin_url( 'admin.php' ) ),
 			'meta'   => array()
-		)
+		),
+
+		// Accounts
+		'fct-accounts' => array(
+			'parent' => 'fiscaat',
+			'title'  => $apto->labels->menu_name,
+			'href'   => add_query_arg( array( 'page' => 'fct-accounts' ), admin_url( 'admin.php' ) ),
+			'meta'   => array()
+		),
+
+		// Periods
+		'fct-periods' => array(
+			'parent' => 'fiscaat',
+			'title'  => $ppto->labels->menu_name,
+			'href'   => add_query_arg( array( 'page' => 'fct-periods' ), admin_url( 'admin.php' ) ),
+			'meta'   => array()
+		),
+
+		// Reports
+		'fct-reports' => array(
+			'parent' => 'fiscaat',
+			'title'  => __( 'Reports', 'fiscaat' ),
+			'href'   => add_query_arg( array( 'page' => 'fct-reports' ), admin_url( 'admin.php' ) ),
+			'meta'   => array()
+		),
 	);
-
-	// New records node
-	if ( current_user_can( 'create_records' ) ) {
-		$nodes['fct-add-records'] = array(
-			'parent' => 'fiscaat',
-			'title'  => __('Manage Records', 'fiscaat'),
-			'href'   => add_query_arg( array( 'post_type' => fct_get_record_post_type() ), admin_url( 'post-new.php' ) ),
-			'meta'   => array()
-		);
-	}
-
-	// New account node
-	if ( current_user_can( 'create_accounts' ) ) {
-		$nodes['fct-add-account'] = array(
-			'parent' => 'fiscaat',
-			'title'  => __('Add Account', 'fiscaat'),
-			'href'   => add_query_arg( array( 'post_type' => fct_get_account_post_type() ), admin_url( 'post-new.php' ) ),
-			'meta'   => array()
-		);
-	}
 
 	// Tools page
 	if ( current_user_can( 'fct_tools_page' ) ) {
 		$nodes['fct-tools'] = array(
 			'parent' => 'fiscaat',
-			'title'  => __('Tools', 'fiscaat'),
+			'title'  => __( 'Tools', 'fiscaat' ),
 			'href'   => add_query_arg( array( 'page' => 'fct-repair' ), admin_url( 'tools.php' ) ),
 			'meta'   => array()
 		);
@@ -361,8 +365,8 @@ function fct_admin_bar_menu( $wp_admin_bar ) {
 	if ( current_user_can( 'fct_settings_page' ) ) {
 		$nodes['fct-settings'] = array(
 			'parent' => 'fiscaat',
-			'title'  => __('Settings', 'fiscaat'),
-			'href'   => add_query_arg( array( 'page' => 'fct-settings' ), admin_url() ),
+			'title'  => __( 'Settings', 'fiscaat' ),
+			'href'   => add_query_arg( array( 'page' => 'fct-settings' ), admin_url( 'admin.php' ) ),
 			'meta'   => array()
 		);
 	}

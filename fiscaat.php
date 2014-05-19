@@ -393,20 +393,22 @@ final class Fiscaat {
 
 		// Record labels
 		$post_type['labels'] = array(
-			'name'               => __( 'Records',                   'fiscaat' ),
-			'singular_name'      => __( 'Record',                    'fiscaat' ),
-			'all_items'          => __( 'All Records',               'fiscaat' ),
-			'add_new'            => __( 'New Records',               'fiscaat' ),
-			'add_new_item'       => __( 'Add New Record',            'fiscaat' ),
-			'edit'               => __( 'Edit',                      'fiscaat' ),
-			'edit_item'          => __( 'Edit Record',               'fiscaat' ),
-			'edit_items'         => __( 'Edit Records',              'fiscaat' ),
-			'new_item'           => __( 'New Records',               'fiscaat' ),
-			'view'               => __( 'View Record',               'fiscaat' ),
-			'view_item'          => __( 'View Record',               'fiscaat' ),
-			'search_items'       => __( 'Search Records',            'fiscaat' ),
-			'not_found'          => __( 'No records found',          'fiscaat' ),
-			'not_found_in_trash' => __( 'No records found in Trash', 'fiscaat' )
+			'name'               => _x( 'Records', 'Post type general name', 'fiscaat' ),
+			'singular_name'      => _x( 'Record', 'Post type singular name', 'fiscaat' ),
+			'menu_name'          => _x( 'Records', 'Admin menu',             'fiscaat' ),
+			'name_admin_bar'     => _x( 'Records', 'Add new on admin bar',   'fiscaat' ),
+			'all_items'          => __( 'All Records',                       'fiscaat' ),
+			'add_new'            => __( 'New Records',                       'fiscaat' ),
+			'add_new_item'       => __( 'Add New Record',                    'fiscaat' ),
+			'edit'               => __( 'Edit',                              'fiscaat' ),
+			'edit_item'          => __( 'Edit Record',                       'fiscaat' ),
+			'edit_items'         => __( 'Edit Records',                      'fiscaat' ),
+			'new_item'           => __( 'New Records',                       'fiscaat' ),
+			'view'               => __( 'View Record',                       'fiscaat' ),
+			'view_item'          => __( 'View Record',                       'fiscaat' ),
+			'search_items'       => __( 'Search Records',                    'fiscaat' ),
+			'not_found'          => __( 'No records found',                  'fiscaat' ),
+			'not_found_in_trash' => __( 'No records found in Trash',         'fiscaat' )
 		);
 
 		// Record rewrite
@@ -452,19 +454,21 @@ final class Fiscaat {
 
 		// Account labels
 		$post_type['labels'] = array(
-			'name'               => __( 'Accounts',                   'fiscaat' ),
-			'singular_name'      => __( 'Account',                    'fiscaat' ),
-			'all_items'          => __( 'All Accounts',               'fiscaat' ),
-			'add_new'            => __( 'New Account',                'fiscaat' ),
-			'add_new_item'       => __( 'Add New Account',            'fiscaat' ),
-			'edit'               => __( 'Edit',                       'fiscaat' ),
-			'edit_item'          => __( 'Edit Account',               'fiscaat' ),
-			'new_item'           => __( 'New Account',                'fiscaat' ),
-			'view'               => __( 'View Account',               'fiscaat' ),
-			'view_item'          => __( 'View Account',               'fiscaat' ),
-			'search_items'       => __( 'Search Accounts',            'fiscaat' ),
-			'not_found'          => __( 'No accounts found',          'fiscaat' ),
-			'not_found_in_trash' => __( 'No accounts found in Trash', 'fiscaat' )
+			'name'               => _x( 'Accounts','Post type general name', 'fiscaat' ),
+			'singular_name'      => _x( 'Account','Post type singular name', 'fiscaat' ),
+			'menu_name'          => _x( 'Accounts', 'Admin menu',            'fiscaat' ),
+			'name_admin_bar'     => _x( 'Account', 'Add new on admin bar',   'fiscaat' ),
+			'all_items'          => __( 'All Accounts',                      'fiscaat' ),
+			'add_new'            => __( 'New Account',                       'fiscaat' ),
+			'add_new_item'       => __( 'Add New Account',                   'fiscaat' ),
+			'edit'               => __( 'Edit',                              'fiscaat' ),
+			'edit_item'          => __( 'Edit Account',                      'fiscaat' ),
+			'new_item'           => __( 'New Account',                       'fiscaat' ),
+			'view'               => __( 'View Account',                      'fiscaat' ),
+			'view_item'          => __( 'View Account',                      'fiscaat' ),
+			'search_items'       => __( 'Search Accounts',                   'fiscaat' ),
+			'not_found'          => __( 'No accounts found',                 'fiscaat' ),
+			'not_found_in_trash' => __( 'No accounts found in Trash',        'fiscaat' )
 		);
 
 		// Account rewrite
@@ -506,19 +510,21 @@ final class Fiscaat {
 
 		// Period labels
 		$post_type['labels'] = array(
-			'name'               => __( 'Periods',                   'fiscaat' ),
-			'singular_name'      => __( 'Period',                    'fiscaat' ),
-			'all_items'          => __( 'All Periods',               'fiscaat' ),
-			'add_new'            => __( 'New Period',                'fiscaat' ),
-			'add_new_item'       => __( 'Add New Period',            'fiscaat' ),
-			'edit'               => __( 'Edit',                      'fiscaat' ),
-			'edit_item'          => __( 'Edit Period',               'fiscaat' ),
-			'new_item'           => __( 'New Period',                'fiscaat' ),
-			'view'               => __( 'View Period',               'fiscaat' ),
-			'view_item'          => __( 'View Period',               'fiscaat' ),
-			'search_items'       => __( 'Search Periods',            'fiscaat' ),
-			'not_found'          => __( 'No periods found',          'fiscaat' ),
-			'not_found_in_trash' => __( 'No periods found in Trash', 'fiscaat' )
+			'name'               => _x( 'Periods', 'Post type general name', 'fiscaat' ),
+			'singular_name'      => _x( 'Period', 'Post type singular name', 'fiscaat' ),
+			'menu_name'          => _x( 'Periods', 'Admin menu',             'fiscaat' ),
+			'name_admin_bar'     => _x( 'Period', 'Add new on admin bar',    'fiscaat' ),
+			'all_items'          => __( 'All Periods',                       'fiscaat' ),
+			'add_new'            => __( 'New Period',                        'fiscaat' ),
+			'add_new_item'       => __( 'Add New Period',                    'fiscaat' ),
+			'edit'               => __( 'Edit',                              'fiscaat' ),
+			'edit_item'          => __( 'Edit Period',                       'fiscaat' ),
+			'new_item'           => __( 'New Period',                        'fiscaat' ),
+			'view'               => __( 'View Period',                       'fiscaat' ),
+			'view_item'          => __( 'View Period',                       'fiscaat' ),
+			'search_items'       => __( 'Search Periods',                    'fiscaat' ),
+			'not_found'          => __( 'No periods found',                  'fiscaat' ),
+			'not_found_in_trash' => __( 'No periods found in Trash',         'fiscaat' )
 		);
 
 		// Period rewrite

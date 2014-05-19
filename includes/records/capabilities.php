@@ -61,52 +61,31 @@ function fct_map_record_meta_caps( $caps = array(), $cap = '', $user_id = 0, $ar
 
 			break;
 
-		/** Publishing ********************************************************/
+		/** Creating **********************************************************/
 
-		case 'publish_records'  :
+		/**
+		 * Records cannot be created when there is both no open account
+		 * and no open period to assign the record to.
+		 */
+		case 'create_records' :
 
 			// Bail when there's no open period or account
-			if ( ! fct_has_open_period() || ! fct_has_open_account() ) {
+			if ( ! fct_has_open_period() && ! fct_has_open_account() ) {
 				$caps = array( 'do_not_allow' );
-
-			// Only Fisci can always publish
-			} else {
-				$caps = array( 'fiscaat' );
 			}
 
 			break;
 
 		/** Editing ***********************************************************/
 
+		/**
+		 * Records cannot be edited when either its account or period is
+		 * closed. In that state, the records are finite.
+		 */
 		case 'edit_record' :
 
-			// Do some post ID based logic
-			$_post = get_post( $args[0] );
-			if ( ! empty( $_post ) ){
-
-				// Record is closed
-				if ( fct_get_closed_status_id() == $_post->post_status ){
-					$caps = array( 'do_not_allow' );
-
-				// Fisci can always edit
-				} elseif ( user_can( $user_id, 'fiscaat' ) ) {
-					$caps = array( 'fiscaat' );
-
-				} else {
-					$caps = array( 'do_not_allow' );
-				}
-			}
-
-			break;
-
-		case 'edit_records'        :
-		case 'edit_others_records' :
-
-			// Fisci can always edit
-			if ( user_can( $user_id, 'fiscaat' ) ) {
-				$caps = array( 'fiscaat' );
-
-			} else {
+			// Record's period or account is closed
+			if ( fct_is_record_period_closed( $args[0] ) || fct_is_record_account_closed( $args[0] ) ) {
 				$caps = array( 'do_not_allow' );
 			}
 
@@ -114,33 +93,24 @@ function fct_map_record_meta_caps( $caps = array(), $cap = '', $user_id = 0, $ar
 
 		/** Deleting **********************************************************/
 
-		case 'delete_record'         :
-		case 'delete_records'        :
+		/**
+		 * To prevent any form of financial manipulation, record deletion
+		 * in Fiscaat is fully disabled. 
+		 */
+		case 'delete_records' :
 		case 'delete_others_records' :
+		case 'delete_record' :
 
-			// Records are only deleted on reset or uninstall
-			if ( ! is_admin() && ( ! fct_is_reset() || ! fct_is_uninstall() ) ){
-				$caps = array( 'do_not_allow' );
-			}
-
-			break;
-
-		/** Attachments *******************************************************/
-
-		case 'upload_files' :
-			global $wp_query;
-
-			// Fisci can always upload for records
-			if ( fct_get_record_post_type() == $wp_query->get( 'post_type' ) ) {
-				$caps = array( 'fiscaat' );
-			}
+			$caps = array( 'do_not_allow' );
 
 			break;
 
 		/** Admin *************************************************************/
 
 		case 'fct_records_admin' :
+
 			$caps = array( 'fiscaat' );
+
 			break;
 	}
 

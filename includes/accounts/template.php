@@ -571,8 +571,9 @@ function fct_account_status( $account_id = 0 ) {
 /**
  * Is the account open to new records?
  *
- * @param int $account_id Optional. Account id
  * @uses fct_is_account_closed() To check if the account is closed
+ * 
+ * @param int $account_id Optional. Account id
  * @return bool True if open, false if closed.
  */
 function fct_is_account_open( $account_id = 0 ) {
@@ -582,16 +583,34 @@ function fct_is_account_open( $account_id = 0 ) {
 	/**
 	 * Is the account closed to new records?
 	 *
-	 * @param int $account_id Optional. Account id
 	 * @uses fct_get_account_status() To get the account status
 	 * @uses apply_filters() Calls 'fct_is_account_closed' with the account id
 	 *
+	 * @param int $account_id Optional. Account id
 	 * @return bool True if closed, false if not.
 	 */
 	function fct_is_account_closed( $account_id = 0 ) {
 		$closed = fct_get_account_status( $account_id ) == fct_get_closed_status_id();
 		return (bool) apply_filters( 'fct_is_account_closed', (bool) $closed, $account_id );
 	}
+
+/**
+ * Is the account's period closed?
+ *
+ * @since 0.0.9
+ *
+ * @uses fct_get_account_period_id() To get the account's period id
+ * @uses fct_is_period_closed() To check if the period is closed
+ * @uses apply_filters() Calls 'fct_is_account_period_closed' with the account id
+ * 
+ * @param  integer $account_id Optional. Account id
+ * @return bool True if closed, false if not.
+ */
+function fct_is_account_period_closed( $account_id = 0 ) {
+	$period_id = fct_get_account_period_id( $account_id );
+	$closed    = fct_is_period_closed( $period_id );
+	return (bool) apply_filters( 'fct_is_account_period_closed', (bool) $closed, $account_id );
+}
 
 /**
  * Is the account published?

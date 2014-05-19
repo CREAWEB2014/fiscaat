@@ -560,6 +560,42 @@ function fct_is_record_open( $record_id = 0 ) {
 	}
 
 /**
+ * Is the record's account closed?
+ *
+ * @since 0.0.9
+ *
+ * @uses fct_get_record_account_id() To get the record's account id
+ * @uses fct_is_account_closed() To check if the account is closed
+ * @uses apply_filters() Calls 'fct_is_record_account_closed' with the record id
+ * 
+ * @param  integer $record_id Optional. Account id
+ * @return bool True if closed, false if not.
+ */
+function fct_is_record_account_closed( $record_id = 0 ) {
+	$account_id = fct_get_record_account_id( $record_id );
+	$closed     = fct_is_account_closed( $account_id );
+	return (bool) apply_filters( 'fct_is_record_account_closed', (bool) $closed, $record_id );
+}
+
+/**
+ * Is the record's period closed?
+ *
+ * @since 0.0.9
+ *
+ * @uses fct_get_record_period_id() To get the record's period id
+ * @uses fct_is_period_closed() To check if the period is closed
+ * @uses apply_filters() Calls 'fct_is_record_period_closed' with the record id
+ * 
+ * @param  integer $record_id Optional. Account id
+ * @return bool True if closed, false if not.
+ */
+function fct_is_record_period_closed( $record_id = 0 ) {
+	$period_id = fct_get_record_period_id( $record_id );
+	$closed    = fct_is_period_closed( $period_id );
+	return (bool) apply_filters( 'fct_is_record_period_closed', (bool) $closed, $record_id );
+}
+
+/**
  * Is the record published?
  *
  * @param int $record_id Optional. Account id

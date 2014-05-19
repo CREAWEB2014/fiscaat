@@ -407,7 +407,7 @@ function fct_admin_setting_callback_currency() {
  */
 function fct_admin_setting_callback_currency_position() {
 	$positions = fct_get_currency_positions(); 
-	$option  = fct_get_form_option( '_fct_currency_position' ); ?>
+	$option    = fct_get_form_option( '_fct_currency_position' ); ?>
 
 	<select id="_fct_currency_position" name="_fct_currency_position" <?php fct_maybe_admin_setting_disabled( '_fct_currency_position' ); ?>>
 
@@ -499,7 +499,7 @@ function fct_admin_setting_callback_accounts_section() {
 function fct_admin_setting_callback_associate_bank_accounts() {
 ?>
 
-	<p><?php _e( 'Make Fiscaat associate bank account numbers with certain accounts within Fiscaat. When importing banking record data this helps Fiscaat to select the right accounts for you. Note: Fiscaat does not try to make a connection with your bank.', 'fiscaat' ); ?></p>
+	<p><?php _e( 'Have Fiscaat associate bank account numbers with certain accounts within Fiscaat. When importing banking record data this helps Fiscaat to select the right accounts for you. Note: Fiscaat does not try to make a connection with your bank.', 'fiscaat' ); ?></p>
 
 	<ol><?php
 

@@ -61,85 +61,71 @@ function fct_map_account_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 
 			break;
 
-		/** Publishing ********************************************************/
+		/** Creating **********************************************************/
 
-		case 'publish_accounts'  :
+		/**
+		 * Accounts can only be created within an open period.
+		 */
+		case 'create_accounts'  :
 
-			// Accounts require an open period
+			// No open period
 			if ( ! fct_has_open_period() ) {
 				$caps = array( 'do_not_allow' );
-
-			// Publish on activation 
-			} elseif ( fct_is_install() ){
-				$caps = array( 'install_plugins' );
-
-			// Only Fisci can always publish
-			} else {
-				$caps = array( 'fiscaat' );
 			}
 
 			break;
 
 		/** Editing ***********************************************************/
 
-		case 'edit_accounts'        :
-		case 'edit_others_accounts' :
-
-			// Only Fisci can always edit
-			$caps = array( 'fiscaat' );
-
-			break;
-
+		/**
+		 * Accounts cannot be edited when closed or in closed periods.
+		 */
 		case 'edit_account' :
 
-			// User cannot edit
-			if ( ! user_can( $user_id, 'fiscaat' ) ){
+			// Account is closed or period is closed
+			if ( fct_is_account_closed( $args[0] ) || fct_is_account_period_closed( $args[0] ) ) {
 				$caps = array( 'do_not_allow' );
-
-			// Account is closed
-			} elseif ( fct_is_account_closed( $args[0] ) ){
-				$caps = array( 'do_not_allow' );
-
-			// Fisci can edit
-			} else {
-				$caps = array( 'fiscaat' );
 			}
+
+			break;
 		
 		/** Closing ***********************************************************/
 
 		/**
 		 * Accounts are closed in order to ensure their final state before
 		 * closing their parent period. Closing an account does not require
-		 * any of its records.
+		 * anything of its records. Though, the period must be open.
 		 */
-		case 'close_account'  :
 		case 'close_accounts' :
 
 			// Fisci can close/open accounts
 			$caps = array( 'fiscaat' );
 
 			break;
+			
+		case 'close_account' :
+
+			// Account's period is closed
+			if ( fct_is_account_period_closed( $args[0] ) ) {
+				$caps = array( 'do_not_allow' );
+
+			// Fisci can close/open accounts
+			} else {
+				$caps = array( 'fiscaat' );
+			}
+
+			break;
 
 		/** Deleting **********************************************************/
 
-		case 'delete_account'         :
-		case 'delete_accounts'        :
-		case 'delete_others_accounts' :
+		/**
+		 * Accounts cannot be deleted if they contain any records or if 
+		 * their period is closed.
+		 */
+		case 'delete_account' :
 
-			// Accounts are deleted on reset or uninstall
-			if ( is_admin() && ( fct_is_reset() || fct_is_uninstall() ) ){
-				$caps = array( 'install_plugins' );
-
-			// User cannot delete
-			} elseif ( ! user_can( $user_id, 'fiscaat' ) ) {
-				$caps = array( 'do_not_allow' );
-
-			// Account has no records
-			} elseif ( ! fct_account_has_records() ) {
-				$caps = array( 'fiscaat' );
-
-			// Not else
-			} else {
+			// Account has records or period is closed
+			if ( fct_account_has_records( $args[0] ) || fct_is_account_period_closed( $args[0] ) ) {
 				$caps = array( 'do_not_allow' );
 			}
 
@@ -148,7 +134,9 @@ function fct_map_account_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 		/** Admin *************************************************************/
 
 		case 'fct_accounts_admin' :
+
 			$caps = array( 'fiscaat' );
+
 			break;
 	}
 

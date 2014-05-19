@@ -256,7 +256,7 @@ class Fiscaat_Admin {
 			$hooks[] = add_submenu_page(
 				'fiscaat',
 				__( 'Records', 'fiscaat' ),
-				__( 'Records', 'fiscaat' ),
+				get_post_type_object( fct_get_record_post_type() )->labels->menu_name,
 				$this->minimum_capability,
 				'fct-records',
 				'fct_admin_posts_page'
@@ -266,7 +266,7 @@ class Fiscaat_Admin {
 			$hooks[] = add_submenu_page(
 				'fiscaat',
 				__( 'Accounts', 'fiscaat' ),
-				__( 'Accounts', 'fiscaat' ),
+				get_post_type_object( fct_get_account_post_type() )->labels->menu_name,
 				$this->minimum_capability,
 				'fct-accounts',
 				'fct_admin_posts_page'
@@ -276,7 +276,7 @@ class Fiscaat_Admin {
 			$hooks[] = add_submenu_page(
 				'fiscaat',
 				__( 'Periods', 'fiscaat' ),
-				__( 'Periods', 'fiscaat' ),
+				get_post_type_object( fct_get_period_post_type() )->labels->menu_name,
 				$this->minimum_capability,
 				'fct-periods',
 				'fct_admin_posts_page'
