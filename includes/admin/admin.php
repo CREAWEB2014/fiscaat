@@ -851,27 +851,6 @@ class Fiscaat_Admin {
 					}
 				} );
 			});
-
-			/* Connect primary account id and ledger id dropdowns */
-			jQuery(document).ready(function($) {
-				var dropdowns = [ 
-					$('select#fct_account_ledger_id, select#fct_record_account_ledger_id'), // Account ledger dropdowns
-					$('select#fct_account_id, select#parent_id') // Account dropdowns
-				];
-
-				// Make dropdowns listen to their co-dropdown
-				$.each( dropdowns, function( i ){
-					var other_dd = ( i == 1 ) ? 0 : 1;
-
-					// For each change in a dropdown of the one kind, change the 
-					// matching dropdown of the other kind.
-					$.each( this, function( j ) {
-						$(this).change( function(){
-							$( dropdowns[other_dd][j] ).find('option[value="'+ this.value +'"]').attr('selected', true );
-						});
-					});
-				});
-			});
 		</script>
 
 		<style type="text/css" media="screen">

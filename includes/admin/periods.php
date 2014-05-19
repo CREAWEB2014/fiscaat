@@ -370,10 +370,6 @@ class Fiscaat_Periods_Admin {
 				width: 10%;
 			}
 
-			.status-closed {
-				background-color: #eaeaea;
-			}
-
 		/*]]>*/
 		</style>
 
@@ -548,24 +544,20 @@ class Fiscaat_Periods_Admin {
 
 		// Show view link if it's not set, the period is trashed and the user can view trashed accounts
 		if ( empty( $actions['view'] ) && ( fct_get_trash_status_id() != $period->post_status ) ) {
-			$actions['view'] = '<a href="' . fct_get_account_permalink( $period->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'fiscaat' ), fct_get_period_title( $period->ID ) ) ) . '" rel="permalink">' . __( 'View', 'fiscaat' ) . '</a>';
+			$actions['view'] = '<a href="' . fct_get_account_permalink( $period->ID ) . '" title="' . esc_attr( sprintf( __( 'View "%s"', 'fiscaat' ), fct_get_period_title( $period->ID ) ) ) . '" rel="permalink">' . __( 'View', 'fiscaat' ) . '</a>';
 		}
 
 		// Show accounts and records link
-		$actions['accounts'] = '<a href="' . add_query_arg( array( 'page' => 'fct-accounts', 'fct_period_id' => $period->ID ), admin_url( 'admin.php' ) ) .'" title="' . esc_attr( sprintf( __( 'Show all accounts of &#8220;%s&#8221;', 'fiscaat' ), fct_get_period_title( $period->ID ) ) ) . '">' . __( 'Accounts', 'fiscaat' ) . '</a>';
-		$actions['records']  = '<a href="' . add_query_arg( array( 'page' => 'fct-records',  'fct_period_id' => $period->ID ), admin_url( 'admin.php' ) ) .'" title="' . esc_attr( sprintf( __( 'Show all records of &#8220;%s&#8221;',  'fiscaat' ), fct_get_period_title( $period->ID ) ) ) . '">' . __( 'Records',  'fiscaat' ) . '</a>';
+		$actions['accounts'] = '<a href="' . add_query_arg( array( 'page' => 'fct-accounts', 'fct_period_id' => $period->ID ), admin_url( 'admin.php' ) ) .'" title="' . esc_attr( sprintf( __( 'Show all accounts of "%s"', 'fiscaat' ), fct_get_period_title( $period->ID ) ) ) . '">' . __( 'Accounts', 'fiscaat' ) . '</a>';
+		$actions['records']  = '<a href="' . add_query_arg( array( 'page' => 'fct-records',  'fct_period_id' => $period->ID ), admin_url( 'admin.php' ) ) .'" title="' . esc_attr( sprintf( __( 'Show all records of "%s"',  'fiscaat' ), fct_get_period_title( $period->ID ) ) ) . '">' . __( 'Records',  'fiscaat' ) . '</a>';
 
 		// Show the close and open link
 		if ( current_user_can( 'close_period', $period->ID ) ) {
 			$close_uri = esc_url( wp_nonce_url( add_query_arg( array( 'period_id' => $period->ID, 'action' => 'fct_toggle_period_close' ), remove_query_arg( array( 'fct_period_toggle_notice', 'account_id', 'failed', 'super' ) ) ), 'close-period_' . $period->ID ) );
 			if ( fct_is_period_open( $period->ID ) ) {
-
-				// Show close link if the period has no open accounts
-				if ( ! fct_has_open_account() ) {
-					$actions['close'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Close this period', 'fiscaat' ) . '">' . _x( 'Close', 'Close the period', 'fiscaat' ) . '</a>';
-				}
+				$actions['close'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Close this period', 'fiscaat' ) . '">' . _x( 'Close', 'Close the period', 'fiscaat' ) . '</a>';
 			} else {
-				$actions['open'] = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Open this period',  'fiscaat' ) . '">' . _x( 'Open',  'Open the period',  'fiscaat' ) . '</a>';
+				$actions['open']  = '<a href="' . $close_uri . '" title="' . esc_attr__( 'Open this period',  'fiscaat' ) . '">' . _x( 'Open',  'Open the period',  'fiscaat' ) . '</a>';
 			}
 		}
 

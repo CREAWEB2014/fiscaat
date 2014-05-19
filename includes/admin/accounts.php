@@ -70,8 +70,9 @@ class Fiscaat_Accounts_Admin {
 		add_action( 'fct_admin_load_edit_accounts',  array( $this, 'edit_help' ) );
 		add_action( 'fct_admin_load_post_account',   array( $this, 'new_help'  ) );
 
-		// Redirect
-		add_action( 'fct_admin_load_post_account',   array( $this, 'no_period_redirect'    ) );
+		// Check if there is a missing open period on account add/edit, also have a message displayed
+		add_action( 'fct_admin_load_post_account',   array( $this, 'missing_redirect' ) );
+		add_action( 'fct_admin_notices',             array( $this, 'missing_notices'  ) );
 
 		// Post stati
 		add_action( 'fct_admin_load_edit_accounts',  array( $this, 'arrange_post_statuses' ) );
@@ -384,10 +385,6 @@ class Fiscaat_Accounts_Admin {
 			.column-fct_record_period,
 			.column-fct_record_account {
 				width: 10%;
-			}
-
-			.status-closed {
-				background-color: #eaeaea;
 			}
 
 			#fct_account_attributes p span {
@@ -871,12 +868,12 @@ class Fiscaat_Accounts_Admin {
 
 			// Show view link if it's not set, the account is trashed and the user can view trashed accounts
 			if ( empty( $actions['view'] ) && ( fct_get_trash_status_id() == $account->post_status ) && current_user_can( 'view_trash' ) ) {
-				$actions['view'] = '<a href="' . fct_get_account_permalink( $account->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'fiscaat' ), fct_get_account_title( $account->ID ) ) ) . '" rel="permalink">' . __( 'View', 'fiscaat' ) . '</a>';
+				$actions['view'] = '<a href="' . fct_get_account_permalink( $account->ID ) . '" title="' . esc_attr( sprintf( __( 'View "%s"', 'fiscaat' ), fct_get_account_title( $account->ID ) ) ) . '" rel="permalink">' . __( 'View', 'fiscaat' ) . '</a>';
 			}
 
 			// Show records link
 			if ( current_user_can( 'read_account', $account->ID ) ) {
-				$actions['records'] = '<a href="' . add_query_arg( array( 'page' => 'fct-records', 'fct_account_id' => $account->ID ), admin_url( 'admin.php' ) ) .'" title="' . esc_attr( sprintf( __( 'Show all records of &#8220;%s&#8221;',  'fiscaat' ), fct_get_account_title( $account->ID ) ) ) . '">' . __( 'Records', 'fiscaat' ) . '</a>';
+				$actions['records'] = '<a href="' . add_query_arg( array( 'page' => 'fct-records', 'fct_account_id' => $account->ID ), admin_url( 'admin.php' ) ) .'" title="' . esc_attr( sprintf( __( 'Show all records of "%s"',  'fiscaat' ), fct_get_account_title( $account->ID ) ) ) . '">' . __( 'Records', 'fiscaat' ) . '</a>';
 			}
 
 			// Show the close and open link
@@ -1038,35 +1035,50 @@ class Fiscaat_Accounts_Admin {
 		}
 	}
 
-	/** Redirect **************************************************************/
+	/** Missing ***************************************************************/
 
 	/**
-	 * Redirect user to record post-new page with correct message id
+	 * Redirect user to accounts page when missing an open period
 	 *
 	 * @uses fct_has_open_period()
-	 * @uses fct_get_record_post_type()
 	 * @uses add_query_arg()
 	 * @uses wp_safe_redirect()
 	 */
-	public function no_period_redirect() {
+	public function missing_redirect() {
 		if ( $this->bail() ) 
 			return;
 
-		// Check for existing message
-		if ( isset( $_GET['message'] ) )
-			return;
-
-		// Install has no open period
+		// Fiscaat has no open period
 		if ( ! fct_has_open_period() ) {
-			$message = 11;
 
-		// Everything okay
-		} else {
-			return;
+			// Redirect to accounts page
+			wp_safe_redirect( add_query_arg( array( 'page' => 'fct-accounts' ), admin_url( 'admin.php' ) ) );
+			exit;
 		}
+	}
 
-		// Redirect user with message
-		wp_safe_redirect( add_query_arg( array( 'message' => $message, 'post_type' => fct_get_account_post_type() ), admin_url( 'post-new.php' ) ) );
+	/**
+	 * Display missing notice
+	 *
+	 * @since 0.0.9
+	 *
+	 * @uses fct_has_open_period()
+	 * @uses current_user_can()
+	 * @uses add_query_arg()
+	 * @uses fct_get_period_post_type()
+	 */
+	public function missing_notices() {
+		if ( $this->bail() ) 
+			return;
+
+		// Fiscaat has no open period
+		if ( ! fct_has_open_period() && current_user_can( 'create_periods' ) ) : ?>
+
+			<div id="message" class="error">
+				<p style="line-height: 150%"><?php printf( __( 'There is currently no open period to manage accounts in. <a href="%s">Create a new period</a>.', 'fiscaat' ), add_query_arg( 'post_type', fct_get_period_post_type(), admin_url( 'post-new.php' ) ) ); ?></p>
+			</div>
+
+		<?php endif;
 	}
 
 	/** Messages **************************************************************/

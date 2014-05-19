@@ -54,32 +54,38 @@ class Fiscaat_Records_Admin {
 
 		/** Sub-Actions *******************************************************/
 
-		add_action( 'load-edit.php', array( $this, 'setup_new_posts' ) );
+		add_action( 'load-edit.php', array( $this, 'setup_page_hooks' ) );
 
 		/** Actions ***********************************************************/
 
 		// Add some general styling to the admin area
-		add_action( 'fct_admin_head',    array( $this, 'admin_head'   ) );
+		add_action( 'fct_admin_head', array( $this, 'admin_head' ) );
 
 		// Record metabox actions
-		add_action( 'add_meta_boxes',    array( $this, 'record_attributes_metabox'      ) );
-		add_action( 'save_post',         array( $this, 'record_attributes_metabox_save' ) );
+		add_action( 'add_meta_boxes', array( $this, 'record_attributes_metabox'      ) );
+		add_action( 'save_post',      array( $this, 'record_attributes_metabox_save' ) );
 
 		// Check if there are any fct_toggle_record_* requests on admin_init, also have a message displayed
-		add_action( 'fct_admin_load_edit_records',  array( $this, 'toggle_record'         ) );
-		add_action( 'fct_admin_notices',            array( $this, 'toggle_record_notice'  ) );
+		add_action( 'fct_admin_load_edit_records',  array( $this, 'toggle_record'        ) );
+		add_action( 'fct_admin_notices',            array( $this, 'toggle_record_notice' ) );
 
 		// Contextual Help
-		add_action( 'fct_admin_load_edit_records',  array( $this, 'edit_help'             ) );
-		add_action( 'fct_admin_load_post_record',   array( $this, 'new_help'              ) );
+		add_action( 'fct_admin_load_view_records',  array( $this, 'edit_help' ) );
+		add_action( 'fct_admin_load_new_records',   array( $this, 'new_help'  ) );
+		add_action( 'fct_admin_load_edit_records',  array( $this, 'edit_help' ) );
+
+		// Check if there is a missing open period or account on record add/edit, also have a message displayed
+		add_action( 'fct_admin_load_new_records',   array( $this, 'missing_redirect' ) );
+		add_action( 'fct_admin_load_edit_records',  array( $this, 'missing_redirect' ) );
+		add_action( 'fct_admin_notices',            array( $this, 'missing_notices'  ) );
 
 		// Modify page title
-		add_action( 'fct_admin_records_page_title', array( $this, 'records_page_title'    ) );
-		add_action( 'fct_admin_records_page_title', array( $this, 'post_new_link'         ) );
+		add_action( 'fct_admin_records_page_title', array( $this, 'records_page_title' ) );
+		add_action( 'fct_admin_records_page_title', array( $this, 'post_new_link'      ) );
 
 		/** Redirect **********************************************************/
 
-		add_action( 'load-post-new.php', array( $this, 'redirect_post_new_page' ), 0 );
+		add_action( 'load-post-new.php', array( $this, 'redirect_post_new' ), 0 );
 
 		/** Filters ***********************************************************/
 
@@ -123,14 +129,30 @@ class Fiscaat_Records_Admin {
 	 *
 	 * @since 0.0.8
 	 *
-	 * @uses add_action()
+	 * @uses fct_is_new_records()
+	 * @uses fct_is_edit_records()
+	 * @uses fct_is_view_records()
+	 * @uses do_action() Calls 'fct_admin_load_new_records'
+	 * @uses do_action() Calls 'fct_admin_load_edit_records'
+	 * @uses do_action() Calls 'fct_admin_load_view_records'
 	 */
-	public function setup_new_posts() {
-		if ( $this->bail() || ! fct_admin_is_new_records() )
+	public function setup_page_hooks() {
+		if ( $this->bail() )
 			return;
 
-		// Setup load-new.php hook for new records mode
-		add_action( current_filter(), 'fct_admin_load_post_records' );
+		// Fire load hook for new records mode
+		if ( fct_admin_is_new_records() ) {
+			do_action( 'fct_admin_load_new_records' );
+
+		// Fire load hook for edit records mode
+		} elseif ( fct_admin_is_edit_records() ) {
+			// The 'fct_admin_load_edit_records' hook already
+			// fired in Fiscaat_Admin::setup_edit_posts().
+
+		// Fire load hook for view records mode
+		} elseif ( fct_admin_is_view_records() ) {
+			do_action( 'fct_admin_load_view_records' );
+		}
 	}
 
 	/** Contextual Help *******************************************************/
@@ -473,6 +495,30 @@ class Fiscaat_Records_Admin {
 
 		/*]]>*/
 		</style>
+
+		<script type="text/javascript">
+
+			/* Connect primary account id and ledger id dropdowns */
+			jQuery(document).ready(function($) {
+				var dropdowns = [ 
+					$('select#fct_account_ledger_id, select#fct_record_account_ledger_id'), // Account ledger dropdowns
+					$('select#fct_account_id, select#parent_id') // Account dropdowns
+				];
+
+				// Make dropdowns listen to their co-dropdown
+				$.each( dropdowns, function( i ){
+					var other_dd = ( i == 1 ) ? 0 : 1;
+
+					// For each change in a dropdown of the one kind, change the 
+					// matching dropdown of the other kind.
+					$.each( this, function( j ) {
+						$(this).change( function(){
+							$( dropdowns[other_dd][j] ).find('option[value="'+ this.value +'"]').attr('selected', true );
+						});
+					});
+				});
+			});
+		</script>
 
 		<?php
 	}
@@ -848,6 +894,69 @@ class Fiscaat_Records_Admin {
 		}
 	}
 
+	/** Missing ***************************************************************/
+
+	/**
+	 * Redirect user to records page when missing an open period or account
+	 *
+	 * @since 0.0.9
+	 *
+	 * @uses fct_has_open_period()
+	 * @uses fct_has_open_account()
+	 * @uses add_query_arg()
+	 * @uses wp_safe_redirect()
+	 */
+	public function missing_redirect() {
+		if ( $this->bail() ) 
+			return;
+
+		// Bail if not in new or edit records mode
+		if ( fct_admin_is_view_records() )
+			return;
+
+		// Fiscaat has no open period or open account
+		if ( ! fct_has_open_period() || ! fct_has_open_account() ) {
+
+			// Redirect to records page
+			wp_safe_redirect( add_query_arg( array( 'page' => 'fct-records' ), admin_url( 'admin.php' ) ) );
+			exit;
+		}
+	}
+
+	/**
+	 * Display missing notice
+	 *
+	 * @since 0.0.9
+	 *
+	 * @uses fct_has_open_period()
+	 * @uses fct_has_open_account()
+	 * @uses current_user_can()
+	 * @uses add_query_arg()
+	 * @uses fct_get_period_post_type()
+	 */
+	public function missing_notices() {
+		if ( $this->bail() ) 
+			return;
+
+		// Fiscaat has no open period
+		if ( ! fct_has_open_period() && current_user_can( 'create_periods' ) ) : ?>
+
+			<div id="message" class="error">
+				<p style="line-height: 150%"><?php printf( __( 'There is currently no open period to manage records in. <a href="%s">Create a new period</a>.', 'fiscaat' ), add_query_arg( 'post_type', fct_get_period_post_type(), admin_url( 'post-new.php' ) ) ); ?></p>
+			</div>
+
+		<?php
+
+		// Fiscaat has no open account
+		elseif ( ! fct_has_open_account() && current_user_can( 'create_accounts' ) ) : ?>
+
+			<div id="message" class="error">
+				<p style="line-height: 150%"><?php printf( __( 'There is currently no open account to manage records in. <a href="%s">Open an existing account</a> or <a href="%s">create a new account</a>.', 'fiscaat' ), add_query_arg( 'page', 'fct-accounts', admin_url( 'admin.php' ) ), add_query_arg( 'post_type', fct_get_account_post_type(), admin_url( 'post-new.php' ) ) ); ?></p>
+			</div>
+
+		<?php endif;
+	}
+
 	/** Messages **************************************************************/
 
 	/**
@@ -943,11 +1052,16 @@ class Fiscaat_Records_Admin {
 		if ( $this->bail() )
 			return;
 
-		$args = array( 
-			'page' => 'fct-records', 
-			'mode' => fct_admin_get_new_records_mode() 
-		);
-		wp_redirect( add_query_arg( $args, admin_url( 'admin.php' ) ) );
+		// Setup local var
+		$args = array( 'page' => 'fct-records' );
+
+		// Send to new records mode
+		if ( current_user_can( 'create_posts' ) ) {
+			$args['mode'] = fct_admin_get_new_records_mode();
+		}
+
+		// Redirect to 
+		wp_safe_redirect( add_query_arg( $args, admin_url( 'admin.php' ) ) );
 		exit;
 	}
 
