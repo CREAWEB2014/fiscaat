@@ -1057,16 +1057,27 @@ function fct_sanitize_currency( $input = '' ) {
  *
  * @since 0.0.8
  *
- * @uses apply_filters() Calls 'fct_get_currency_positions'
- * @return array Positions as array( key => description )
+ * @uses apply_filters() Calls 'fct_get_currency_positions' with the
+ *                        positions
+ * @param string $position Optional. Requested position name
+ * @return array Positions as array( key => description ) or single position
  */
-function fct_get_currency_positions() {
-	return apply_filters( 'fct_get_currency_positions', array(
-		'left'        => __('Left',             'fiscaat'),
-		'right'       => __('Right',            'fiscaat'),
-		'left_space'  => __('Left with space',  'fiscaat'),
-		'right_space' => __('Right with space', 'fiscaat')
-	) );
+function fct_get_currency_positions( $position = '' ) {
+
+	// Default positions. Formats: %1$s: Currency symbol, %2$s: Value.
+	$positions = array(
+		'left'        => array( 'format' => '%1$s%2$s',  'label' => __( 'Left',             'fiscaat' ) ),
+		'right'       => array( 'format' => '%2$s%1$s',  'label' => __( 'Right',            'fiscaat' ) ),
+		'left_space'  => array( 'format' => '%1$s %2$s', 'label' => __( 'Left with space',  'fiscaat' ) ),
+		'right_space' => array( 'format' => '%2$s %1$s', 'label' => __( 'Right with space', 'fiscaat' ) ),
+	);
+
+	// Select position if requested. Default to 'left_space'
+	if ( ! empty( $position ) ) {
+		$positions = in_array( $position, array_keys( $positions) ) ? $positions[ $position ] : $positions['left_space'];
+	}
+
+	return apply_filters( 'fct_get_currency_positions', $positions, $position );
 }
 
 /**

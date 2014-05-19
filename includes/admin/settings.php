@@ -406,14 +406,14 @@ function fct_admin_setting_callback_currency() {
  * @uses fct_get_amount() To get a currency value representation
  */
 function fct_admin_setting_callback_currency_position() {
-	$options = fct_get_currency_positions(); 
+	$positions = fct_get_currency_positions(); 
 	$option  = fct_get_form_option( '_fct_currency_position' ); ?>
 
 	<select id="_fct_currency_position" name="_fct_currency_position" <?php fct_maybe_admin_setting_disabled( '_fct_currency_position' ); ?>>
 
-		<?php foreach ( $options as $position => $label ) :
+		<?php foreach ( $positions as $_pos => $args ) :
 
-			echo "<option value=\"$position\" " . selected( $option, $position, false ) . ">$label (" . fct_get_currency_format( '99.99', $position ) . ')</option>';
+			echo "<option value=\"{$_pos}\" " . selected( $option, $_pos, false ) . ">{$args['label']} (" . fct_get_currency_format( '99.99', $_pos ) . ')</option>';
 
 		endforeach; ?>
 
