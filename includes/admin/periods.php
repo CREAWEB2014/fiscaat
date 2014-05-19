@@ -312,9 +312,22 @@ class Fiscaat_Periods_Admin {
 	}
 
 	/**
-	 * [inherit_period_accounts description]
-	 * @param  [type] $period_id [description]
-	 * @return [type]            [description]
+	 * Duplicate previous period's accounts to the edited period
+	 *
+	 * The edited period can only inherit the previous period's
+	 * accounts when it has no accounts already. Inheriting
+	 * includes duplicating account title, content, ledger id,
+	 * and account type. The account end value will be used
+	 * as the newly duplicated account's starting value.
+	 *
+	 * @since 0.0.9
+	 *
+	 * @uses fct_get_period_account_count()
+	 * @uses fct_get_account_post_type()
+	 * @uses fct_get_closed_status_id()
+	 * @uses fct_update_period_meta() To update the period's account count
+	 * @global WPDB
+	 * @param int $period_id Updated period ID
 	 */
 	public function inherit_period_accounts( $period_id ) {
 		global $wpdb;
@@ -331,18 +344,18 @@ class Fiscaat_Periods_Admin {
 		$_period_id = (int) $_POST['fct_period_inherit_from'];
 
 		// Query all inheriting accounts
-		if ( ! $accounts = new WP_Query( array(
+		if ( ! $query = new WP_Query( array(
 			'post_type'   => fct_get_account_post_type(),
 			'post_parent' => $_period_id,
 			'post_status' => fct_get_closed_status_id(),
-			'numberposts' => -1,
+			'nopaging'    => true,
 		) ) )
 			return;
 
-		// Get posts from query
-		$accounts = $accounts->posts;
+		// Get accounts from query
+		$accounts = $query->posts;
 
-		// Query all post meta
+		// Query all raw account meta
 		$query_meta   = $wpdb->get_results( sprintf( "SELECT * FROM {$wpdb->postmeta} WHERE post_id IN (%s) AND meta_key IN (%s)", implode( ',', wp_list_pluck( $accounts, 'ID' ) ), implode( ',', array( "'_fct_ledger_id'", "'_fct_account_type'", "'_fct_end_value'" ) ) ) );
 		$account_meta = array();
 
@@ -367,8 +380,8 @@ class Fiscaat_Periods_Admin {
 			), $account_meta[ $account->ID ] );
 		}
 
-		// Update period's account count
-		fct_update_period_account_count( $period_id, count( $accounts ) );
+		// Manually update period's account count
+		fct_update_period_meta( $period_id, 'account_count', count( $accounts ) );
 	}
 
 	/**  ****************************************************************/
