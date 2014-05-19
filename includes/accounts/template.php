@@ -590,7 +590,8 @@ function fct_is_account_open( $account_id = 0 ) {
 	 * @return bool True if closed, false if not.
 	 */
 	function fct_is_account_closed( $account_id = 0 ) {
-		$closed = fct_get_account_status( $account_id ) == fct_get_closed_status_id();
+		$account_id = fct_get_account_id( $account_id );
+		$closed     = fct_get_account_status( $account_id ) == fct_get_closed_status_id();
 		return (bool) apply_filters( 'fct_is_account_closed', (bool) $closed, $account_id );
 	}
 
@@ -607,8 +608,8 @@ function fct_is_account_open( $account_id = 0 ) {
  * @return bool True if closed, false if not.
  */
 function fct_is_account_period_closed( $account_id = 0 ) {
-	$period_id = fct_get_account_period_id( $account_id );
-	$closed    = fct_is_period_closed( $period_id );
+	$account_id = fct_get_account_id( $account_id );
+	$closed     = fct_is_period_closed( fct_get_account_period_id( $account_id ) );
 	return (bool) apply_filters( 'fct_is_account_period_closed', (bool) $closed, $account_id );
 }
 

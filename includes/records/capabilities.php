@@ -23,7 +23,7 @@ function fct_get_record_caps() {
 		'publish_posts'       => 'publish_records',
 		'read_private_posts'  => 'read_private_records',
 		'delete_posts'        => 'delete_records',
-		'delete_others_posts' => 'delete_others_records'
+		'delete_others_posts' => 'delete_others_records',
 	) );
 }
 
@@ -87,6 +87,12 @@ function fct_map_record_meta_caps( $caps = array(), $cap = '', $user_id = 0, $ar
 			// Record's period or account is closed
 			if ( fct_is_record_period_closed( $args[0] ) || fct_is_record_account_closed( $args[0] ) ) {
 				$caps = array( 'do_not_allow' );
+
+			// Else Fisci can edit
+			} elseif ( user_can( $user_id, 'fiscaat' ) ) {
+
+				// Default to edit_posts
+				$caps = array( get_post_type_object( fct_get_record_post_type() )->cap->edit_posts );
 			}
 
 			break;

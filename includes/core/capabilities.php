@@ -49,7 +49,6 @@ function fct_get_caps_for_role( $role = '' ) {
 				'edit_others_records'    => true,
 				'delete_records'         => true,
 				'delete_others_records'  => true,
-				'read_private_records'   => true,
 
 				// Account caps
 				'create_accounts'        => true,
@@ -58,7 +57,6 @@ function fct_get_caps_for_role( $role = '' ) {
 				'edit_others_accounts'   => true,
 				'delete_accounts'        => true,
 				'delete_others_accounts' => true,
-				'read_private_accounts'  => true,
 
 				// Period caps
 				'create_periods'         => true,
@@ -67,7 +65,6 @@ function fct_get_caps_for_role( $role = '' ) {
 				'edit_others_periods'    => true,
 				'delete_periods'         => true,
 				'delete_others_periods'  => true,
-				'read_private_periods'   => true
 			);
 
 			break;

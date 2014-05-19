@@ -23,7 +23,7 @@ function fct_get_account_caps() {
 		'publish_posts'       => 'publish_accounts',
 		'read_private_posts'  => 'read_private_accounts',
 		'delete_posts'        => 'delete_accounts',
-		'delete_others_posts' => 'delete_others_accounts'
+		'delete_others_posts' => 'delete_others_accounts',
 	) );
 }
 
@@ -78,13 +78,19 @@ function fct_map_account_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 		/** Editing ***********************************************************/
 
 		/**
-		 * Accounts cannot be edited when closed or in closed periods.
+		 * Accounts cannot be edited when closed or within closed periods.
 		 */
 		case 'edit_account' :
 
 			// Account is closed or period is closed
 			if ( fct_is_account_closed( $args[0] ) || fct_is_account_period_closed( $args[0] ) ) {
 				$caps = array( 'do_not_allow' );
+
+			// Fisci can edit
+			} elseif ( user_can( $user_id, 'fiscaat' ) ) {
+
+				// Default to edit_posts
+				$caps = array( get_post_type_object( fct_get_account_post_type() )->cap->edit_posts );
 			}
 
 			break;
@@ -110,7 +116,7 @@ function fct_map_account_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 				$caps = array( 'do_not_allow' );
 
 			// Fisci can close/open accounts
-			} else {
+			} elseif ( user_can( $user_id, 'fiscaat' ) ) {
 				$caps = array( 'fiscaat' );
 			}
 
@@ -127,6 +133,10 @@ function fct_map_account_meta_caps( $caps = array(), $cap = '', $user_id = 0, $a
 			// Account has records or period is closed
 			if ( fct_account_has_records( $args[0] ) || fct_is_account_period_closed( $args[0] ) ) {
 				$caps = array( 'do_not_allow' );
+
+			// Fisci can delete accounts
+			} elseif ( user_can( $user_id, 'fiscaat' ) ) {
+				$caps = array( 'fiscaat' );
 			}
 
 			break;

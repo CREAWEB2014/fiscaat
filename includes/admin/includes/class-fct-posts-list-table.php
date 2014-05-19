@@ -25,9 +25,9 @@ class FCT_Posts_List_Table extends WP_List_Table {
 	 * @since 0.0.8
 	 * @var string
 	 */
-	var $alternate;
+	public $alternate;
 
-	function __construct( $args = array() ) {
+	public function __construct( $args = array() ) {
 		parent::__construct( $args );
 
 		if ( method_exists( $this, '_column_content' ) ) {
@@ -37,11 +37,11 @@ class FCT_Posts_List_Table extends WP_List_Table {
 		add_filter( "get_user_option_manage{$this->screen->id}columnshidden", array( $this, 'get_hidden_columns' ) );
 	}
 
-	function ajax_user_can() {
+	public function ajax_user_can() {
 		return current_user_can( get_post_type_object( $this->screen->post_type )->cap->edit_posts );
 	}
 
-	function prepare_items() {
+	public function prepare_items() {
 		global $avail_post_stati, $wp_query, $per_page;
 
 		// Setup post query. Post type is never given in $_GET params
@@ -71,11 +71,11 @@ class FCT_Posts_List_Table extends WP_List_Table {
 		) );
 	}
 
-	function has_items() {
+	public function has_items() {
 		return have_posts();
 	}
 
-	function no_items() {
+	public function no_items() {
 		if ( isset( $_REQUEST['post_status'] ) && 'trash' == $_REQUEST['post_status'] ) {
 			echo get_post_type_object( $this->screen->post_type )->labels->not_found_in_trash;
 		} else {
@@ -83,7 +83,7 @@ class FCT_Posts_List_Table extends WP_List_Table {
 		}
 	}
 
-	function get_views() {
+	public function get_views() {
 		global $locked_post_status, $avail_post_stati;
 
 		$post_type = $this->screen->post_type;
@@ -125,7 +125,7 @@ class FCT_Posts_List_Table extends WP_List_Table {
 		return apply_filters( "fct_admin_{$this->_args['plural']}_get_views", $status_links );
 	}
 
-	function get_bulk_actions() {
+	public function get_bulk_actions() {
 		return apply_filters( "fct_admin_{$this->_args['plural']}_get_bulk_actions", $this->_get_bulk_actions() );
 	}
 
@@ -138,7 +138,7 @@ class FCT_Posts_List_Table extends WP_List_Table {
 	 * 
 	 * @return bool Table has bulk actions
 	 */
-	function has_bulk_actions() {
+	public function has_bulk_actions() {
 		$no_new_actions = $actions = $this->get_bulk_actions();
 		/** This filter is documented in wp-admin/includes/class-wp-list-table.php */
 		$actions = apply_filters( "bulk_actions-{$this->screen->id}", $actions );
@@ -147,7 +147,7 @@ class FCT_Posts_List_Table extends WP_List_Table {
 		return ! empty( $actions );
 	}
 
-	function extra_tablenav( $which ) { ?>
+	public function extra_tablenav( $which ) { ?>
 		<div class="alignleft actions">
 			<?php 
 				if ( 'top' == $which && ! is_singular() ) {
@@ -172,11 +172,11 @@ class FCT_Posts_List_Table extends WP_List_Table {
 		<?php
 	}
 
-	function get_table_classes() {
+	public function get_table_classes() {
 		return array( 'widefat', 'fixed', 'posts', $this->_args['plural'] );
 	}
 
-	function get_columns() {
+	public function get_columns() {
 		$post_type     = $this->screen->post_type;
 		$posts_columns = $this->_get_columns();
 
@@ -238,16 +238,16 @@ class FCT_Posts_List_Table extends WP_List_Table {
 		return apply_filters( "fct_admin_{$this->_args['plural']}_get_columns", $posts_columns );
 	}
 
-	function get_sortable_columns() {
+	public function get_sortable_columns() {
 		return apply_filters( "fct_admin_{$this->_args['plural']}_get_sortable_columns", $this->_get_sortable_columns() );
 	}
 
-	function get_hidden_columns( $columns ) {
+	public function get_hidden_columns( $columns ) {
 		$columns = $this->_get_hidden_columns( $columns );
 		return apply_filters( "fct_admin_{$this->_args['plural']}_get_hidden_columns", $columns );
 	}
 
-	function display_rows( $posts = array(), $level = 0 ) {
+	public function display_rows( $posts = array(), $level = 0 ) {
 		global $wp_query;
 
 		if ( empty( $posts ) ) {
@@ -259,13 +259,13 @@ class FCT_Posts_List_Table extends WP_List_Table {
 		$this->_display_rows( $posts, $level );
 	}
 
-	function _display_rows( $posts, $level = 0 ) {
+	public function _display_rows( $posts, $level = 0 ) {
 		foreach ( $posts as $post ) {
 			$this->single_row( $post, $level );
 		}
 	}
 
-	function single_row( $post, $level = 0 ) {
+	public function single_row( $post, $level = 0 ) {
 
 		// Setup current post
 		$global_post = get_post();

@@ -640,10 +640,9 @@ function fct_period_status( $period_id = 0 ) {
 /**
  * Is the period open?
  *
- * @param int $period_id Optional. Period id
- *
- * @param int $period_id Optional. Period id
  * @uses fct_is_period_closed() To get whether the period is closed
+ * 
+ * @param int $period_id Optional. Period id
  * @return bool Whether the period is open or not
  */
 function fct_is_period_open( $period_id = 0 ) {
@@ -653,15 +652,16 @@ function fct_is_period_open( $period_id = 0 ) {
 	/**
 	 * Is the period closed?
 	 *
-	 * @param int $period_id Optional. Period id
 	 * @uses fct_get_period_status() To get the period status
 	 * @uses apply_filters() Calls 'fct_is_period_closed' with the period
 	 *                        is closed and period id
+	 *
+	 * @param int $period_id Optional. Period id
 	 * @return bool True if closed, false if not
 	 */
 	function fct_is_period_closed( $period_id = 0 ) {
-		$retval = fct_get_closed_status_id() == fct_get_period_status( fct_get_period_id( $period_id ) );
-		return (bool) apply_filters( 'fct_is_period_closed', $retval, $period_id );
+		$closed = fct_get_closed_status_id() == fct_get_period_status( fct_get_period_id( $period_id ) );
+		return (bool) apply_filters( 'fct_is_period_closed', $closed, $period_id );
 	}
 
 /**

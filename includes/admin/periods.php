@@ -67,7 +67,7 @@ class Fiscaat_Periods_Admin {
 		add_action( 'fct_admin_load_post_period',   array( $this, 'new_help'  ) );
 
 		// Post stati
-		add_action( 'fct_admin_load_edit_accounts', array( $this, 'arrange_post_statuses' ) );
+		add_action( 'fct_admin_load_edit_periods', array( $this, 'arrange_post_statuses' ) );
 
 		// Page title
 		add_action( 'fct_admin_periods_page_title', array( $this, 'post_new_link' ) );

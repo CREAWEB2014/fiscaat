@@ -86,6 +86,12 @@ function fct_map_period_meta_caps( $caps = array(), $cap = '', $user_id = 0, $ar
 			// Period is closed
 			if ( fct_is_period_closed( $args[0] ) ) {
 				$caps = array( 'do_not_allow' );
+
+			// Fisci can edit
+			} elseif ( user_can( $user_id, 'fiscaat' ) ) {
+
+				// Default to edit_posts
+				$caps = array( get_post_type_object( fct_get_period_post_type() )->cap->edit_posts );
 			}
 
 			break;
@@ -97,6 +103,10 @@ function fct_map_period_meta_caps( $caps = array(), $cap = '', $user_id = 0, $ar
 		 * accounting system history. Once closed, neither details or its 
 		 * accounts can be edited, nor records can be added to it. To undo
 		 * this state, the close action can be reversed with the same cap.
+		 *
+		 * A period can only be opened again when Fiscaat is without any 
+		 * new open periods present. This ensures, that only the latest
+		 * period can be opened for corrections etc.
 		 *
 		 * The close_period(s) capability is not provided in the default 
 		 * post type caps.
@@ -114,8 +124,12 @@ function fct_map_period_meta_caps( $caps = array(), $cap = '', $user_id = 0, $ar
 			if ( fct_has_open_account() ) {
 				$caps = array( 'do_not_allow' );
 
-			// Fisci can close/open periods
-			} else {
+			// Period is closed and open period is present
+			} elseif ( fct_is_period_closed( $args[0] ) && fct_has_open_period() ) {
+				$caps = array( 'do_not_allow' );
+
+			// Fisci can close/open Periods
+			} elseif ( user_can( $user_id, 'fiscaat' ) ) {
 				$caps = array( 'fiscaat' );
 			}
 			
@@ -126,18 +140,22 @@ function fct_map_period_meta_caps( $caps = array(), $cap = '', $user_id = 0, $ar
 		/**
 		 * Periods are not deleted, unless there would be a good reason
 		 * to do so. There are two scenarios when this would be the case:
-		 *  - The period has no records, so it contains no information
+		 *  - The period is open without records, so it contains no information
 		 *  - The period is closed, while a new one is present
 		 */
 		case 'delete_period' :
 
-			// Period has records
-			if ( fct_period_has_records( $args[0] ) ) {
+			// Period is open and has records
+			if ( fct_is_period_open( $args[0] ) && fct_period_has_records( $args[0] ) ) {
 				$caps = array( 'do_not_allow' );
 
-			// Period is open or no open one is present
-			} elseif ( fct_is_period_open( $args[0] ) || ! fct_has_open_period() ) {
+			// Period is closed and no open period is present
+			} elseif ( fct_is_period_closed( $args[0] ) && fct_has_open_period() ) {
 				$caps = array( 'do_not_allow' );
+
+			// Fisci can delete periods
+			} elseif ( user_can( $user_id, 'fiscaat' ) ) {
+				$caps = array( 'fiscaat' );
 			}
 
 			break;
