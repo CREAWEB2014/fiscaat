@@ -360,13 +360,13 @@ class Fiscaat_Periods_Admin {
 		$account_meta = array();
 
 		// Collect account meta
-		foreach ( $query_meta as $key => $value) {
+		foreach ( $query_meta as $key => $data ) {
 
 			// Setup meta per queried account
-			if ( ! isset( $account_meta[ $value->post_id ] ) )
-				$account_meta[ $value->post_id ] = array( 'period_id' => $period_id );
+			if ( ! isset( $account_meta[ $data->post_id ] ) )
+				$account_meta[ $data->post_id ] = array( 'period_id' => $period_id );
 
-			$account_meta[ $value->post_id ][ str_replace( '_fct_', '', $value->meta_key ) ] = $value->meta_value;
+			$account_meta[ $data->post_id ][ str_replace( '_fct_', '', $data->meta_key ) ] = $value->meta_value;
 		}
 
 		// Loop all inheriting accounts
@@ -384,7 +384,7 @@ class Fiscaat_Periods_Admin {
 		fct_update_period_meta( $period_id, 'account_count', count( $accounts ) );
 	}
 
-	/**  ****************************************************************/
+	/** Misc ******************************************************************/
 
 	/**
 	 * Add some general styling to the admin area
