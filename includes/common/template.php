@@ -1110,7 +1110,7 @@ function fct_the_content( $args = array() ) {
 	 *
 	 * @param array $args
 	 *
-	 * @uses apply_filter() To filter args and output
+	 * @uses apply_filters() To filter args and output
 	 * @uses wp_parse_pargs() To compare args
 	 * @uses fct_use_wp_editor() To see if WP editor is in use
 	 * @uses fct_is_edit() To see if we are editing something
@@ -1717,7 +1717,7 @@ function fct_currency_format( $number = 0, $curr_pos = false ) {
 	 */
 	function fct_get_currency_format( $number = 0, $curr_pos = false ) {
 
-		// Parse float for it may be a string
+		// Parse float
 		$number = fct_float_format( $number );
 
 		// Parse currency format		
@@ -1727,31 +1727,41 @@ function fct_currency_format( $number = 0, $curr_pos = false ) {
 		// Prepend currency symbol
 		if ( ! empty( $curr_pos ) ) {
 			$pos    = ! is_string( $curr_pos ) ? get_option( '_fct_currency_position' ) : $curr_pos;
-			$symbol = fct_get_currency_symbol();
+			$format = fct_get_currency_position_format( $pos );
 
-			// Add symbol to the value
-			switch ( $pos ) {
-				case 'left' : 
-					$retval = $symbol . $retval;
-					break;
-
-				case 'right' : 
-					$retval .= $symbol;
-					break;
-				
-				case 'right_space' : 
-					$retval .= ' ' . $symbol;
-					break;
-				
-				case 'left_space' : 
-				default           :
-					$retval = $symbol . ' ' . $retval;
-					break;
-			}
+			// Parse currency symbol and value
+			$retval = sprintf( $format, fct_get_currency_symbol(), $retval );
 		}
 
 		return apply_filters( 'fct_get_currency_format', $retval, $number, $curr_pos );
 	}
+
+/**
+ * Return sprintf-ready string as currency position format
+ *
+ * @since 0.0.9
+ *
+ * @uses apply_filters() Calls 'fct_get_currency_position_format' with
+ *                        the format and the given position
+ *
+ * @param string $position Optional. Position name
+ * @return string Position format
+ */
+function fct_get_currency_position_format( $position = '' ) {
+
+	// Default position formats. %1$s: Currency symbol, %2$s: Value.
+	$formats = array(
+		'left'        => '%1$s%2$s',
+		'right'       => '%2$s%1$s',
+		'left_space'  => '%1$s %2$s',
+		'right_space' => '%2$s %1$s',
+	);
+
+	// Select format. Default to 'left_space'
+	$format = in_array( $position, array_keys( $formats) ) ? $formats[ $position ] : $formats['left_space'];
+
+	return apply_filters( 'fct_get_currency_position_format', $format, $position );
+}
 
 /**
  * Output a select box allowing to pick a currency.

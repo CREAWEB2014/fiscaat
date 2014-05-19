@@ -91,13 +91,17 @@ function fct_float_format( $value = '' ) {
 	$format = fct_the_currency_format();
 
 	// Remove currency symbol if present
-	$value = str_replace( fct_get_currency( 'symbol' ), '', $value );
+	$value = str_replace( fct_get_currency_symbol(), '', $value );
 
-	// Remove thousands separators
-	$value = str_replace( $format['thousands_sep'], '', $value );
+	// Value may already be a float. If not ...
+	if ( (string) (float) $value !== $value ) {
 
-	// Change decimal separator to dot
-	$value = str_replace( $format['decimal_point'], '.', $value );
+		// ... Remove thousands separators
+		$value = str_replace( $format['thousands_sep'], '', $value );
+
+		// ... Change decimal separator to dot
+		$value = str_replace( $format['decimal_point'], '.', $value );
+	}
 
 	// Remove whitespace
 	$value = trim( $value );
