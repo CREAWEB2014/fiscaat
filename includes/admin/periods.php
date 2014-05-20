@@ -317,8 +317,8 @@ class Fiscaat_Periods_Admin {
 	 * The edited period can only inherit the previous period's
 	 * accounts when it has no accounts already. Inheriting
 	 * includes duplicating account title, content, ledger id,
-	 * and account type. The account end value will be used
-	 * as the newly duplicated account's starting value.
+	 * and account type. The account end value will be used as 
+	 * the newly duplicated account's start value.
 	 *
 	 * @since 0.0.9
 	 *
@@ -336,17 +336,14 @@ class Fiscaat_Periods_Admin {
 		if ( fct_get_period_account_count( $period_id ) )
 			return;
 		
-		// Bail on unchecked.
+		// Bail on unchecked
 		if ( ! isset( $_POST['fct_period_inherit_accounts'] ) )
 			return;
-
-		// Inherit from period id
-		$_period_id = (int) $_POST['fct_period_inherit_from'];
 
 		// Query all inheriting accounts
 		if ( ! $query = new WP_Query( array(
 			'post_type'   => fct_get_account_post_type(),
-			'post_parent' => $_period_id,
+			'post_parent' => (int) $_POST['fct_period_inherit_from'],
 			'post_status' => fct_get_closed_status_id(),
 			'nopaging'    => true,
 		) ) )
@@ -360,13 +357,21 @@ class Fiscaat_Periods_Admin {
 		$account_meta = array();
 
 		// Collect account meta
-		foreach ( $query_meta as $key => $data ) {
+		foreach ( $query_meta as $data ) {
 
 			// Setup meta per queried account
 			if ( ! isset( $account_meta[ $data->post_id ] ) )
 				$account_meta[ $data->post_id ] = array( 'period_id' => $period_id );
 
-			$account_meta[ $data->post_id ][ str_replace( '_fct_', '', $data->meta_key ) ] = $value->meta_value;
+			// Build meta key
+			$key = str_replace( '_fct_', '', $data->meta_key );
+
+			// Transform end_value to start_value
+			if ( 'end_value' == $key )
+				$key = 'start_value';
+
+			// Add account meta element
+			$account_meta[ $data->post_id ][ $key ] = $data->meta_value;
 		}
 
 		// Loop all inheriting accounts
