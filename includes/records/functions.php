@@ -142,8 +142,12 @@ function fct_insert_record( $record_data = array(), $record_meta = array() ) {
 		'comment_status' => 'open' // @todo Fix comment system
 	), 'insert_record' );
 
+	// Bail when inserting in closed account
+	if ( fct_is_account_closed( $account_data['post_parent'] ) )
+		return false;
+
 	// Insert record
-	$record_id   = wp_insert_post( $record_data );
+	$record_id = wp_insert_post( $record_data );
 
 	// Bail if no record was added
 	if ( empty( $record_id ) ) {
