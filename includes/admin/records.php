@@ -553,20 +553,21 @@ class Fiscaat_Records_Admin {
 	 *
 	 * @uses fct_get_record_post_type() To get the record post type
 	 * @uses fct_get_account_post_type() To get the account post type
-	 * @uses fct_dropdown() To generate a period dropdown
+	 * @uses fct_period_dropdown() To generate a period dropdown
+	 * @uses fct_account_ledger_dropdown() To generate an account ledger dropdown
+	 * @uses fct_account_dropdown() To generate an account dropdown
 	 * @return bool False. If post type is not account or record
 	 */
 	public function filter_dropdown() {
 		if ( $this->bail() ) 
 			return;
 
-		// Get which period is selected
-		$period_id = ! empty( $_REQUEST['fct_period_id'] ) ? (int) $_REQUEST['fct_period_id'] : fct_get_current_period_id();
+		// Get which period is selected. If not querying all default to current period
+		$period_id = isset( $_REQUEST['fct_period_id'] ) ? (int) $_REQUEST['fct_period_id'] : fct_get_current_period_id();
 
 		// Show the periods dropdown
-		fct_dropdown( array(
-			'selected'   => $period_id,
-			'show_none'  => __( 'In current period', 'fiscaat' )
+		fct_period_dropdown( array(
+			'selected'  => $period_id,
 		) );
 		
 		// Get which account is selected. With account id or ledger id
@@ -579,16 +580,15 @@ class Fiscaat_Records_Admin {
 
 		// Show the ledger dropdown
 		fct_account_ledger_dropdown( array(
-			'selected'   => $account_id,
-			'period_id'  => $period_id,
-			'show_none'  => '&mdash;',
-			'none_found' => true,
+			'selected'    => $account_id,
+			'post_parent' => $period_id,
+			'none_found'  => true,
 		) );
 
 		// Show the accounts dropdown
 		fct_account_dropdown( array(
-			'selected'  => $account_id,
-			'period_id' => $period_id,
+			'selected'    => $account_id,
+			'post_parent' => $period_id,
 		) );
 	}
 
@@ -839,8 +839,6 @@ class Fiscaat_Records_Admin {
 	 *
 	 * Display the success/error notices from
 	 * {@link Fiscaat_Admin::toggle_record()}
-	 *
-	 * @since Fiscaat (r2740)
 	 *
 	 * @uses fct_get_record() To get the record
 	 * @uses fct_get_record_title() To get the record title of the record

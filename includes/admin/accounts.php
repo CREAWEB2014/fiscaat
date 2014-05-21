@@ -515,7 +515,7 @@ class Fiscaat_Accounts_Admin {
 	 * Add period dropdown to account and record list table filters
 	 *
 	 * @uses fct_ledger_dropdown() To generate a ledger id dropdown
-	 * @uses fct_dropdown() To generate a period dropdown
+	 * @uses fct_period_dropdown() To generate a period dropdown
 	 * @uses fct_get_current_period_id() To get the current period's id
 	 * @return bool False. If post type is not account or record
 	 */
@@ -525,13 +525,12 @@ class Fiscaat_Accounts_Admin {
 
 		// Show the number dropdown
 		fct_ledger_dropdown( array(
-			'selected'  => isset( $_GET['fct_ledger_id'] ) ? $_GET['fct_ledger_id'] : '',
+			'selected' => isset( $_GET['fct_ledger_id'] ) ? $_GET['fct_ledger_id'] : '',
 		) );
 
 		// Show the periods dropdown. Default to current period
-		fct_dropdown( array(
-			'selected'  => isset( $_GET['fct_period_id'] ) ? $_GET['fct_period_id'] : fct_get_current_period_id(),
-			'show_none' => __( 'In all periods', 'fiscaat' ),
+		fct_period_dropdown( array(
+			'selected' => isset( $_GET['fct_period_id'] ) ? $_GET['fct_period_id'] : fct_get_current_period_id(),
 		) );
 	}
 

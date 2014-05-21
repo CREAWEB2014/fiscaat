@@ -61,7 +61,7 @@ class Fiscaat_Periods_Admin {
 		// Metabox actions
 		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox'      ) );
 		add_action( 'save_post',      array( $this, 'attributes_metabox_save' ) );
-		add_action( 'fct_period_attributes_metabox_save', array( $this, 'inherit_period_accounts' ) );
+		add_action( 'fct_period_attributes_metabox_save', array( $this, 'inherit_accounts' ) );
 
 		// Check if there are any fct_toggle_period_* requests on admin_init, also have a message displayed
 		add_action( 'fct_admin_load_edit_periods',  array( $this, 'toggle_period'        ) );
@@ -329,7 +329,7 @@ class Fiscaat_Periods_Admin {
 	 * @global WPDB
 	 * @param int $period_id Updated period ID
 	 */
-	public function inherit_period_accounts( $period_id ) {
+	public function inherit_accounts( $period_id ) {
 		global $wpdb;
 
 		// Does the period already have accounts?
@@ -486,7 +486,7 @@ class Fiscaat_Periods_Admin {
 				case 'period_closed' :
 					$query_vars['meta_key'] = '_fct_closed';
 					$query_vars['orderby']  = 'meta_value';
-					$query_vars['order']   = isset( $_REQUEST['order'] ) && 'DESC' == strtoupper( $_REQUEST['order'] ) ? 'ASC' : 'DESC';
+					$query_vars['order']    = isset( $_REQUEST['order'] ) && 'DESC' == strtoupper( $_REQUEST['order'] ) ? 'ASC' : 'DESC';
 					break;
 
 				// Period account count

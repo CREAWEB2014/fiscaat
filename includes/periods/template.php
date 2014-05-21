@@ -761,6 +761,47 @@ function fct_period_class( $period_id = 0 ) {
 		return $retval;
 	}
 
+/** Dropdowns *****************************************************************/
+
+/**
+ * Output a select box allowing to pick which period to show.
+ *
+ * @param mixed $args See {@link fct_get_dropdown()} for arguments
+ */
+function fct_period_dropdown( $args = '' ) {
+	echo fct_get_period_dropdown( $args );
+}
+
+	/**
+	 * Return a select box allowing to pick which period to show.
+	 * 
+	 * @param mixed $args See {@link fct_get_dropdown()} for arguments
+	 * @return string The dropdown
+	 */
+	function fct_get_period_dropdown( $args = '' ) {
+
+		/** Arguments *********************************************************/
+
+		$r = fct_parse_args( $args, array(
+			'post_type'          => fct_get_period_post_type(),
+			'post_parent'        => null,
+			'selected'           => 0,
+			'orderby'            => 'post_date',
+			'order'              => 'DESC',
+			'disable_closed'     => false,
+
+			// Output-related
+			'select_id'          => 'fct_period_id',
+			'show_none'          => __( 'In all periods', 'fiscaat' ),
+		), 'get_period_dropdown' );
+
+		/** Drop Down *********************************************************/
+
+		$retval = fct_get_dropdown( $r );
+
+		return apply_filters( 'fct_get_period_dropdown', $retval, $r );
+	}
+
 /** Forms *********************************************************************/
 
 /**
