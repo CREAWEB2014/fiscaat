@@ -195,6 +195,18 @@ class Fiscaat_Walker_Dropdown extends Walker {
 	/**
 	 * @see Walker::start_el()
 	 *
+	 * @uses current_user_can() To check if the current user can post in
+	 *                           closed periods
+	 * @uses fct_is_record_period_closed() To check if the record's period
+	 *                                      is closed
+	 * @uses fct_is_record_account_closed() To check if the record's account
+	 *                                       is closed
+	 * @uses fct_is_account_period_closed() To check if the account's period 
+	 *                                       is closed
+	 * @uses fct_is_period_closed() To check if the period is closed
+	 * @uses apply_filters() Calls 'fct_walker_dropdown_post_title' with the
+	 *                        title, output, post, depth and args
+	 *
 	 * @param string $output Passed by reference. Used to append additional
 	 *                        content.
 	 * @param object $_post Post data object.
@@ -202,26 +214,49 @@ class Fiscaat_Walker_Dropdown extends Walker {
 	 *                    for padding.
 	 * @param array $args Uses 'selected' argument for selected post to set
 	 *                     selected HTML attribute for option element.
-	 * @uses current_user_can() To check if the current user can post in
-	 *                           closed periods
-	 * @uses fct_is_period_closed() To check if the period is closed
-	 * @uses apply_filters() Calls 'fct_walker_dropdown_post_title' with the
-	 *                        title, output, post, depth and args
 	 */
 	public function start_el( &$output, $_post, $depth, $args ) {
 		$pad     = str_repeat( '&nbsp;', $depth * 3 );
 		$output .= '<option class="level-' . $depth . '"';
+		$disable = false;
 
-		// Disable the <option> if:
-		// - <select> isn't disabled
-		// - we're told to do so
-		// - the post type is a period
-		// - period is closed
-		if (	( true != $args['disabled'] )
-				&& ( true == $args['disable_closed'] )
-				&& ( fct_get_period_post_type() == $_post->post_type )
-				&& fct_is_period_closed( $_post->ID )
-			) {
+		/**
+		 * Determine whether to disable the <option> if:
+		 * - <select> isn't disabled
+		 * - we're told to do so
+		 * - the post type is a period or account
+		 * - period or account is closed
+		 */
+		if ( ( true != $args['disabled'] ) && $args['disable_closed'] ) {
+
+			// Check the post type
+			switch ( $_post->post_type ) {
+
+				// Record
+				case fct_get_record_post_type() :
+
+					// Check record's period first, then maybe check its account
+					if ( ! $disable = fct_is_record_period_closed( $_post->ID ) )
+						$disable = fct_is_record_account_closed( $_post->ID );
+					break;
+
+				// Account
+				case fct_get_account_post_type() :
+
+					// Check account's period first, then maybe check account itself
+					if ( ! $disable = fct_is_account_period_closed( $_post->ID ) )
+						$disable = fct_is_account_closed( $_post->ID );
+					break;
+
+				// Period
+				case fct_get_period_post_type() :
+					$disable = fct_is_period_closed( $_post->ID );
+					break;
+			}
+		}
+
+		// Fill in option attributes
+		if ( $disable ) {
 			$output .= ' disabled="disabled" value=""';
 		} else {
 			$output .= ' value="' . $_post->ID .'"' . selected( $args['selected'], $_post->ID, false );
