@@ -563,7 +563,7 @@ class Fiscaat_Records_Admin {
 			return;
 
 		// Get which period is selected. If not querying all default to current period
-		$period_id = isset( $_REQUEST['fct_period_id'] ) ? (int) $_REQUEST['fct_period_id'] : fct_get_current_period_id();
+		$period_id = ! empty( $_REQUEST['fct_period_id'] ) ? (int) $_REQUEST['fct_period_id'] : fct_get_current_period_id();
 
 		// Show the periods dropdown
 		fct_period_dropdown( array(
