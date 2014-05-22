@@ -92,8 +92,9 @@ class Fiscaat_Accounts_Admin {
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
 		// Add ability to filter accounts and records per period
-		add_action( 'restrict_manage_posts', array( $this, 'filter_dropdown'  ) );
-		add_filter( 'fct_request',           array( $this, 'filter_post_rows' ) );
+		add_action( 'restrict_manage_posts', array( $this, 'filter_dropdown'  )        );
+		add_filter( 'fct_request',           array( $this, 'filter_post_rows' )        );
+		add_filter( 'posts_clauses',         array( $this, 'filter_ordering'  ), 10, 2 );
 
 		// Account columns (in post row)
 		add_filter( 'fct_admin_accounts_get_columns', array( $this, 'accounts_column_headers' )        );
@@ -624,6 +625,43 @@ class Fiscaat_Accounts_Admin {
 
 		// Return manipulated query_vars
 		return $query_vars;
+	}
+
+	/**
+	 * Filter accounts query for secondary ordering
+	 *
+	 * Always order accounts at second hand by post date
+	 * to prevent counter-intuitive listing with accounts 
+	 * that have the same title or ledger id.
+	 *
+	 * NOTE: this may conflict with imported closed accounts.
+	 *
+	 * @since 0.0.9
+	 * 
+	 * @param array $clauses Query clauses
+	 * @param WP_Query $query
+	 * @return array Clauses
+	 */
+	public function filter_ordering( $clauses, $query ) {
+		global $wpdb;
+
+		if ( $this->bail() )
+			return $clauses;
+
+		// Get query vars
+		$qv = $query->query_vars;
+
+		// Unless post date is the primary order, add order by post date
+		if ( 'date' != $qv['orderby'] ) {
+
+			// Be sure ORDER BY clause isn't emptied
+			$sep = ! empty( $clauses['orderby'] ) ? ',' : '';
+
+			// Append post date ordering
+			$clauses['orderby'] .= $sep . " $wpdb->posts.post_date DESC";
+		}
+
+		return $clauses;
 	}
 
 	/**
