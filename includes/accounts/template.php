@@ -272,8 +272,9 @@ function fct_get_account_id_by_ledger_id( $ledger_id, $period_id = 0 ) {
 		'meta_value'     => $ledger_id,
 		'fields'         => 'ids',
 	) ) ) {
-		foreach ( $accounts as $account )
+		foreach ( $accounts->posts as $account ) {
 			$account_id = fct_get_account_id( $account );
+		}
 	}
 
 	return (int) apply_filters( 'fct_get_account_id_by_ledger_id', (int) $account_id, $ledger_id, $period_id );

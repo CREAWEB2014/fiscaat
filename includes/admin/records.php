@@ -54,7 +54,7 @@ class Fiscaat_Records_Admin {
 
 		/** Sub-Actions *******************************************************/
 
-		add_action( 'load-edit.php', array( $this, 'setup_page_hooks' ) );
+		add_action( 'fct_admin_load_list_records',  array( $this, 'page_mode_actions' ) );
 
 		/** Actions ***********************************************************/
 
@@ -64,6 +64,9 @@ class Fiscaat_Records_Admin {
 		// Record metabox actions
 		add_action( 'add_meta_boxes', array( $this, 'record_attributes_metabox'      ) );
 		add_action( 'save_post',      array( $this, 'record_attributes_metabox_save' ) );
+
+		// Set records's parents earlier
+		add_action( 'fct_admin_load_view_records',  array( $this, 'records_parents' ), 5 );
 
 		// Check if there are any fct_toggle_record_* requests on admin_init, also have a message displayed
 		add_action( 'fct_admin_load_edit_records',  array( $this, 'toggle_record'        ) );
@@ -125,18 +128,18 @@ class Fiscaat_Records_Admin {
 	/** Sub-Actions ***********************************************************/
 
 	/**
-	 * Setup new posts page hook
+	 * Setup record's page mode load hooks
 	 *
 	 * @since 0.0.8
 	 *
-	 * @uses fct_is_new_records()
-	 * @uses fct_is_edit_records()
-	 * @uses fct_is_view_records()
+	 * @uses fct_admin_is_new_records()
+	 * @uses fct_admin_is_edit_records()
+	 * @uses fct_admin_is_view_records()
 	 * @uses do_action() Calls 'fct_admin_load_new_records'
 	 * @uses do_action() Calls 'fct_admin_load_edit_records'
 	 * @uses do_action() Calls 'fct_admin_load_view_records'
 	 */
-	public function setup_page_hooks() {
+	public function page_mode_actions() {
 		if ( $this->bail() )
 			return;
 
@@ -146,8 +149,7 @@ class Fiscaat_Records_Admin {
 
 		// Fire load hook for edit records mode
 		} elseif ( fct_admin_is_edit_records() ) {
-			// The 'fct_admin_load_edit_records' hook already
-			// fired in Fiscaat_Admin::setup_edit_posts().
+			do_action( 'fct_admin_load_edit_records' );
 
 		// Fire load hook for view records mode
 		} elseif ( fct_admin_is_view_records() ) {
@@ -562,7 +564,7 @@ class Fiscaat_Records_Admin {
 		if ( $this->bail() ) 
 			return;
 
-		// Get which period is selected. If not querying all default to current period
+		// Get queried period id
 		$period_id = ! empty( $_REQUEST['fct_period_id'] ) ? (int) $_REQUEST['fct_period_id'] : fct_get_current_period_id();
 
 		// Show the periods dropdown
@@ -571,18 +573,18 @@ class Fiscaat_Records_Admin {
 		) );
 		
 		// Get which account is selected. With account id or ledger id
-		$account_id = ! empty( $_REQUEST['fct_account_id'] )         ? (int) $_REQUEST['fct_account_id']         : 0;
-		$ledger_id  = ! empty( $_REQUEST['fct_account_ledger_id']  ) ? (int) $_REQUEST['fct_account_ledger_id']  : '';
+		$account_id = ! empty( $_REQUEST['fct_account_id'] )        ? (int) $_REQUEST['fct_account_id']        : 0;
+		$ledger_id  = ! empty( $_REQUEST['fct_account_ledger_id'] ) ? (int) $_REQUEST['fct_account_ledger_id'] : 0;
 
 		// Ledger id was set, account id not
-		if ( ! empty( $ledger_id ) && empty( $account_id ) )
+		if ( ! empty( $ledger_id ) && empty( $account_id ) ) {
 			$account_id = fct_get_account_id_by_ledger_id( $ledger_id, $period_id );
+		}
 
 		// Show the ledger dropdown
 		fct_account_ledger_dropdown( array(
 			'selected'    => $account_id,
 			'post_parent' => $period_id,
-			'none_found'  => true,
 		) );
 
 		// Show the accounts dropdown
@@ -590,6 +592,52 @@ class Fiscaat_Records_Admin {
 			'selected'    => $account_id,
 			'post_parent' => $period_id,
 		) );
+	}
+
+	/**
+	 * Determine the correct queried records's parents
+	 *
+	 * When querying records by the filter dropdowns, make the
+	 * year leading in determining which account's records to
+	 * select.
+	 * 
+	 * @since 0.0.9
+	 *
+	 * @uses fct_get_account_period_id() To get the account's period id
+	 * @uses fct_get_account_ledger_id() To get the account's ledger id
+	 * @uses fct_get_account_id_by_ledger_id() To get the period's account id
+	 */
+	public function records_parents() {
+
+		// Get filter vars
+		$period_id  = ! empty( $_REQUEST['fct_period_id']  )        ? (int) $_REQUEST['fct_period_id']         : isset( $_REQUEST['fct_period_id'] );
+		$account_id = ! empty( $_REQUEST['fct_account_id'] )        ? (int) $_REQUEST['fct_account_id']        : 0;
+		$ledger_id  = ! empty( $_REQUEST['fct_account_ledger_id'] ) ? (int) $_REQUEST['fct_account_ledger_id'] : 0;
+
+		// Ledger id was set, account id not, so find out
+		if ( empty( $account_id ) && ! empty( $ledger_id ) && is_numeric( $period_id ) ) {
+			$account_id = $_REQUEST['fct_account_id'] = fct_get_account_id_by_ledger_id( $ledger_id, $period_id );
+		}
+
+		// The account's period does not match the queried period
+		if ( ! empty( $period_id ) && fct_get_account_period_id( $account_id ) != $period_id ) {
+
+			// Get the account's ledger id
+			$ledger_id  = fct_get_account_ledger_id( $account_id );
+
+			// Find the period's queried account id
+			$account_id = fct_get_account_id_by_ledger_id( $ledger_id, $period_id );
+
+			// And set it as the correct account id
+			if ( ! empty( $account_id ) )
+				$_REQUEST['fct_account_id'] = $account_id;
+
+		// No period explicated
+		} elseif ( ! $period_id && ! empty( $account_id ) ) {
+
+			// Set period from queried account
+			$_REQUEST['fct_period_id'] = fct_get_account_period_id( $_REQUEST['fct_account_id'] );
+		}
 	}
 
 	/**

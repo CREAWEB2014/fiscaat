@@ -64,15 +64,15 @@ class Fiscaat_Periods_Admin {
 		add_action( 'fct_period_attributes_metabox_save', array( $this, 'inherit_accounts' ) );
 
 		// Check if there are any fct_toggle_period_* requests on admin_init, also have a message displayed
-		add_action( 'fct_admin_load_edit_periods',  array( $this, 'toggle_period'        ) );
+		add_action( 'fct_admin_load_list_periods',  array( $this, 'toggle_period'        ) );
 		add_action( 'fct_admin_notices',            array( $this, 'toggle_period_notice' ) );
 
 		// Contextual Help
-		add_action( 'fct_admin_load_edit_periods',  array( $this, 'edit_help' ) );
+		add_action( 'fct_admin_load_list_periods',  array( $this, 'edit_help' ) );
 		add_action( 'fct_admin_load_post_period',   array( $this, 'new_help'  ) );
 
 		// Post stati
-		add_action( 'fct_admin_load_edit_periods',  array( $this, 'arrange_post_statuses' ) );
+		add_action( 'fct_admin_load_list_periods',  array( $this, 'arrange_post_statuses' ) );
 
 		// Page title
 		add_action( 'fct_admin_periods_page_title', array( $this, 'post_new_link' ) );

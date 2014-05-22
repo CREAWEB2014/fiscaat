@@ -62,20 +62,20 @@ class Fiscaat_Accounts_Admin {
 		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox'      ) );
 		add_action( 'save_post',      array( $this, 'attributes_metabox_save' ) );
 
+		// Post stati
+		add_action( 'fct_admin_load_list_accounts',  array( $this, 'arrange_post_statuses' ) );
+
 		// Check if there are any fct_toggle_account_* requests on admin_init, also have a message displayed
-		add_action( 'fct_admin_load_edit_accounts',  array( $this, 'toggle_account'        ) );
+		add_action( 'fct_admin_load_list_accounts',  array( $this, 'toggle_account'        ) );
 		add_action( 'fct_admin_notices',             array( $this, 'toggle_account_notice' ) );
 
 		// Contextual Help
-		add_action( 'fct_admin_load_edit_accounts',  array( $this, 'edit_help' ) );
+		add_action( 'fct_admin_load_list_accounts',  array( $this, 'edit_help' ) );
 		add_action( 'fct_admin_load_post_account',   array( $this, 'new_help'  ) );
 
 		// Check if there is a missing open period on account add/edit, also have a message displayed
 		add_action( 'fct_admin_load_post_account',   array( $this, 'missing_redirect' ) );
 		add_action( 'fct_admin_notices',             array( $this, 'missing_notices'  ) );
-
-		// Post stati
-		add_action( 'fct_admin_load_edit_accounts',  array( $this, 'arrange_post_statuses' ) );
 		
 		// Page title
 		add_action( 'fct_admin_accounts_page_title', array( $this, 'accounts_page_title'   ) );
@@ -87,14 +87,11 @@ class Fiscaat_Accounts_Admin {
 		add_action( 'wp_ajax_fct_check_ledger_id', array( $this, 'check_ledger_id' ) );
 
 		/** Filters ***********************************************************/
-		
-		// Messages
-		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
 		// Add ability to filter accounts and records per period
-		add_action( 'restrict_manage_posts', array( $this, 'filter_dropdown'  )        );
-		add_filter( 'fct_request',           array( $this, 'filter_post_rows' )        );
-		add_filter( 'posts_clauses',         array( $this, 'filter_ordering'  ), 10, 2 );
+		add_action( 'restrict_manage_posts', array( $this, 'filter_dropdown'   )        );
+		add_filter( 'fct_request',           array( $this, 'filter_post_rows'  )        );
+		add_filter( 'posts_clauses',         array( $this, 'filter_post_order' ), 10, 2 );
 
 		// Account columns (in post row)
 		add_filter( 'fct_admin_accounts_get_columns', array( $this, 'accounts_column_headers' )        );
@@ -106,6 +103,9 @@ class Fiscaat_Accounts_Admin {
 		add_filter( 'fct_admin_accounts_bulk_action_close', array( $this, 'bulk_action_close'      ), 10, 2 );
 		add_filter( 'fct_admin_accounts_bulk_action_open',  array( $this, 'bulk_action_open'       ), 10, 2 );
 		add_filter( 'fct_admin_remove_bulk_query_args',     array( $this, 'bulk_remove_query_args' )        );
+		
+		// Messages
+		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 	}
 
 	/**
@@ -642,7 +642,7 @@ class Fiscaat_Accounts_Admin {
 	 * @param WP_Query $query
 	 * @return array Clauses
 	 */
-	public function filter_ordering( $clauses, $query ) {
+	public function filter_post_order( $clauses, $query ) {
 		global $wpdb;
 
 		if ( $this->bail() )
@@ -657,7 +657,7 @@ class Fiscaat_Accounts_Admin {
 			// Be sure ORDER BY clause isn't emptied
 			$sep = ! empty( $clauses['orderby'] ) ? ',' : '';
 
-			// Append post date ordering
+			// Append to clause
 			$clauses['orderby'] .= $sep . " $wpdb->posts.post_date DESC";
 		}
 
