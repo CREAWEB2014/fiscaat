@@ -18,7 +18,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @var int|bool
 	 * @access protected
 	 */
-	var $account_display = false;
+	protected $account_display = false;
 
 	/**
 	 * Holds the displayed debit and credit record amounts
@@ -27,14 +27,14 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @var array
 	 * @access protected
 	 */
-	var $amounts = array();
+	protected $amounts = array();
 
 	/**
 	 * Constructs the posts list table
 	 * 
 	 * @param array $args
 	 */
-	function __construct( $args = array() ) {
+	public function __construct( $args = array() ) {
 		parent::__construct( array(
 			'plural'   => 'records',
 			'singular' => 'record',
@@ -42,8 +42,9 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		) );
 
 		// Displaying account records
-		if ( isset( $_GET['fct_account_id'] ) && ! empty( $_GET['fct_account_id'] ) )
-			$this->account_display = $_GET['fct_account_id'];
+		if ( isset( $_REQUEST['fct_account_id'] ) && ! empty( $_REQUEST['fct_account_id'] ) ) {
+			$this->account_display = $_REQUEST['fct_account_id'];
+		}
 
 		// Setup amounts counter
 		$this->amounts = array( 
@@ -67,7 +68,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * 
 	 * @todo Create own version
 	 */
-	function prepare_items() {
+	public function prepare_items() {
 
 		/**
 		 * Various actions: view, edit, post
@@ -79,16 +80,16 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	/**
 	 * Return post status views
 	 *
-	 * Use {@link fct_count_posts()} when displaying account's records for it
-	 * enables counting posts by parent.
-	 * Additionally append the account id query arg to the views's urls.
+	 * Use {@link fct_count_posts()} when displaying account's records 
+	 * for it enables counting posts by parent. Additionally append the 
+	 * account id query arg to the views's urls.
 	 *
 	 * @since 0.0.8
 	 *
 	 * @uses fct_count_posts()
 	 * @return array Views
 	 */
-	function get_views() {
+	public function get_views() {
 		global $locked_post_status, $avail_post_stati;
 
 		$post_type = $this->screen->post_type;
@@ -114,7 +115,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		}
 
 		$class = empty( $class ) && empty( $_REQUEST['post_status'] ) && empty( $_REQUEST['show_sticky'] ) ? ' class="current"' : '';
-		$status_links['all'] = "<a href='edit.php?post_type=$post_type{$parent}'$class>" . sprintf( _nx( 'All <span class="count">(%s)</span>', 'All <span class="count">(%s)</span>', $total_posts, 'posts' ), number_format_i18n( $total_posts ) ) . '</a>';
+		$status_links['all'] = "<a href='admin.php?page=fct-records{$parent}'$class>" . sprintf( _nx( 'All <span class="count">(%s)</span>', 'All <span class="count">(%s)</span>', $total_posts, 'posts' ), number_format_i18n( $total_posts ) ) . '</a>';
 
 		foreach ( get_post_stati( array( 'show_in_admin_status_list' => true ), 'objects' ) as $status ) {
 			$class = '';
@@ -130,7 +131,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			if ( isset( $_REQUEST['post_status'] ) && $status_name == $_REQUEST['post_status'] )
 				$class = ' class="current"';
 
-			$status_links[$status_name] = "<a href='edit.php?post_status=$status_name&amp;post_type=$post_type{$parent}'$class>" . sprintf( translate_nooped_plural( $status->label_count, $num_posts->$status_name ), number_format_i18n( $num_posts->$status_name ) ) . '</a>';
+			$status_links[$status_name] = "<a href='admin.php?page=fct-records&amp;post_status=$status_name{$parent}'$class>" . sprintf( translate_nooped_plural( $status->label_count, $num_posts->$status_name ), number_format_i18n( $num_posts->$status_name ) ) . '</a>';
 		}
 
 		return apply_filters( "fct_admin_get_{$this->_args['plural']}_views", $status_links );
@@ -143,7 +144,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * 
 	 * @return array Bulk actions
 	 */
-	function _get_bulk_actions() {
+	public function _get_bulk_actions() {
 		return array();
 	}
 
@@ -154,7 +155,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * 
 	 * @return array Classes
 	 */
-	function get_table_classes() {
+	public function get_table_classes() {
 		$classes = array( 'widefat', 'fixed', 'posts', $this->_args['plural'] );
 
 		if ( ! fct_admin_is_view_records() ) {
@@ -171,7 +172,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * 
 	 * @return array Columns
 	 */
-	function _get_columns() {
+	public function _get_columns() {
 		$columns = array(
 			'cb'                           => '<input type="checkbox" />',
 			'fct_record_post_date'         => _x( 'Inserted', 'column name', 'fiscaat' ),
@@ -205,7 +206,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 *
 	 * @return array Sortable columns as array( column => sort key )
 	 */
-	function _get_sortable_columns() {
+	public function _get_sortable_columns() {
 		return array(
 			'fct_record_post_date'         => array( 'date',        true ),
 			'fct_record_date'              => array( 'record_date', true ),
@@ -227,7 +228,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * 
 	 * @return array Hidden columns
 	 */
-	function _get_hidden_columns( $columns ) {
+	public function _get_hidden_columns( $columns ) {
 
 		// Hide columns on view page to keep it clean
 		if ( fct_admin_is_view_records() ) {
@@ -252,7 +253,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @uses do_action() Calls 'fct_admin_bottom_posts_insert_form's
 	 * @uses do_action() Calls 'fct_admin_top_posts_insert_form'
 	 */
-	function display_tablenav( $which ) {
+	public function display_tablenav( $which ) {
 		if ( 'top' == $which ) {
 			wp_nonce_field( 'bulk-' . $this->_args['plural'] );
 		}
@@ -310,7 +311,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @uses FCT_Records_List_Table::display_edit_rows()
 	 * @uses FCT_Records_List_Table::display_new_rows()
 	 */
-	function display_rows_or_placeholder() {
+	public function display_rows_or_placeholder() {
 
 		// Display edit mode, not when displaying account
 		if ( fct_admin_is_edit_records() && $this->has_items() && ! $this->account_display ) {
@@ -344,7 +345,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @param array $posts Posts
 	 * @param integer $level Depth
 	 */
-	function display_edit_rows( $posts = array(), $level = 0 ) {
+	public function display_edit_rows( $posts = array(), $level = 0 ) {
 		global $wp_query;
 
 		if ( empty( $posts ) ) {
@@ -369,7 +370,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @uses FCT_Records_List_Table::single_new_row()
 	 * @uses FCT_Records_List_Table::display_helper_row()
 	 */
-	function display_new_rows() {
+	public function display_new_rows() {
 
 		// Start with 10 empty rows
 		for ( $i = 0; $i < 10; $i++ ) {
@@ -387,7 +388,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 *
 	 * @uses do_action() Calls 'fct_admin_new_records_row' with the column name
 	 */
-	function single_new_row() {
+	public function single_new_row() {
 		$alternate =& $this->alternate;
 		$alternate = 'alternate' == $alternate ? '' : 'alternate';
 		$classes = $alternate . ' iedit new-records-row';
@@ -425,7 +426,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @uses fct_account_dropdown()
 	 * @param string $column_name Column name
 	 */
-	function _new_row( $column_name ) {
+	public function _new_row( $column_name ) {
 
 		// Check column name
 		switch ( $column_name ) {
@@ -498,7 +499,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @param array $posts Posts
 	 * @param integer $level Depth
 	 */
-	function display_rows( $posts = array(), $level = 0 ) {
+	public function display_rows( $posts = array(), $level = 0 ) {
 		global $wp_query;
 
 		if ( empty( $posts ) ) {
@@ -545,7 +546,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @param string $column_name Column name
 	 * @param int $record_id Record ID
 	 */
-	function _column_content( $column_name, $record_id ) {
+	public function _column_content( $column_name, $record_id ) {
 		$account_id = fct_get_record_account_id( $record_id );
 
 		// Check column name
@@ -642,7 +643,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @uses do_action() Calls 'fct_admin_records_{$which}_row'
 	 * @param string $which The row name
 	 */
-	function display_helper_row( $which = '' ) {
+	public function display_helper_row( $which = '' ) {
 
 		// Bail if no row name given
 		$which = esc_attr( esc_html( $which ) );
@@ -692,7 +693,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @uses fct_currency_format()
 	 * @param string $column Column name
 	 */
-	function _start_or_end_row( $column ) {
+	public function _start_or_end_row( $column ) {
 
 		// Bail if no valid parent account id
 		if ( ! $account_id = fct_get_account_id( $this->account_display ) )
@@ -747,7 +748,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @uses fct_currency_format()
 	 * @param string $column Column name
 	 */
-	function _total_row( $column ) {
+	public function _total_row( $column ) {
 
 		// Check column name
 		switch ( $column ) {

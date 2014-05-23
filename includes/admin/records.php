@@ -620,7 +620,7 @@ class Fiscaat_Records_Admin {
 		}
 
 		// The account's period does not match the queried period
-		if ( ! empty( $period_id ) && fct_get_account_period_id( $account_id ) != $period_id ) {
+		if ( is_numeric( $period_id ) && fct_get_account_period_id( $account_id ) != $period_id ) {
 
 			// Get the account's ledger id
 			$ledger_id  = fct_get_account_ledger_id( $account_id );
@@ -629,8 +629,7 @@ class Fiscaat_Records_Admin {
 			$account_id = fct_get_account_id_by_ledger_id( $ledger_id, $period_id );
 
 			// And set it as the correct account id
-			if ( ! empty( $account_id ) )
-				$_REQUEST['fct_account_id'] = $account_id;
+			$_REQUEST['fct_account_id'] = ! empty( $account_id ) ? $account_id : null;
 
 		// No period explicated
 		} elseif ( ! $period_id && ! empty( $account_id ) ) {
@@ -665,17 +664,18 @@ class Fiscaat_Records_Admin {
 		);
 		
 		// Set the parent if given
-		if ( ! empty( $_REQUEST['fct_account_id'] ) ) {
-			$query_vars['post_parent'] = (int) $_REQUEST['fct_account_id'];
+		if ( isset( $_REQUEST['fct_account_id'] ) ) {
+			$query_vars['post_parent'] = $_REQUEST['fct_account_id'];
 
 		// Set the parent from ledger_id if given
-		} elseif ( ! empty( $_REQUEST['fct_account_ledger_id'] ) ) {
-			$query_vars['post_parent'] = (int) $_REQUEST['fct_account_ledger_id'];
+		} elseif ( isset( $_REQUEST['fct_account_ledger_id'] ) ) {
+			$query_vars['post_parent'] = $_REQUEST['fct_account_ledger_id'];
 		}
 
 		/** Approval **********************************************************/
 
-		// @todo Move to Control
+		// @todo Move to Control. Use 'unapproved' in request 
+		//        post_status to set query vars here
 		// Check approval
 		if ( isset( $_REQUEST['approval'] ) && fct_is_control_active() ) {
 
