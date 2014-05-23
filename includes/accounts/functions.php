@@ -616,7 +616,7 @@ function fct_close_account( $account_id = 0 ) {
 	$account_id = wp_insert_post( $account );
 
 	// Update end value
-	fct_update_account_end_value( $accound_id );
+	fct_update_account_end_value( $account_id );
 
 	// Execute post close code
 	do_action( 'fct_closed_account', $account_id );
