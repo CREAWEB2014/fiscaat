@@ -62,9 +62,12 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 		if ( ! empty( $locked_post_status ) )
 			return array();
 
+		// Period's accounts count
 		if ( $this->period_display ) {
 			$num_posts = fct_count_posts( array( 'type' => $post_type, 'perm' => 'readable', 'parent' => $this->period_display ) );
 			$parent    = '&fct_period_id=' . $this->period_display;
+
+		// All accounts count
 		} else {
 			$num_posts = wp_count_posts( $post_type, 'readable' );
 			$parent    = '';

@@ -97,9 +97,17 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		if ( ! empty( $locked_post_status ) )
 			return array();
 
+		// Account's records count
 		if ( $this->account_display ) {
 			$num_posts = fct_count_posts( array( 'type' => $post_type, 'perm' => 'readable', 'parent' => $this->account_display ) );
 			$parent    = '&fct_account_id=' . $this->account_display;
+
+		/**
+		 * @todo Add else(if) querying period's records. This means to
+		 *        query records count by meta_key 'period_id'.
+		 */
+
+		// All records count
 		} else {
 			$num_posts = wp_count_posts( $post_type, 'readable' );
 			$parent    = '';
