@@ -99,22 +99,30 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 		// Account's records count
 		if ( $this->account_display ) {
-			$num_posts = fct_count_posts( array( 'type' => $post_type, 'perm' => 'readable', 'parent' => $this->account_display ) );
-			$parent    = '&fct_account_id=' . $this->account_display;
+			$num_posts = fct_count_posts( array( 
+				'type'       => $post_type, 
+				'perm'       => 'readable', 
+				'parent'     => $this->account_display,
+			) );
+			$parent = '&fct_account_id=' . $this->account_display;
 
-		/**
-		 * @todo Add else(if) querying period's records. This means to
-		 *        query records count by meta_key 'period_id'.
-		 */
+		// Period's records count. Not querying all records
+		} elseif ( ! isset( $_REQUEST['fct_period_id'] ) || ! empty( $_REQUEST['fct_period_id'] ) ) {
+			$num_posts = fct_count_posts( array( 
+				'type'       => $post_type, 
+				'perm'       => 'readable', 
+				'meta_key'   => '_fct_period_id', 
+				'meta_value' => isset( $_REQUEST['fct_period_id'] ) ? (int) $_REQUEST['fct_period_id'] : fct_get_current_period_id(),
+			) );
 
 		// All records count
 		} else {
 			$num_posts = wp_count_posts( $post_type, 'readable' );
-			$parent    = '';
 		}
 
 		$status_links  = array();
 		$class         = '';
+		$parent        = isset( $parent ) ? $parent : '';
 		$total_posts   = array_sum( (array) $num_posts );
 
 		// Subtract post types that are not included in the admin all list.

@@ -8,13 +8,16 @@
  *
  * @todo Support many banking APIs/formats:
  *  - CSV
+ *  - MT940 SEPA https://www.rabobank.nl/images/formaatbeschrijving_swift_bt940s_1_0_nl_rib_29539296.pdf
+ *  - CAMT.053 SEPA https://www.rabobank.nl/images/camt053_versie_1_29570860.pdf, 
  *  - OFX http://en.wikipedia.org/wiki/Open_Financial_Exchange
  *  - QIF http://en.wikipedia.org/wiki/Quicken_Interchange_Format
  *  - OFC http://en.wikipedia.org/wiki/Open_Financial_Connectivity -> obsolete
  *  - SFC Incassoos
- *  - MT940 ING
  *  - see http://stackoverflow.com/questions/3469628/banking-api-protocol
  *  - Open Bank Project API https://github.com/OpenBankProject/OBP-API/wiki
+ *
+ * Ultimately move this file to /common folder for use outside of wp-admin.
  */
 
 // Exit if accessed directly

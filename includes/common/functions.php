@@ -175,9 +175,9 @@ function fct_time_since( $older_date, $newer_date = false ) {
 		$right_now_text = apply_filters( 'fct_core_time_since_right_now_text', __( 'right now', 'fiscaat' ) );
 		$ago_text       = apply_filters( 'fct_core_time_since_ago_text',       __( '%s ago',    'fiscaat' ) );
 
-		// array of time period chunks
+		// array of time year chunks
 		$chunks = array(
-			array( 60 * 60 * 24 * 365 , __( 'period',   'fiscaat' ), __( 'periods',   'fiscaat' ) ),
+			array( 60 * 60 * 24 * 365 , __( 'year',   'fiscaat' ), __( 'years',   'fiscaat' ) ),
 			array( 60 * 60 * 24 * 30 ,  __( 'month',  'fiscaat' ), __( 'months',  'fiscaat' ) ),
 			array( 60 * 60 * 24 * 7,    __( 'week',   'fiscaat' ), __( 'weeks',   'fiscaat' ) ),
 			array( 60 * 60 * 24 ,       __( 'day',    'fiscaat' ), __( 'days',    'fiscaat' ) ),
@@ -205,7 +205,7 @@ function fct_time_since( $older_date, $newer_date = false ) {
 			$output = $unknown_text;
 
 		// We only want to output two chunks of time here, eg:
-		//     x periods, xx months
+		//     x years, xx months
 		//     x days, xx hours
 		// so there's only two bits of calculation below:
 		} else {
@@ -432,11 +432,12 @@ function fct_get_statistics( $args = '' ) {
 /**
  * Count number of available posts
  * 
- * Mimics wp_count_posts() behavior with the added 
- * possibility to query per post parent, using
- * 'post_parent' => $parent_id in the args array.
+ * Mimics wp_count_posts() behavior with the added possibility to 
+ * return counts per post parent and per meta key/value pair.
  *
- * @see wp_count_posts() pre-3.9
+ * @see wp_count_posts()
+ *
+ * @todo Improve cache keys with varying query vars.
  * 
  * @param mixed $args Optional. Arguments
  * @return object Number of posts for each status
@@ -444,52 +445,79 @@ function fct_get_statistics( $args = '' ) {
 function fct_count_posts( $args = '' ) {
 	global $wpdb;
 
+	// Parse default query args
 	$r = fct_parse_args( $args, array(
-		'type'   => 'post',
-		'perm'   => '',
-		'parent' => false
+		'type'       => 'post',
+		'perm'       => '',
+		'parent'     => null,
+		'meta_key'   => null,
+		'meta_value' => null,
 	), 'count_posts' );
-	extract( $r );
 
-	$user = wp_get_current_user();
+	if ( ! post_type_exists( $r['type'] ) )
+		return new stdClass;
 
-	$cache_key = $type;
+	$cache_key = _count_posts_cache_key( $r['type'], $r['perm'] );
+	$counts    = wp_cache_get( $cache_key, 'counts' );
+	if ( false === $counts ) {
 
-	$query = "SELECT post_status, COUNT( * ) AS num_posts FROM {$wpdb->posts} WHERE post_type = %s";
-	if ( 'readable' == $perm && is_user_logged_in() ) {
-		$post_type_object = get_post_type_object($type);
-		if ( !current_user_can( $post_type_object->cap->read_private_posts ) ) {
-			$cache_key .= '_' . $perm . '_' . $user->ID;
-			$query .= " AND (post_status != 'private' OR ( post_author = '$user->ID' AND post_status = 'private' ))";
+		$query['select'] = "SELECT post_status, COUNT( * ) AS num_posts FROM {$wpdb->posts} p";
+
+		// Setup join statement by meta key/value pair
+		if ( ! empty( $r['meta_key'] ) && ! empty( $r['meta_value'] ) ) {
+			$query['join'] = " INNER JOIN {$wpdb->postmeta} pm ON (p.ID = pm.post_id)";
 		}
+
+		// Setup where statement
+		$query['where']  = " WHERE post_type = %s";
+		if ( 'readable' == $r['perm'] && is_user_logged_in() ) {
+			$post_type_object = get_post_type_object( $r['type'] );
+			if ( ! current_user_can( $post_type_object->cap->read_private_posts ) ) {
+				$query['where'] .= $wpdb->prepare( " AND (p.post_status != 'private' OR ( p.post_author = %d AND p.post_status = 'private' ))",
+					get_current_user_id()
+				);
+			}
+		}
+
+		// Query for post parent
+		if ( ! empty( $r['parent'] ) ) {
+			$query['where'] .= $wpdb->prepare( " AND p.post_parent = %s", $r['parent'] );
+		}
+
+		// Query for post meta key/value pair
+		if ( ! empty( $r['meta_key'] ) && ! empty( $r['meta_value'] ) ) {
+			$query['where'] .= $wpdb->prepare( " AND pm.meta_key = %s AND pm.meta_value = %s",
+				$r['meta_key'],
+				$r['meta_value']
+			);
+		}
+
+		$query['groupby'] = ' GROUP BY p.post_status';
+
+		// Run the query
+		$query = implode( ' ', $query );
+		$results = (array) $wpdb->get_results( $wpdb->prepare( $query, $r['type'] ), ARRAY_A );
+		$counts = array_fill_keys( get_post_stati(), 0 );
+
+		foreach ( $results as $row )
+			$counts[ $row['post_status'] ] = $row['num_posts'];
+
+		$counts = (object) $counts;
+		wp_cache_set( $cache_key, $counts, 'counts' );
 	}
 
-	// Added post_parent querying
-	if ( ! empty( $parent ) ) {
-		$query .= " AND post_parent = %s";
-	}
-
-	$query .= ' GROUP BY post_status';
-
-	$count = wp_cache_get($cache_key, 'fct_counts');
-	if ( false !== $count )
-		return $count;
-
-	$count = $wpdb->get_results( $wpdb->prepare( $query, $type, $parent ), ARRAY_A );
-
-	$stats = array();
-	foreach ( get_post_stati() as $state ) {
-		$stats[$state] = 0;
-	}
-
-	foreach ( (array) $count as $row ) {
-		$stats[$row['post_status']] = $row['num_posts'];
-	}
-
-	$stats = (object) $stats;
-	wp_cache_set($cache_key, $stats, 'fct_counts');
-
-	return $stats;
+	/**
+	 * Modify returned post counts by status for the current post type.
+	 *
+	 * @since 3.7.0
+	 *
+	 * @param object $counts    An object containing the current post_type's post
+	 *                          counts by status.
+	 * @param string $r['type'] Post type.
+	 * @param string $r['perm'] The permission to determine if the posts are 'readable'
+	 *                          by the current user.
+	 */
+	return apply_filters( 'wp_count_posts', $counts, $r['type'], $r['perm'] );
 }
 
 /** Queries *******************************************************************/
