@@ -109,10 +109,9 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		// Period's records count. Not querying all records
 		} elseif ( ! isset( $_REQUEST['fct_period_id'] ) || ! empty( $_REQUEST['fct_period_id'] ) ) {
 			$num_posts = fct_count_posts( array( 
-				'type'       => $post_type, 
-				'perm'       => 'readable', 
-				'meta_key'   => '_fct_period_id', 
-				'meta_value' => isset( $_REQUEST['fct_period_id'] ) ? (int) $_REQUEST['fct_period_id'] : fct_get_current_period_id(),
+				'type'      => $post_type, 
+				'perm'      => 'readable', 
+				'period_id' => isset( $_REQUEST['fct_period_id'] ) ? (int) $_REQUEST['fct_period_id'] : fct_get_current_period_id(),
 			) );
 
 		// All records count

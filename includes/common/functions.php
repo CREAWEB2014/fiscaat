@@ -447,15 +447,22 @@ function fct_count_posts( $args = '' ) {
 
 	// Parse default query args
 	$r = fct_parse_args( $args, array(
-		'type'       => 'post',
-		'perm'       => '',
-		'parent'     => null,
-		'meta_key'   => null,
-		'meta_value' => null,
+		'type'        => 'post',
+		'perm'        => '',
+		'post_parent' => null,
+		'period_id'   => null,
+		'meta_key'    => null,
+		'meta_value'  => null,
 	), 'count_posts' );
 
 	if ( ! post_type_exists( $r['type'] ) )
 		return new stdClass;
+
+	// Parse period parent query vars
+	if ( ! empty( $r['period_id'] ) ) {
+		$r['meta_key']   = '_fct_period_id';
+		$r['meta_value'] = (int) $r['period_id'];
+	}
 
 	$cache_key = _count_posts_cache_key( $r['type'], $r['perm'] );
 	$counts    = wp_cache_get( $cache_key, 'counts' );
@@ -480,8 +487,8 @@ function fct_count_posts( $args = '' ) {
 		}
 
 		// Query for post parent
-		if ( ! empty( $r['parent'] ) ) {
-			$query['where'] .= $wpdb->prepare( " AND p.post_parent = %s", $r['parent'] );
+		if ( ! empty( $r['post_parent'] ) ) {
+			$query['where'] .= $wpdb->prepare( " AND p.post_parent = %s", $r['post_parent'] );
 		}
 
 		// Query for post meta key/value pair
