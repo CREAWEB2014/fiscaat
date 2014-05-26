@@ -399,7 +399,10 @@ function fct_get_statistics( $args = '' ) {
 	if ( ! empty( $count_current_records ) ) {
 
 		// wp_count_posts has no filtering so use fct_count_posts
-		$current_records = fct_count_posts( array( 'type' => fct_get_record_post_type(), 'period_id' => fct_get_current_period_id() ) );
+		$current_records = fct_count_posts( array( 
+			'type'      => fct_get_record_post_type(), 
+			'period_id' => fct_get_current_period_id() 
+		) );
 
 		// All records published
 		$current_record_count = array_sum( (array) $current_records ) - $current_records->{'auto-draft'};

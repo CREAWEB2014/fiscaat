@@ -100,9 +100,9 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		// Account's records count
 		if ( $this->account_display ) {
 			$num_posts = fct_count_posts( array( 
-				'type'       => $post_type, 
-				'perm'       => 'readable', 
-				'parent'     => $this->account_display,
+				'type'        => $post_type, 
+				'perm'        => 'readable', 
+				'post_parent' => $this->account_display,
 			) );
 			$parent = '&fct_account_id=' . $this->account_display;
 
