@@ -442,29 +442,6 @@ class Fiscaat_Records_Admin {
 				background-color: #eaeaea;
 			}
 
-			.fct_record_status_icon {
-				width: 18px;
-				height: 18px;
-				margin: 3px auto 0;
-				background: #bbb;
-				background-repeat: no-repeat;
-				background-position: center;
-				-webkit-border-radius:100%;
-				border-radius:100%;
-			}
-
-				.fct_record_status_icon img {
-					margin-top: 3px;
-				}
-
-				.fct_record_status_icon.status_<?php echo fct_get_public_status_id(); ?> {
-					background-color: #de9e0c;
-				}
-
-				.fct_record_status_icon.status_<?php echo fct_get_closed_status_id(); ?> {
-					background-color: #999;
-				}
-
 			.widefat .column-fct_record_amount input.small-text {
 				text-align: right;
 				width: 65px;
@@ -474,6 +451,23 @@ class Fiscaat_Records_Admin {
 			.widefat .records-end-row   .column-fct_record_description,
 			.widefat .records-total-row .column-fct_record_description {
 				vertical-align: middle;
+			}
+
+			.fct_record_dates {
+				float: left;
+				margin-right: 6px;
+			}
+
+			/* WP core style */
+			input[type="date"] {
+				border: 1px solid #ddd;
+				-webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,.07);
+				box-shadow: inset 0 1px 2px rgba(0,0,0,.07);
+				background-color: #fff;
+				color: #333;
+				-webkit-transition: .05s border-color ease-in-out;
+				transition: .05s border-color ease-in-out;
+				max-width: 140px; /* at least in Chrome */
 			}
 
 			/** Edit / New Records Mode ***************************************/
@@ -551,50 +545,6 @@ class Fiscaat_Records_Admin {
 	}
 
 	/**
-	 * Add period dropdown to account and record list table filters
-	 *
-	 * @uses fct_get_record_post_type() To get the record post type
-	 * @uses fct_get_account_post_type() To get the account post type
-	 * @uses fct_period_dropdown() To generate a period dropdown
-	 * @uses fct_account_ledger_dropdown() To generate an account ledger dropdown
-	 * @uses fct_account_dropdown() To generate an account dropdown
-	 * @return bool False. If post type is not account or record
-	 */
-	public function filter_dropdown() {
-		if ( $this->bail() ) 
-			return;
-
-		// Get queried period id
-		$period_id = ! empty( $_REQUEST['fct_period_id'] ) ? (int) $_REQUEST['fct_period_id'] : fct_get_current_period_id();
-
-		// Show the periods dropdown
-		fct_period_dropdown( array(
-			'selected'  => $period_id,
-		) );
-		
-		// Get which account is selected. With account id or ledger id
-		$account_id = ! empty( $_REQUEST['fct_account_id'] )        ? (int) $_REQUEST['fct_account_id']        : 0;
-		$ledger_id  = ! empty( $_REQUEST['fct_account_ledger_id'] ) ? (int) $_REQUEST['fct_account_ledger_id'] : 0;
-
-		// Ledger id was set, account id not
-		if ( ! empty( $ledger_id ) && empty( $account_id ) ) {
-			$account_id = fct_get_account_id_by_ledger_id( $ledger_id, $period_id );
-		}
-
-		// Show the ledger dropdown
-		fct_account_ledger_dropdown( array(
-			'selected'    => $account_id,
-			'post_parent' => $period_id,
-		) );
-
-		// Show the accounts dropdown
-		fct_account_dropdown( array(
-			'selected'    => $account_id,
-			'post_parent' => $period_id,
-		) );
-	}
-
-	/**
 	 * Determine the correct queried records's parents
 	 *
 	 * When querying records by the filter dropdowns, make the
@@ -637,6 +587,60 @@ class Fiscaat_Records_Admin {
 			// Set period from queried account
 			$_REQUEST['fct_period_id'] = fct_get_account_period_id( $_REQUEST['fct_account_id'] );
 		}
+	}
+
+	/**
+	 * Add period dropdown to account and record list table filters
+	 *
+	 * @uses fct_get_record_post_type() To get the record post type
+	 * @uses fct_get_account_post_type() To get the account post type
+	 * @uses fct_period_dropdown() To generate a period dropdown
+	 * @uses fct_account_ledger_dropdown() To generate an account ledger dropdown
+	 * @uses fct_account_dropdown() To generate an account dropdown
+	 * @return bool False. If post type is not account or record
+	 */
+	public function filter_dropdown() {
+		if ( $this->bail() ) 
+			return;
+
+		// Get queried period id
+		$period_id = ! empty( $_REQUEST['fct_period_id'] ) ? (int) $_REQUEST['fct_period_id'] : fct_get_current_period_id();
+
+		// Show the periods dropdown
+		fct_period_dropdown( array(
+			'selected'  => $period_id,
+		) );
+		
+		// Get which account is selected. With account id or ledger id
+		$account_id = ! empty( $_REQUEST['fct_account_id'] )        ? (int) $_REQUEST['fct_account_id']        : 0;
+		$ledger_id  = ! empty( $_REQUEST['fct_account_ledger_id'] ) ? (int) $_REQUEST['fct_account_ledger_id'] : 0;
+
+		// Ledger id was set, account id not
+		if ( ! empty( $ledger_id ) && empty( $account_id ) ) {
+			$account_id = fct_get_account_id_by_ledger_id( $ledger_id, $period_id );
+		}
+
+		// Show the ledger dropdown
+		fct_account_ledger_dropdown( array(
+			'selected'    => $account_id,
+			'post_parent' => $period_id,
+		) );
+
+		// Show the accounts dropdown
+		fct_account_dropdown( array(
+			'selected'    => $account_id,
+			'post_parent' => $period_id,
+		) );
+
+		// Get the queried dates
+		$date_from = ! empty( $_REQUEST['fct_date_from'] ) ? $_REQUEST['fct_date_from'] : '';
+		$date_to   = ! empty( $_REQUEST['fct_date_to']   ) ? $_REQUEST['fct_date_to']   : '';
+
+		/* translators: 1: Select records start date field, 2: Select records end date field */
+		printf( '<span class="fct_record_dates">' . __( 'From %1$s to %2$s', 'fiscaat' ) . '</span>',
+			"<input type=\"date\" name=\"fct_date_from\" class=\"fct_record_date\" value=\"{$date_from}\" placeholder=\"dd/mm/jjjj\" />", //" . __( 'Start date', 'fiscaat' ) . "\" />",
+			"<input type=\"date\" name=\"fct_date_to\"   class=\"fct_record_date\" value=\"{$date_to}\"   placeholder=\"dd/mm/jjjj\" />"  //" . __( 'End date',   'fiscaat' ) . "\" />"
+		);
 	}
 
 	/**
@@ -696,6 +700,41 @@ class Fiscaat_Records_Admin {
 				case 2 :
 					$query_vars['post_status'] = fct_get_declined_status_id();
 					break;
+			}
+		}
+
+		/** Dates *************************************************************/
+
+		// @todo Needs testing
+		// Handle dates
+		if ( isset( $_REQUEST['fct_date_from'] ) || isset( $_REQUEST['fct_date_to'] ) ) {
+
+			// Handle start date
+			if ( isset( $_REQUEST['fct_date_from'] ) && false !== ( $strdate = strtotime( str_replace( '/', '-', $_REQUEST['fct_date_from'] ) ) ) ) {
+
+				// Push one day to include selected date
+				$strdate -= DAY_IN_SECONDS;
+
+				// Collect after this date
+				$meta_query[] = array(
+					'key'     => '_fct_record_date',
+					'value'   => date( 'Y-m-d 23:59:59', $strdate ),
+					'compare' => '>',
+				);
+			}
+
+			// Handle end date
+			if ( isset( $_REQUEST['fct_date_to'] ) && false !== ( $strdate = strtotime( str_replace( '/', '-', $_REQUEST['fct_date_to'] ) ) ) ) {
+
+				// Push one day to include selected date
+				$strdate += DAY_IN_SECONDS;
+
+				// Collect before this date
+				$meta_query[] = array(
+					'key'     => '_fct_record_date',
+					'value'   => date( 'Y-m-d 00:00:00', $strdate ),
+					'compare' => '<',
+				);
 			}
 		}
 
@@ -1152,8 +1191,7 @@ class Fiscaat_Records_Admin {
 
 		// New records
 		if ( fct_admin_is_new_records() ) {
-			$title  = get_post_type_object( fct_get_record_post_type() )->labels->add_new;
-			$title .= ' &mdash; ' . fct_get_period_title( fct_get_current_period_id() );
+			$title = __( 'New Records', 'fiscaat' ) . ' &mdash; ' . fct_get_period_title( fct_get_current_period_id() );
 		}
 
 		return $title;
