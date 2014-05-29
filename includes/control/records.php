@@ -34,10 +34,6 @@ function fct_decline_record( $record_id = 0 ) {
 	if ( fct_get_declined_status_id() == $record['post_status'] )
 		return false;
 
-	// Bail if user is not capable
-	if ( ! current_user_can( 'control' ) )
-		return false;
-
 	// Execute pre declined code
 	do_action( 'fct_decline_record', $record_id );
 
@@ -78,10 +74,6 @@ function fct_approve_record( $record_id = 0 ) {
 
 	// Bail if already approved
 	if ( fct_get_approved_status_id() == $record['post_status'] )
-		return false;
-
-	// Bail if user is not capable
-	if ( ! current_user_can( 'control' ) )
 		return false;
 
 	// Execute pre approve code

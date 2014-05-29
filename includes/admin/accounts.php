@@ -903,11 +903,6 @@ class Fiscaat_Accounts_Admin {
 		// Only when account is published
 		if ( ! in_array( $account->post_status, array( 'draft', fct_get_trash_status_id() ) ) ) {
 
-			// Show view link if it's not set, the account is trashed and the user can view trashed accounts
-			if ( empty( $actions['view'] ) && ( fct_get_trash_status_id() == $account->post_status ) && current_user_can( 'view_trash' ) ) {
-				$actions['view'] = '<a href="' . fct_get_account_permalink( $account->ID ) . '" title="' . esc_attr( sprintf( __( 'View "%s"', 'fiscaat' ), fct_get_account_title( $account->ID ) ) ) . '" rel="permalink">' . __( 'View', 'fiscaat' ) . '</a>';
-			}
-
 			// Show records link
 			if ( current_user_can( 'read_account', $account->ID ) ) {
 				$actions['records'] = '<a href="' . add_query_arg( array( 'page' => 'fct-records', 'fct_account_id' => $account->ID ), admin_url( 'admin.php' ) ) .'" title="' . esc_attr( sprintf( __( 'Show all records of "%s"',  'fiscaat' ), fct_get_account_title( $account->ID ) ) ) . '">' . __( 'Records', 'fiscaat' ) . '</a>';

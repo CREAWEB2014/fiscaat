@@ -267,3 +267,76 @@ function fct_ctrl_admin_accounts_request( $query_vars ) {
 }
 
 /** Records *******************************************************************/
+
+/**
+ * Toggle record
+ *
+ * Handles the admin-side approving/disapproving of records
+ *
+ * @since 0.0.9
+ *
+ * @uses current_user_can() To check if the user is capable of editing
+ *                           the record
+ * @uses check_admin_referer() To verify the nonce and check referer
+ * @uses fct_is_record_approved() To check if the record is marked as approved
+ * @uses fct_decline_record() To unmark the record as declined
+ * @uses fct_approve_record() To mark the record as approved
+ *
+ * @param array $result Toggle result
+ * @param string $action Toggle action name
+ * @param int $record_id Record ID
+ * @return array Result params
+ */
+function fct_ctrl_admin_records_toggle_record( $result, $action, $record_id ) {
+
+	// Toggle record approval
+	if ( 'fct_toggle_record_approve' == $action ) {
+		check_admin_referer( 'approve-record_' . $record_id );
+
+		if ( ! current_user_can( 'approve_record', $record_id ) ) // What is the user doing here?
+			wp_die( __( 'You do not have the permission to do that!', 'fiscaat' ) );
+
+		// Either approve or decline based on current status
+		$approve = fct_is_record_approved( $record_id );
+		$message = $approve ? 'declined' : 'approved';
+		$success = $approve ? fct_decline_record( $record_id ) : fct_approve_record( $record_id );
+
+		// Setup retval
+		$result = array( $success, $message );
+	}
+
+	return $result;
+}
+
+/**
+ * Handle record approval notices
+ *
+ * @since 0.0.9
+ * 
+ * @uses fct_get_record() To get the record
+ * @uses fct_get_record_title() To get the record title of the record
+ * @uses esc_html() To sanitize the record title
+ *
+ * @param string $message The toggle notice message
+ * @param int $record_id Record ID
+ * @param string $notice The action notice executed
+ * @param bool $is_failure Whether the action was successful
+ * @return string Toggle notice message
+ */
+function fct_ctrl_admin_records_toggle_record_notice( $message, $record_id, $notice, $is_failure ) {
+	$record_id    = fct_get_record_id( $record_id );
+	$record_title = esc_html( fct_get_record_title( $record_id ) );
+
+	// Check toggle notice
+	switch ( $notice ) {
+		case 'approved' :
+			$message = $is_failure == true ? sprintf( __( 'There was a problem approving the record "%1$s".', 'fiscaat' ), $record_title ) : sprintf( __( 'Record "%1$s" successfully approved.', 'fiscaat' ), $record_title );
+			break;
+
+		case 'declined' :
+			$message = $is_failure == true ? sprintf( __( 'There was a problem declining the record "%1$s".', 'fiscaat' ), $record_title ) : sprintf( __( 'Record "%1$s" successfully declined.', 'fiscaat' ), $record_title );
+			break;
+	}
+
+	return $message;
+}

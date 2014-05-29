@@ -231,7 +231,7 @@ function fct_user_can_view_all( $user_id = 0 ) {
 	$match   = false;
 
 	// User is fiscus or controller
-	if ( current_user_can( 'fiscaat' ) || current_user_can( 'control' ) ) {
+	if ( current_user_can( 'fiscaat' ) || current_user_can( 'fct_control' ) ) {
 		$match = true;
 
 	// Spectator can see all

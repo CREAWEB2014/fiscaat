@@ -798,74 +798,9 @@ class Fiscaat_Records_Admin {
 	/** Post Actions **********************************************************/
 
 	/**
-	 * Record Row actions
-	 *
-	 * Remove the quick-edit action link under the record title and add the
-	 * content and spam link
-	 *
-	 * @param array $actions Actions
-	 * @param array $record Record object
-	 * @uses fct_get_record_post_type() To get the record post type
-	 * @uses fct_record_content() To output record content
-	 * @uses fct_get_record_permalink() To get the record link
-	 * @uses fct_get_record_title() To get the record title
-	 * @uses current_user_can() To check if the current user can edit or
-	 *                           delete the record
-	 * @uses fct_is_record_approved() To check if the record is marked as approved
-	 * @uses get_post_type_object() To get the record post type object
-	 * @uses add_query_arg() To add custom args to the url
-	 * @uses remove_query_arg() To remove custom args from the url
-	 * @uses wp_nonce_url() To nonce the url
-	 * @uses get_delete_post_link() To get the delete post link of the record
-	 * @return array $actions Actions
-	 */
-	public function records_row_actions( $actions, $record ) {
-		if ( $this->bail() ) 
-			return $actions;
-
-		// Record view links to account
-		$actions['view'] = '<a href="' . fct_get_record_url( $record->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'fiscaat' ), fct_get_record_title( $record->ID ) ) ) . '" rel="permalink">' . __( 'View', 'fiscaat' ) . '</a>';
-
-		// User cannot view records in trash
-		if ( ( fct_get_trash_status_id() == $record->post_status ) && !current_user_can( 'view_trash' ) )
-			unset( $actions['view'] );
-
-		// Only show the actions if the user is capable of viewing them and record is open
-		// @todo Move to Control
-		if ( current_user_can( 'control', $record->ID ) ) {
-			if ( fct_record_is_open( $record->ID ) ) {
-				$approval_uri  = esc_url( wp_nonce_url( add_query_arg( array( 'record_id' => $record->ID, 'action' => 'fct_toggle_record_approval' ), remove_query_arg( array( 'fct_record_toggle_notice', 'record_id', 'failed', 'super' ) ) ), 'approval-record_'  . $record->ID ) );
-				if ( ! fct_is_record_approved( $record->ID ) ) {
-					$actions['approval'] = '<a href="' . $approval_uri . '" title="' . esc_attr__( 'Mark this record as approved',    'fiscaat' ) . '">' . __( 'Approve',    'fiscaat' ) . '</a>';
-				} elseif( ! fct_is_record_declined( $record->ID ) ) {
-					$actions['approval'] = '<a href="' . $approval_uri . '" title="' . esc_attr__( 'Mark this record as declined', 'fiscaat' ) . '">' . __( 'Decline', 'fiscaat' ) . '</a>';
-				}
-			}
-		}
-
-		// Trash
-		if ( current_user_can( 'delete_record', $record->ID ) ) {
-			if ( fct_get_trash_status_id() == $record->post_status ) {
-				$post_type_object = get_post_type_object( fct_get_record_post_type() );
-				$actions['untrash'] = "<a title='" . esc_attr__( 'Restore this item from the Trash', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'page' => 'fct-records' ), admin_url( 'admin.php' ) ) ), wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=untrash', $record->ID ) ), 'untrash-post_' . $record->ID ) ) . "'>" . __( 'Restore', 'fiscaat' ) . "</a>";
-			} elseif ( EMPTY_TRASH_DAYS ) {
-				$actions['trash'] = "<a class='submitdelete' title='" . esc_attr__( 'Move this item to the Trash', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'page' => 'fct-records' ), admin_url( 'admin.php' ) ) ), get_delete_post_link( $record->ID ) ) . "'>" . __( 'Trash', 'fiscaat' ) . "</a>";
-			}
-
-			if ( fct_get_trash_status_id() == $record->post_status || !EMPTY_TRASH_DAYS ) {
-				$actions['delete'] = "<a class='submitdelete' title='" . esc_attr__( 'Delete this item permanently', 'fiscaat' ) . "' href='" . add_query_arg( array( '_wp_http_referer' => add_query_arg( array( 'page' => 'fct-records' ), admin_url( 'admin.php' ) ) ), get_delete_post_link( $record->ID, '', true ) ) . "'>" . __( 'Delete Permanently', 'fiscaat' ) . "</a>";
-			} elseif ( fct_get_spam_status_id() == $record->post_status ) {
-				unset( $actions['trash'] );
-			}
-		}
-
-		return $actions;
-	}
-
-	/**
 	 * Toggle record
 	 *
-	 * Handles the admin-side approving/disapproving of records
+	 * Handles the admin-side of toggling records
 	 *
 	 * @uses fct_get_record() To get the record
 	 * @uses current_user_can() To check if the user is capable of editing
@@ -884,32 +819,33 @@ class Fiscaat_Records_Admin {
 	public function toggle_record() {
 
 		// Only proceed if GET is a record toggle action
-		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'fct_toggle_record_spam' ) ) && ! empty( $_GET['record_id'] ) ) {
+		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_GET['action'] ) && false !== strpos( $_GET['action'], 'fct_toggle_record_' ) && ! empty( $_GET['record_id'] ) ) {
 			$action    = $_GET['action'];             // What action is taking place?
 			$record_id = (int) $_GET['record_id'];    // What's the record id?
 			$success   = false;                       // Flag
 			$post_data = array( 'ID' => $record_id ); // Prelim array
+			$result    = array( false, '' );          // Default result
 
 			// Get record and die if empty
 			$record = fct_get_record( $record_id );
 			if ( empty( $record ) ) // Which record?
 				wp_die( __( 'The record was not found!', 'fiscaat' ) );
 
-			if ( ! current_user_can( 'edit_record', $record->ID ) ) // What is the user doing here?
-				wp_die( __( 'You do not have the permission to do that!', 'fiscaat' ) );
-
-			switch ( $action ) {
-				case 'fct_toggle_record_approval' :
-					check_admin_referer( 'approval-record_' . $record_id );
-
-					$approve = fct_is_record_approved( $record_id );
-					$message = $approve ? 'declined' : 'approved';
-					$success = $approve ? fct_decline_record( $record_id ) : fct_approve_record( $record_id );
-
-					break;
-			}
-
-			$success = wp_update_post( $post_data );
+			/**
+			 * Perform toggle action and return the result
+			 *
+			 * Filters should apply their own capability checks.
+			 * 
+			 * @since 0.0.9
+			 *
+			 * @param array $result {
+			 *   @var bool $success Whether the toggle action was successful
+			 *   @var string $message Toggle notice name
+			 * }
+			 * @param string $action Toggle action name
+			 * @param int $record_id Record ID
+			 */
+			list( $success, $message ) = apply_filters( 'fct_toggle_record', $result, $action, $record->ID );
 			$message = array( 'fct_record_toggle_notice' => $message, 'record_id' => $record->ID );
 
 			if ( false == $success || is_wp_error( $success ) )
@@ -938,8 +874,6 @@ class Fiscaat_Records_Admin {
 	 * @uses esc_html() To sanitize the record title
 	 * @uses apply_filters() Calls 'fct_toggle_record_notice_admin' with
 	 *                        message, record id, notice and is it a failure
-	 *
-	 * @todo Move to Control
 	 */
 	public function toggle_record_notice() {
 		if ( $this->bail() ) 
@@ -960,28 +894,16 @@ class Fiscaat_Records_Admin {
 			if ( empty( $record ) )
 				return;
 
-			$record_title = esc_html( fct_get_record_title( $record->ID ) );
-
-			switch ( $notice ) {
-				case 'approved' :
-					$message = $is_failure == true ? sprintf( __( 'There was a problem marking the record "%1$s" as approved.',    'fiscaat' ), $record_title ) : sprintf( __( 'Record "%1$s" successfully marked as approved.',    'fiscaat' ), $record_title );
-					break;
-
-				case 'declined' :
-					$message = $is_failure == true ? sprintf( __( 'There was a problem marking the record "%1$s" as declined.', 'fiscaat' ), $record_title ) : sprintf( __( 'Record "%1$s" successfully marked as declined.', 'fiscaat' ), $record_title );
-					break;
-			}
-
 			// Do additional record toggle notice filters (admin side)
-			$message = apply_filters( 'fct_toggle_record_notice_admin', $message, $record->ID, $notice, $is_failure );
+			$message = apply_filters( 'fct_toggle_record_notice_admin', '', $record->ID, $notice, $is_failure );
 
-			?>
+			if ( ! empty( $message ) ) : ?>
 
 			<div id="message" class="<?php echo $is_failure == true ? 'error' : 'updated'; ?> fade">
 				<p style="line-height: 150%"><?php echo $message; ?></p>
 			</div>
 
-			<?php
+			<?php endif;
 		}
 	}
 
