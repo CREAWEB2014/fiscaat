@@ -467,6 +467,7 @@ class Fiscaat_Records_Admin {
 				color: #333;
 				-webkit-transition: .05s border-color ease-in-out;
 				transition: .05s border-color ease-in-out;
+				padding: 3px 5px 2px;
 				max-width: 140px; /* at least in Chrome */
 			}
 
@@ -549,7 +550,7 @@ class Fiscaat_Records_Admin {
 	 *
 	 * When querying records by the filter dropdowns, make the
 	 * year leading in determining which account's records to
-	 * select.
+	 * select and update $_REQUEST global accordingly.
 	 * 
 	 * @since 0.0.9
 	 *
@@ -600,8 +601,13 @@ class Fiscaat_Records_Admin {
 	 * @return bool False. If post type is not account or record
 	 */
 	public function filter_dropdown() {
+		global $wp_list_table;
+
 		if ( $this->bail() ) 
 			return;
+
+		// Record created dropdown
+		$wp_list_table->months_dropdown( fct_get_record_post_type() );
 
 		// Get queried period id
 		$period_id = ! empty( $_REQUEST['fct_period_id'] ) ? (int) $_REQUEST['fct_period_id'] : fct_get_current_period_id();
@@ -638,8 +644,8 @@ class Fiscaat_Records_Admin {
 
 		/* translators: 1: Select records start date field, 2: Select records end date field */
 		printf( '<span class="fct_record_dates">' . __( 'From %1$s to %2$s', 'fiscaat' ) . '</span>',
-			"<input type=\"date\" name=\"fct_date_from\" class=\"fct_record_date\" value=\"{$date_from}\" placeholder=\"dd/mm/jjjj\" />", //" . __( 'Start date', 'fiscaat' ) . "\" />",
-			"<input type=\"date\" name=\"fct_date_to\"   class=\"fct_record_date\" value=\"{$date_to}\"   placeholder=\"dd/mm/jjjj\" />"  //" . __( 'End date',   'fiscaat' ) . "\" />"
+			"<input type=\"date\" name=\"fct_date_from\" class=\"fct_record_date\" value=\"{$date_from}\" placeholder=\"" . _x( 'yyyy-mm-dd', 'input date format', 'fiscaat' ) . "\" />",
+			"<input type=\"date\" name=\"fct_date_to\"   class=\"fct_record_date\" value=\"{$date_to}\"   placeholder=\"" . _x( 'yyyy-mm-dd', 'input date format', 'fiscaat' ) . "\" />" 
 		);
 	}
 
