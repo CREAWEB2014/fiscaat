@@ -22,6 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 function fct_account_post_type() {
 	echo fct_get_account_post_type();
 }
+
 	/**
 	 * Return the unique id of the custom post type for accounts
 	 * 
@@ -1639,13 +1640,13 @@ function fct_account_ledger_dropdown( $args = '' ) {
 		/** Drop Down *********************************************************/
 
 		// Adjust dropdown title
-		add_filter( 'fct_walker_dropdown_post_title', 'fct_filter_account_ledger_dropdown_title', 10, 5 );
+		add_filter( 'fct_walker_dropdown_post_title', 'fct_account_ledger_dropdown_title', 10, 5 );
 
 		// Get the dropdown
 		$retval = fct_get_dropdown( $r );
 
 		// Remove filter
-		remove_filter( 'fct_walker_dropdown_post_title', 'fct_filter_account_ledger_dropdown_title' );
+		remove_filter( 'fct_walker_dropdown_post_title', 'fct_account_ledger_dropdown_title' );
 
 		return apply_filters( 'fct_get_account_ledger_dropdown', $retval, $r );
 	}
@@ -1660,7 +1661,7 @@ function fct_account_ledger_dropdown( $args = '' ) {
 	 * @param array $args 
 	 * @return string Post title
 	 */
-	function fct_filter_account_ledger_dropdown_title( $post_title, $output, $_post, $depth, $args ) {
+	function fct_account_ledger_dropdown_title( $post_title, $output, $_post, $depth, $args ) {
 		$account_id = fct_get_account_id( $_post->ID );
 
 		// Validate account
@@ -1670,7 +1671,75 @@ function fct_account_ledger_dropdown( $args = '' ) {
 		// Set post title
 		$post_title = fct_get_account_ledger_id( $account_id );
 
-		return apply_filters( 'fct_filter_account_ledger_dropdown_title', $post_title, $account_id );
+		return apply_filters( 'fct_account_ledger_dropdown_title', $post_title, $account_id );
+	}
+
+/**
+ * Output a select box allowing to pick which account to show by full ledger id and title
+ *
+ * @param mixed $args See {@link fct_get_dropdown()} for arguments
+ */
+function fct_account_full_dropdown( $args = '' ) {
+	echo fct_get_account_full_dropdown( $args );
+}
+
+	/**
+	 * Return a select box allowing to pick which account to show by full ledger id and title
+	 * 
+	 * @param mixed $args See {@link fct_get_dropdown()} for arguments
+	 * @return string The dropdown
+	 */
+	function fct_get_account_full_dropdown( $args = '' ) {
+
+		/** Arguments *********************************************************/
+
+		$r = fct_parse_args( $args, array(
+			'post_type'          => fct_get_account_post_type(),
+			'post_parent'        => fct_get_current_period_id(),
+			'selected'           => 0,
+			'meta_key'           => '_fct_ledger_id',
+			'orderby'            => 'meta_value_num',
+
+			// Output-related
+			'select_id'          => 'fct_account_id',
+			'show_none'          => __( 'In all accounts', 'fiscaat' ),
+		), 'get_account_full_dropdown' );
+
+		/** Drop Down *********************************************************/
+
+		// Adjust dropdown title
+		add_filter( 'fct_walker_dropdown_post_title', 'fct_account_full_dropdown_title', 10, 5 );
+
+		// Get the dropdown
+		$retval = fct_get_dropdown( $r );
+
+		// Remove filter
+		remove_filter( 'fct_walker_dropdown_post_title', 'fct_account_full_dropdown_title' );
+
+		return apply_filters( 'fct_get_account_full_dropdown', $retval, $r );
+	}
+
+	/**
+	 * Return post title for ledger dropdown
+	 * 
+	 * @param string $post_title
+	 * @param string $output 
+	 * @param object $_post 
+	 * @param int $depth 
+	 * @param array $args 
+	 * @return string Post title
+	 */
+	function fct_account_full_dropdown_title( $post_title, $output, $_post, $depth, $args ) {
+		$account_id = fct_get_account_id( $_post->ID );
+
+		// Validate account
+		if ( ! fct_is_account( $account_id ) )
+			return $post_title;
+
+		// Prepend ledger id to post title
+		$post_title = fct_get_account_ledger_id( $account_id ) .' ' . $post_title;
+
+		return apply_filters( 'fct_account_full_dropdown_title', $post_title, $account_id );
 	}
 
 /**
