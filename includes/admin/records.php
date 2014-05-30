@@ -682,33 +682,6 @@ class Fiscaat_Records_Admin {
 			$query_vars['post_parent'] = $_REQUEST['fct_account_ledger_id'];
 		}
 
-		/** Approval **********************************************************/
-
-		// @todo Move to Control. Use 'unapproved' in request 
-		//        post_status to set query vars here
-		// Check approval
-		if ( isset( $_REQUEST['approval'] ) && fct_is_control_active() ) {
-
-			// Check approval states
-			switch ( (int) $_REQUEST['approval'] ) {
-
-				// Unapproved
-				case 0 :
-					$query_vars['post_status'] = array( fct_get_public_status_id(), fct_get_declined_status_id() ); // + declined?
-					break;
-
-				// Approved
-				case 1 :
-					$query_vars['post_status'] = array( fct_get_approved_status_id(), fct_get_closed_status_id() ); // + closed?
-					break;
-
-				// Declined
-				case 2 :
-					$query_vars['post_status'] = fct_get_declined_status_id();
-					break;
-			}
-		}
-
 		/** Dates *************************************************************/
 
 		// @todo Needs testing
