@@ -36,9 +36,12 @@ add_filter( 'fct_before_get_statistics_parse_args', 'fct_ctrl_get_statistics_def
 add_filter( 'fct_get_statistics',                   'fct_ctrl_get_statistics',         10, 2 );
 
 // Admin
-add_filter( 'fct_admin_periods_column_headers',    'fct_ctrl_admin_periods_column_headers'      );
-add_filter( 'fct_admin_periods_sortable_columns',  'fct_ctrl_admin_periods_sortable_columns'    );
-add_filter( 'fct_admin_periods_request',           'fct_ctrl_admin_periods_request'             );
+add_filter( 'fct_admin_periods_column_headers',    'fct_ctrl_admin_periods_column_headers'    );
+add_filter( 'fct_admin_periods_sortable_columns',  'fct_ctrl_admin_periods_sortable_columns'  );
+add_filter( 'fct_admin_periods_request',           'fct_ctrl_admin_periods_request'           );
 add_filter( 'fct_admin_accounts_column_headers',   'fct_ctrl_admin_accounts_column_headers'   );
 add_filter( 'fct_admin_accounts_sortable_columns', 'fct_ctrl_admin_accounts_sortable_columns' );
 add_filter( 'fct_admin_accounts_request',          'fct_ctrl_admin_accounts_request'          );
+
+add_filter( 'fct_toggle_record',              'fct_ctrl_admin_records_toggle_record',        10, 3 );
+add_filter( 'fct_toggle_record_notice_admin', 'fct_ctrl_admin_records_toggle_record_notice', 10, 4 );
