@@ -70,11 +70,12 @@ function fct_ctrl_register_post_statuses() {
  */
 function fct_ctrl_record_statuses( $statuses ) {
 
-	// Insert statuses after 'publish' and before 'close'
-	array_splice( $statuses, 1, 0, array(
+	// Insert statuses after 'publish' and before 'close'. array_splice only does numeric keys
+	$position = array_search( fct_get_public_status_id(), array_keys( $statuses ) ) + 1;
+	$statuses = array_slice( $statuses, 0, $position, true ) + array( 
 		fct_get_declined_status_id() => __( 'Declined', 'fiscaat' ),
 		fct_get_approved_status_id() => __( 'Approved', 'fiscaat' ),
-	) );
+	) + array_slice( $statuses, $position, null, true );
 
 	return $statuses;
 }
@@ -88,7 +89,7 @@ function fct_ctrl_record_statuses( $statuses ) {
 function fct_ctrl_record_status_dropdown_disable( $disable ) {
 
 	// User can control
-	if ( fct_is_control_active() && current_user_can( 'fct_control' ) )
+	if ( current_user_can( 'fct_control' ) )
 		$disable = false;
 
 	return $disable;

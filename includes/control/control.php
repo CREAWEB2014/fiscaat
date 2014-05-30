@@ -136,13 +136,18 @@ class Fiscaat_Control {
 
 		if ( is_admin() ) {
 
-			// Columns
-			add_filter( 'fct_admin_periods_column_headers',    'fct_ctrl_admin_periods_column_headers'    );
-			add_filter( 'fct_admin_periods_sortable_columns',  'fct_ctrl_admin_periods_sortable_columns'  );
-			add_filter( 'fct_admin_periods_request',           'fct_ctrl_admin_periods_request'           );
-			add_filter( 'fct_admin_accounts_column_headers',   'fct_ctrl_admin_accounts_column_headers'   );
-			add_filter( 'fct_admin_accounts_sortable_columns', 'fct_ctrl_admin_accounts_sortable_columns' );
-			add_filter( 'fct_admin_accounts_request',          'fct_ctrl_admin_accounts_request'          );
+			// Admin 
+			add_action( 'fct_admin_head', array( $this, 'admin_head' ) );
+
+			// Periods
+			add_filter( 'fct_admin_periods_get_columns',           'fct_ctrl_admin_periods_columns'          );
+			add_filter( 'fct_admin_periods_get_sortable_columns',  'fct_ctrl_admin_periods_sortable_columns' );
+			add_filter( 'fct_admin_periods_request',               'fct_ctrl_admin_periods_request'          );
+
+			// Accounts
+			add_filter( 'fct_admin_accounts_get_columns',          'fct_ctrl_admin_accounts_columns'         );
+			add_filter( 'fct_admin_accounts_get_sortable_columns', 'fct_ctrl_admin_accounts_sortable_columns');
+			add_filter( 'fct_admin_accounts_request',              'fct_ctrl_admin_accounts_request'         );
 
 			// Column content
 			add_action( 'fct_admin_accounts_column_data', 'fct_ctrl_admin_accounts_column_data', 10, 2 );
@@ -159,6 +164,29 @@ class Fiscaat_Control {
 		do_action_ref_array( 'fct_control_loaded', array( &$this ) );
 	}
 
+	/**
+	 * Add some general styling to the admin area
+	 *
+	 * @since 0.0.9
+	 */
+	public function admin_head() { 
+		?>
+
+		<style id="fct_ctrl_admin_styles" type="text/css" media="screen">
+		/*<![CDATA[*/
+
+			.column-fct_account_record_count_unapproved,
+			.column-fct_account_record_count_declined,
+			.column-fct_period_record_count_unapproved,
+			.column-fct_period_record_count_declined {
+				width: 10%;
+			}
+
+		/*]]>*/
+		</style>
+
+		<?php
+	}
 }
 
 endif; // class_exists check

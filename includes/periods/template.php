@@ -941,11 +941,11 @@ function fct_form_period_status_dropdown( $period_id = 0 ) {
 		$statuses      = fct_get_period_statuses();
 
 		// Disable dropdown
-		$disable = fct_is_control_active() && ! current_user_can( 'fiscaat' ) ? true : false;
+		$disable = fct_is_control_active() && ! current_user_can( 'fiscaat' );
 
 		$status_output = '<select name="fct_period_status" id="fct_period_status_select" '. disabled( $disable, true, false ) .'>' . "\n";
 
-		foreach( $statuses as $value => $label ) {
+		foreach ( $statuses as $value => $label ) {
 			$status_output .= "\t" . '<option value="' . $value . '"' . selected( $period_status, $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
 		}
 

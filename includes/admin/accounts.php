@@ -716,10 +716,11 @@ class Fiscaat_Accounts_Admin {
 					// Remove post status from array
 					unset( $wp_post_statuses[ fct_get_closed_status_id() ] );
 
-					// Insert post status in position
-					array_splice( $wp_post_statuses, array_search( fct_get_public_status_id(), array_keys( $wp_post_statuses ) ) + 1, 0, array( 
+					// Insert post status in position right after 'publish/open'. array_splice only does numeric keys
+					$position = array_search( fct_get_public_status_id(), array_keys( $wp_post_statuses ) ) + 1;
+					$wp_post_statuses = array_slice( $wp_post_statuses, 0, $position, true ) + array( 
 						fct_get_closed_status_id() => $close_status
-					) );
+					) + array_slice( $wp_post_statuses, $position, null, true );
 
 					break;
 			}

@@ -97,20 +97,23 @@ function fct_ctrl_dashboard_widget_right_now_content() {
 /** Periods *********************************************************************/
 
 /**
- * Add control column headers to admin periods list table
+ * Add control columns to admin periods list table
  *
  * @since 0.0.5
  * 
- * @param array $columns Column headers
- * @return array Column headers
- *
- * @todo Fix column order
+ * @param array $columns Columns
+ * @return array Columns
  */
-function fct_ctrl_admin_periods_column_headers( $columns ) {
-	return array_merge( $columns, array(
-		'fct_period_record_count_declined'   => __( 'Declined',   'fiscaat' ),
+function fct_ctrl_admin_periods_columns( $columns ) {
+
+	// Group record counts. array_splice only does numeric keys
+	$position = array_search( 'fct_period_record_count', array_keys( $columns ) ) + 1;
+	$columns  = array_slice( $columns, 0, $position, true ) + array( 
 		'fct_period_record_count_unapproved' => __( 'Unapproved', 'fiscaat' ),
-	) );
+		'fct_period_record_count_declined'   => __( 'Declined',   'fiscaat' ),
+	) + array_slice( $columns, $position, null, true );
+
+	return $columns;
 }
 
 /**
@@ -126,14 +129,14 @@ function fct_ctrl_admin_periods_column_data( $column, $period_id ) {
 	// Check column name
 	switch ( $column ) {
 
-		// Declined record count
-		case 'fct_period_record_count_declined' :
-			fct_period_record_count_declined( $period_id );
-			break;
-
 		// Unapproved record count
 		case 'fct_period_record_count_unapproved' :
 			fct_period_record_count_unapproved( $period_id );
+			break;
+
+		// Declined record count
+		case 'fct_period_record_count_declined' :
+			fct_period_record_count_declined( $period_id );
 			break;
 	}
 }
@@ -148,8 +151,8 @@ function fct_ctrl_admin_periods_column_data( $column, $period_id ) {
  */
 function fct_ctrl_admin_periods_sortable_columns( $columns ) {
 	return array_merge( $columns, array(
-		'fct_period_record_count_declined'   => 'record_count_declined',
-		'fct_period_record_count_unapproved' => 'record_count_unapproved',
+		'fct_period_record_count_unapproved' => array( 'record_count_unapproved', true ),
+		'fct_period_record_count_declined'   => array( 'record_count_declined',   true ),
 	) );
 }
 
@@ -163,15 +166,15 @@ function fct_ctrl_admin_periods_sortable_columns( $columns ) {
  */
 function fct_ctrl_admin_periods_request( $query_vars ) {
 
-	// Handle ordering by declined record count
-	if ( isset( $_REQUEST['orderby'] ) && 'record_count_declined' == $_REQUEST['orderby'] ) {
-		$query_vars['meta_key'] = '_fct_record_count_declined';
+	// Handle ordering by unapproved record count
+	if ( isset( $_REQUEST['orderby'] ) && 'record_count_unapproved' == $_REQUEST['orderby'] ) {
+		$query_vars['meta_key'] = '_fct_record_count_unapproved';
 		$query_vars['orderby']  = 'meta_value_num';
 		$query_vars['order']    = isset( $_REQUEST['order'] ) ? strtoupper( $_REQUEST['order'] ) : 'DESC';
 
-	// Handle ordering by unapproved record count
-	} elseif ( isset( $_REQUEST['orderby'] ) && 'record_count_unapproved' == $_REQUEST['orderby'] ) {
-		$query_vars['meta_key'] = '_fct_record_count_unapproved';
+	// Handle ordering by declined record count
+	} elseif ( isset( $_REQUEST['orderby'] ) && 'record_count_declined' == $_REQUEST['orderby'] ) {
+		$query_vars['meta_key'] = '_fct_record_count_declined';
 		$query_vars['orderby']  = 'meta_value_num';
 		$query_vars['order']    = isset( $_REQUEST['order'] ) ? strtoupper( $_REQUEST['order'] ) : 'DESC';
 	}
@@ -183,20 +186,23 @@ function fct_ctrl_admin_periods_request( $query_vars ) {
 /** Accounts ******************************************************************/
 
 /**
- * Add control column headers to admin accounts list table
+ * Add control columns to admin accounts list table
  *
  * @since 0.0.5
  * 
- * @param array $columns Column headers
- * @return array Column headers
- *
- * @todo Fix column order
+ * @param array $columns Columns
+ * @return array Columns
  */
-function fct_ctrl_admin_accounts_column_headers( $columns ) {
-	return array_merge( $columns, array(
-		'fct_account_record_count_declined'   => __( 'Declined',   'fiscaat' ),
+function fct_ctrl_admin_accounts_columns( $columns ) {
+
+	// Group record counts. array_splice only does numeric keys
+	$position = array_search( 'fct_account_record_count', array_keys( $columns ) ) + 1;
+	$columns  = array_slice( $columns, 0, $position, true ) + array( 
 		'fct_account_record_count_unapproved' => __( 'Unapproved', 'fiscaat' ),
-	) );
+		'fct_account_record_count_declined'   => __( 'Declined',   'fiscaat' ),
+	) + array_slice( $columns, $position, null, true );
+
+	return $columns;
 }
 
 /**
@@ -212,14 +218,14 @@ function fct_ctrl_admin_accounts_column_data( $column, $account_id ) {
 	// Check column name
 	switch ( $column ) {
 
-		// Declined record count
-		case 'fct_account_record_count_declined' :
-			fct_account_record_count_declined( $account_id );
-			break;
-
 		// Unapproved record count
 		case 'fct_account_record_count_unapproved' :
 			fct_account_record_count_unapproved( $account_id );
+			break;
+
+		// Declined record count
+		case 'fct_account_record_count_declined' :
+			fct_account_record_count_declined( $account_id );
 			break;
 	}
 }
@@ -234,8 +240,8 @@ function fct_ctrl_admin_accounts_column_data( $column, $account_id ) {
  */
 function fct_ctrl_admin_accounts_sortable_columns( $columns ) {
 	return array_merge( $columns, array(
-		'fct_account_record_count_declined'   => 'record_count_declined',
-		'fct_account_record_count_unapproved' => 'record_count_unapproved',
+		'fct_account_record_count_unapproved' => array( 'record_count_unapproved', true ),
+		'fct_account_record_count_declined'   => array( 'record_count_declined',   true ),
 	) );
 }
 
@@ -249,15 +255,15 @@ function fct_ctrl_admin_accounts_sortable_columns( $columns ) {
  */
 function fct_ctrl_admin_accounts_request( $query_vars ) {
 
-	// Handle ordering by declined record count
-	if ( isset( $_REQUEST['orderby'] ) && 'record_count_declined' == $_REQUEST['orderby'] ) {
-		$query_vars['meta_key'] = '_fct_record_count_declined';
+	// Handle ordering by unapproved record count
+	if ( isset( $_REQUEST['orderby'] ) && 'record_count_unapproved' == $_REQUEST['orderby'] ) {
+		$query_vars['meta_key'] = '_fct_record_count_unapproved';
 		$query_vars['orderby']  = 'meta_value_num';
 		$query_vars['order']    = isset( $_REQUEST['order'] ) ? strtoupper( $_REQUEST['order'] ) : 'DESC';
 
-	// Handle ordering by unapproved record count
-	} elseif ( isset( $_REQUEST['orderby'] ) && 'record_count_unapproved' == $_REQUEST['orderby'] ) {
-		$query_vars['meta_key'] = '_fct_record_count_unapproved';
+	// Handle ordering by declined record count
+	} elseif ( isset( $_REQUEST['orderby'] ) && 'record_count_declined' == $_REQUEST['orderby'] ) {
+		$query_vars['meta_key'] = '_fct_record_count_declined';
 		$query_vars['orderby']  = 'meta_value_num';
 		$query_vars['order']    = isset( $_REQUEST['order'] ) ? strtoupper( $_REQUEST['order'] ) : 'DESC';
 	}
