@@ -14,6 +14,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
  * Map meta capabilities when the user can control
+ *
+ * @uses fct_is_record_account_closed()
+ * @uses fct_get_account_record_count_unapproved()
  * 
  * @param array $caps
  * @param string $cap
@@ -26,36 +29,26 @@ function fct_ctrl_map_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args
 	// Which capability is being checked?	
 	switch ( $cap ) {
 
-		/** Reading ***********************************************************/
+		/** Approving *********************************************************/
 
-		// Controllers can read all
-		case 'read_period'  :
-		case 'read_account' :
-		case 'read_record'  :
-			if ( user_can( $user_id, 'fct_control' ) )
+		/**
+		 * Records are only approvable when their account is open.
+		 * Controllers can then approve.
+		 */
+		case 'approve_record' :
+
+			// User is allowed and account is not closed
+			if ( user_can( $user_id, 'approve_records' ) && ! fct_is_record_account_closed( $arg[0] ) ) {
 				$caps = array( 'fct_control' );
-			break;
 
-		/** Editing ***********************************************************/
-
-		// Controllers can edit post stati
-		case 'edit_record' :
-			if ( user_can( $user_id, 'fct_control' ) ) {
-
-				// Do some post ID based logic
-				$_post = get_post( $args[0] );
-				if ( ! empty( $_post ) ){
-
-					// Record is not closed
-					if ( fct_get_closed_status_id() != $_post->post_status )
-						$caps = array( 'fct_control' );
-				}
+			// No approval
+			} else {
+				$caps = array( 'do_not_allow' );
 			}
 
 			break;
 
-		case 'edit_records'        :
-		case 'edit_others_records' :
+		case 'approve_records' :
 			if ( user_can( $user_id, 'fct_control' ) )
 				$caps = array( 'fct_control' );
 
@@ -68,19 +61,14 @@ function fct_ctrl_map_meta_caps( $caps = array(), $cap = '', $user_id = 0, $args
 		 * a Controller. This means that any unapproved or declined
 		 * record inhibits a Fiscus from closing its account. Since
 		 * this consequently flows through to closing the account's
-		 * period, there are no checks for a period's unapproved
-		 * record count.
+		 * period, there are no explicit checks for a period's 
+		 * unapproved record count.
 		 */
 		case 'close_account' :
-			if ( user_can( $user_id, 'close_accounts' ) ) {
 
-				// Do some post ID based logic
-				$_post = get_post( $args[0] );
-				if ( ! empty( $_post ) ){
-
-					// Account has unapproved records
-					if ( (bool) fct_get_account_record_count_unapproved( $args[0] ) )
-						$caps = array( 'do_not_allow' );
+			// Account has unapproved records
+			if ( (bool) fct_get_account_record_count_unapproved( $args[0] ) ) {
+				$caps = array( 'do_not_allow' );
 			}
 
 			break;
@@ -107,10 +95,6 @@ function fct_ctrl_get_caps_for_role( $caps, $role ) {
 
 			// Primary caps
 			'fct_spectate'           => true,
-
-			// Record caps
-			'edit_records'           => true, // Conditionally
-			'edit_others_records'    => true, // Conditionally
 		);
 	}
 
