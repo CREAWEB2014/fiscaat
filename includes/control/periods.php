@@ -125,8 +125,9 @@ function fct_update_period_record_count_declined( $period_id = 0, $record_count 
 	}
 
 	// Get records of period
-	if ( empty( $record_count ) )
+	if ( empty( $record_count ) ) {
 		$record_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = '%s' AND post_type = '%s';", $period_id, fct_get_declined_status_id(), fct_get_record_post_type() ) );
+	}
 
 	// Update the count
 	fct_update_period_meta( $period_id, 'record_count_declined', (int) $record_count );
@@ -166,8 +167,9 @@ function fct_update_period_record_count_unapproved( $period_id = 0, $record_coun
 	}
 
 	// Get records of period
-	if ( empty( $record_count ) )
+	if ( empty( $record_count ) ) {
 		$record_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status NOT IN ( '" . join( '\',\'', array( fct_get_approved_status_id(), fct_get_closed_status_id() ) ) . "' ) AND post_type = '%s';", $period_id, fct_get_record_post_type() ) );
+	}
 
 	// Update the count
 	fct_update_period_meta( $period_id, 'record_count_unapproved', (int) $record_count );

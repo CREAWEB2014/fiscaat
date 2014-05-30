@@ -15,12 +15,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /**
  * Marks a record as declined
  *
- * @param int $record_id Record id
  * @uses get_post() To get the record
  * @uses do_action() Calls 'fct_decline_record' with the record ID
  * @uses add_post_meta() To add the previous status to a meta
  * @uses wp_insert_post() To insert the updated post
  * @uses do_action() Calls 'fct_declined_record' with the record ID
+ * @param int $record_id Record id
  * @return mixed False or {@link WP_Error} on failure, record id on success
  */
 function fct_decline_record( $record_id = 0 ) {
@@ -56,13 +56,13 @@ function fct_decline_record( $record_id = 0 ) {
 /**
  * Approves a record
  *
- * @param int $record_id Record id
  * @uses get_post() To get the record
  * @uses do_action() Calls 'fct_approve_record' with the record ID
  * @uses get_post_meta() To get the previous status meta
  * @uses delete_post_meta() To delete the previous status meta
  * @uses wp_insert_post() To insert the updated post
  * @uses do_action() Calls 'fct_approved_record' with the record ID
+ * @param int $record_id Record id
  * @return mixed False or {@link WP_Error} on failure, record id on success
  */
 function fct_approve_record( $record_id = 0 ) {
@@ -94,4 +94,3 @@ function fct_approve_record( $record_id = 0 ) {
 	// Return record_id
 	return $record_id;
 }
-

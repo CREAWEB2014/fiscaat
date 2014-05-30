@@ -137,9 +137,9 @@ function fct_account_record_count_unapproved( $account_id = 0, $integer = false 
 /**
  * Is the record declined?
  *
- * @param int $record_id Optional. Record id
  * @uses fct_get_record_id() To get the record id
  * @uses fct_get_record_status() To get the record status
+ * @param int $record_id Optional. Record id
  * @return bool True if declined, false if not.
  */
 function fct_is_record_declined( $record_id = 0 ) {
@@ -150,11 +150,22 @@ function fct_is_record_declined( $record_id = 0 ) {
 }
 
 /**
+ * Is the record unapproved?
+ *
+ * @uses fct_is_record_approved() To check if the record is approved
+ * @param int $record_id Optional. Record id
+ * @return bool True if declined, false if not.
+ */
+function fct_is_record_unapproved( $record_id = 0 ) {
+	return ! fct_is_record_approved( $record_id );
+}
+
+/**
  * Is the record approved?
  *
- * @param int $record_id Optional. Account id
  * @uses fct_get_record_id() To get the record id
  * @uses fct_get_record_status() To get the record status
+ * @param int $record_id Optional. Account id
  * @return bool True if approved, false if not.
  */
 function fct_is_record_approved( $record_id = 0 ) {
@@ -167,8 +178,8 @@ function fct_is_record_approved( $record_id = 0 ) {
 /**
  * Output the approve link of the record
  *
- * @param mixed $args See {@link fct_get_record_approve_link()}
  * @uses fct_get_record_approve_link() To get the record approve link
+ * @param mixed $args See {@link fct_get_record_approve_link()}
  */
 function fct_record_approve_link( $args = '' ) {
 	echo fct_get_record_approve_link( $args );
@@ -177,11 +188,6 @@ function fct_record_approve_link( $args = '' ) {
 	/**
 	 * Return the approve link of the record
 	 *
-	 * @param mixed $args This function supports these arguments:
-	 *  - id: Record id
-	 *  - link_before: HTML before the link
-	 *  - link_after: HTML after the link
-	 *  - approve_text: Approve text
 	 * @uses fct_get_record_id() To get the record id
 	 * @uses fct_get_record() To get the record
 	 * @uses current_user_can() To check if the current user can edit the
@@ -192,6 +198,12 @@ function fct_record_approve_link( $args = '' ) {
 	 * @uses fct_get_record_edit_url() To get the record edit url
 	 * @uses apply_filters() Calls 'fct_get_record_approve_link' with the record
 	 *                        approve link and args
+	 *
+	 * @param mixed $args This function supports these arguments:
+	 *  - id: Record id
+	 *  - link_before: HTML before the link
+	 *  - link_after: HTML after the link
+	 *  - approve_text: Approve text
 	 * @return string Record approve link
 	 */
 	function fct_get_record_approve_link( $args = '' ) {
@@ -218,8 +230,8 @@ function fct_record_approve_link( $args = '' ) {
 /**
  * Output the decline link of the record
  *
- * @uses fct_get_record_decline_link() To get the record decline link
  * @param mixed $args See {@link fct_get_record_decline_link()}
+ * @uses fct_get_record_decline_link() To get the record decline link
  */
 function fct_record_decline_link( $args = '' ) {
 	echo fct_get_record_decline_link( $args );
@@ -228,11 +240,6 @@ function fct_record_decline_link( $args = '' ) {
 	/**
 	 * Return the decline link of the record
 	 *
-	 * @param mixed $args This function supports these arguments:
-	 *  - id: Record id
-	 *  - link_before: HTML before the link
-	 *  - link_after: HTML after the link
-	 *  - decline_text: Suspense text
 	 * @uses fct_get_record_id() To get the record id
 	 * @uses fct_get_record() To get the record
 	 * @uses current_user_can() To check if the current user can edit the
@@ -243,6 +250,12 @@ function fct_record_decline_link( $args = '' ) {
 	 * @uses fct_get_record_edit_url() To get the record edit url
 	 * @uses apply_filters() Calls 'fct_get_record_decline_link' with the record
 	 *                        decline link and args
+	 *
+	 * @param mixed $args This function supports these arguments:
+	 *  - id: Record id
+	 *  - link_before: HTML before the link
+	 *  - link_after: HTML after the link
+	 *  - decline_text: Suspense text
 	 * @return string Record decline link
 	 */
 	function fct_get_record_decline_link( $args = '' ) {

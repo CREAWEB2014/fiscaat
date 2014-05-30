@@ -834,7 +834,7 @@ class Fiscaat_Records_Admin {
 			/**
 			 * Perform toggle action and return the result
 			 *
-			 * Filters should apply their own capability checks.
+			 * Filters should run their own capability checks.
 			 * 
 			 * @since 0.0.9
 			 *

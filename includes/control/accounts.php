@@ -93,14 +93,16 @@ function fct_update_account_record_count_unapproved( $account_id = 0, $record_co
 	global $wpdb;
 
 	// If it's a record, then get the parent (account id)
-	if ( fct_is_record( $account_id ) )
+	if ( fct_is_record( $account_id ) ) {
 		$account_id = fct_get_record_account_id( $account_id );
-	else
+	} else {
 		$account_id = fct_get_account_id( $account_id );
+	}
 
 	// Get records of account
-	if ( empty( $record_count ) )
+	if ( empty( $record_count ) ) {
 		$record_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status NOT IN ( '" . join( '\',\'', array( fct_get_approved_status_id(), fct_get_closed_status_id() ) ) . "') AND post_type = '%s';", $account_id, fct_get_record_post_type() ) );
+	}
 
 	fct_update_account_meta( $account_id, 'record_count_unapproved', (int) $record_count );
 
@@ -127,14 +129,16 @@ function fct_update_account_record_count_declined( $account_id = 0, $record_coun
 	global $wpdb;
 
 	// If it's a record, then get the parent (account id)
-	if ( fct_is_record( $account_id ) )
+	if ( fct_is_record( $account_id ) ) {
 		$account_id = fct_get_record_account_id( $account_id );
-	else
+	} else {
 		$account_id = fct_get_account_id( $account_id );
+	}
 
 	// Get records of account
-	if ( empty( $record_count ) )
+	if ( empty( $record_count ) ) {
 		$record_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent = %d AND post_status = '%s' AND post_type = '%s';", $account_id, fct_get_declined_status_id(), fct_get_record_post_type() ) );
+	}
 
 	fct_update_account_meta( $account_id, 'record_count_declined', (int) $record_count );
 
