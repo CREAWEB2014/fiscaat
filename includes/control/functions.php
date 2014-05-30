@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * @return string
  */
 function fct_get_approved_status_id() {
-	return fiscaat()->approved_status_id;
+	return fiscaat()->control->approved_status_id;
 }
 
 /**
@@ -27,7 +27,7 @@ function fct_get_approved_status_id() {
  * @return string
  */
 function fct_get_declined_status_id() {
-	return fiscaat()->declined_status_id;
+	return fiscaat()->control->declined_status_id;
 }
 
 /**
@@ -72,8 +72,8 @@ function fct_ctrl_record_statuses( $statuses ) {
 
 	// Insert statuses after 'publish' and before 'close'
 	array_splice( $statuses, 1, 0, array(
-		fct_get_declined_status_id() => __('Declined', 'fiscaat'),
-		fct_get_approved_status_id() => __('Approved', 'fiscaat'),
+		fct_get_declined_status_id() => __( 'Declined', 'fiscaat' ),
+		fct_get_approved_status_id() => __( 'Approved', 'fiscaat' ),
 	) );
 
 	return $statuses;

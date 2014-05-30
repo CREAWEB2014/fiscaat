@@ -101,7 +101,6 @@ class Fiscaat_Records_Admin {
 
 		// Record columns (in post row)
 		add_filter( 'fct_admin_records_get_columns', array( $this, 'records_column_headers' )        );
-		add_filter( 'post_row_actions',              array( $this, 'records_row_actions'    ), 10, 2 );
 	}
 
 	/**

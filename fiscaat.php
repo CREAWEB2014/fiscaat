@@ -191,9 +191,6 @@ final class Fiscaat {
 		$this->public_status_id    = apply_filters( 'fct_public_post_status',   'publish'  );
 		$this->closed_status_id    = apply_filters( 'fct_closed_post_status',   'closed'   );
 		$this->trash_status_id     = apply_filters( 'fct_trash_post_status',    'trash'    );
-		// @todo Move to Control
-		$this->approved_status_id  = apply_filters( 'fct_approved_post_status', 'approved' );
-		$this->declined_status_id  = apply_filters( 'fct_declined_post_status', 'declined' );
 
 		// Account type identifiers
 		$this->revenue_type_id     = apply_filters( 'fct_revenue_acccount_type', 'revenue' );
@@ -280,15 +277,7 @@ final class Fiscaat {
 		require( $this->includes_dir . 'users/options.php'         );
 
 		// Control
-		// require( $this->includes_dir . 'control/accounts.php'      );
-		// require( $this->includes_dir . 'control/actions.php'       );
-		// require( $this->includes_dir . 'control/admin.php'         );
-		// require( $this->includes_dir . 'control/capabilities.php'  );
-		// require( $this->includes_dir . 'control/filters.php'       );
-		// require( $this->includes_dir . 'control/functions.php'     );
-		// require( $this->includes_dir . 'control/records.php'       );
-		// require( $this->includes_dir . 'control/template.php'      );
-		// require( $this->includes_dir . 'control/periods.php'       );
+		require( $this->includes_dir . 'control/control.php'       );
 
 		/** Hooks *************************************************************/
 

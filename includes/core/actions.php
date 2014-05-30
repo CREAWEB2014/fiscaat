@@ -76,6 +76,7 @@ add_action( 'fct_loaded', 'fct_filter_user_roles_option',  16 );
 add_action( 'fct_init', 'fct_register',         0   );
 add_action( 'fct_init', 'fct_load_textdomain',  10  );
 add_action( 'fct_init', 'fct_add_rewrite_tags', 20  );
+add_action( 'fct_init', 'fct_control',          50  );
 add_action( 'fct_init', 'fct_ready',            999 );
 
 /**
@@ -220,9 +221,6 @@ add_action( 'fct_template_redirect', 'fct_enforce_404',            -1 );
 add_action( 'fct_template_redirect', 'fct_check_period_edit',      10 );
 add_action( 'fct_template_redirect', 'fct_check_account_edit',     10 );
 add_action( 'fct_template_redirect', 'fct_check_record_edit',      10 );
-
-// Control
-// add_action( 'fct_init', 'fct_control' );
 
 // Admin bar
 add_action( 'admin_bar_menu', 'fct_admin_bar_menu',       90 );

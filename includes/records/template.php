@@ -1163,61 +1163,6 @@ function fct_record_edit_url( $record_id = 0 ) {
 	}
 
 /**
- * Output the decline link of the record
- * 
- * @todo  Move to Control
- *
- * @param mixed $args See {@link fct_get_record_decline_link()}
- * @uses fct_get_record_decline_link() To get the record decline link
- */
-function fct_record_decline_link( $args = '' ) {
-	echo fct_get_record_decline_link( $args );
-}
-
-	/**
-	 * Return the decline link of the record
-	 * 
-	 * @todo  Move to Control
-	 *
-	 * @param mixed $args This function supports these arguments:
-	 *  - id: Record id
-	 *  - link_before: HTML before the link
-	 *  - link_after: HTML after the link
-	 *  - decline_text: Decline text
-	 * @uses fct_get_record_id() To get the record id
-	 * @uses fct_get_record() To get the record
-	 * @uses current_user_can() To check if the current user can edit the
-	 *                           record
-	 * @uses add_query_arg() To add custom args to the url
-	 * @uses wp_nonce_url() To nonce the url
-	 * @uses esc_url() To escape the url
-	 * @uses fct_get_record_edit_url() To get the record edit url
-	 * @uses apply_filters() Calls 'fct_get_record_decline_link' with the record
-	 *                        decline link and args
-	 * @return string Record decline link
-	 */
-	function fct_get_record_decline_link( $args = '' ) {
-		$r = fct_parse_args( $args, array(
-			'id'           => 0,
-			'link_before'  => '',
-			'link_after'   => '',
-			'decline_text' => __( 'Decline', 'fiscaat' )
-		), 'get_record_decline_link' );
-		extract( $r );
-
-		$record = fct_get_record( fct_get_record_id( (int) $id ) );
-
-		if ( empty( $record ) || ! current_user_can( 'control', $record->ID ) )
-			return;
-
-		$uri    = add_query_arg( array( 'action' => 'fct_toggle_record_approval', 'record_id' => $record->ID ) );
-		$uri    = esc_url( wp_nonce_url( $uri, 'approval-record_' . $record->ID ) );
-		$retval = $link_before . '<a href="' . $uri . '">' . $decline_text . '</a>' . $link_after;
-
-		return apply_filters( 'fct_get_record_decline_link', $retval, $args );
-	}
-
-/**
  * Output the row class of a record
  *
  * @param int $record_id Optional. Record ID

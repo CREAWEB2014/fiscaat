@@ -15,8 +15,8 @@
  *  - Fiscaat: In {@link Fiscaat::setup_actions()} in fiscaat.php
  *  - Admin: More in {@link Fiscaat_Admin::setup_actions()} in admin.php
  *
- * @see fct-core-actions.php
- * @see fct-core-filters.php
+ * @see includes/core/actions.php
+ * @see includes/core/filters.php
  */
 
 // Exit if accessed directly
