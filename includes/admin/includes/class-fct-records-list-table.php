@@ -124,13 +124,19 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		$parent        = isset( $parent ) ? $parent : '';
 		$total_posts   = array_sum( (array) $num_posts );
 
+		// Prepend a link to the peiod parent's records when viewing a single account
+		if ( $this->account_display ) {
+			$period_id = fct_get_account_period_id( $this->account_display );
+			$status_links['period'] = "<a href=\"admin.php?page=fct-records&amp;fct_period_id=$period_id\"$class>" . sprintf( _x( 'Period <span class="count">(%s)</span>', 'records', 'fiscaat' ), fct_get_period_record_count( $this->account_display ) ) . '</a>';
+		}
+
 		// Subtract post types that are not included in the admin all list.
 		foreach ( get_post_stati( array( 'show_in_admin_all_list' => false ) ) as $state ) {
 			$total_posts -= $num_posts->$state;
 		}
 
 		$class = empty( $class ) && empty( $_REQUEST['post_status'] ) && empty( $_REQUEST['show_sticky'] ) ? ' class="current"' : '';
-		$status_links['all'] = "<a href='admin.php?page=fct-records{$parent}'$class>" . sprintf( _nx( 'All <span class="count">(%s)</span>', 'All <span class="count">(%s)</span>', $total_posts, 'posts' ), number_format_i18n( $total_posts ) ) . '</a>';
+		$status_links['all'] = "<a href=\"admin.php?page=fct-records{$parent}\"$class>" . sprintf( _nx( 'All <span class="count">(%s)</span>', 'All <span class="count">(%s)</span>', $total_posts, 'posts' ), number_format_i18n( $total_posts ) ) . '</a>';
 
 		foreach ( get_post_stati( array( 'show_in_admin_status_list' => true ), 'objects' ) as $status ) {
 			$class = '';
@@ -146,7 +152,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			if ( isset( $_REQUEST['post_status'] ) && $status_name == $_REQUEST['post_status'] )
 				$class = ' class="current"';
 
-			$status_links[$status_name] = "<a href='admin.php?page=fct-records&amp;post_status=$status_name{$parent}'$class>" . sprintf( translate_nooped_plural( $status->label_count, $num_posts->$status_name ), number_format_i18n( $num_posts->$status_name ) ) . '</a>';
+			$status_links[$status_name] = "<a href=\"admin.php?page=fct-records&amp;post_status=$status_name{$parent}\"$class>" . sprintf( translate_nooped_plural( $status->label_count, $num_posts->$status_name ), number_format_i18n( $num_posts->$status_name ) ) . '</a>';
 		}
 
 		return apply_filters( "fct_admin_get_{$this->_args['plural']}_views", $status_links );
