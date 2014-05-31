@@ -160,20 +160,20 @@ function fct_is_record_unapproved( $record_id = 0 ) {
 	return ! fct_is_record_approved( $record_id );
 }
 
-/**
- * Is the record approved?
- *
- * @uses fct_get_record_id() To get the record id
- * @uses fct_get_record_status() To get the record status
- * @param int $record_id Optional. Account id
- * @return bool True if approved, false if not.
- */
-function fct_is_record_approved( $record_id = 0 ) {
-	$record_id     = fct_get_record_id( $record_id );
-	$record_status = fct_get_record_status( $record_id ) == fct_get_approved_status_id();
-	
-	return (bool) apply_filters( 'fct_is_record_approved', (bool) $record_status, $record_id );
-}
+	/**
+	 * Is the record approved?
+	 *
+	 * @uses fct_get_record_id() To get the record id
+	 * @uses fct_get_record_status() To get the record status
+	 * @param int $record_id Optional. Account id
+	 * @return bool True if approved, false if not.
+	 */
+	function fct_is_record_approved( $record_id = 0 ) {
+		$record_id     = fct_get_record_id( $record_id );
+		$record_status = fct_get_record_status( $record_id ) == fct_get_approved_status_id();
+		
+		return (bool) apply_filters( 'fct_is_record_approved', (bool) $record_status, $record_id );
+	}
 
 /**
  * Output the approve link of the record

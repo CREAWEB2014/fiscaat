@@ -487,7 +487,7 @@ class FCT_Posts_List_Table extends WP_List_Table {
 				 * This hook only fires if the current post type is non-hierarchical,
 				 * such as posts.
 				 *
-				 * @since 1.5.0
+				 * @since WP 1.5.0
 				 *
 				 * @param string $column_name The name of the column to display.
 				 * @param int    $post_id     The current post ID.
@@ -499,12 +499,24 @@ class FCT_Posts_List_Table extends WP_List_Table {
 				 *
 				 * The dynamic portion of the hook name, $post->post_type, refers to the post type.
 				 *
-				 * @since 3.1.0
+				 * @since WP 3.1.0
 				 *
 				 * @param string $column_name The name of the column to display.
 				 * @param int    $post_id     The current post ID.
 				 */
 				do_action( "manage_{$post->post_type}_posts_custom_column", $column_name, $post->ID );
+
+				/**
+				 * Fiscaat specific hook for each custom column of a specific type in the Posts list table.
+				 *
+				 * The dynamic portion of the hook name, $this->_args['plural'], refers to the type.
+				 *
+				 * @since 0.0.9
+				 *
+				 * @param string $column_name The name of the column to display.
+				 * @param int    $post_id     The current post ID.
+				 */
+				do_action( "fct_manage_{$this->_args['plural']}_custom_column", $column_name, $post->ID );
 			?></td>
 			<?php
 			break;

@@ -16,7 +16,7 @@ class FCT_Periods_List_Table extends FCT_Posts_List_Table {
 	 * 
 	 * @param array $args
 	 */
-	function __construct( $args = array() ) {
+	public function __construct( $args = array() ) {
 		parent::__construct( array(
 			'plural'   => 'periods',
 			'singular' => 'period',
@@ -31,7 +31,7 @@ class FCT_Periods_List_Table extends FCT_Posts_List_Table {
 	 * 
 	 * @return array Bulk actions
 	 */
-	function _get_bulk_actions() {
+	public function _get_bulk_actions() {
 		$actions = array();
 
 		if ( $this->is_trash && current_user_can( 'delete_periods' ) ) {
@@ -54,7 +54,7 @@ class FCT_Periods_List_Table extends FCT_Posts_List_Table {
 	 * 
 	 * @return array Columns
 	 */
-	function _get_columns() {
+	public function _get_columns() {
 		$columns = array(
 			'cb'                       => '<input type="checkbox" />',
 			'title'                    => __( 'Title' ),
@@ -80,7 +80,7 @@ class FCT_Periods_List_Table extends FCT_Posts_List_Table {
 	 *
 	 * @return array Sortable columns as array( column => sort key )
 	 */
-	function _get_sortable_columns() {
+	public function _get_sortable_columns() {
 		return array(
 			'fct_period_post_date'     => array( 'date',                 true ),
 			'fct_period_close_date'    => array( 'period_closed',        true ),
@@ -97,7 +97,7 @@ class FCT_Periods_List_Table extends FCT_Posts_List_Table {
 	 * 
 	 * @return array Hidden columns
 	 */
-	function _get_hidden_columns( $columns ) {
+	public function _get_hidden_columns( $columns ) {
 		$columns[] = 'author';
 
 		return $columns;
@@ -117,7 +117,7 @@ class FCT_Periods_List_Table extends FCT_Posts_List_Table {
 	 * @param string $column_name Column name
 	 * @param int $period_id Period ID
 	 */
-	function _column_content( $column_name, $period_id ) {
+	public function _column_content( $column_name, $period_id ) {
 
 		// Check column name
 		switch ( $column_name ) {

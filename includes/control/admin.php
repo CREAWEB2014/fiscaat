@@ -120,6 +120,9 @@ function fct_ctrl_admin_periods_columns( $columns ) {
  * Output control column content for admin periods list table
  *
  * @since 0.0.5
+ *
+ * @uses fct_period_record_count_unapproved()
+ * @uses fct_period_record_count_declined()
  * 
  * @param string $column Column name
  * @param int $period_id Account ID
@@ -131,12 +134,12 @@ function fct_ctrl_admin_periods_column_data( $column, $period_id ) {
 
 		// Unapproved record count
 		case 'fct_period_record_count_unapproved' :
-			fct_period_record_count_unapproved( $period_id );
+			printf( '<a href="%s">%s</a>', add_query_arg( array( 'page' => 'fct-records', 'fct_period_id' => $period_id, 'post_status' => 'unapproved' ) ), fct_get_period_record_count_unapproved( $period_id ) );
 			break;
 
 		// Declined record count
 		case 'fct_period_record_count_declined' :
-			fct_period_record_count_declined( $period_id );
+			printf( '<a href="%s">%s</a>', add_query_arg( array( 'page' => 'fct-records', 'fct_period_id' => $period_id, 'post_status' => fct_get_declined_status_id() ) ), fct_get_period_record_count_declined( $period_id ) );
 			break;
 	}
 }
@@ -209,6 +212,9 @@ function fct_ctrl_admin_accounts_columns( $columns ) {
  * Output control column content for admin accounts list table
  *
  * @since 0.0.5
+ *
+ * @uses fct_account_record_count_unapproved()
+ * @uses fct_account_record_count_declined()
  * 
  * @param string $column Column name
  * @param int $account_id Account ID
@@ -220,12 +226,12 @@ function fct_ctrl_admin_accounts_column_data( $column, $account_id ) {
 
 		// Unapproved record count
 		case 'fct_account_record_count_unapproved' :
-			fct_account_record_count_unapproved( $account_id );
+			printf( '<a href="%s">%s</a>', add_query_arg( array( 'page' => 'fct-records', 'fct_account_id' => $account_id, 'post_status' => 'unapproved' ) ), fct_get_account_record_count_unapproved( $account_id ) );
 			break;
 
 		// Declined record count
 		case 'fct_account_record_count_declined' :
-			fct_account_record_count_declined( $account_id );
+			printf( '<a href="%s">%s</a>', add_query_arg( array( 'page' => 'fct-records', 'fct_account_id' => $account_id, 'post_status' => fct_get_declined_status_id() ) ), fct_get_account_record_count_declined( $account_id ) );
 			break;
 	}
 }
@@ -345,4 +351,25 @@ function fct_ctrl_admin_records_toggle_record_notice( $message, $record_id, $not
 	}
 
 	return $message;
+}
+
+/**
+ * Adjust the request query to return the right records
+ *
+ * @since 0.0.9
+ * 
+ * @param array $query_vars Query vars
+ * @return array Query vars
+ */
+function fct_ctrl_admin_records_request( $query_vars ) {
+
+	// Handle unapproved 'post status'
+	if ( isset( $_REQUEST['post_status'] ) && 'unapproved' == $_REQUEST['post_status'] ) {
+
+		// Select publish and declined post status
+		$query_vars['post_status'] = implode( ',', array( fct_get_publish_status_id(), fct_get_declined_status_id() ) );
+	}
+
+	// Return manipulated query_vars
+	return $query_vars;
 }

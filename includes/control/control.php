@@ -149,9 +149,12 @@ class Fiscaat_Control {
 			add_filter( 'fct_admin_accounts_get_sortable_columns', 'fct_ctrl_admin_accounts_sortable_columns');
 			add_filter( 'fct_admin_accounts_request',              'fct_ctrl_admin_accounts_request'         );
 
+			// Records
+			add_filter( 'fct_admin_records_request',               'fct_ctrl_admin_records_request'          );
+
 			// Column content
-			add_action( 'fct_admin_accounts_column_data', 'fct_ctrl_admin_accounts_column_data', 10, 2 );
-			add_action( 'fct_admin_periods_column_data',  'fct_ctrl_admin_periods_column_data',  10, 2 );
+			add_action( 'fct_manage_accounts_custom_column', 'fct_ctrl_admin_accounts_column_data', 10, 2 );
+			add_action( 'fct_manage_periods_custom_column',  'fct_ctrl_admin_periods_column_data',  10, 2 );
 
 			// Record toggle
 			add_filter( 'fct_toggle_record',              'fct_ctrl_admin_records_toggle_record',        10, 3 );
