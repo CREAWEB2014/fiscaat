@@ -124,13 +124,13 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		$parent        = isset( $parent ) ? $parent : '';
 		$total_posts   = array_sum( (array) $num_posts );
 
-		// Prepend a link to the peiod parent's records when viewing a single account
+		// Prepend a link for the period's records when viewing a single account
 		if ( $this->account_display ) {
 			$period_id = fct_get_account_period_id( $this->account_display );
 			$status_links['period'] = "<a href=\"admin.php?page=fct-records&amp;fct_period_id=$period_id\"$class>" . sprintf( _x( 'Period <span class="count">(%s)</span>', 'records', 'fiscaat' ), fct_get_period_record_count( $this->account_display ) ) . '</a>';
 		}
 
-		// Subtract post types that are not included in the admin all list.
+		// Subtract post stati that are not included in the admin all list.
 		foreach ( get_post_stati( array( 'show_in_admin_all_list' => false ) ) as $state ) {
 			$total_posts -= $num_posts->$state;
 		}

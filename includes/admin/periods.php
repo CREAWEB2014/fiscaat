@@ -491,8 +491,8 @@ class Fiscaat_Periods_Admin {
 
 				// Period account count
 				case 'period_account_count' :
-					$query_vars['meta_key'] = '_fct_account_type';
-					$query_vars['orderby']  = 'meta_value';
+					$query_vars['meta_key'] = '_fct_account_count';
+					$query_vars['orderby']  = 'meta_value_num';
 					break;
 
 				// Period record count
@@ -515,7 +515,7 @@ class Fiscaat_Periods_Admin {
 		}
 
 		// Return manipulated query_vars
-		return $query_vars;
+		return apply_filters( 'fct_admin_periods_request', $query_vars );
 	}
 
 	/**
@@ -567,7 +567,7 @@ class Fiscaat_Periods_Admin {
 					// Get close post status
 					$close_status = $wp_post_statuses[ fct_get_closed_status_id() ];
 
-					// Remove post status from array
+					// Remove post status from current position
 					unset( $wp_post_statuses[ fct_get_closed_status_id() ] );
 
 					// Insert post status in position right after 'publish/open'. array_splice only does numeric keys

@@ -764,7 +764,7 @@ class Fiscaat_Records_Admin {
 		$query_vars['meta_query'] = $meta_query;
 
 		// Return manipulated query_vars
-		return $query_vars;
+		return apply_filters( 'fct_admin_records_request', $query_vars );
 	}
 
 	/** Post Actions **********************************************************/

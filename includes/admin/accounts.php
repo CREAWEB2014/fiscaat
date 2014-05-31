@@ -592,7 +592,7 @@ class Fiscaat_Accounts_Admin {
 			// Account type
 			case 'account_type' :
 				$query_vars['meta_key'] = '_fct_account_type';
-				$query_vars['orderby']  = 'meta_value'; // Also 2nd item (ledger id)?
+				$query_vars['orderby']  = 'meta_value'; // What about second orderby (ledger id)?
 				break;
 
 			// Account record count
@@ -624,7 +624,7 @@ class Fiscaat_Accounts_Admin {
 		$query_vars['meta_query'] = $meta_query;
 
 		// Return manipulated query_vars
-		return $query_vars;
+		return apply_filters( 'fct_admin_accounts_request', $query_vars );
 	}
 
 	/**
@@ -648,11 +648,8 @@ class Fiscaat_Accounts_Admin {
 		if ( $this->bail() )
 			return $clauses;
 
-		// Get query vars
-		$qv = $query->query_vars;
-
-		// Unless post date is the primary order, add order by post date
-		if ( 'date' != $qv['orderby'] ) {
+		// Unless post date is the primary order, add second order by post date
+		if ( 'date' != $query->query_vars['orderby'] ) {
 
 			// Be sure ORDER BY clause isn't emptied
 			$sep = ! empty( $clauses['orderby'] ) ? ',' : '';
@@ -713,7 +710,7 @@ class Fiscaat_Accounts_Admin {
 					// Get close post status
 					$close_status = $wp_post_statuses[ fct_get_closed_status_id() ];
 
-					// Remove post status from array
+					// Remove post status from current position
 					unset( $wp_post_statuses[ fct_get_closed_status_id() ] );
 
 					// Insert post status in position right after 'publish/open'. array_splice only does numeric keys
