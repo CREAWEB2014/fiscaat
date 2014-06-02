@@ -982,14 +982,15 @@ class Fiscaat_Accounts_Admin {
 				return;
 
 			$account_title = esc_html( fct_get_account_title( $account->ID ) );
+			$period_title  = esc_html( fct_get_period_title( fct_get_account_period_id( $account->ID ) ) );
 
 			switch ( $notice ) {
 				case 'opened' :
-					$message = $is_failure == true ? sprintf( __( 'There was a problem opening the account "%1$s".', 'fiscaat' ), $account_title ) : sprintf( __( 'Account "%1$s" successfully opened.', 'fiscaat' ), $account_title );
+					$message = $is_failure == true ? sprintf( __( 'There was a problem opening the account "%1$s" in "%2$s".', 'fiscaat' ), $account_title, $period_title ) : sprintf( __( 'Account "%1$s" in "%2$s" successfully opened.', 'fiscaat' ), $account_title, $period_title );
 					break;
 
 				case 'closed' :
-					$message = $is_failure == true ? sprintf( __( 'There was a problem closing the account "%1$s".', 'fiscaat' ), $account_title ) : sprintf( __( 'Account "%1$s" successfully closed.', 'fiscaat' ), $account_title );
+					$message = $is_failure == true ? sprintf( __( 'There was a problem closing the account "%1$s" in "%2$s".', 'fiscaat' ), $account_title, $period_title ) : sprintf( __( 'Account "%1$s" in "%2$s" successfully closed.', 'fiscaat' ), $account_title, $period_title );
 					break;
 			}
 

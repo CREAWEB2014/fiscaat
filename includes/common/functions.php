@@ -332,7 +332,7 @@ function fct_get_paged() {
 }
 
 /**
- * Reorder and rename post statuses
+ * Reorder and rename post statuses in Fiscaat
  *
  * Manipulates the $wp_post_statuses global to rename the publish 
  * post status label to 'Open' to better reflect the opposite state 
