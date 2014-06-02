@@ -354,17 +354,20 @@ function fct_ctrl_admin_records_toggle_record( $result, $action, $record_id ) {
  * @return string Toggle notice message
  */
 function fct_ctrl_admin_records_toggle_record_notice( $message, $record_id, $notice, $is_failure ) {
-	$record_id    = fct_get_record_id( $record_id );
-	$record_title = esc_html( fct_get_record_title( $record_id ) );
+	$record_id     = fct_get_record_id( $record_id );
+	$record_title  = esc_html( fct_get_record_title( $record_id ) );
+	$account_title = esc_html( fct_get_account_title( fct_get_record_account_id( $record_id ) ) );
 
 	// Check toggle notice
 	switch ( $notice ) {
 		case 'approved' :
-			$message = $is_failure == true ? sprintf( __( 'There was a problem approving the record "%1$s".', 'fiscaat' ), $record_title ) : sprintf( __( 'Record "%1$s" successfully approved.', 'fiscaat' ), $record_title );
+			/* translators: 1: record title, 2: account title */
+			$message = $is_failure == true ? sprintf( __( 'There was a problem approving the record "%1$s" in "%2$s".', 'fiscaat' ), $record_title, $account_title ) : sprintf( __( 'Record "%1$s" in "%2$s" successfully approved.', 'fiscaat' ), $record_title, $account_title );
 			break;
 
 		case 'declined' :
-			$message = $is_failure == true ? sprintf( __( 'There was a problem declining the record "%1$s".', 'fiscaat' ), $record_title ) : sprintf( __( 'Record "%1$s" successfully declined.', 'fiscaat' ), $record_title );
+			/* translators: 1: record title, 2: account title */
+			$message = $is_failure == true ? sprintf( __( 'There was a problem declining the record "%1$s" in "%2$s".', 'fiscaat' ), $record_title, $account_title ) : sprintf( __( 'Record "%1$s" in "%2$s" successfully declined.', 'fiscaat' ), $record_title, $account_title );
 			break;
 	}
 

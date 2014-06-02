@@ -986,10 +986,12 @@ class Fiscaat_Accounts_Admin {
 
 			switch ( $notice ) {
 				case 'opened' :
+					/* translators: 1: account title, 2: account's period title */
 					$message = $is_failure == true ? sprintf( __( 'There was a problem opening the account "%1$s" in "%2$s".', 'fiscaat' ), $account_title, $period_title ) : sprintf( __( 'Account "%1$s" in "%2$s" successfully opened.', 'fiscaat' ), $account_title, $period_title );
 					break;
 
 				case 'closed' :
+					/* translators: 1: account title, 2: account's period title */
 					$message = $is_failure == true ? sprintf( __( 'There was a problem closing the account "%1$s" in "%2$s".', 'fiscaat' ), $account_title, $period_title ) : sprintf( __( 'Account "%1$s" in "%2$s" successfully closed.', 'fiscaat' ), $account_title, $period_title );
 					break;
 			}
