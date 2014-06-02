@@ -59,20 +59,20 @@ class Fiscaat_Periods_Admin {
 		add_action( 'fct_admin_head', array( $this, 'admin_head' ) );
 
 		// Metabox actions
-		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox'      ) );
-		add_action( 'save_post',      array( $this, 'attributes_metabox_save' ) );
-		add_action( 'fct_period_attributes_metabox_save', array( $this, 'inherit_accounts' ) );
+		add_action( 'add_meta_boxes',                     array( $this, 'attributes_metabox'      ) );
+		add_action( 'save_post',                          array( $this, 'attributes_metabox_save' ) );
+		add_action( 'fct_period_attributes_metabox_save', array( $this, 'inherit_accounts'        ) );
 
 		// Check if there are any fct_toggle_period_* requests on admin_init, also have a message displayed
-		add_action( 'fct_admin_load_list_periods',  array( $this, 'toggle_period'        ) );
-		add_action( 'fct_admin_notices',            array( $this, 'toggle_period_notice' ) );
+		add_action( 'fct_admin_load_periods', array( $this, 'toggle_period'        ) );
+		add_action( 'fct_admin_notices',      array( $this, 'toggle_period_notice' ) );
 
 		// Contextual Help
-		add_action( 'fct_admin_load_list_periods',  array( $this, 'edit_help' ) );
-		add_action( 'fct_admin_load_post_period',   array( $this, 'new_help'  ) );
+		add_action( 'fct_admin_load_periods',     array( $this, 'edit_help' ) );
+		add_action( 'fct_admin_load_post_period', array( $this, 'new_help'  ) );
 
 		// Post stati
-		add_action( 'fct_admin_load_list_periods',  array( $this, 'arrange_post_statuses' ) );
+		add_action( 'fct_admin_load_periods', array( $this, 'arrange_post_statuses' ) );
 
 		// Page title
 		add_action( 'fct_admin_periods_page_title', array( $this, 'post_new_link' ) );
@@ -80,7 +80,7 @@ class Fiscaat_Periods_Admin {
 		/** Filters ***********************************************************/
 
 		// Filter periods
-		add_filter( 'fct_request',           array( $this, 'filter_post_rows' ) );
+		add_filter( 'fct_request', array( $this, 'filter_post_rows' ) );
 
 		// Messages
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );

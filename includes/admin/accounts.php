@@ -63,23 +63,23 @@ class Fiscaat_Accounts_Admin {
 		add_action( 'save_post',      array( $this, 'attributes_metabox_save' ) );
 
 		// Post stati
-		add_action( 'fct_admin_load_list_accounts',  array( $this, 'arrange_post_statuses' ) );
+		add_action( 'fct_admin_load_accounts', array( $this, 'arrange_post_statuses' ) );
 
 		// Check if there are any fct_toggle_account_* requests on admin_init, also have a message displayed
-		add_action( 'fct_admin_load_list_accounts',  array( $this, 'toggle_account'        ) );
-		add_action( 'fct_admin_notices',             array( $this, 'toggle_account_notice' ) );
+		add_action( 'fct_admin_load_accounts', array( $this, 'toggle_account'        ) );
+		add_action( 'fct_admin_notices',       array( $this, 'toggle_account_notice' ) );
 
 		// Contextual Help
-		add_action( 'fct_admin_load_list_accounts',  array( $this, 'edit_help' ) );
-		add_action( 'fct_admin_load_post_account',   array( $this, 'new_help'  ) );
+		add_action( 'fct_admin_load_accounts',     array( $this, 'edit_help' ) );
+		add_action( 'fct_admin_load_post_account', array( $this, 'new_help'  ) );
 
 		// Check if there is a missing open period on account add/edit, also have a message displayed
-		add_action( 'fct_admin_load_post_account',   array( $this, 'missing_redirect' ) );
-		add_action( 'fct_admin_notices',             array( $this, 'missing_notices'  ) );
+		add_action( 'fct_admin_load_post_account', array( $this, 'missing_redirect' ) );
+		add_action( 'fct_admin_notices',           array( $this, 'missing_notices'  ) );
 		
 		// Page title
-		add_action( 'fct_admin_accounts_page_title', array( $this, 'accounts_page_title'   ) );
-		add_action( 'fct_admin_accounts_page_title', array( $this, 'post_new_link'         ) );
+		add_action( 'fct_admin_accounts_page_title', array( $this, 'accounts_page_title' ) );
+		add_action( 'fct_admin_accounts_page_title', array( $this, 'post_new_link'       ) );
 
 		/** Ajax **************************************************************/
 		

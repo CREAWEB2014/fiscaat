@@ -54,7 +54,7 @@ class Fiscaat_Records_Admin {
 
 		/** Sub-Actions *******************************************************/
 
-		add_action( 'fct_admin_load_list_records',  array( $this, 'page_mode_actions' ) );
+		add_action( 'fct_admin_load_records',  array( $this, 'page_mode_actions' ) );
 
 		/** Actions ***********************************************************/
 
@@ -74,12 +74,12 @@ class Fiscaat_Records_Admin {
 
 		// Contextual Help
 		add_action( 'fct_admin_load_view_records',  array( $this, 'edit_help' ) );
-		add_action( 'fct_admin_load_new_records',   array( $this, 'new_help'  ) );
 		add_action( 'fct_admin_load_edit_records',  array( $this, 'edit_help' ) );
+		add_action( 'fct_admin_load_new_records',   array( $this, 'new_help'  ) );
 
 		// Check if there is a missing open period or account on record add/edit, also have a message displayed
-		add_action( 'fct_admin_load_new_records',   array( $this, 'missing_redirect' ) );
 		add_action( 'fct_admin_load_edit_records',  array( $this, 'missing_redirect' ) );
+		add_action( 'fct_admin_load_new_records',   array( $this, 'missing_redirect' ) );
 		add_action( 'fct_admin_notices',            array( $this, 'missing_notices'  ) );
 
 		// Modify page title
