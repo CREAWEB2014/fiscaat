@@ -432,7 +432,7 @@ class Fiscaat_Admin {
 		 *
 		 * @since 0.0.9
 		 */
-		do_action( "fct_admin_load_list_{$type}s" );
+		do_action( "fct_admin_load_{$type}s" );
 
 		// Setup page type list table.
 		$class         = sprintf( 'FCT_%s_List_Table', ucfirst( $type . 's' ) );

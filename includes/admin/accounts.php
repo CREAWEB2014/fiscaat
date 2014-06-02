@@ -62,9 +62,6 @@ class Fiscaat_Accounts_Admin {
 		add_action( 'add_meta_boxes', array( $this, 'attributes_metabox'      ) );
 		add_action( 'save_post',      array( $this, 'attributes_metabox_save' ) );
 
-		// Post stati
-		add_action( 'fct_admin_load_accounts', array( $this, 'arrange_post_statuses' ) );
-
 		// Check if there are any fct_toggle_account_* requests on admin_init, also have a message displayed
 		add_action( 'fct_admin_load_accounts', array( $this, 'toggle_account'        ) );
 		add_action( 'fct_admin_notices',       array( $this, 'toggle_account_notice' ) );
@@ -95,8 +92,8 @@ class Fiscaat_Accounts_Admin {
 
 		// Account columns (in post row)
 		add_filter( 'fct_admin_accounts_get_columns', array( $this, 'accounts_column_headers' )        );
-		add_filter( 'display_post_states',            array( $this, 'accounts_post_states'    ), 10, 2 );
-		add_filter( 'post_row_actions',               array( $this, 'accounts_row_actions'    ), 10, 2 );
+		add_filter( 'display_post_states',            array( $this, 'account_post_states'     ), 10, 2 );
+		add_filter( 'post_row_actions',               array( $this, 'account_row_actions'     ), 10, 2 );
 
 		// Bulk actions
 		add_filter( 'fct_admin_accounts_get_bulk_actions',  array( $this, 'accounts_bulk_actions'  ), 10, 2 );
@@ -669,69 +666,6 @@ class Fiscaat_Accounts_Admin {
 	}
 
 	/**
-	 * Reorder and rename account post statuses
-	 *
-	 * Manipulates the $wp_post_statuses global to rename the publish 
-	 * post status label to 'Open' to better reflect the opposite state 
-	 * of 'Close'. Also moves the close post status next to publish.
-	 * 
-	 * @since 0.0.9
-	 *
-	 * @global $wp_post_statuses
-	 * @uses fct_get_public_status_id()
-	 * @uses fct_get_closed_status_id()
-	 */
-	public function arrange_post_statuses() {
-		global $wp_post_statuses;
-
-		if ( $this->bail() )
-			return;
-
-		// Loop all post status ids
-		foreach ( array_keys( $wp_post_statuses ) as $status ) {
-
-			// Check post status
-			switch ( $status ) {
-
-				// Publish
-				case fct_get_public_status_id() :
-
-					// Rename publish post status labels
-					$wp_post_statuses[ fct_get_public_status_id() ]->label       = __( 'Open', 'post', 'fiscaat' );
-					$wp_post_statuses[ fct_get_public_status_id() ]->label_count = _nx_noop( 'Open <span class="count">(%s)</span>', 'Open <span class="count">(%s)</span>', 'post', 'fiscaat' );
-
-					break;
-
-				// Draft
-				case 'draft' :
-
-					// Remove from admin all list and show in admin status list conditionally
-					$wp_post_statuses['draft']->show_in_admin_all_list    = false;
-					$wp_post_statuses['draft']->show_in_admin_status_list = current_user_can( 'edit_accounts' );
-
-					break;
-
-				// Closed
-				case fct_get_closed_status_id() :
-
-					// Get close post status
-					$close_status = $wp_post_statuses[ fct_get_closed_status_id() ];
-
-					// Remove post status from current position
-					unset( $wp_post_statuses[ fct_get_closed_status_id() ] );
-
-					// Insert post status in position right after 'publish/open'. array_splice only does numeric keys
-					$position = array_search( fct_get_public_status_id(), array_keys( $wp_post_statuses ) ) + 1;
-					$wp_post_statuses = array_slice( $wp_post_statuses, 0, $position, true ) + array( 
-						fct_get_closed_status_id() => $close_status
-					) + array_slice( $wp_post_statuses, $position, null, true );
-
-					break;
-			}
-		}
-	}
-
-	/**
 	 * Define post states that are appended to the post title
 	 *
 	 * @since 0.0.9
@@ -743,7 +677,7 @@ class Fiscaat_Accounts_Admin {
 	 * @param object $account Account post data
 	 * @return array Post states
 	 */
-	public function accounts_post_states( $post_states, $account ) {
+	public function account_post_states( $post_states, $account ) {
 		if ( $this->bail() )
 			return $post_states;
 
@@ -901,7 +835,7 @@ class Fiscaat_Accounts_Admin {
 	 * @uses get_delete_post_link() To get the delete post link of the account
 	 * @return array $actions Actions
 	 */
-	public function accounts_row_actions( $actions, $account ) {
+	public function account_row_actions( $actions, $account ) {
 		if ( $this->bail() ) 
 			return $actions;
 

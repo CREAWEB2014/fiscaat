@@ -57,6 +57,10 @@ add_action( 'fct_admin_init',          'fct_register_admin_settings'       );
 // Initialize the admin area
 add_action( 'fct_init', 'fct_admin' );
 
+// Post stati
+add_action( 'fct_admin_load_accounts', 'fct_arrange_post_statuses' );
+add_action( 'fct_admin_load_periods',  'fct_arrange_post_statuses' );
+
 // Reset the menu order
 add_action( 'fct_admin_menu', 'fct_admin_separator' );
 
