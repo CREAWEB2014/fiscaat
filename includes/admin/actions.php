@@ -71,6 +71,11 @@ add_action( 'fct_deactivation', 'fct_delete_rewrite_rules' );
 // Contextual Helpers
 add_action( 'load-settings_page_fiscaat', 'fct_admin_settings_help' );
 
+// Admin page title
+add_action( 'fct_admin_records_page_title',  'fct_admin_page_title_search_terms', 20 );
+add_action( 'fct_admin_accounts_page_title', 'fct_admin_page_title_search_terms', 20 );
+add_action( 'fct_admin_periods_page_title',  'fct_admin_page_title_search_terms', 20 );
+
 // Handle submission of Tools pages
 add_action( 'load-tools_page_fiscaat-repair', 'fct_admin_repair_handler' );
 add_action( 'load-tools_page_fiscaat-reset',  'fct_admin_reset_handler'  );

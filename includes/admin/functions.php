@@ -401,6 +401,24 @@ function fct_admin_page_title_add_new( $title ) {
 	return $title;
 }
 
+/**
+ * Append search terms to the posts page title when a search query is performed
+ *
+ * @since 0.0.9
+ * 
+ * @param string $title Page title
+ * @return string Page title
+ */
+function fct_admin_page_title_search_terms( $title ) {
+
+	// Append search terms if available
+	if ( ! empty( $_REQUEST['s'] ) ) {
+		$title .= sprintf( ' <span class="subtitle">' . __( 'Search results for &#8220;%s&#8221;' ) . '</span>', get_search_query() );
+	}
+
+	return $title;
+}
+
 /** Records Mode **********************************************************/
 
 /**

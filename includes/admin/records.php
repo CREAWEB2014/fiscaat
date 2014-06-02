@@ -338,7 +338,7 @@ class Fiscaat_Records_Admin {
 			return $record_id;
 
 		// Nonce check
-		if ( empty( $_POST['fct_record_metabox'] ) || ! wp_verify_nonce( $_POST['fct_record_metabox'], 'fct_record_metabox_save' ) )
+		if ( ! isset( $_POST['fct_record_metabox'] ) || ! wp_verify_nonce( $_POST['fct_record_metabox'], 'fct_record_metabox_save' ) )
 			return $record_id;
 
 		// Current user cannot edit this record
