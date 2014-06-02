@@ -408,13 +408,13 @@ function fct_arrange_post_statuses() {
  *                           diapproved, unapproved, approved and closed records 
  *                           are also not counted.
  *  - count_end_value: Count to balance value of the current period?
- *  - count_current_comments: Count comments of the current period?
- * @uses fct_count_users() To count the number of registered users
+ * @uses fct_get_total_fisci() To count the number of all Fisci
+ * @uses fct_get_total_spectators() To count the number of all Spectators
+ * @uses fct_count_posts() To count the number of created posts
  * @uses fct_get_period_post_type() To get the period post type
  * @uses fct_get_account_post_type() To get the account post type
  * @uses fct_get_record_post_type() To get the record post type
  * @uses wp_count_posts() To count the number of periods, accounts and records
- * @uses wp_count_terms() To count the number of account tags
  * @uses current_user_can() To check if the user is capable of doing things
  * @uses number_format_i18n() To format the number
  * @uses apply_filters() Calls 'fct_get_statistics' with the statistics and args
@@ -422,12 +422,13 @@ function fct_arrange_post_statuses() {
  */
 function fct_get_statistics( $args = '' ) {
 	$r = fct_parse_args( $args, array(
-		'count_users'           => true,
-		'count_periods'         => true,
-		'count_accounts'        => true,
-		'count_records'         => true,
-		'count_current_records' => true,
-		'count_end_value'       => true,
+		'count_users'            => true,
+		'count_periods'          => true,
+		'count_accounts'         => true,
+		'count_records'          => true,
+		'count_current_accounts' => true,
+		'count_current_records'  => true,
+		'count_end_value'        => true,
 	), 'get_statistics' );
 
 	// Users
@@ -454,7 +455,20 @@ function fct_get_statistics( $args = '' ) {
 		$record_count = array_sum( (array) $record_count ) - $record_count->{'auto-draft'};
 	}
 
-	// Currently in Fiscaat
+	// Current accounts in Fiscaat
+	if ( ! empty( $r['count_current_accounts'] ) ) {
+
+		// wp_count_posts has no filtering so use fct_count_posts
+		$current_accounts = fct_count_posts( array( 
+			'type'      => fct_get_account_post_type(), 
+			'period_id' => fct_get_current_period_id() 
+		) );
+
+		// All accounts published
+		$current_account_count = array_sum( (array) $current_accounts ) - $current_accounts->{'auto-draft'};
+	}
+
+	// Current records in Fiscaat
 	if ( ! empty( $r['count_current_records'] ) ) {
 
 		// wp_count_posts has no filtering so use fct_count_posts
