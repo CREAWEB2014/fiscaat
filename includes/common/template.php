@@ -565,7 +565,7 @@ function fct_body_class( $wp_classes, $custom_classes = false ) {
  * @uses fct_is_single_period()
  * @uses fct_is_single_account()
  * @uses fct_is_single_record()
- * @uses fct_is_record_edit()
+ * @uses fct_is_account_edit()
  * @uses fct_is_record_edit()
  * @uses fct_is_single_view()
  * @return bool In a Fiscaat page
@@ -577,31 +577,32 @@ function is_fiscaat() {
 
 	/** Archives **************************************************************/
 
-	if ( fct_is_period_archive() )
+	if ( fct_is_period_archive() ) {
 		$retval = true;
 
-	elseif ( fct_is_account_archive() )
+	} elseif ( fct_is_account_archive() ) {
 		$retval = true;
 
 	/** Components ************************************************************/
 
-	elseif ( fct_is_single_period() )
+	} elseif ( fct_is_single_period() ) {
 		$retval = true;
 
-	elseif ( fct_is_single_account() )
+	} elseif ( fct_is_single_account() ) {
 		$retval = true;
 
-	elseif ( fct_is_single_record() )
+	} elseif ( fct_is_single_record() ) {
 		$retval = true;
 
-	elseif ( fct_is_account_edit() )
+	} elseif ( fct_is_account_edit() ) {
 		$retval = true;
 
-	elseif ( fct_is_record_edit() )
+	} elseif ( fct_is_record_edit() ) {
 		$retval = true;
 
-	elseif ( fct_is_single_view() )
+	} elseif ( fct_is_single_view() ) {
 		$retval = true;
+	}
 
 	/** Done ******************************************************************/
 
@@ -785,15 +786,15 @@ function fct_tab_index( $auto_increment = true ) {
 	 * @uses apply_filters Allows return value to be filtered
 	 * @param int $auto_increment Optional. Default true. Set to false to
 	 *                             prevent the increment
-	 * @return int $fiscaat->tab_index The global tab index
+	 * @return int $fct->tab_index The global tab index
 	 */
 	function fct_get_tab_index( $auto_increment = true ) {
-		$fiscaat = fiscaat();
+		$fct = fiscaat();
 
 		if ( true === $auto_increment )
-			++$fiscaat->tab_index;
+			++$fct->tab_index;
 
-		return apply_filters( 'fct_get_tab_index', (int) $fiscaat->tab_index );
+		return apply_filters( 'fct_get_tab_index', (int) $fct->tab_index );
 	}
 
 /**
@@ -1420,24 +1421,24 @@ function fct_breadcrumb( $args = array() ) {
 
 			// Current
 			'include_current' => $pre_include_current,
-			'current_text'    => $pre_current_text,
-			'current_before'  => '<span class="fiscaat-breadcrumb-current">',
+			'current_text'    =pre_current_text			'current_before'  => '<span class="fiscaat-breadcrumb-current">',
 			'current_after'   => '</span>',
 		), 'get_breadcrumb' );
-		extract( $r );
 
 		/** Ancestors *********************************************************/
 
 		// Get post ancestors
-		if ( is_page() || is_single() || fct_is_period_edit() || fct_is_account_edit() || fct_is_record_edit() )
+		if ( is_page() || is_single() || fct_is_period_edit() || fct_is_account_edit() || fct_is_record_edit() ) {
 			$ancestors = array_reverse( (array) get_post_ancestors( get_the_ID() ) );
+		}
 
 		// Do we want to include a link to home?
-		if ( ! empty( $include_home ) || empty( $home_text ) )
-			$crumbs[] = '<a href="' . trailingslashit( home_url() ) . '" class="fiscaat-breadcrumb-home">' . $home_text . '</a>';
+		if ( ! empty( $r['include_home'] ) || empty( $r['home_text'] ) ) {
+			$crumbs[] = '<a href="' . trailingslashit( home_url() ) . '" class="fiscaat-breadcrumb-home">' . $r['home_text'] . '</a>';
+		}
 
 		// Do we want to include a link to the period root?
-		if ( ! empty( $include_root ) || empty( $root_text ) ) {
+		if ( ! empty( $r['include_root'] ) || empty( $r['root_text'] ) ) {
 
 			// Page exists at root slug path, so use its permalink
 			$page = fct_get_page_by_path( fct_get_root_slug() );
@@ -1450,7 +1451,7 @@ function fct_breadcrumb( $args = array() ) {
 			}
 
 			// Add the breadcrumb
-			$crumbs[] = '<a href="' . $root_url . '" class="fiscaat-breadcrumb-root">' . $root_text . '</a>';
+			$crumbs[] = '<a href="' . $root_url . '" class="fiscaat-breadcrumb-root">' . $r['root_text'] . '</a>';
 		}
 
 		// Ancestors exist
@@ -1491,27 +1492,30 @@ function fct_breadcrumb( $args = array() ) {
 		/** Current ***********************************************************/
 
 		// Add current page to breadcrumb
-		if ( ! empty( $include_current ) || empty( $pre_current_text ) )
-			$crumbs[] = $current_before . $current_text . $current_after;
+		if ( ! empty( $r['include_current'] ) || empty( $pre_current_text ) ) {
+			$crumbs[] = $r['current_before'] . $r['current_text'] . $r['current_after'];
+		}
 
 		/** Separator *********************************************************/
 
 		// Wrap the separator in before/after before padding and filter
-		if ( ! empty( $sep ) )
-			$sep = $sep_before . $sep . $sep_after;
+		if ( ! empty( $r['sep'] ) ) {
+			$r['sep'] = $r['sep_before'] . $r['sep'] . $r['sep_after'];
+		}
 
 		// Pad the separator
-		if ( ! empty( $pad_sep ) )
-			$sep = str_pad( $sep, strlen( $sep ) + ( (int) $pad_sep * 2 ), ' ', STR_PAD_BOTH );
+		if ( ! empty( $r['pad_sep'] ) ) {
+			$r['sep'] = str_pad( $r['sep'], strlen( $r['sep'] ) + ( (int) $r['pad_sep'] * 2 ), ' ', STR_PAD_BOTH );
+		}
 
 		/** Finish Up *********************************************************/
 
 		// Filter the separator and breadcrumb
-		$sep    = apply_filters( 'fct_breadcrumb_separator', $sep    );
-		$crumbs = apply_filters( 'fct_breadcrumbs',          $crumbs );
+		$sep    = apply_filters( 'fct_breadcrumb_separator', $r['sep'] );
+		$crumbs = apply_filters( 'fct_breadcrumbs',          $crumbs   );
 
 		// Build the trail
-		$trail = ! empty( $crumbs ) ? ( $before . $crumb_before . implode( $sep . $crumb_after . $crumb_before , $crumbs ) . $crumb_after . $after ) : '';
+		$trail = ! empty( $crumbs ) ? ( $r['before'] . $r['crumb_before'] . implode( $sep . $r['crumb_after'] . $r['crumb_before'] , $crumbs ) . $r['crumb_after'] . $r['after'] ) : '';
 
 		return apply_filters( 'fct_get_breadcrumb', $trail, $crumbs, $r );
 	}
@@ -1537,16 +1541,16 @@ function fct_template_notices() {
 	$errors = $messages = array();
 
 	// Get Fiscaat
-	$fiscaat = fiscaat();
+	$fct = fiscaat();
 
 	// Loop through notices
-	foreach ( $fiscaat->errors->get_error_codes() as $code ) {
+	foreach ( $fct->errors->get_error_codes() as $code ) {
 
 		// Get notice severity
-		$severity = $fiscaat->errors->get_error_data( $code );
+		$severity = $fct->errors->get_error_data( $code );
 
 		// Loop through notices and separate errors from messages
-		foreach ( $fiscaat->errors->get_error_messages( $code ) as $error ) {
+		foreach ( $fct->errors->get_error_messages( $code ) as $error ) {
 			if ( 'message' == $severity ) {
 				$messages[] = $error;
 			} else {
@@ -1712,14 +1716,14 @@ function fct_currency( $arg = '' ){
 	 * @return string The currency or details
 	 */
 	function fct_get_currency( $attr = '' ){
-		$fiscaat = fiscaat();
+		$fct = fiscaat();
 
 		// Load once. Default to 'USD'
-		if ( empty( $fiscaat->currency ) ) {
-			$fiscaat->currency = get_option( '_fct_currency', 'USD' );
+		if ( empty( $fct->currency ) ) {
+			$fct->currency = get_option( '_fct_currency', 'USD' );
 		}
 
-		$iso = $fiscaat->currency;
+		$iso = $fct->currency;
 
 		// Attribute requested
 		if ( ! empty( $attr ) ) {
