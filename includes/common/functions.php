@@ -428,36 +428,34 @@ function fct_get_statistics( $args = '' ) {
 		'count_records'         => true,
 		'count_current_records' => true,
 		'count_end_value'       => true,
-		'count_comments'        => true
 	), 'get_statistics' );
-	extract( $r );
 
 	// Users
-	if ( ! empty( $count_users ) ) {
+	if ( ! empty( $r['count_users'] ) ) {
 		$fiscus_count    = fct_get_total_fisci();
 		$spectator_count = fct_get_total_spectators();	
 	}
 
 	// Periods
-	if ( ! empty( $count_periods ) ) {
+	if ( ! empty( $r['count_periods'] ) ) {
 		$period_count = wp_count_posts( fct_get_period_post_type() );
 		$period_count = array_sum( (array) $period_count ) - $period_count->{'auto-draft'};
 	}
 
 	// Accounts
-	if ( ! empty( $count_accounts ) ) {
+	if ( ! empty( $r['count_accounts'] ) ) {
 		$account_count = wp_count_posts( fct_get_account_post_type() );
 		$account_count = array_sum( (array) $account_count ) - $account_count->{'auto-draft'};
 	}
 
 	// Records
-	if ( ! empty( $count_records ) ) {
+	if ( ! empty( $r['count_records'] ) ) {
 		$record_count = wp_count_posts( fct_get_record_post_type() );
 		$record_count = array_sum( (array) $record_count ) - $record_count->{'auto-draft'};
 	}
 
 	// Currently in Fiscaat
-	if ( ! empty( $count_current_records ) ) {
+	if ( ! empty( $r['count_current_records'] ) ) {
 
 		// wp_count_posts has no filtering so use fct_count_posts
 		$current_records = fct_count_posts( array( 
@@ -470,15 +468,8 @@ function fct_get_statistics( $args = '' ) {
 	}
 
 	// To Balance
-	if ( ! empty( $count_end_value ) ) {
+	if ( ! empty( $r['count_end_value'] ) ) {
 		$current_end_value = fct_get_period_end_value( fct_get_current_period_id() );
-	}
-
-	// Comments
-	if ( ! empty( $count_comments ) ) {
-
-		// @todo Move to Comments
-		$current_comment_count = (int) 0;
 	}
 
 	// Tally the tallies
@@ -486,9 +477,10 @@ function fct_get_statistics( $args = '' ) {
 	$stats = array_map( 'absint',             $stats );
 	$stats = array_map( 'number_format_i18n', $stats );
 
-	// Add the end_value title attribute strings because we don't need to run the math functions on these (see above)
-	if ( isset( $current_end_value ) )
+	// Bypass formatting for current period end value, since it is a float.
+	if ( isset( $current_end_value ) ) {
 		$stats['current_end_value'] = $current_end_value;
+	}
 
 	return apply_filters( 'fct_get_statistics', $stats, $r );
 }
