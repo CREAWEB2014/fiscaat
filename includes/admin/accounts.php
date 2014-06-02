@@ -277,6 +277,13 @@ class Fiscaat_Accounts_Admin {
 		if ( $this->bail() ) 
 			return;
 
+		// Title and description
+		add_action( 'edit_form_after_title', 'fct_post_name_metabox' );
+
+		// No slug
+		remove_meta_box( 'slugdiv', null, 'normal' );
+
+		// Attributes
 		add_meta_box (
 			'fct_account_attributes',
 			__( 'Account Attributes', 'fiscaat' ),
@@ -649,7 +656,7 @@ class Fiscaat_Accounts_Admin {
 			return $clauses;
 
 		// Unless post date is the primary order, add second order by post date
-		if ( 'date' != $query->query_vars['orderby'] ) {
+		if ( isset( $query->query_vars['orderby'] ) && 'date' != $query->query_vars['orderby'] ) {
 
 			// Be sure ORDER BY clause isn't emptied
 			$sep = ! empty( $clauses['orderby'] ) ? ',' : '';

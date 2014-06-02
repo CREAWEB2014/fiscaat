@@ -442,7 +442,7 @@ function fct_admin_get_records_mode() {
  * @return string Records post-new mode
  */
 function fct_admin_get_new_records_mode() {
-	return apply_filters( 'fct_admin_get_new_records_mode', 'post' );
+	return apply_filters( 'fct_admin_get_new_records_mode', 'new' );
 }
 
 /**

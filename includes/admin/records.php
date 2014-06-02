@@ -643,8 +643,8 @@ class Fiscaat_Records_Admin {
 
 		/* translators: 1: Select records start date field, 2: Select records end date field */
 		printf( '<span class="fct_record_dates">' . __( 'From %1$s to %2$s', 'fiscaat' ) . '</span>',
-			"<input type=\"date\" name=\"fct_date_from\" class=\"fct_record_date\" value=\"{$date_from}\" placeholder=\"" . _x( 'yyyy-mm-dd', 'input date format', 'fiscaat' ) . "\" />",
-			"<input type=\"date\" name=\"fct_date_to\"   class=\"fct_record_date\" value=\"{$date_to}\"   placeholder=\"" . _x( 'yyyy-mm-dd', 'input date format', 'fiscaat' ) . "\" />" 
+			"<input id=\"fct_record_date_from\" type=\"date\" name=\"fct_date_from\" class=\"fct_record_date\" value=\"{$date_from}\" placeholder=\"" . _x( 'yyyy-mm-dd', 'input date format', 'fiscaat' ) . "\" />",
+			"<input id=\"fct_record_date_to\"   type=\"date\" name=\"fct_date_to\"   class=\"fct_record_date\" value=\"{$date_to}\"   placeholder=\"" . _x( 'yyyy-mm-dd', 'input date format', 'fiscaat' ) . "\" />" 
 		);
 	}
 
@@ -666,7 +666,7 @@ class Fiscaat_Records_Admin {
 
 		/** Period & Account ****************************************************/
 
-		// Set the period id
+		// Set the period id. Default to the current period
 		$meta_query[] = array(
 			'key'   => '_fct_period_id',
 			'value' => ! empty( $_REQUEST['fct_period_id'] ) ? (int) $_REQUEST['fct_period_id'] : fct_get_current_period_id()

@@ -355,7 +355,7 @@ function fct_record_metabox() {
 	$record_period_id  = fct_get_record_period_id( $post_id );
 	$record_period_id  = fct_get_period_id( $period_id );
 
-	/** Period ******************************************************************/
+	/** Period ****************************************************************/
 
 	?>
 
@@ -460,4 +460,33 @@ function fct_record_metabox() {
 	<?php 
 	wp_nonce_field( 'fiscaat_record_metabox_save', 'fiscaat_record_metabox' );
 	do_action( 'fiscaat_record_metabox', $post_id );
+}
+
+/** Title & Editor ************************************************************/
+
+/**
+ * Post details metabox
+ * 
+ * The metabox that holds the post title and description
+ *
+ * @since 0.0.9
+ *
+ * @uses wp_editor()
+ */
+function fct_post_name_metabox( $post ) { ?>
+
+	<div id="post-body-content">
+		<div id="postdiv">
+			<div id="fct_post_name" class="postbox">
+				<h3><?php _e( 'Title and Description', 'fiscaat' ); ?></h3>
+				<div class="inside">
+					<input type="text" name="post_title" id="title" value="<?php echo esc_attr( stripslashes( $post->post_title ) ) ?>" />
+
+					<?php wp_editor( stripslashes( $post->post_content ), 'content', array( 'media_buttons' => false, 'teeny' => true, 'textarea_rows' => 5, 'quicktags' => array( 'buttons' => 'strong,em,link,block,del,ins,img,code,spell,close' ) ) ); ?>
+				</div>
+			</div>
+		</div>
+	</div><!-- #post-body-content -->
+
+	<?php
 }

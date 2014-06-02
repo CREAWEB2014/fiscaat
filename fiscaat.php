@@ -468,8 +468,8 @@ final class Fiscaat {
 
 		// Account supports
 		$post_type['supports'] = array(
-			'title',
-			'editor'
+			// 'title',
+			// 'editor'
 		);
 
 		// Register Account content type
@@ -478,7 +478,7 @@ final class Fiscaat {
 			apply_filters( 'fct_register_account_post_type', array(
 				'labels'              => $post_type['labels'],
 				'rewrite'             => $post_type['rewrite'],
-				'supports'            => $post_type['supports'],
+				'supports'            => false, // $post_type['supports'],
 				'description'         => __('Fiscaat Accounts', 'fiscaat'),
 				'capabilities'        => fct_get_account_caps(),
 				'capability_type'     => array( 'account', 'accounts' ),
@@ -524,7 +524,7 @@ final class Fiscaat {
 
 		// Period supports
 		$post_type['supports'] = array(
-			'title'
+			// 'title'
 		);
 
 		// Register Period content type
@@ -533,7 +533,7 @@ final class Fiscaat {
 			apply_filters( 'fct_register_period_post_type', array(
 				'labels'              => $post_type['labels'],
 				'rewrite'             => $post_type['rewrite'],
-				'supports'            => $post_type['supports'],
+				'supports'            => false, // $post_type['supports'],
 				'description'         => __('Fiscaat Periods', 'fiscaat'),
 				'capabilities'        => fct_get_period_caps(),
 				'capability_type'     => array( 'period', 'periods' ),

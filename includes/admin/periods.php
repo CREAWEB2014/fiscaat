@@ -257,6 +257,10 @@ class Fiscaat_Periods_Admin {
 		if ( $this->bail() ) 
 			return;
 
+		// Title and description
+		add_action( 'edit_form_after_title', 'fct_post_name_metabox' );
+
+		// Attributes
 		add_meta_box (
 			'fct_period_attributes',
 			__( 'Period Attributes', 'fiscaat' ),

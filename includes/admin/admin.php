@@ -865,6 +865,13 @@ class Fiscaat_Admin {
 				vertical-align: middle;
 			}
 
+			#fct_post_name input#title {
+				outline: medium none;
+				padding: 3px 8px;
+				font-size: 1.7em;
+				width: 100%;
+			}
+
 			/* Kludge for too-wide periods dropdown */
 			#poststuff #fct_account_attributes select#parent_id,
 			#poststuff #fct_record_attributes select#fct_period_id {
