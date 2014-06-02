@@ -142,8 +142,11 @@ function fct_the_post( $post_type = '' ) {
 /**
  * Check if current page is a Fiscaat period
  *
- * @param int $post_id Possible post_id to check
  * @uses fct_get_period_post_type() To get the period post type
+ * @uses get_post_type()
+ * @uses apply_filters() Calls 'fct_is_period'
+ * 
+ * @param int $post_id Possible post_id to check
  * @return bool True if it's a period page, false if not
  */
 function fct_is_period( $post_id = 0 ) {
@@ -152,8 +155,9 @@ function fct_is_period( $post_id = 0 ) {
 	$retval = false;
 
 	// Supplied ID is a period
-	if ( ! empty( $post_id ) && ( fct_get_period_post_type() == get_post_type( $post_id ) ))
+	if ( ! empty( $post_id ) && ( fct_get_period_post_type() == get_post_type( $post_id ) ) ) {
 		$retval = true;
+	}
 
 	return (bool) apply_filters( 'fct_is_period', $retval, $post_id );
 }
@@ -163,6 +167,8 @@ function fct_is_period( $post_id = 0 ) {
  *
  * @uses is_post_type_archive() To check if we are looking at the period archive
  * @uses fct_get_period_post_type() To get the period post type ID
+ * @uses fct_is_query_name()
+ * @uses apply_filters() Calls 'fct_is_period_archive'
  *
  * @return bool
  */
@@ -172,8 +178,9 @@ function fct_is_period_archive() {
 	$retval = false;
 
 	// In period archive
-	if ( is_post_type_archive( fct_get_period_post_type() ) || fct_is_query_name( 'fct_period_archive' ) )
+	if ( is_post_type_archive( fct_get_period_post_type() ) || fct_is_query_name( 'fct_period_archive' ) ) {
 		$retval = true;
+	}
 
 	return (bool) apply_filters( 'fct_is_period_archive', $retval );
 }
@@ -181,10 +188,11 @@ function fct_is_period_archive() {
 /**
  * Viewing a single period
  *
- * @uses is_single()
+ * @uses fct_is_period_edit()
+ * @uses is_singular()
  * @uses fct_get_period_post_type()
- * @uses get_post_type()
- * @uses apply_filters()
+ * @uses fct_is_query_name()
+ * @uses apply_filters() Calls 'fct_is_single_period'
  *
  * @return bool
  */
@@ -198,8 +206,9 @@ function fct_is_single_period() {
 		return false;
 
 	// Single and a match
-	if ( is_singular( fct_get_period_post_type() ) || fct_is_query_name( 'fct_single_period' ) )
+	if ( is_singular( fct_get_period_post_type() ) || fct_is_query_name( 'fct_single_period' ) ) {
 		$retval = true;
+	}
 
 	return (bool) apply_filters( 'fct_is_single_period', $retval );
 }
@@ -208,6 +217,10 @@ function fct_is_single_period() {
  * Check if current page is a period edit page
  *
  * @uses WP_Query Checks if WP_Query::fct_is_period_edit is true
+ * @uses get_post_type()
+ * @uses fct_get_period_post_type()
+ * @uses apply_filters() Calls 'fct_is_period_edit'
+ * 
  * @return bool True if it's the period edit page, false if not
  */
 function fct_is_period_edit() {
@@ -217,12 +230,13 @@ function fct_is_period_edit() {
 	$retval = false;
 
 	// Check query
-	if ( ! empty( $wp_query->fct_is_period_edit ) && ( $wp_query->fct_is_period_edit == true ) )
+	if ( ! empty( $wp_query->fct_is_period_edit ) && ( $wp_query->fct_is_period_edit == true ) ) {
 		$retval = true;
 
 	// Editing in admin
-	elseif ( is_admin() && ( 'post.php' == $pagenow ) && ( get_post_type() == fct_get_period_post_type() ) && ( ! empty( $_GET['action'] ) && ( 'edit' == $_GET['action'] ) ) )
+	} elseif ( is_admin() && ( 'post.php' == $pagenow ) && ( get_post_type() == fct_get_period_post_type() ) && ( ! empty( $_GET['action'] ) && ( 'edit' == $_GET['action'] ) ) ) {
 		$retval = true;
+	}
 
 	return (bool) apply_filters( 'fct_is_period_edit', $retval );
 }
@@ -230,9 +244,11 @@ function fct_is_period_edit() {
 /**
  * Check if current page is a Fiscaat account
  *
- * @param int $post_id Possible post_id to check
  * @uses fct_get_account_post_type() To get the account post type
  * @uses get_post_type() To get the post type of the post id
+ * @uses apply_filters() Calls 'fct_is_account'
+ * 
+ * @param int $post_id Possible post_id to check
  * @return bool True if it's a account page, false if not
  */
 function fct_is_account( $post_id = 0 ) {
@@ -241,8 +257,9 @@ function fct_is_account( $post_id = 0 ) {
 	$retval = false;
 
 	// Supplied ID is a account
-	if ( ! empty( $post_id ) && ( fct_get_account_post_type() == get_post_type( $post_id ) ) )
+	if ( ! empty( $post_id ) && ( fct_get_account_post_type() == get_post_type( $post_id ) ) ) {
 		$retval = true;
+	}
 
 	return (bool) apply_filters( 'fct_is_account', $retval, $post_id );
 }
@@ -250,10 +267,11 @@ function fct_is_account( $post_id = 0 ) {
 /**
  * Viewing a single account
  *
- * @uses is_single()
+ * @uses fct_is_account_edit()
+ * @uses is_singular()
  * @uses fct_get_account_post_type()
- * @uses get_post_type()
- * @uses apply_filters()
+ * @uses fct_is_query_name()
+ * @uses apply_filters() Calls 'fct_is_single_account'
  *
  * @return bool
  */
@@ -267,8 +285,9 @@ function fct_is_single_account() {
 		return false;
 
 	// Single and a match
-	if ( is_singular( fct_get_account_post_type() ) || fct_is_query_name( 'fct_single_account' ) )
+	if ( is_singular( fct_get_account_post_type() ) || fct_is_query_name( 'fct_single_account' ) ) {
 		$retval = true;
+	}
 
 	return (bool) apply_filters( 'fct_is_single_account', $retval );
 }
@@ -278,6 +297,8 @@ function fct_is_single_account() {
  *
  * @uses is_post_type_archive() To check if we are looking at the account archive
  * @uses fct_get_account_post_type() To get the account post type ID
+ * @uses fct_is_query_name()
+ * @uses apply_filters() Calls 'fct_is_account_archive'
  *
  * @return bool
  */
@@ -287,8 +308,9 @@ function fct_is_account_archive() {
 	$retval = false;
 
 	// In account archive
-	if ( is_post_type_archive( fct_get_account_post_type() ) || fct_is_query_name( 'fct_account_archive' ) )
+	if ( is_post_type_archive( fct_get_account_post_type() ) || fct_is_query_name( 'fct_account_archive' ) ) {
 		$retval = true;
+	}
 
 	return (bool) apply_filters( 'fct_is_account_archive', $retval );
 }
@@ -297,6 +319,10 @@ function fct_is_account_archive() {
  * Check if current page is a account edit page
  *
  * @uses WP_Query Checks if WP_Query::fct_is_account_edit is true
+ * @uses get_post_type()
+ * @uses fct_get_account_post_type()
+ * @uses apply_filters() Calls 'fct_is_account_edit'
+ * 
  * @return bool True if it's the account edit page, false if not
  */
 function fct_is_account_edit() {
@@ -306,12 +332,13 @@ function fct_is_account_edit() {
 	$retval = false;
 
 	// Check query
-	if ( ! empty( $wp_query->fct_is_account_edit ) && ( $wp_query->fct_is_account_edit == true ) )
+	if ( ! empty( $wp_query->fct_is_account_edit ) && ( $wp_query->fct_is_account_edit == true ) ) {
 		$retval = true;
 
 	// Editing in admin
-	elseif ( is_admin() && ( 'post.php' == $pagenow ) && ( get_post_type() == fct_get_account_post_type() ) && ( ! empty( $_GET['action'] ) && ( 'edit' == $_GET['action'] ) ) )
+	} elseif ( is_admin() && ( 'post.php' == $pagenow ) && ( get_post_type() == fct_get_account_post_type() ) && ( ! empty( $_GET['action'] ) && ( 'edit' == $_GET['action'] ) ) ) {
 		$retval = true;
+	}
 
 	return (bool) apply_filters( 'fct_is_account_edit', $retval );
 }
@@ -319,12 +346,13 @@ function fct_is_account_edit() {
 /**
  * Check if the current post type is one of Fiscaat's
  *
- * @param mixed $the_post Optional. Post object or post ID.
  * @uses get_post_type()
  * @uses fct_get_period_post_type()
  * @uses fct_get_account_post_type()
  * @uses fct_get_record_post_type()
+ * @uses apply_filters() Calls 'fct_is_custom_post_type'
  *
+ * @param mixed $the_post Optional. Post object or post ID.
  * @return bool
  */
 function fct_is_custom_post_type( $the_post = false ) {
@@ -346,9 +374,11 @@ function fct_is_custom_post_type( $the_post = false ) {
 /**
  * Check if current page is a Fiscaat record
  *
- * @param int $post_id Possible post_id to check
  * @uses fct_get_record_post_type() To get the record post type
  * @uses get_post_type() To get the post type of the post id
+ * @uses apply_filters() Calls 'fct_is_record'
+ * 
+ * @param int $post_id Possible post_id to check
  * @return bool True if it's a record page, false if not
  */
 function fct_is_record( $post_id = 0 ) {
@@ -357,8 +387,9 @@ function fct_is_record( $post_id = 0 ) {
 	$retval = false;
 
 	// Supplied ID is a record
-	if ( ! empty( $post_id ) && ( fct_get_record_post_type() == get_post_type( $post_id ) ) )
+	if ( ! empty( $post_id ) && ( fct_get_record_post_type() == get_post_type( $post_id ) ) ) {
 		$retval = true;
+	}
 
 	return (bool) apply_filters( 'fct_is_record', $retval, $post_id );
 }
@@ -367,6 +398,10 @@ function fct_is_record( $post_id = 0 ) {
  * Check if current page is a record edit page
  *
  * @uses WP_Query Checks if WP_Query::fct_is_record_edit is true
+ * @uses fct_get_record_post_type()
+ * @uses get_post_type()
+ * @uses apply_filters() Calls 'fct_is_record_edit'
+ * 
  * @return bool True if it's the record edit page, false if not
  */
 function fct_is_record_edit() {
@@ -376,12 +411,13 @@ function fct_is_record_edit() {
 	$retval = false;
 
 	// Check query
-	if ( ! empty( $wp_query->fct_is_record_edit ) && ( true == $wp_query->fct_is_record_edit ) )
+	if ( ! empty( $wp_query->fct_is_record_edit ) && ( true == $wp_query->fct_is_record_edit ) ) {
 		$retval = true;
 
 	// Editing in admin
-	elseif ( is_admin() && ( 'post.php' == $pagenow ) && ( get_post_type() == fct_get_record_post_type() ) && ( ! empty( $_GET['action'] ) && ( 'edit' == $_GET['action'] ) ) )
+	} elseif ( is_admin() && ( 'post.php' == $pagenow ) && ( get_post_type() == fct_get_record_post_type() ) && ( ! empty( $_GET['action'] ) && ( 'edit' == $_GET['action'] ) ) ) {
 		$retval = true;
+	}
 
 	return (bool) apply_filters( 'fct_is_record_edit', $retval );
 }
@@ -389,10 +425,11 @@ function fct_is_record_edit() {
 /**
  * Viewing a single record
  *
- * @uses is_single()
+ * @uses fct_is_record_edit()
+ * @uses is_singular()
  * @uses fct_get_record_post_type()
- * @uses get_post_type()
- * @uses apply_filters()
+ * @uses fct_is_query_name()
+ * @uses apply_filters() Calls 'fct_is_single_record'
  *
  * @return bool
  */
@@ -406,8 +443,9 @@ function fct_is_single_record() {
 		return false;
 
 	// Single and a match
-	if ( is_singular( fct_get_record_post_type() ) || ( fct_is_query_name( 'fct_single_record' ) ) )
+	if ( is_singular( fct_get_record_post_type() ) || ( fct_is_query_name( 'fct_single_record' ) ) ) {
 		$retval = true;
+	}
 
 	return (bool) apply_filters( 'fct_is_single_record', $retval );
 }
@@ -417,6 +455,8 @@ function fct_is_single_record() {
  *
  * @global WP_Query $wp_query To check if WP_Query::fct_is_view is true 
  * @uses fct_is_query_name() To get the query name
+ * @uses apply_filters() Calls 'fct_is_single_view'
+ * 
  * @return bool Is it a view page?
  */
 function fct_is_single_view() {
@@ -430,8 +470,9 @@ function fct_is_single_view() {
 		$retval = true;
 
 	// Check query name
-	if ( empty( $retval ) && fct_is_query_name( 'fct_single_view' ) )
+	if ( empty( $retval ) && fct_is_query_name( 'fct_single_view' ) ) {
 		$retval = true;
+	}
 
 	return (bool) apply_filters( 'fct_is_single_view', $retval );
 }
@@ -440,6 +481,8 @@ function fct_is_single_view() {
  * Check if current page is an edit page
  *
  * @uses WP_Query Checks if WP_Query::fct_is_edit is true
+ * @uses apply_filters() Calls 'fct_is_edit'
+ * 
  * @return bool True if it's the edit page, false if not
  */
 function fct_is_edit() {
@@ -449,8 +492,9 @@ function fct_is_edit() {
 	$retval = false;
 
 	// Check query
-	if ( ! empty( $wp_query->fct_is_edit ) && ( $wp_query->fct_is_edit == true ) )
+	if ( ! empty( $wp_query->fct_is_edit ) && ( $wp_query->fct_is_edit == true ) ) {
 		$retval = true;
+	}
 
 	return (bool) apply_filters( 'fct_is_edit', $retval );
 }
