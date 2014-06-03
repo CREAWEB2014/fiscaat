@@ -213,16 +213,15 @@ function fct_record_approve_link( $args = '' ) {
 			'link_after'   => '',
 			'approve_text' => __( 'Approve', 'fiscaat' )
 		), 'get_record_approve_link' );
-		extract( $r );
 
-		$record = fct_get_record( fct_get_record_id( (int) $id ) );
+		$record = fct_get_record( fct_get_record_id( (int) $r['id'] ) );
 
-		if ( empty( $record ) || ! current_user_can( 'control', $record->ID ) )
+		if ( empty( $record ) || ! current_user_can( 'fct_control', $record->ID ) )
 			return;
 
 		$uri    = add_query_arg( array( 'action' => 'fct_toggle_record_approve', 'record_id' => $record->ID ) );
 		$uri    = esc_url( wp_nonce_url( $uri, 'approve-record_' . $record->ID ) );
-		$retval = $link_before . '<a href="' . $uri . '">' . $approve_text . '</a>' . $link_after;
+		$retval = $r['link_before'] . '<a href="' . $uri . '">' . $r['approve_text'] . '</a>' . $r['link_after'];
 
 		return apply_filters( 'fct_get_record_approve_link', $retval, $args );
 	}
@@ -265,16 +264,15 @@ function fct_record_decline_link( $args = '' ) {
 			'link_after'   => '',
 			'decline_text' => __( 'Decline', 'fiscaat' )
 		), 'get_record_decline_link' );
-		extract( $r );
 
-		$record = fct_get_record( fct_get_record_id( (int) $id ) );
+		$record = fct_get_record( fct_get_record_id( (int) $r['id'] ) );
 
-		if ( empty( $record ) || ! current_user_can( 'control', $record->ID ) )
+		if ( empty( $record ) || ! current_user_can( 'fct_control', $record->ID ) )
 			return;
 
 		$uri    = add_query_arg( array( 'action' => 'fct_set_record_decline', 'record_id' => $record->ID ) );
 		$uri    = esc_url( wp_nonce_url( $uri, 'decline-record_' . $record->ID ) );
-		$retval = $link_before . '<a href="' . $uri . '">' . $decline_text . '</a>' . $link_after;
+		$retval = $r['link_before'] . '<a href="' . $uri . '">' . $r['decline_text'] . '</a>' . $r['link_after'];
 
 		return apply_filters( 'fct_get_record_decline_link', $retval, $args );
 	}

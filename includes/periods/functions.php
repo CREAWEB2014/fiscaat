@@ -498,7 +498,7 @@ function fct_update_period( $args = '' ) {
 	extract( $r );
 
 	// Check period id
-	$period_id = fct_get_period_id( $period_id );
+	$period_id = fct_get_period_id( $r['period_id'] );
 
 	// Counts
 	fct_update_period_account_count( $period_id );
@@ -508,7 +508,7 @@ function fct_update_period( $args = '' ) {
 	// fct_update_period_record_count_declined  ( $period_id );
 
 	// Update period to balance
-	fct_update_period_end_value( $period_id, $end_value );
+	fct_update_period_end_value( $period_id, $r['end_value'] );
 }
 
 

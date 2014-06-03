@@ -272,19 +272,17 @@ function fct_create_initial_content( $args = array() ) {
 	) );
 
 	// Create the initial accounts
-	foreach ( $intial_accounts as $account ){
-		extract( $account );
-
+	foreach ( $intial_accounts as $acnt ){
 		$account_ids[] = fct_insert_account( 
 			array(
 				'post_parent'  => $period_id,
-				'post_title'   => $account_title,
-				'post_content' => $account_content,
+				'post_title'   => $acnt['account_title'],
+				'post_content' => $acnt['account_content'],
 			),
 			array(
 				'period_id'    => $period_id,
-				'account_type' => $account_type,
-				'ledger_id'    => $ledger_id,
+				'account_type' => $acnt['account_type'],
+				'ledger_id'    => $acnt['ledger_id'],
 			)
 		);
 	}

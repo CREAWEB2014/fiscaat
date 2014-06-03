@@ -427,18 +427,17 @@ function fct_update_record( $args = '' ) {
 		'record_id'      => 0,
 		'account_id'     => 0,
 		'period_id'      => 0,
-		'record_type'    => 0,
 		'record_date'    => 0,
+		'record_type'    => 0,
 		'amount'         => 0,
 		'offset_account' => 0,
 		'is_edit'        => false
 	), 'update_record' );
-	extract( $r );	
 
 	// Validate the ID's passed from 'fct_new_record' action
-	$record_id  = fct_get_record_id ( $record_id  );
-	$account_id = fct_get_account_id( $account_id );
-	$period_id  = fct_get_period_id ( $period_id  );
+	$record_id  = fct_get_record_id ( $r['record_id']  );
+	$account_id = fct_get_account_id( $r['account_id'] );
+	$period_id  = fct_get_period_id ( $r['period_id']  );
 
 	// Bail if there is no record
 	if ( empty( $record_id ) )
@@ -457,17 +456,17 @@ function fct_update_record( $args = '' ) {
 	fct_update_record_account_id( $record_id, $account_id );
 
 	// Record date
-	fct_update_record_date( $record_id, $record_date );
+	fct_update_record_date( $record_id, $r['record_date'] );
 
 	// Type and Amount. Should return false, because once created, never editable
-	fct_update_record_type  ( $record_id, $record_type );
-	fct_update_record_amount( $record_id, $amount      );
+	fct_update_record_type  ( $record_id, $r['record_type'] );
+	fct_update_record_amount( $record_id, $r['amount']      );
 
 	// Update offset account
-	fct_update_record_offset_account( $record_id, $offset_account );
+	fct_update_record_offset_account( $record_id, $r['offset_account'] );
 
 	// Update associated account values if this is a new record
-	if ( empty( $is_edit ) ) {
+	if ( empty( $r['is_edit'] ) ) {
 
 		// Update parent account
 		fct_update_account( array( 'account_id' => $account_id, 'period_id' => $period_id ) );

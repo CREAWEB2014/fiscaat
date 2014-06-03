@@ -81,9 +81,6 @@ function fct_has_records( $args = '' ) {
 		's'              => $default_record_search,     // Maybe search
 	), 'has_records' );
 
-	// Extract the query variables
-	extract( $fct_r );
-
 	// Get Fiscaat
 	$fct = fiscaat();
 
@@ -91,8 +88,8 @@ function fct_has_records( $args = '' ) {
 	$fct->record_query = new WP_Query( $fct_r );
 	
 	// Add pagination values to query object
-	$fct->record_query->posts_per_page = $posts_per_page;
-	$fct->record_query->paged          = $paged;
+	$fct->record_query->posts_per_page = $fct_r['posts_per_page'];
+	$fct->record_query->paged          = $fct_r['paged'];
 
 	// Never home, regardless of what parse_query says
 	$fct->record_query->is_home        = false;
@@ -133,7 +130,7 @@ function fct_has_records( $args = '' ) {
 			apply_filters( 'fct_records_pagination', array(
 				'base'      => $base,
 				'format'    => '',
-				'total'     => ceil( (int) $fct->record_query->found_posts / (int) $posts_per_page ),
+				'total'     => ceil( (int) $fct->record_query->found_posts / (int) $fct_r['posts_per_page'] ),
 				'current'   => (int) $fct->record_query->paged,
 				'prev_text' => '&larr;',
 				'next_text' => '&rarr;',
@@ -1069,11 +1066,6 @@ function fct_record_edit_link( $args = '' ) {
 	/**
 	 * Return the edit link of the record
 	 *
-	 * @param mixed $args This function supports these arguments:
-	 *  - id: Record id
-	 *  - link_before: HTML before the link
-	 *  - link_after: HTML after the link
-	 *  - edit_text: Edit text. Defaults to 'Edit'
 	 * @uses fct_get_record_id() To get the record id
 	 * @uses fct_get_record() To get the record
 	 * @uses current_user_can() To check if the current user can edit the
@@ -1081,6 +1073,12 @@ function fct_record_edit_link( $args = '' ) {
 	 * @uses fct_get_record_edit_url() To get the record edit url
 	 * @uses apply_filters() Calls 'fct_get_record_edit_link' with the record
 	 *                        edit link and args
+	 *
+	 * @param mixed $args This function supports these arguments:
+	 *  - id: Record id
+	 *  - link_before: HTML before the link
+	 *  - link_after: HTML after the link
+	 *  - edit_text: Edit text. Defaults to 'Edit'
 	 * @return string Record edit link
 	 */
 	function fct_get_record_edit_link( $args = '' ) {
@@ -1090,9 +1088,8 @@ function fct_record_edit_link( $args = '' ) {
 			'link_after'   => '',
 			'edit_text'    => __( 'Edit', 'fiscaat' )
 		), 'get_record_edit_link' );
-		extract( $r );
 
-		$record = fct_get_record( fct_get_record_id( (int) $id ) );
+		$record = fct_get_record( fct_get_record_id( (int) $r['id'] ) );
 
 		// Bypass check if user has caps
 		if ( ! current_user_can( 'edit_others_records' ) ) {
@@ -1103,13 +1100,13 @@ function fct_record_edit_link( $args = '' ) {
 		}
 
 		// Get uri
-		$uri = fct_get_record_edit_url( $id );
+		$uri = fct_get_record_edit_url( $r['id'] );
 
 		// Bail if no uri
 		if ( empty( $uri ) )
 			return;
 
-		$retval = $link_before . '<a href="' . $uri . '">' . $edit_text . '</a>' . $link_after;
+		$retval = $r['link_before'] . '<a href="' . $uri . '">' . $r['edit_text'] . '</a>' . $r['link_after'];
 
 		return apply_filters( 'fct_get_record_edit_link', $retval, $args );
 	}
