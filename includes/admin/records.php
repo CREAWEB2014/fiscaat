@@ -424,7 +424,7 @@ class Fiscaat_Records_Admin {
 			}
 
 			.column-fct_record_amount {
-				width: 157px;
+				width: 158px;
 			}
 
 			.column-fct_record_status {
