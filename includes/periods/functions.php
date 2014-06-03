@@ -495,7 +495,6 @@ function fct_update_period( $args = '' ) {
 		'period_id'     => 0,
 		'end_value'     => 0
 	), 'update_period' );
-	extract( $r );
 
 	// Check period id
 	$period_id = fct_get_period_id( $r['period_id'] );

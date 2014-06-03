@@ -82,9 +82,6 @@ function fct_has_accounts( $args = '' ) {
 		'max_num_pages'  => false,                       // Maximum number of pages to show
 	), 'has_accounts' );
 
-	// Extract the query variables
-	extract( $fct_t );
-
 	// Get Fiscaat
 	$fct = fiscaat();
 
@@ -93,25 +90,25 @@ function fct_has_accounts( $args = '' ) {
 
 	// Set post_parent back to 0 if originally set to 'any'
 	if ( 'any' == $fct_t['post_parent'] )
-		$fct_t['post_parent'] = $post_parent = 0;
+		$fct_t['post_parent'] = 0;
 
 	// Limited the number of pages shown
-	if ( ! empty( $max_num_pages ) )
-		$fct->account_query->max_num_pages = $max_num_pages;
+	if ( ! empty( $fct_t['max_num_pages'] ) )
+		$fct->account_query->max_num_pages = $fct_t['max_num_pages'];
 
 	// If no limit to posts per page, set it to the current post_count
-	if ( -1 == $posts_per_page )
-		$posts_per_page = $fct->account_query->post_count;
+	if ( -1 == $fct_t['posts_per_page'] )
+		$fct_t['posts_per_page'] = $fct->account_query->post_count;
 
 	// Add pagination values to query object
-	$fct->account_query->posts_per_page = $posts_per_page;
-	$fct->account_query->paged          = $paged;
+	$fct->account_query->posts_per_page = $fct_t['posts_per_page'];
+	$fct->account_query->paged          = $fct_t['paged'];
 
 	// Only add pagination if query returned results
 	if ( ( (int) $fct->account_query->post_count || (int) $fct->account_query->found_posts ) && (int) $fct->account_query->posts_per_page ) {
 
 		// Limit the number of accounts shown based on maximum allowed pages
-		if ( ( ! empty( $max_num_pages ) ) && $fct->account_query->found_posts > $fct->account_query->max_num_pages * $fct->account_query->post_count )
+		if ( ( ! empty( $fct_t['max_num_pages'] ) ) && $fct->account_query->found_posts > $fct->account_query->max_num_pages * $fct->account_query->post_count )
 			$fct->account_query->found_posts = $fct->account_query->max_num_pages * $fct->account_query->post_count;
 
 		// If pretty permalinks are enabled, make our pagination pretty
@@ -127,7 +124,7 @@ function fct_has_accounts( $args = '' ) {
 
 			// Default
 			} else {
-				$base = get_permalink( $post_parent );
+				$base = get_permalink( $fct_t['post_parent'] );
 			}
 
 			// Use pagination base
@@ -142,7 +139,7 @@ function fct_has_accounts( $args = '' ) {
 		$fct_account_pagination = apply_filters( 'fct_account_pagination', array(
 			'base'      => $base,
 			'format'    => '',
-			'total'     => $posts_per_page == $fct->account_query->found_posts ? 1 : ceil( (int) $fct->account_query->found_posts / (int) $posts_per_page ),
+			'total'     => $fct_t['posts_per_page'] == $fct->account_query->found_posts ? 1 : ceil( (int) $fct->account_query->found_posts / (int) $posts_per_page ),
 			'current'   => (int) $fct->account_query->paged,
 			'prev_text' => '&larr;',
 			'next_text' => '&rarr;',
@@ -503,16 +500,16 @@ function fct_account_pagination( $args = '' ) {
 			'before'     => '<span class="fiscaat-account-pagination">',
 			'after'      => '</span>',
 		), 'get_account_pagination' );
-		extract( $r );
 
 		// If pretty permalinks are enabled, make our pagination pretty
-		if ( $wp_rewrite->using_permalinks() )
-			$base = trailingslashit( get_permalink( $account_id ) ) . user_trailingslashit( $wp_rewrite->pagination_base . '/%#%/' );
-		else
-			$base = add_query_arg( 'paged', '%#%', get_permalink( $account_id ) );
+		if ( $wp_rewrite->using_permalinks() ) {
+			$base = trailingslashit( get_permalink( $r['account_id'] ) ) . user_trailingslashit( $wp_rewrite->pagination_base . '/%#%/' );
+		} else {
+			$base = add_query_arg( 'paged', '%#%', get_permalink( $r['account_id'] ) );
+		}
 
 		// Get total and add 1 if account is included in the record loop
-		$total = fct_get_account_record_count( $account_id, true );
+		$total = fct_get_account_record_count( $r['account_id'], true );
 
 		// Pagination settings
 		$pagination = array(
@@ -538,7 +535,7 @@ function fct_account_pagination( $args = '' ) {
 			}
 
 			// Add before and after to pagination links
-			$pagination_links = $before . $pagination_links . $after;
+			$pagination_links = $r['before'] . $pagination_links . $r['after'];
 		}
 
 		return apply_filters( 'fct_get_account_pagination', $pagination_links, $args );
@@ -1113,9 +1110,8 @@ function fct_account_edit_link( $args = '' ) {
 			'link_after'   => '',
 			'edit_text'    => __( 'Edit', 'fiscaat' )
 		), 'get_account_edit_link' );
-		extract( $r );
 
-		$account = fct_get_account( fct_get_account_id( (int) $id ) );
+		$account = fct_get_account( fct_get_account_id( (int) $r['id'] ) );
 
 		// Bypass check if user has caps
 		if ( ! current_user_can( 'edit_others_accounts' ) ) {
@@ -1127,13 +1123,13 @@ function fct_account_edit_link( $args = '' ) {
 		}
 
 		// Get uri
-		$uri = fct_get_account_edit_url( $id );
+		$uri = fct_get_account_edit_url( $r['id'] );
 
 		// Bail if no uri
 		if ( empty( $uri ) )
 			return;
 
-		$retval = $link_before . '<a href="' . $uri . '">' . $edit_text . '</a>' . $link_after;
+		$retval = $r['link_before'] . '<a href="' . $uri . '">' . $r['edit_text'] . '</a>' . $r['link_after'];
 
 		return apply_filters( 'fct_get_account_edit_link', $retval, $r );
 	}
@@ -1230,21 +1226,20 @@ function fct_account_close_link( $args = '' ) {
 			'id'          => 0,
 			'link_before' => '',
 			'link_after'  => '',
-			'sep'         => ' | ',
-			'close_text'  => _x( 'Close', 'Account Status', 'fiscaat' ),
-			'open_text'   => _x( 'Open',  'Account Status', 'fiscaat' )
+			'sep'         => ' | ', // @todo Keep?
+			'close_text'  => _x( 'Close', 'Account status', 'fiscaat' ),
+			'open_text'   => _x( 'Open',  'Account status', 'fiscaat' )
 		), 'get_account_close_link' );
-		extract( $r );
 
-		$account = fct_get_account( fct_get_account_id( (int) $id ) );
+		$account = fct_get_account( fct_get_account_id( (int) $r['id'] ) );
 
 		if ( empty( $account ) || ! current_user_can( 'edit_account', $account->ID ) )
 			return;
 
-		$display = fct_is_account_open( $account->ID ) ? $close_text : $open_text;
+		$display = fct_is_account_open( $account->ID ) ? $r['close_text'] : $r['open_text'];
 		$uri     = add_query_arg( array( 'action' => 'fct_toggle_account_close', 'account_id' => $account->ID ) );
 		$uri     = esc_url( wp_nonce_url( $uri, 'close-account_' . $account->ID ) );
-		$retval  = $link_before . '<a href="' . $uri . '">' . $display . '</a>' . $link_after;
+		$retval  = $r['link_before'] . '<a href="' . $uri . '">' . $display . '</a>' . $r['link_after'];
 
 		return apply_filters( 'fct_get_account_close_link', $retval, $args );
 	}
@@ -1371,10 +1366,9 @@ function fct_single_account_description( $args = '' ) {
 			'after'      => '</p></div>',
 			'size'       => 14
 		), 'get_single_account_description' );
-		extract( $r );
 
 		// Validate account_id
-		$account_id = fct_get_account_id( $account_id );
+		$account_id = fct_get_account_id( $r['account_id'] );
 
 		// Unhook the 'view all' query var adder
 		remove_filter( 'fct_get_account_permalink', 'fct_add_view_all' );
@@ -1390,7 +1384,7 @@ function fct_single_account_description( $args = '' ) {
 		// Account has records
 		$last_record = fct_get_account_last_active_id( $account_id );
 		if ( ! empty( $last_record ) ) {
-			$last_updated_by = fct_get_author_link( array( 'post_id' => $last_record, 'size' => $size ) );
+			$last_updated_by = fct_get_author_link( array( 'post_id' => $last_record, 'size' => $r['size'] ) );
 			$retstr          = sprintf( __( 'This account contains %1$s, has %2$s, and was last updated by %3$s %4$s.', 'fiscaat' ), $record_count, $decline_count, $last_updated_by, $time_since );
 
 		// Account has no records
@@ -1406,7 +1400,7 @@ function fct_single_account_description( $args = '' ) {
 		add_filter( 'fct_get_account_permalink', 'fct_add_view_all' );
 
 		// Combine the elements together
-		$retstr = $before . $retstr . $after;
+		$retstr = $r['before'] . $retstr . $r['after'];
 
 		// Return filtered result
 		return apply_filters( 'fct_get_single_account_description', $retstr, $args );

@@ -1179,7 +1179,6 @@ function fct_the_content( $args = array() ) {
 			'teeny'         => true,
 			'quicktags'     => true
 		), 'get_the_content' );
-		extract( $r );
 
 		// Assume we are not editing
 		$post_content = '';
@@ -1188,24 +1187,24 @@ function fct_the_content( $args = array() ) {
 		ob_start();
 
 		// Output something before the editor
-		if ( ! empty( $before ) )
-			echo $before;
+		if ( ! empty( $r['before'] ) )
+			echo $r['before'];
 
 		// Get sanitized content
 		if ( fct_is_edit() )
-			$post_content = call_user_func( 'fct_get_form_' . $context . '_content' );
+			$post_content = call_user_func( 'fct_get_form_' . $r['context'] . '_content' );
 
 		// Use TinyMCE if available
 		if ( fct_use_wp_editor() ) :
-			wp_editor( htmlspecialchars_decode( $post_content, ENT_QUOTES ), 'fct_' . $context . '_content', array(
-				'wpautop'       => $wpautop,
-				'media_buttons' => $media_buttons,
-				'textarea_rows' => $textarea_rows,
-				'tabindex'      => $tabindex,
-				'editor_class'  => $editor_class,
-				'tinymce'       => $tinymce,
-				'teeny'         => $teeny,
-				'quicktags'     => $quicktags
+			wp_editor( htmlspecialchars_decode( $post_content, ENT_QUOTES ), 'fct_' . $r['context'] . '_content', array(
+				'wpautop'       => $r['wpautop'],
+				'media_buttons' => $r['media_buttons'],
+				'textarea_rows' => $r['textarea_rows'],
+				'tabindex'      => $r['tabindex'],
+				'editor_class'  => $r['editor_class'],
+				'tinymce'       => $r['tinymce'],
+				'teeny'         => $r['teeny'],
+				'quicktags'     => $r['quicktags']
 			) );
 
 		/**
@@ -1216,13 +1215,13 @@ function fct_the_content( $args = array() ) {
 		 */
 		else : ?>
 
-			<textarea id="fct_<?php echo esc_attr( $context ); ?>_content" class="<?php echo esc_attr( $editor_class ); ?>" name="fct_<?php echo esc_attr( $context ); ?>_content" cols="60" rows="<?php echo esc_attr( $textarea_rows ); ?>" tabindex="<?php echo esc_attr( $tabindex ); ?>"><?php echo $post_content; ?></textarea>
+			<textarea id="fct_<?php echo esc_attr( $r['context'] ); ?>_content" class="<?php echo esc_attr( $r['editor_class'] ); ?>" name="fct_<?php echo esc_attr( $r['context'] ); ?>_content" cols="60" rows="<?php echo esc_attr( $r['textarea_rows'] ); ?>" tabindex="<?php echo esc_attr( $r['tabindex'] ); ?>"><?php echo $post_content; ?></textarea>
 
 		<?php endif;
 
 		// Output something after the editor
-		if ( ! empty( $after ) )
-			echo $after;
+		if ( ! empty( $r['after'] ) )
+			echo $r['after'];
 
 		// Put the output into a usable variable
 		$output = ob_get_contents();

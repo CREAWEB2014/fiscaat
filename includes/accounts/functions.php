@@ -456,17 +456,15 @@ function fct_update_account( $args = '' ) {
 	$r = fct_parse_args( $args, array(
 		'account_id'   => 0,
 		'period_id'    => 0,
-		'ledger_id'    => 0,
 		'account_type' => '',
+		'ledger_id'    => 0,
 		'end_value'    => false,
-		'spectators'   => false,
 		'is_edit'      => false
 	), 'update_account' );
-	extract( $r );	
 
 	// Validate the ID's passed from 'fct_new_account' action
-	$account_id = fct_get_account_id( $account_id );
-	$period_id  = fct_get_period_id( $account_id );
+	$account_id = fct_get_account_id( $r['account_id'] );
+	$period_id  = fct_get_period_id ( $r['period_id']  );
 
 	// Bail if there is no account
 	if ( empty( $account_id ) )
@@ -477,24 +475,21 @@ function fct_update_account( $args = '' ) {
 		$period_id = fct_get_account_period_id( $account_id );
 
 	// Period account meta
-	fct_update_account_id( $account_id, $period_id );
+	fct_update_account_id( $account_id, $account_id );
 	fct_update_account_period_id( $account_id, $period_id );
 
-	// Account type
-	fct_update_account_type( $account_id, $account_type );
+	// Update account type
+	fct_update_account_type( $account_id, $r['account_type'] );
 
 	// Update ledger id
-	fct_update_account_ledger_id( $account_id, $ledger_id );
-
-	// Update account spectators
-	fct_update_account_spectators( $account_id, $spectators );
+	fct_update_account_ledger_id( $account_id, $r['ledger_id'] );
 
 	// Update associated account values if this is not a new account
-	if ( empty( $is_edit ) ) {
+	if ( empty( $r['is_edit'] ) ) {
 
 		// Record account meta
-		fct_update_account_record_count( $account_id, 0          );
-		fct_update_account_end_value   ( $account_id, $end_value );
+		fct_update_account_record_count( $account_id, 0               );
+		fct_update_account_end_value   ( $account_id, $r['end_value'] );
 		// @todo Move to Control
 		// fct_update_account_record_count_declined  ( $account_id, 0         );
 		// fct_update_account_record_count_unapproved( $account_id, 0         );
