@@ -60,7 +60,7 @@ function fct_get_account_post_type_labels() {
 		'view_item'          => __( 'View Account',                       'fiscaat' ),
 		'search_items'       => __( 'Search Accounts',                    'fiscaat' ),
 		'not_found'          => __( 'No accounts found',                  'fiscaat' ),
-		'not_found_in_trash' => __( 'No accounts found in Trash',         'fiscaat' )
+		'not_found_in_trash' => __( 'No accounts found in Trash',         'fiscaat' ),
 		'parent_item_colon'  => __( 'Period:',                            'fiscaat' ),
 	) );
 }

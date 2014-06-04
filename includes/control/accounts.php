@@ -10,7 +10,7 @@
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-/** Account Actions ************************************************************/
+/** Filters ********************************************************************/
 
 /**
  * Add control account default meta
@@ -24,6 +24,8 @@ function fct_ctrl_get_account_default_meta( $meta ) {
 		'record_count_unapproved' => 0, // Unapproved record count
 	) );
 }
+
+/** Records ********************************************************************/
 
 /**
  * Bump the total declined record count of an account

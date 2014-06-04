@@ -55,7 +55,7 @@ function fct_get_period_post_type_labels() {
 		'view_item'          => __( 'View Period',                       'fiscaat' ),
 		'search_items'       => __( 'Search Periods',                    'fiscaat' ),
 		'not_found'          => __( 'No periods found',                  'fiscaat' ),
-		'not_found_in_trash' => __( 'No periods found in Trash',         'fiscaat' )
+		'not_found_in_trash' => __( 'No periods found in Trash',         'fiscaat' ),
 	) );
 }
 

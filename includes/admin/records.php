@@ -416,6 +416,7 @@ class Fiscaat_Records_Admin {
 
 			.column-fct_record_account {
 				width: 20%;
+				max-width: 193px;
 			}
 
 			.column-fct_record_account_ledger_id,
