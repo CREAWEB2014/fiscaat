@@ -375,55 +375,15 @@ final class Fiscaat {
 	 */
 	public static function register_post_types() {
 
-		// Define local variable(s)
-		$post_type = array();
+		/** Records *******************************************************/
 
-		/** Record ********************************************************/
-
-		// Record labels
-		$post_type['labels'] = array(
-			'name'               => _x( 'Records', 'Post type general name', 'fiscaat' ),
-			'singular_name'      => _x( 'Record', 'Post type singular name', 'fiscaat' ),
-			'menu_name'          => _x( 'Records', 'Admin menu',             'fiscaat' ),
-			'name_admin_bar'     => _x( 'Records', 'Add new on admin bar',   'fiscaat' ),
-			'all_items'          => __( 'All Records',                       'fiscaat' ),
-			'add_new'            => __( 'Add New',                           'fiscaat' ),
-			'add_new_item'       => __( 'Add New Record',                    'fiscaat' ),
-			'edit'               => __( 'Edit',                              'fiscaat' ),
-			'edit_item'          => __( 'Edit Record',                       'fiscaat' ),
-			'edit_items'         => __( 'Edit Records',                      'fiscaat' ),
-			'new_item'           => __( 'New Records',                       'fiscaat' ),
-			'view'               => __( 'View Record',                       'fiscaat' ),
-			'view_item'          => __( 'View Record',                       'fiscaat' ),
-			'search_items'       => __( 'Search Records',                    'fiscaat' ),
-			'not_found'          => __( 'No records found',                  'fiscaat' ),
-			'not_found_in_trash' => __( 'No records found in Trash',         'fiscaat' )
-		);
-
-		// Record rewrite
-		$post_type['rewrite'] = array(
-			'slug'       => fct_get_record_slug(),
-			'with_front' => false
-		);
-
-		// Record supports
-		$post_type['supports'] = array(
-			'editor'
-		);
-
-		// Comments enabled
-		// @todo Move to Comments
-		if ( fct_is_comments_active() )
-			$post_type['supports'][] = 'comments';
-
-		// Register Record content type
 		register_post_type(
 			fct_get_record_post_type(),
 			apply_filters( 'fct_register_record_post_type', array(
-				'labels'              => $post_type['labels'],
-				'rewrite'             => $post_type['rewrite'],
-				'supports'            => $post_type['supports'],
-				'description'         => __('Fiscaat Records', 'fiscaat'),
+				'labels'              => fct_get_record_post_type_labels(),
+				'rewrite'             => fct_get_record_post_type_rewrite(),
+				'supports'            => fct_get_record_post_type_supports(),
+				'description'         => __( 'Fiscaat Records', 'fiscaat' ),
 				'capabilities'        => fct_get_record_caps(),
 				'capability_type'     => array( 'record', 'records' ),
 				'menu_position'       => 333333,
@@ -439,47 +399,15 @@ final class Fiscaat {
 			) )
 		);
 
-		/** Account *******************************************************/
+		/** Accounts ******************************************************/
 
-		// Account labels
-		$post_type['labels'] = array(
-			'name'               => _x( 'Accounts','Post type general name', 'fiscaat' ),
-			'singular_name'      => _x( 'Account','Post type singular name', 'fiscaat' ),
-			'menu_name'          => _x( 'Accounts', 'Admin menu',            'fiscaat' ),
-			'name_admin_bar'     => _x( 'Account', 'Add new on admin bar',   'fiscaat' ),
-			'all_items'          => __( 'All Accounts',                      'fiscaat' ),
-			'add_new'            => __( 'Add New',                           'fiscaat' ),
-			'add_new_item'       => __( 'Add New Account',                   'fiscaat' ),
-			'edit'               => __( 'Edit',                              'fiscaat' ),
-			'edit_item'          => __( 'Edit Account',                      'fiscaat' ),
-			'new_item'           => __( 'New Account',                       'fiscaat' ),
-			'view'               => __( 'View Account',                      'fiscaat' ),
-			'view_item'          => __( 'View Account',                      'fiscaat' ),
-			'search_items'       => __( 'Search Accounts',                   'fiscaat' ),
-			'not_found'          => __( 'No accounts found',                 'fiscaat' ),
-			'not_found_in_trash' => __( 'No accounts found in Trash',        'fiscaat' )
-		);
-
-		// Account rewrite
-		$post_type['rewrite'] = array(
-			'slug'       => fct_get_account_slug(),
-			'with_front' => false
-		);
-
-		// Account supports
-		$post_type['supports'] = array(
-			// 'title',
-			// 'editor'
-		);
-
-		// Register Account content type
 		register_post_type(
 			fct_get_account_post_type(),
 			apply_filters( 'fct_register_account_post_type', array(
-				'labels'              => $post_type['labels'],
-				'rewrite'             => $post_type['rewrite'],
-				'supports'            => false, // $post_type['supports'],
-				'description'         => __('Fiscaat Accounts', 'fiscaat'),
+				'labels'              => fct_get_account_post_type_labels(),
+				'rewrite'             => fct_get_account_post_type_rewrite(),
+				'supports'            => fct_get_account_post_type_supports(),
+				'description'         => __( 'Fiscaat Accounts', 'fiscaat' ),
 				'capabilities'        => fct_get_account_caps(),
 				'capability_type'     => array( 'account', 'accounts' ),
 				'menu_position'       => 333333,
@@ -495,46 +423,15 @@ final class Fiscaat {
 			) )
 		);
 
-		/** Booking Period **************************************************/
+		/** Periods *********************************************************/
 
-		// Period labels
-		$post_type['labels'] = array(
-			'name'               => _x( 'Periods', 'Post type general name', 'fiscaat' ),
-			'singular_name'      => _x( 'Period', 'Post type singular name', 'fiscaat' ),
-			'menu_name'          => _x( 'Periods', 'Admin menu',             'fiscaat' ),
-			'name_admin_bar'     => _x( 'Period', 'Add new on admin bar',    'fiscaat' ),
-			'all_items'          => __( 'All Periods',                       'fiscaat' ),
-			'add_new'            => __( 'Add New',                           'fiscaat' ),
-			'add_new_item'       => __( 'Add New Period',                    'fiscaat' ),
-			'edit'               => __( 'Edit',                              'fiscaat' ),
-			'edit_item'          => __( 'Edit Period',                       'fiscaat' ),
-			'new_item'           => __( 'New Period',                        'fiscaat' ),
-			'view'               => __( 'View Period',                       'fiscaat' ),
-			'view_item'          => __( 'View Period',                       'fiscaat' ),
-			'search_items'       => __( 'Search Periods',                    'fiscaat' ),
-			'not_found'          => __( 'No periods found',                  'fiscaat' ),
-			'not_found_in_trash' => __( 'No periods found in Trash',         'fiscaat' )
-		);
-
-		// Period rewrite
-		$post_type['rewrite'] = array(
-			'slug'       => fct_get_period_slug(),
-			'with_front' => false
-		);
-
-		// Period supports
-		$post_type['supports'] = array(
-			// 'title'
-		);
-
-		// Register Period content type
 		register_post_type(
 			fct_get_period_post_type(),
 			apply_filters( 'fct_register_period_post_type', array(
-				'labels'              => $post_type['labels'],
-				'rewrite'             => $post_type['rewrite'],
-				'supports'            => false, // $post_type['supports'],
-				'description'         => __('Fiscaat Periods', 'fiscaat'),
+				'labels'              => fct_get_period_post_type_labels(),
+				'rewrite'             => fct_get_period_post_type_rewrite(),
+				'supports'            => fct_get_period_post_type_supports(),
+				'description'         => __( 'Fiscaat Periods', 'fiscaat' ),
 				'capabilities'        => fct_get_period_caps(),
 				'capability_type'     => array( 'period', 'periods' ),
 				'menu_position'       => 333333,

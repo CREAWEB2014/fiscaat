@@ -31,6 +31,63 @@ function fct_period_post_type() {
 		return apply_filters( 'fct_get_period_post_type', fiscaat()->period_post_type );
 	}
 
+/**
+ * Return array of labels used by the period post type
+ *
+ * @since 0.0.9
+ *
+ * @uses apply_filters() Calls 'fct_get_period_post_type_labels'
+ * @return array Record post type labels
+ */
+function fct_get_period_post_type_labels() {
+	return apply_filters( 'fct_get_period_post_type_labels', array(
+		'name'               => _x( 'Periods', 'Post type general name', 'fiscaat' ),
+		'singular_name'      => _x( 'Period', 'Post type singular name', 'fiscaat' ),
+		'menu_name'          => _x( 'Periods', 'Admin menu',             'fiscaat' ),
+		'name_admin_bar'     => _x( 'Period', 'Add new on admin bar',    'fiscaat' ),
+		'all_items'          => __( 'All Periods',                       'fiscaat' ),
+		'add_new'            => __( 'Add New',                           'fiscaat' ),
+		'add_new_item'       => __( 'Add New Period',                    'fiscaat' ),
+		'edit'               => __( 'Edit',                              'fiscaat' ),
+		'edit_item'          => __( 'Edit Period',                       'fiscaat' ),
+		'new_item'           => __( 'New Period',                        'fiscaat' ),
+		'view'               => __( 'View Period',                       'fiscaat' ),
+		'view_item'          => __( 'View Period',                       'fiscaat' ),
+		'search_items'       => __( 'Search Periods',                    'fiscaat' ),
+		'not_found'          => __( 'No periods found',                  'fiscaat' ),
+		'not_found_in_trash' => __( 'No periods found in Trash',         'fiscaat' )
+	) );
+}
+
+/**
+ * Return array of period post type rewrite settings
+ *
+ * @since 0.0.9
+ * 
+ * @return array Record post type rewrite settings
+ */
+function fct_get_period_post_type_rewrite() {
+	return apply_filters( 'fct_get_period_post_type_rewrite', array(
+		'slug'       => fct_get_period_slug(),
+		'with_front' => false
+	) );
+}
+
+/**
+ * Return array of features the period post type supports
+ *
+ * By default support no features, so this returns false. Title and
+ * description input fields are custom provided by Fiscaat.
+ *
+ * @since 0.0.9
+ * 
+ * @return array|bool Features period post type supports or false
+ *                     when supporting no features.
+ */
+function fct_get_period_post_type_supports() {
+	return apply_filters( 'fct_get_period_post_type_supports', false );
+}
+
 /** Period Loop ****************************************************************/
 
 /**

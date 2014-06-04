@@ -36,6 +36,64 @@ function fct_account_post_type() {
 		return apply_filters( 'fct_get_account_post_type', fiscaat()->account_post_type );
 	}
 
+/**
+ * Return array of labels used by the account post type
+ *
+ * @since 0.0.9
+ *
+ * @uses apply_filters() Calls 'fct_get_account_post_type_labels'
+ * @return array Record post type labels
+ */
+function fct_get_account_post_type_labels() {
+	return apply_filters( 'fct_get_account_post_type_labels', array(
+		'name'               => _x( 'Accounts', 'Post type general name', 'fiscaat' ),
+		'singular_name'      => _x( 'Account', 'Post type singular name', 'fiscaat' ),
+		'menu_name'          => _x( 'Accounts', 'Admin menu',             'fiscaat' ),
+		'name_admin_bar'     => _x( 'Account', 'Add new on admin bar',    'fiscaat' ),
+		'all_items'          => __( 'All Accounts',                       'fiscaat' ),
+		'add_new'            => __( 'Add New',                            'fiscaat' ),
+		'add_new_item'       => __( 'Add New Account',                    'fiscaat' ),
+		'edit'               => __( 'Edit',                               'fiscaat' ),
+		'edit_item'          => __( 'Edit Account',                       'fiscaat' ),
+		'new_item'           => __( 'New Account',                        'fiscaat' ),
+		'view'               => __( 'View Account',                       'fiscaat' ),
+		'view_item'          => __( 'View Account',                       'fiscaat' ),
+		'search_items'       => __( 'Search Accounts',                    'fiscaat' ),
+		'not_found'          => __( 'No accounts found',                  'fiscaat' ),
+		'not_found_in_trash' => __( 'No accounts found in Trash',         'fiscaat' )
+		'parent_item_colon'  => __( 'Period:',                            'fiscaat' ),
+	) );
+}
+
+/**
+ * Return array of account post type rewrite settings
+ *
+ * @since 0.0.9
+ * 
+ * @return array Record post type rewrite settings
+ */
+function fct_get_account_post_type_rewrite() {
+	return apply_filters( 'fct_get_account_post_type_rewrite', array(
+		'slug'       => fct_get_account_slug(),
+		'with_front' => false
+	) );
+}
+
+/**
+ * Return array of features the account post type supports
+ *
+ * By default support no features, so this returns false. Title and
+ * description input fields are custom provided by Fiscaat.
+ *
+ * @since 0.0.9
+ * 
+ * @return array|bool Features account post type supports or false
+ *                     when supporting no features.
+ */
+function fct_get_account_post_type_supports() {
+	return apply_filters( 'fct_get_account_post_type_supports', false );
+}
+
 /** Account Loop ****************************************************************/
 
 /**

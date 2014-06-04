@@ -32,6 +32,63 @@ function fct_record_post_type() {
 		return apply_filters( 'fct_get_record_post_type', fiscaat()->record_post_type );
 	}
 
+/**
+ * Return array of labels used by the record post type
+ *
+ * @since 0.0.9
+ *
+ * @uses apply_filters() Calls 'fct_get_record_post_type_labels'
+ * @return array Record post type labels
+ */
+function fct_get_record_post_type_labels() {
+	return apply_filters( 'fct_get_record_post_type_labels', array(
+		'name'               => _x( 'Records', 'Post type general name', 'fiscaat' ),
+		'singular_name'      => _x( 'Record', 'Post type singular name', 'fiscaat' ),
+		'menu_name'          => _x( 'Records', 'Admin menu',             'fiscaat' ),
+		'name_admin_bar'     => _x( 'Records', 'Add new on admin bar',   'fiscaat' ),
+		'all_items'          => __( 'All Records',                       'fiscaat' ),
+		'add_new'            => __( 'Add New',                           'fiscaat' ),
+		'add_new_item'       => __( 'Add New Record',                    'fiscaat' ),
+		'edit'               => __( 'Edit',                              'fiscaat' ),
+		'edit_item'          => __( 'Edit Record',                       'fiscaat' ),
+		'edit_items'         => __( 'Edit Records',                      'fiscaat' ),
+		'new_item'           => __( 'New Records',                       'fiscaat' ),
+		'view'               => __( 'View Record',                       'fiscaat' ),
+		'view_item'          => __( 'View Record',                       'fiscaat' ),
+		'search_items'       => __( 'Search Records',                    'fiscaat' ),
+		'not_found'          => __( 'No records found',                  'fiscaat' ),
+		'not_found_in_trash' => __( 'No records found in Trash',         'fiscaat' ),
+		'parent_item_colon'  => __( 'Account:',                          'fiscaat' ),
+	) );
+}
+
+/**
+ * Return array of record post type rewrite settings
+ *
+ * @since 0.0.9
+ * 
+ * @return array Record post type rewrite settings
+ */
+function fct_get_record_post_type_rewrite() {
+	return apply_filters( 'fct_get_record_post_type_rewrite', array(
+		'slug'       => fct_get_record_slug(),
+		'with_front' => false
+	) );
+}
+
+/**
+ * Return array of features the record post type supports
+ *
+ * @since 0.0.9
+ * 
+ * @return array Features record post type supports
+ */
+function fct_get_record_post_type_supports() {
+	return apply_filters( 'fct_get_record_post_type_supports', array(
+		'editor',
+	) );
+}
+
 /** Record Loop Functions ******************************************************/
 
 /**
