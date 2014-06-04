@@ -25,24 +25,6 @@ function fct_ctrl_get_period_default_meta( $meta ) {
 	) );
 }
 
-/**
- * Return whether to bail before closing a period
- *
- * Bail period closing if it has unapproved records.
- * 
- * @param bool $bail Whether to bail
- * @param object $period Period object
- * @return bool Bail
- */
-function fct_ctrl_no_close_period( $bail, $period ) {
-
-	// Get unapproved records of period
-	$unapproved = fct_get_period_record_count_unapproved( $period->ID );
-	
-	// Bail if period has unapproved records
-	return ! empty( $unapproved );
-}
-
 /** Records ********************************************************************/
 
 /**
