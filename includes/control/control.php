@@ -114,10 +114,9 @@ class Fiscaat_Control {
 		add_filter( 'fct_get_account_default_meta', 'fct_ctrl_get_account_default_meta' );
 
 		// Post statuses
-		add_action( 'fct_register_post_statuses',                'fct_ctrl_register_post_statuses'                );
-		add_filter( 'fct_record_statuses',                       'fct_ctrl_record_statuses'                       );
-		add_filter( 'fct_record_status_dropdown_disable',        'fct_ctrl_record_status_dropdown_disable'        );
-		add_filter( 'fct_record_status_dropdown_option_disable', 'fct_ctrl_record_status_dropdown_option_disable' );
+		add_action( 'fct_register_post_statuses',                       'fct_ctrl_register_post_statuses'         );
+		add_filter( 'fct_record_statuses',                              'fct_ctrl_record_statuses'                );
+		add_filter( 'fct_before_get_record_status_dropdown_parse_args', 'fct_ctrl_record_status_disable_dropdown' );
 
 		// Statistics
 		add_filter( 'fct_before_get_statistics_parse_args', 'fct_ctrl_get_statistics_default_args'        );
@@ -140,17 +139,17 @@ class Fiscaat_Control {
 			add_action( 'fct_admin_head', array( $this, 'admin_head' ) );
 
 			// Periods
-			add_filter( 'fct_admin_periods_get_columns',           'fct_ctrl_admin_periods_columns'          );
-			add_filter( 'fct_admin_periods_get_sortable_columns',  'fct_ctrl_admin_periods_sortable_columns' );
-			add_filter( 'fct_admin_periods_request',               'fct_ctrl_admin_periods_request'          );
+			add_filter( 'fct_admin_periods_get_columns',           'fct_ctrl_admin_periods_columns'           );
+			add_filter( 'fct_admin_periods_get_sortable_columns',  'fct_ctrl_admin_periods_sortable_columns'  );
+			add_filter( 'fct_admin_periods_request',               'fct_ctrl_admin_periods_request'           );
 
 			// Accounts
-			add_filter( 'fct_admin_accounts_get_columns',          'fct_ctrl_admin_accounts_columns'         );
-			add_filter( 'fct_admin_accounts_get_sortable_columns', 'fct_ctrl_admin_accounts_sortable_columns');
-			add_filter( 'fct_admin_accounts_request',              'fct_ctrl_admin_accounts_request'         );
+			add_filter( 'fct_admin_accounts_get_columns',          'fct_ctrl_admin_accounts_columns'          );
+			add_filter( 'fct_admin_accounts_get_sortable_columns', 'fct_ctrl_admin_accounts_sortable_columns' );
+			add_filter( 'fct_admin_accounts_request',              'fct_ctrl_admin_accounts_request'          );
 
 			// Records
-			add_filter( 'fct_admin_records_request',               'fct_ctrl_admin_records_request'          );
+			add_filter( 'fct_admin_records_request',               'fct_ctrl_admin_records_request'           );
 
 			// Column content
 			add_action( 'fct_manage_accounts_custom_column', 'fct_ctrl_admin_accounts_column_data', 10, 2 );
@@ -159,6 +158,10 @@ class Fiscaat_Control {
 			// Record toggle
 			add_filter( 'fct_toggle_record',              'fct_ctrl_admin_records_toggle_record',        10, 3 );
 			add_filter( 'fct_toggle_record_notice_admin', 'fct_ctrl_admin_records_toggle_record_notice', 10, 4 );
+
+			// Dashboard
+			add_action( 'fct_dashboard_widget_right_now_content_table_end',    'fct_ctrl_dashboard_widget_right_now_content'    );
+			add_action( 'fct_dashboard_widget_right_now_discussion_table_end', 'fct_ctrl_dashboard_widget_right_now_discussion' );
 		}
 
 		/** Dependencies ******************************************************/

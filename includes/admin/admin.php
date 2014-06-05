@@ -786,7 +786,7 @@ class Fiscaat_Admin {
 	public function dashboard_widget_right_now() {
 
 		// Bail if user is not capable
-		if ( current_user_can( $this->minimum_capability ) )
+		if ( ! current_user_can( $this->minimum_capability ) )
 			return;
 
 		wp_add_dashboard_widget( 'fct-dashboard-right-now', _x( 'Fiscaat', 'Right now in Fiscaat', 'fiscaat' ), 'fct_dashboard_widget_right_now' );

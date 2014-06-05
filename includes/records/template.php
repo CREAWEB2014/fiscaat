@@ -1413,37 +1413,43 @@ function fct_form_record_content() {
 /**
  * Output hte record status dropdown
  * 
- * @param int $record_id Optional. Record id
- * @param bool $disable Optional. Whether to disable the dropdown
  * @uses fct_get_form_record_status_dropdown() To get the record status dropdown
+ * @param int $record_id Optional. Record id
+ * @param array $args Optional. Arguments for disabling element or options
  */
-function fct_form_record_status_dropdown( $record_id = 0 ) {
+function fct_form_record_status_dropdown( $record_id = 0, $args = array() ) {
 	echo fct_get_form_record_status_dropdown( $record_id );
 }
 
 	/**
 	 * Return the record status dropdown
 	 * 
-	 * @param int $record_id Optional. Record id
-	 * @param bool $disable Optional. Whether to disable the dropdown
 	 * @uses fct_get_record_id()
-	 * @uses fct_get_record_status_id()
-	 * @uses fct_get_closed_status_id()
+	 * @uses fct_get_record_status()
+	 * @uses fct_get_record_statuses()
+	 * @uses get_post_type_object()
+	 * @uses fct_get_record_post_type()
 	 * @uses apply_filters() Calls 'fct_get_form_record_status_dropdown' with the
 	 *                        status dropdown, record id, and record statuses
+	 *
+	 * @param int $record_id Optional. Record id
+	 * @param array $args Optional. Arguments for disabling element or options
 	 * @return strign Record status dropdown
 	 */
-	function fct_get_form_record_status_dropdown( $record_id = 0 ) {
+	function fct_get_form_record_status_dropdown( $record_id = 0, $args = array() ) {
 		$record_id     = fct_get_record_id( $record_id );
 		$record_status = fct_get_record_status( $record_id );
 		$statuses      = fct_get_record_statuses();
 
-		$disabled = disabled( apply_filters( 'fct_record_status_dropdown_disable', current_user_can( 'fiscaat' ) ), true, false );
-		$status_output = '<select name="fct_record_status" id="fct_record_status" ' . $disabled . '>' . "\n";
+		$r = fct_parse_args( $args, array(
+			'disable'         => ! current_user_can( get_post_type_object( fct_get_record_post_type() )->cap->edit_posts ),
+			'disable_options' => array()
+		), 'get_record_status_dropdown' );
 
-		foreach ( $statuses as $value => $label ) {
-			$disabled = ' ' . disabled( apply_filters( 'fct_record_status_dropdown_option_disable', false, $value ), true, false );
-			$status_output .= "\t" . '<option value="' . $value . '" ' . selected( $record_status, $value, false ) . $disabled . '>' . esc_html( $label ) . '</option>' . "\n";
+		$status_output = '<select name="fct_record_status" id="fct_record_status" ' . disabled( $r['disable'], true, false ) . ">\n";
+
+		foreach ( $statuses as $status => $label ) {
+			$status_output .= "\t<option value=\"$status\" " . selected( $record_status, $status, false ) . ' ' . disabled( in_array( $status, (array) $r['disable_options'] ), true, false ) . '>' . esc_html( $label ) . "</option>\n";
 		}
 
 		$status_output .= '</select>';
@@ -1454,9 +1460,9 @@ function fct_form_record_status_dropdown( $record_id = 0 ) {
 /**
  * Output the record's type select
  * 
- * @param int $record_id Optional. Record id
- * @param bool $disable Optional. Whether to disable the type select
  * @uses fct_get_form_record_type_select()
+ * @param int $record_id Optional. Record id
+ * @param array $args Optional. Arguments for disabling element or options
  */
 function fct_form_record_type_select( $record_id = 0 ) {
 	echo fct_get_form_record_type_select( $record_id );
@@ -1465,14 +1471,16 @@ function fct_form_record_type_select( $record_id = 0 ) {
 	/**
 	 * Return the record's type select
 	 * 
-	 * @param int $record_id. Optional. Record id
-	 * @param bool $disable Optional. Whether to disable the type select
 	 * @uses fct_get_record_id()
 	 * @uses fct_get_record_type()
-	 * @uses fct_get_debit_record_type_id()
-	 * @uses fct_get_credit_record_type_id()
+	 * @uses fct_get_record_types()
+	 * @uses get_post_type_object()
+	 * @uses fct_get_record_post_type()
 	 * @uses apply_filters() Calls 'fct_get_form_record_type_select' with
 	 *                        the record's type select, record id, and record types
+	 *
+	 * @param int $record_id. Optional. Record id
+	 * @param array $args Optional. Arguments for disabling element or options
 	 * @return string Record type select
 	 */
 	function fct_get_form_record_type_select( $record_id = 0 ) {
@@ -1480,14 +1488,11 @@ function fct_form_record_type_select( $record_id = 0 ) {
 		$record_type = fct_get_record_type( $record_id );
 		$types       = fct_get_record_types();
 
-		// Disable select
-		$disable = fct_is_control_active() && ! current_user_can( 'fiscaat' );
-
 		// Start select
-		$type_output = '<select name="fct_record_type" id="fct_record_type" '. disabled( $disable, true, false ) .'>' . "\n";
+		$type_output = '<select name="fct_record_type" id="fct_record_type" '. disabled( fct_is_record_account_closed( $record_id ), true, false ) . ">\n";
 
-		foreach( $types as $value => $label ) {
-			$type_output .= "\t" . '<option value="' . $value . '"' . selected( $record_type, $value, false ) . '>' . esc_html( $label ) . '</option>' . "\n";
+		foreach ( $types as $type => $label ) {
+			$type_output .= "\t<option value=\"$type\" " . selected( $record_type, $type, false ) . '>' . esc_html( $label ) . "</option>\n";
 		}
 
 		$type_output .= '</select>';

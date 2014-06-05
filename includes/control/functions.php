@@ -65,7 +65,7 @@ function fct_ctrl_register_post_statuses() {
 /**
  * Add control post stati to record status dropdown
  * 
- * @param array $options
+ * @param array $statuses
  * @return array
  */
 function fct_ctrl_record_statuses( $statuses ) {
@@ -83,45 +83,28 @@ function fct_ctrl_record_statuses( $statuses ) {
 /**
  * Enable record status dropdown for Controllers
  * 
- * @param boolean $disable
- * @return boolean
+ * @param array $args Status dropdown disable args
+ * @return array Args
  */
-function fct_ctrl_record_status_dropdown_disable( $disable ) {
+function fct_ctrl_record_status_disable_dropdown( $args ) {
 
 	// User can control
-	if ( current_user_can( 'fct_control' ) )
-		$disable = false;
+	if ( current_user_can( 'fct_control' ) ) {
 
-	return $disable;
-}
+		// Enable dropdown
+		$args['disable'] = false;
 
-/**
- * Disable record status dropdown options for (non-)Controllers
- * 
- * @param boolean $disable
- * @param string $option
- * @return boolean
- */
-function fct_ctrl_record_status_dropdown_option_disable( $disable, $option ) {
+		// Disable non-control statuses
+		$args['disable_options'] = array_filter( fct_get_post_stati( fct_get_record_post_type() ), array( fct_get_approved_status_id(), fct_get_declined_status_id() ) );
 
-	// Which options is being checked?
-	switch ( $option ) {
-
-		// Disable 'approved' and 'declined' record post stati for non-Controllers
-		case fct_get_approved_status_id() :
-		case fct_get_declined_status_id() :
-			if ( ! current_user_can( 'fct_control' ) )
-				$disable = true;
-			break;
-
-		// Disable all other post stati for Controllers
-		default :
-			if ( current_user_can( 'fct_control' ) )
-				$disable = true;
-			break;
+	// All other users
+	} else {
+		
+		// Disable control statuses
+		$args['disable_options'] = array( fct_get_approved_status_id(), fct_get_declined_status_id() );
 	}
 
-	return $disable;
+	return $args;
 }
 
 /** Statistics ****************************************************************/
@@ -174,23 +157,28 @@ function fct_ctrl_get_statistics( $stats, $args ) {
 	// Counting records
 	if ( ! empty( $args['count_current_records'] ) ) {
 
-		// Approved
-		if ( ! empty( $args['count_approved_records'] ) ) {
-			$approved = fct_get_approved_status_id();
-			$closed   = fct_get_closed_status_id();
-			$ctrl['current_approved_count']   = $current_records->{$approved} + $current_records->{$closed};
-		}
+		// Get record counts
+		$current_records = fct_count_posts( array( 
+			'type'      => fct_get_record_post_type(), 
+			'period_id' => fct_get_current_period_id() 
+		) );
 
 		// Unapproved
 		if ( ! empty( $args['count_unapproved_records'] ) ) {
 			$declined = fct_get_declined_status_id();
-			$ctrl['current_unapproved_count'] = $current_records->publish + $current_records->{$declined};
+			$ctrl['current_unapproved_count'] = $current_records->publish + isset( $current_records->{$declined} ) ? $current_records->{$declined} : 0;
 		}
 
 		// Declined
 		if ( ! empty( $args['count_declined_records'] ) ) {
 			$declined = fct_get_declined_status_id();
-			$ctrl['current_declined_count']   = $current_records->{$declined};
+			$ctrl['current_declined_count']   = isset( $current_records->{$declined} ) ? $current_records->{$declined} : 0;
+		}
+
+		// Approved
+		if ( ! empty( $args['count_approved_records'] ) ) {
+			$approved = fct_get_approved_status_id();
+			$ctrl['current_approved_count']   = isset( $current_records->{$approved} ) ? $current_records->{$approved} : 0;
 		}
 	}
 
@@ -235,7 +223,7 @@ function fct_ctrl_admin_bar_menu( $menu_items ) {
 					sprintf( __( '%d Unapproved Records', 'fiscaat' ), number_format_i18n( $count ) ), 
 					number_format_i18n( $count ) 
 				) ),
-				'href'   => add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'approval' => 0 ), admin_url( 'edit.php' ) ),
+				'href'   => add_query_arg( array( 'page' => 'fct-records', 'post_status' => 'unapproved' ), admin_url( 'admin.php' ) ),
 				'meta'   => array()
 			);
 		}
@@ -255,7 +243,7 @@ function fct_ctrl_admin_bar_menu( $menu_items ) {
 					sprintf( __( '%d Declined Records', 'fiscaat' ), number_format_i18n( $count ) ), 
 					number_format_i18n( $count ) 
 				) ),
-				'href'   => add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'approval' => 2 ), admin_url( 'edit.php' ) ),
+				'href'   => add_query_arg( array( 'page' => 'fct-records', 'post_status' => fct_get_declined_status_id() ), admin_url( 'admin.php' ) ),
 				'meta'   => array()
 			);
 		}

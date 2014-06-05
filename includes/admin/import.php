@@ -279,7 +279,7 @@ class Fiscaat_Records_Importer {
 					delete_option( '_fct_importer_records' );
 
 					// Redirect to New Records page
-					wp_safe_redirect( add_query_arg( array( 'records' => urlencode_deep( $records ), 'fiscaat' => 'create-new', 'post_type' => fct_get_record_post_type() ), admin_url( 'edit.php' ) ) );
+					wp_safe_redirect( add_query_arg( array( 'records' => urlencode_deep( $records ), 'page' => 'fct-records', 'mode' => fct_admin_get_new_records_mode() ), admin_url( 'admin.php' ) ) );
 
 					// Good measure
 					exit;

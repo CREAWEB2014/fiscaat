@@ -44,7 +44,7 @@ function fct_dashboard_widget_right_now() {
 					$num  = $period_count;
 					$text = _n( 'Period', 'Periods', $period_count, 'fiscaat' );
 					if ( current_user_can( 'fct_spectate' ) ) {
-						$link = add_query_arg( array( 'post_type' => fct_get_period_post_type() ), get_admin_url( null, 'edit.php' ) );
+						$link = add_query_arg( array( 'page' => 'fct-periods' ), admin_url( 'admin.php' ) );
 						$num  = '<a href="' . $link . '">' . $num  . '</a>';
 						$text = '<a href="' . $link . '">' . $text . '</a>';
 					}
@@ -59,7 +59,7 @@ function fct_dashboard_widget_right_now() {
 					$num  = $account_count;
 					$text = _n( 'Account', 'Accounts', $account_count, 'fiscaat' );
 					if ( current_user_can( 'fct_spectate' ) ) {
-						$link = add_query_arg( array( 'post_type' => fct_get_account_post_type() ), get_admin_url( null, 'edit.php' ) );
+						$link = add_query_arg( array( 'page' => 'fct-accounts' ), admin_url( 'admin.php' ) );
 						$num  = '<a href="' . $link . '">' . $num  . '</a>';
 						$text = '<a href="' . $link . '">' . $text . '</a>';
 					}
@@ -74,7 +74,7 @@ function fct_dashboard_widget_right_now() {
 					$num  = $record_count;
 					$text = _n( 'Record', 'Records', $record_count, 'fiscaat' );
 					if ( current_user_can( 'fct_spectate' ) ) {
-						$link = add_query_arg( array( 'post_type' => fct_get_record_post_type() ), get_admin_url( null, 'edit.php' ) );
+						$link = add_query_arg( array( 'page' => 'fct-records' ), admin_url( 'admin.php' ) );
 						$num  = '<a href="' . $link . '">' . $num  . '</a>';
 						$text = '<a href="' . $link . '">' . $text . '</a>';
 					}
@@ -117,7 +117,7 @@ function fct_dashboard_widget_right_now() {
 					$num  = fct_get_currency_format( $current_end_value, true );
 					$text = __( 'To Balance', 'fiscaat' );
 					if ( current_user_can( 'fct_spectate' ) ) {
-						$link = add_query_arg( array( 'post_type' => fct_get_account_post_type(), 'fct_period_id' => fct_get_current_period_id() ), get_admin_url( null, 'edit.php' ) );
+						$link = add_query_arg( array( 'page' => 'fct-reports', 'fct_period_id' => fct_get_current_period_id() ), admin_url( 'admin.php' ) );
 						$class = $current_end_value < 0 ? ' class="spam"' : ''; // Coloring
 						$num  = '<a'. $class .' href="' . $link . '">' . $num  . '</a>';
 						$text = '<a href="' . $link . '">' . $text . '</a>';
@@ -133,7 +133,7 @@ function fct_dashboard_widget_right_now() {
 					$num  = $current_record_count;
 					$text = _n( 'Record', 'Records', $current_record_count, 'fiscaat' );
 					if ( current_user_can( 'fct_spectate' ) ) {
-						$link = add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'fct_period_id' => fct_get_current_period_id() ), get_admin_url( null, 'edit.php' ) );
+						$link = add_query_arg( array( 'page' => 'fct-records', 'fct_period_id' => fct_get_current_period_id() ), admin_url( 'admin.php' ) );
 						$num  = '<a href="' . $link . '">' . $num  . '</a>';
 						$text = '<a href="' . $link . '">' . $text . '</a>';
 					}
@@ -142,25 +142,6 @@ function fct_dashboard_widget_right_now() {
 				<td class="b b-records"><?php echo $num; ?></td>
 				<td class="last t records"><?php echo $text; ?></td>
 			</tr>
-
-			<?php if ( fct_is_comments_active() ) : ?>
-
-			<tr>
-				<?php
-					$num  = $current_comment_count;
-					$text = __( 'Comment', 'Comments', $current_comment_count, 'fiscaat' );
-					if ( current_user_can( 'fct_spectate' ) ) {
-						$link = get_admin_url( null, 'users.php' ); // @todo Comment section
-						$num  = '<a href="' . $link . '">' . $num  . '</a>';
-						$text = '<a href="' . $link . '">' . $text . '</a>';
-					}
-				?>
-
-				<td class="b b-end_value"><span class="total-count"><?php echo $num; ?></span></td>
-				<td class="last t end_value"><?php echo $text; ?></td>
-			</tr>
-
-			<?php endif; ?>
 
 			<?php do_action( 'fct_dashboard_widget_right_now_discussion_table_end' ); ?>
 		</table>
@@ -351,9 +332,9 @@ function fct_record_metabox() {
 	$post_id = get_the_ID();
 
 	// Get some meta
-	$record_account_id = fct_get_record_account_id( $post_id );
-	$record_period_id  = fct_get_record_period_id( $post_id );
-	$record_period_id  = fct_get_period_id( $period_id );
+	$account_id = fct_get_record_account_id( $post_id );
+	$period_id  = fct_get_record_period_id( $post_id );
+	$period_id  = fct_get_period_id( $period_id );
 
 	/** Period ****************************************************************/
 
@@ -363,7 +344,7 @@ function fct_record_metabox() {
 		<strong class="label"><?php _e( 'Period:', 'fiscaat' ); ?></strong>
 		<label class="screen-reader-text" for="fct_record_period_id"><?php _e( 'Period', 'fiscaat' ); ?></label>
 		<?php fct_dropdown( array(
-			'selected'           => $record_period_id,
+			'selected'           => $period_id,
 
 			// Output-related
 			'select_id'          => 'fct_period_id',
@@ -380,32 +361,17 @@ function fct_record_metabox() {
 	?>
 	
 	<p>
-		<strong class="label"><?php _e( 'Account Number:', 'fiscaat' ); ?></strong>
-		<label class="screen-reader-text" for="fct_record_account_ledger_id"><?php _e( 'Account Number', 'fiscaat' ); ?></label>
-		<?php fct_account_ledger_dropdown( array(
-			'selected'           => $record_account_id,
-			'post_parent'           => $record_period_id,
-
-			// Output-related
-			'select_id'          => 'fct_record_account_ledger_id',
-			'show_none'          => __( '&mdash; No account &mdash;', 'fiscaat' ),
-			'none_found'         => false,
-			'disabled'           => ! current_user_can( 'edit_records' ) || fct_is_account_closed( $record_account_id ),
-		) ); ?>
-
-		<br/>
-
-		<strong class="label"><?php _e( 'Account Title:', 'fiscaat' ); ?></strong>
-		<label class="screen-reader-text" for="parent_id"><?php _e( 'Account Title', 'fiscaat' ); ?></label>
-		<?php fct_account_dropdown( array(
-			'selected'           => $record_account_id,
-			'post_parent'           => $record_period_id,
+		<strong class="label"><?php _e( 'Account:', 'fiscaat' ); ?></strong>
+		<label class="screen-reader-text" for="parent_id"><?php _e( 'Account', 'fiscaat' ); ?></label>
+		<?php fct_account_full_dropdown( array(
+			'selected'           => $account_id,
+			'post_parent'        => $period_id,
 
 			// Output-related
 			'select_id'          => 'parent_id',
 			'show_none'          => __( '&mdash; No account &mdash;', 'fiscaat' ),
 			'none_found'         => false,
-			'disabled'           => ! current_user_can( 'edit_records' ) || fct_is_account_closed( $record_account_id ),
+			'disabled'           => fct_is_account_closed( $account_id ),
 		) ); ?>
 	</p>
 
@@ -417,8 +383,7 @@ function fct_record_metabox() {
 	
 	<p>
 		<strong class="label"><?php _e( 'Amount:', 'fiscaat' ); ?></strong>
-		<label class="screen-reader-text" for="fct_record_amount"><?php _e( 'Amount', 'fiscaat' ); ?></label>
-		<input name="fct_record_amount" id="fct_record_amount" type="text" value="<?php echo esc_attr( fct_get_record_amount( $post_id ) ); ?>" disabled="disabled" />
+		<span><?php fct_currency_format( fct_get_record_amount( $post_id ), true ); ?></span>
 	</p>
 
 	<?php
@@ -429,8 +394,7 @@ function fct_record_metabox() {
 	
 	<p>
 		<strong class="label"><?php _ex( 'Type:', 'Record type input label', 'fiscaat' ); ?></strong>
-		<label class="screen-reader-text" for="fct_record_type"><?php _e( 'Record Type', 'fiscaat' ); ?></label>
-		<?php fct_form_record_type_select( $post_id, true ); ?>
+		<span><?php fct_record_type( $post_id ); ?></span>
 	</p>
 
 	<?php
@@ -482,7 +446,14 @@ function fct_post_name_metabox( $post ) { ?>
 				<div class="inside">
 					<input type="text" name="post_title" id="title" value="<?php echo esc_attr( stripslashes( $post->post_title ) ) ?>" />
 
-					<?php wp_editor( stripslashes( $post->post_content ), 'content', array( 'media_buttons' => false, 'teeny' => true, 'textarea_rows' => 5, 'quicktags' => array( 'buttons' => 'strong,em,link,block,del,ins,img,code,spell,close' ) ) ); ?>
+					<?php wp_editor( stripslashes( $post->post_content ), 'content', array( 
+						'media_buttons' => false, 
+						'teeny'         => true, 
+						'textarea_rows' => 5, 
+						'quicktags'     => array( 
+							'buttons' => 'strong,em,link,block,del,ins,img,code,spell,close' 
+						) 
+					) ); ?>
 				</div>
 			</div>
 		</div>

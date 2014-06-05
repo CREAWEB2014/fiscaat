@@ -10,7 +10,7 @@
 /** Metaboxes *****************************************************************/
 
 /**
- * Output Control statistics in Fiscaat Dashboard Right Now Widget
+ * Output the Right Now dashboard widget control discussion items
  *
  * @uses fct_get_statistics() To get the period statistics
  * @uses current_user_can() To check if the user is capable of doing things
@@ -18,17 +18,17 @@
  * @uses get_admin_url() To get the administration url
  * @uses add_query_arg() To add custom args to the url
  */
-function fct_ctrl_admin_dashboard_widget_right_now() {
+function fct_ctrl_dashboard_widget_right_now_discussion() {
 
-	// Get the statistics and extract them
-	extract( fct_get_statistics(), EXTR_SKIP ); ?>
+	// Get the statistics
+	$stats = fct_get_statistics(); ?>
 
 		<tr>
 			<?php
-				$num  = $current_approved_count;
+				$num  = $stats['current_approved_count'];
 				$text = __( 'Approved', 'fiscaat' );
 				if ( current_user_can( 'fct_spectate' ) ) {
-					$link = add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'fct_period_id' => fct_get_current_period_id(), 'approval' => 1 ), get_admin_url( null, 'edit.php' ) );
+					$link = add_query_arg( array( 'page' => 'fct-records', 'post_status' => fct_get_approved_status_id() ), get_admin_url( null, 'admin.php' ) );
 					$num  = '<a href="' . $link . '">' . $num  . '</a>';
 					$text = '<a class="approved" href="' . $link . '">' . $text . '</a>';
 				}
@@ -40,10 +40,10 @@ function fct_ctrl_admin_dashboard_widget_right_now() {
 
 		<tr>
 			<?php
-				$num  = $current_unapproved_count;
+				$num  = $stats['current_unapproved_count'];
 				$text = __( 'Unapproved', 'fiscaat' );
 				if ( current_user_can( 'fct_spectate' ) ) {
-					$link = add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'fct_period_id' => fct_get_current_period_id(), 'approval' => 0 ), get_admin_url( null, 'edit.php' ) );
+					$link = add_query_arg( array( 'page' => 'fct-records', 'post_status' => 'unapproved' ), get_admin_url( null, 'admin.php' ) );
 					$num  = '<a href="' . $link . '">' . $num  . '</a>';
 					$text = '<a class="waiting" href="' . $link . '">' . $text . '</a>';
 				}
@@ -55,10 +55,10 @@ function fct_ctrl_admin_dashboard_widget_right_now() {
 
 		<tr>
 			<?php
-				$num  = $current_declined_count;
+				$num  = $stats['current_declined_count'];
 				$text = __( 'Declined', 'fiscaat' );
 				if ( current_user_can( 'fct_spectate' ) ) {
-					$link = add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'fct_period_id' => fct_get_current_period_id(), 'approval' => 2 ), get_admin_url( null, 'edit.php' ) );
+					$link = add_query_arg( array( 'page' => 'fct-records', 'post_status' => fct_get_declined_status_id() ), get_admin_url( null, 'admin.php' ) );
 					$num  = '<a href="' . $link . '">' . $num  . '</a>';
 					$text = '<a class="spam" href="' . $link . '">' . $text . '</a>';
 				}
@@ -72,7 +72,7 @@ function fct_ctrl_admin_dashboard_widget_right_now() {
 }
 
 /**
- * Output the dashboard widget right now control content
+ * Output the Right Now dashboard widget control content
  *
  * @uses fct_get_total_controllers()
  */
