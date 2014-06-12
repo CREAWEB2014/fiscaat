@@ -410,7 +410,7 @@ class Fiscaat_Periods_Admin {
 
 			#misc-publishing-actions,
 			#save-post {
-				display: none;
+				/*display: none;*/
 			}
 
 			strong.label {

@@ -95,7 +95,7 @@ function fct_ctrl_record_status_disable_dropdown( $args ) {
 		$args['disable'] = false;
 
 		// Disable non-control statuses
-		$args['disable_options'] = array_filter( fct_get_post_stati( fct_get_record_post_type() ), array( fct_get_approved_status_id(), fct_get_declined_status_id() ) );
+		$args['disable_options'] = array_diff( fct_get_post_stati( fct_get_record_post_type() ), array( fct_get_approved_status_id(), fct_get_declined_status_id() ) );
 
 	// All other users
 	} else {

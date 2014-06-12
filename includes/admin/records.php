@@ -1017,7 +1017,7 @@ class Fiscaat_Records_Admin {
 			12 => sprintf( __( 'Using Fiscaat requires the current period to have an account to assign records to. <a href="%s">Create an account first</a>.', 'fiscaat' ), esc_url( add_query_arg( 'post_type', fct_get_account_post_type(), admin_url( 'post-new.php' ) ) ) ),
 
 			// Can not use post-new.php
-			13 => sprintf( __( 'Don\'t know how you got here, but records are added otherwise. <a href="%s">Lead me there</a>.', 'fiscaat' ), esc_url( add_query_arg( array( 'page' => 'fct-records', 'mode' => fct_admin_get_new_records_mode() ), admin_url( 'edit.php' ) ) ) ),
+			13 => sprintf( __( 'Don\'t know how you got here, but records are added otherwise. <a href="%s">Lead me there</a>.', 'fiscaat' ), esc_url( add_query_arg( array( 'page' => 'fct-records', 'mode' => fct_admin_get_new_records_mode() ), admin_url( 'admin.php' ) ) ) ),
 		);
 
 		return $messages;

@@ -41,7 +41,6 @@ add_filter( 'request',                 'fct_request',            10    );
 add_filter( 'wp_title',                'fct_title',              10, 3 );
 add_filter( 'body_class',              'fct_body_class',         10, 2 );
 add_filter( 'map_meta_cap',            'fct_map_meta_caps',      10, 4 );
-add_filter( 'redirect_canonical',      'fct_redirect_canonical', 10    );
 add_filter( 'plugin_locale',           'fct_plugin_locale',      10, 2 );
 
 // Remove Fiscaat roles from list of all roles
