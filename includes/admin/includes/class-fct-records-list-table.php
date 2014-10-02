@@ -31,7 +31,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 	/**
 	 * Constructs the posts list table
-	 * 
+	 *
 	 * @param array $args
 	 */
 	public function __construct( $args = array() ) {
@@ -47,9 +47,9 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		}
 
 		// Setup amounts counter
-		$this->amounts = array( 
-			fct_get_debit_record_type_id()  => array(), 
-			fct_get_credit_record_type_id() => array() 
+		$this->amounts = array(
+			fct_get_debit_record_type_id()  => array(),
+			fct_get_credit_record_type_id() => array()
 		);
 
 		// Single row data
@@ -65,7 +65,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * Setup posts query and query vars
 	 *
 	 * @since 0.0.8
-	 * 
+	 *
 	 * @todo Create own version
 	 */
 	public function prepare_items() {
@@ -73,15 +73,15 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		/**
 		 * Various actions: view, edit, post
 		 */
-		
+
 		parent::prepare_items();
 	}
 
 	/**
 	 * Return post status views
 	 *
-	 * Use {@link fct_count_posts()} when displaying account's records 
-	 * for it enables counting posts by parent. Additionally append the 
+	 * Use {@link fct_count_posts()} when displaying account's records
+	 * for it enables counting posts by parent. Additionally append the
 	 * account id query arg to the views's urls.
 	 *
 	 * @since 0.0.8
@@ -97,24 +97,24 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		if ( ! empty( $locked_post_status ) )
 			return array();
 
-		// Account's records count
+		// Account's record count
 		if ( $this->account_display ) {
-			$num_posts = fct_count_posts( array( 
-				'type'        => $post_type, 
-				'perm'        => 'readable', 
+			$num_posts = fct_count_posts( array(
+				'type'        => $post_type,
+				'perm'        => 'readable',
 				'post_parent' => $this->account_display,
 			) );
 			$parent = '&fct_account_id=' . $this->account_display;
 
-		// Period's records count. Not querying all records
+		// Period's record count. Not querying all records
 		} elseif ( ! isset( $_REQUEST['fct_period_id'] ) || ! empty( $_REQUEST['fct_period_id'] ) ) {
-			$num_posts = fct_count_posts( array( 
-				'type'      => $post_type, 
-				'perm'      => 'readable', 
+			$num_posts = fct_count_posts( array(
+				'type'      => $post_type,
+				'perm'      => 'readable',
 				'period_id' => isset( $_REQUEST['fct_period_id'] ) ? (int) $_REQUEST['fct_period_id'] : fct_get_current_period_id(),
 			) );
 
-		// All records count
+		// Total records count
 		} else {
 			$num_posts = wp_count_posts( $post_type, 'readable' );
 		}
@@ -162,7 +162,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * Return dedicated bulk actions
 	 *
 	 * @since 0.0.8
-	 * 
+	 *
 	 * @return array Bulk actions
 	 */
 	public function _get_bulk_actions() {
@@ -173,7 +173,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * Return table classes. Mode aware
 	 *
 	 * @since 0.0.8
-	 * 
+	 *
 	 * @return array Classes
 	 */
 	public function get_table_classes() {
@@ -190,7 +190,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * Return dedicated record columns
 	 *
 	 * @since 0.0.8
-	 * 
+	 *
 	 * @return array Columns
 	 */
 	public function _get_columns() {
@@ -209,8 +209,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 		// Remove rows in edit/new mode
 		if ( ! fct_admin_is_view_records() ) {
-			unset( 
-				$columns['cb'], 
+			unset(
+				$columns['cb'],
 				$columns['fct_record_post_date'],
 				$columns['author'],
 				$columns['fct_record_period']
@@ -232,7 +232,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			'fct_record_post_date'         => array( 'date',        true ),
 			'fct_record_date'              => array( 'record_date', true ),
 
-			// @todo Fix sorting by account ledger id. 
+			// @todo Fix sorting by account ledger id.
 			// @see Fiscaat_Records_Admin::filter_post_rows()
 			// 'fct_record_account_ledger_id' => 'record_account_ledger_id',
 
@@ -246,7 +246,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * Return columns that are hidden by default
 	 *
 	 * @since 0.0.8
-	 * 
+	 *
 	 * @return array Hidden columns
 	 */
 	public function _get_hidden_columns( $columns ) {
@@ -269,7 +269,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * a <form> element with method=post to enable proper submitting.
 	 *
 	 * @since 0.0.8
-	 * 
+	 *
 	 * @uses fct_admin_is_view_records()
 	 * @uses do_action() Calls 'fct_admin_bottom_posts_insert_form's
 	 * @uses do_action() Calls 'fct_admin_top_posts_insert_form'
@@ -290,7 +290,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	<input type="hidden" name="page" class="post_page" value="<?php echo ! empty($_REQUEST['page']) ? esc_attr($_REQUEST['page']) : 'fct-records'; ?>" />
 	<input type="hidden" name="post_status" class="post_status_page" value="<?php echo ! empty($_REQUEST['post_status']) ? esc_attr($_REQUEST['post_status']) : ''; ?>" />
 	<?php wp_nonce_field( 'bulk-' . $this->_args['plural'] ); ?>
-<?php 
+<?php
 		}
 
 		// Display tablenav
@@ -301,7 +301,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		<div class="alignleft actions bulkactions">
 			<?php $this->bulk_actions(); ?>
 		</div>
-<?php endif; 
+<?php endif;
 
 		$this->extra_tablenav( $which );
 		$this->pagination( $which );
@@ -312,7 +312,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 <?php
 
 		// Open posts-insert form after top tablenav
-		if ( 'top' == $which && ! fct_admin_is_view_records() ) { 
+		if ( 'top' == $which && ! fct_admin_is_view_records() ) {
 ?>
 </form><!-- #posts-filter -->
 <form id="posts-insert" action="" method="post">
@@ -360,7 +360,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * Display post-new rows
 	 *
 	 * @since 0.0.8
-	 * 
+	 *
 	 * @uses FCT_Records_List_Table::_display_rows()
 	 * @uses FCT_Records_List_Table::display_helper_row()
 	 * @param array $posts Posts
@@ -416,15 +416,15 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 		list( $columns, $hidden ) = $this->get_column_info(); ?>
 		<tr class="<?php echo $classes; ?>" valign="top">
-			
+
 			<?php foreach ( $columns as $column_name => $column_display_name ) :
 				$class = " class=\"$column_name column-$column_name\"";
 				$style = '';
-	
+
 				if ( in_array( $column_name, $hidden ) )
 					$style = ' style="display:none;"';
 
-				$attributes = "$class$style"; 
+				$attributes = "$class$style";
 
 				$el1 = 'cb' == $column_name ? 'th scope="row" class="check-column"' : "td $attributes";
 				$el2 = 'cb' == $column_name ? 'th' : 'td';
@@ -455,7 +455,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			// Record account ledger id
 			case 'fct_record_account_ledger_id' :
 				fct_account_ledger_dropdown( array(
-					'select_name'    => 'records[ledger_account_id][]', 
+					'select_name'    => 'records[ledger_account_id][]',
 					'class'          => 'fct_record_ledger_id',
 					'show_none'      => '&mdash;',
 					'disable_closed' => true,
@@ -515,7 +515,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * When there are items, show account (start, end, total) rows
 	 *
 	 * @since 0.0.8
-	 * 
+	 *
 	 * @uses FCT_Records_List_Table::display_helper_row()
 	 * @param array $posts Posts
 	 * @param integer $level Depth
@@ -658,7 +658,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 	/**
 	 * Display records's helper row
-	 * 
+	 *
 	 * @since 0.0.8
 	 *
 	 * @uses do_action() Calls 'fct_admin_records_{$which}_row'
@@ -677,15 +677,15 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 		list( $columns, $hidden ) = $this->get_column_info(); ?>
 		<tr id="fct-records-<?php echo $which; ?>-row" class="<?php echo $classes; ?>" valign="top">
-			
+
 			<?php foreach ( $columns as $column_name => $column_display_name ) :
 				$class = " class=\"$column_name column-$column_name\"";
 				$style = '';
-	
+
 				if ( in_array( $column_name, $hidden ) )
 					$style = ' style="display:none;"';
 
-				$attributes = "$class$style"; 
+				$attributes = "$class$style";
 
 				$el1 = 'cb' == $column_name ? 'th scope="row" class="check-column"' : "td $attributes";
 				$el2 = 'cb' == $column_name ? 'th' : 'td';
@@ -701,7 +701,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 	/**
 	 * Display contents of either an account's start or end row
-	 * 
+	 *
 	 * @since 0.0.8
 	 *
 	 * @uses fct_get_account_id()
@@ -739,7 +739,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 					case fct_get_revenue_account_type_id() :
 						// Revenue accounts have no starting value
-						if ( ! $start ) 
+						if ( ! $start )
 							_e( 'To Income Statement', 'fiscaat' );
 						break;
 				}
@@ -748,7 +748,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			// Row account amount
 			case 'fct_record_amount' :
 				$_row  = $start ? 'start' : 'end';
-				$value = call_user_func_array( "fct_get_account_{$_row}_value", array( 'account_id' => $account_id ) ); 
+				$value = call_user_func_array( "fct_get_account_{$_row}_value", array( 'account_id' => $account_id ) );
 				$this->amounts[ $value > 0 ? fct_get_debit_record_type_id() : fct_get_credit_record_type_id() ][] = abs( $value ); ?>
 
 				<input id="fct_account_<?php echo $_row; ?>_value_debit"  class="fct_record_debit_amount small-text"  type="text" value="<?php if ( $value > 0 ) { fct_currency_format( abs( $value ) ); } ?>" disabled="disabled" <?php fct_tab_index_attr(); ?>/>
@@ -761,7 +761,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 	/**
 	 * Display contents of the records's total row
-	 * 
+	 *
 	 * @since 0.0.8
 	 *
 	 * @uses fct_get_debit_record_type_id()

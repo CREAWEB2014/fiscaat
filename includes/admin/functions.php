@@ -262,6 +262,7 @@ function fct_admin_get_post_new_file( $post_type = '' ) {
 		$post_type = $GLOBALS['post_type'];
 	}
 
+	// Records are treated differently
 	if ( fct_get_record_post_type() == $post_type ) {
 		$file = 'admin.php?page=fct-records&mode=' . fct_admin_get_new_records_mode();
 	} else {
@@ -299,7 +300,7 @@ function fct_get_list_table( $class, $args = array() ) {
 				require_once( fiscaat()->admin->includes_dir . 'class-' . $required . '-list-table.php' );
 
 			// Load custom list table
-			} elseif ( $file = apply_filters( 'fct_get_list_table_file', $required, $class, $args ) && file_exists( $file ) ) {
+			} elseif ( ( $file = apply_filters( 'fct_get_list_table_file', $required, $class, $args ) ) && file_exists( $file ) ) {
 				require_once( $file );
 			}
 		}
@@ -327,7 +328,7 @@ function fct_get_list_table( $class, $args = array() ) {
  * @uses do_action() Calls 'fct_admin_pre_posts_form'
  * @uses do_action() Calls 'fct_admin_post_posts_form'
  */
-function fct_admin_posts_page() { 
+function fct_admin_posts_page() {
 	global $wp_list_table, $post_type_object; ?>
 
 	<div class="wrap">
@@ -340,7 +341,7 @@ function fct_admin_posts_page() {
 			<input type="hidden" name="page" class="post_page" value="<?php echo ! empty($_REQUEST['page']) ? esc_attr($_REQUEST['page']) : 'fiscaat'; ?>" />
 			<input type="hidden" name="post_status" class="post_status_page" value="<?php echo ! empty($_REQUEST['post_status']) ? esc_attr($_REQUEST['post_status']) : ''; ?>" />
 			<?php $wp_list_table->search_box( $post_type_object->labels->search_items, 'post' ); ?>
-			
+
 			<?php $wp_list_table->display(); ?>
 
 		</form>
@@ -358,7 +359,7 @@ function fct_admin_posts_page() {
  * Output the admin page title
  *
  * @since 0.0.7
- * 
+ *
  * @uses fct_admin_get_page_title()
  */
 function fct_admin_page_title() {
@@ -378,7 +379,7 @@ function fct_admin_page_title() {
 		global $post_type_object;
 		$type = fct_admin_get_page_type();
 
-		// Filter object page specific 
+		// Filter object page specific
 		return apply_filters( "fct_admin_{$type}s_page_title", esc_html( $post_type_object->labels->name ) );
 	}
 
@@ -405,7 +406,7 @@ function fct_admin_page_title_add_new( $title ) {
  * Append search terms to the posts page title when a search query is performed
  *
  * @since 0.0.9
- * 
+ *
  * @param string $title Page title
  * @return string Page title
  */
@@ -423,7 +424,7 @@ function fct_admin_page_title_search_terms( $title ) {
 
 /**
  * Return the current records mode
- * 
+ *
  * @since 0.0.8
  *
  * @uses get_current_screen()
@@ -435,11 +436,11 @@ function fct_admin_page_title_search_terms( $title ) {
 function fct_admin_get_records_mode() {
 
 	// Page has record's post type and is in mode
-	if ( isset( get_current_screen()->post_type ) && ( fct_get_record_post_type() == get_current_screen()->post_type ) 
-		&& isset( $_GET['mode'] ) && in_array( $_GET['mode'], array( 
-			fct_admin_get_new_records_mode(), 
-			fct_admin_get_edit_records_mode(), 
-			fct_admin_get_view_records_mode() 
+	if ( isset( get_current_screen()->post_type ) && ( fct_get_record_post_type() == get_current_screen()->post_type )
+		&& isset( $_GET['mode'] ) && in_array( $_GET['mode'], array(
+			fct_admin_get_new_records_mode(),
+			fct_admin_get_edit_records_mode(),
+			fct_admin_get_view_records_mode()
 	) ) ) {
 		$mode = $_GET['mode'];
 
@@ -455,7 +456,7 @@ function fct_admin_get_records_mode() {
  * Return the post-new records mode
  *
  * @since 0.0.8
- * 
+ *
  * @uses apply_filters() Calls 'fct_admin_get_new_records_mode' with the new mode
  * @return string Records post-new mode
  */
@@ -467,7 +468,7 @@ function fct_admin_get_new_records_mode() {
  * Return the edit records mode
  *
  * @since 0.0.8
- * 
+ *
  * @uses apply_filters() Calls 'fct_admin_get_edit_records_mode' with the edit mode
  * @return string Records edit mode
  */
@@ -479,7 +480,7 @@ function fct_admin_get_edit_records_mode() {
  * Return the view records mode
  *
  * @since 0.0.8
- * 
+ *
  * @uses apply_filters() Calls 'fct_admin_get_view_records_mode' with the view mode
  * @return string Records view mode
  */
@@ -505,7 +506,7 @@ function fct_admin_is_new_records() {
  * Return whether the current page is the records edit mode
  *
  * @since 0.0.8
- * 
+ *
  * @uses fct_admin_get_edit_records_mode()
  * @uses fct_admin_get_records_mode()
  * @uses current_user_can() To check if the current user can edit records
@@ -519,7 +520,7 @@ function fct_admin_is_edit_records() {
  * Return whether the current page is the records edit mode
  *
  * @since 0.0.8
- * 
+ *
  * @uses fct_admin_is_new_records()
  * @uses fct_admin_is_edit_records()
  * @return bool Page is records edit mode
