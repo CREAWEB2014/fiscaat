@@ -13,10 +13,10 @@
 
 /**
  * Plugin Name:       Fiscaat
- * Plugin URI:        https://github.com/lmoffereins/fiscaat
  * Description:       Fiscaat is accounting software the Wordpress way
+ * Plugin URI:        https://github.com/lmoffereins/fiscaat/
  * Author:            Laurens Offereins
- * Author URI:        https://github.com/lmoffereins
+ * Author URI:        https://github.com/lmoffereins/
  * Version:           0.0.8
  * Text Domain:       fiscaat
  * Domain Path:       /languages/
@@ -24,7 +24,7 @@
  */
 
 // Exit if accessed directly
-if ( ! defined( 'ABSPATH' ) ) exit;
+defined( 'ABSPATH' ) || exit;
 
 if ( ! class_exists( 'Fiscaat' ) ) :
 /**
