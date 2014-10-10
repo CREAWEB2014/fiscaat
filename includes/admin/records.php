@@ -1105,7 +1105,7 @@ class Fiscaat_Records_Admin {
 	 *
 	 * @uses fct_has_open_account()
 	 * @uses fct_has_open_period()
-	 * @uses fct_admin_page_title_add_new()
+	 * @uses fct_admin_page_title_get_add_new_link()
 	 * @param string $title Page title
 	 * @return string Page title
 	 */
@@ -1113,7 +1113,7 @@ class Fiscaat_Records_Admin {
 
 		// Require open period and account, as long as we're not already there
 		if ( fct_has_open_period() && fct_has_open_account() && ! fct_admin_is_new_records() ) {
-			$title = fct_admin_page_title_add_new( $title );
+			$title .= fct_admin_page_title_get_add_new_link();
 		}
 
 		return $title;

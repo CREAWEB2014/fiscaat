@@ -801,7 +801,7 @@ class Fiscaat_Periods_Admin {
 	 * @since 0.0.8
 	 *
 	 * @uses fct_has_open_period()
-	 * @uses fct_admin_page_title_add_new()
+	 * @uses fct_admin_page_title_get_add_new_link()
 	 * @param string $title Page title
 	 * @return string Page title
 	 */
@@ -809,7 +809,7 @@ class Fiscaat_Periods_Admin {
 
 		// When there's no open period
 		if ( ! fct_has_open_period() ) {
-			$title = fct_admin_page_title_add_new( $title );
+			$title .= fct_admin_page_title_get_add_new_link();
 		}
 
 		return $title;

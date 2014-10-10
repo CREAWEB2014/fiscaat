@@ -366,6 +366,7 @@ function fct_admin_posts_page() {
 function fct_admin_page_title() {
 	echo fct_admin_get_page_title();
 }
+
 	/**
 	 * Return the admin page title
 	 *
@@ -378,6 +379,8 @@ function fct_admin_page_title() {
 	 */
 	function fct_admin_get_page_title() {
 		global $post_type_object;
+
+		// Get the page object type
 		$type = fct_admin_get_page_object_type();
 
 		// Filter object page specific
@@ -385,22 +388,24 @@ function fct_admin_page_title() {
 	}
 
 /**
- * Append add-new post button to the posts page title
+ * Return add-new post link to append to the admin page title
  *
  * @since 0.0.8
  *
- * @param string $titel Page title
- * @return string Page title
+ * @return string Page title add new link
  */
-function fct_admin_page_title_add_new( $title ) {
+function fct_admin_page_title_get_add_new_link() {
 	global $post_type_object, $post_new_file;
+
+	// Setup retval
+	$link = '';
 
 	// Only if user can create posts
 	if ( current_user_can( $post_type_object->cap->create_posts ) ) {
-		$title .= ' <a href="'. esc_url( admin_url( $post_new_file ) ) . '" class="add-new-h2">' . esc_html( $post_type_object->labels->add_new ) . '</a>';
+		$link = ' <a href="'. esc_url( admin_url( $post_new_file ) ) . '" class="add-new-h2">' . esc_html( $post_type_object->labels->add_new ) . '</a>';
 	}
 
-	return $title;
+	return $link;
 }
 
 /**
