@@ -26,6 +26,7 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
+
 if ( ! class_exists( 'Fiscaat' ) ) :
 /**
  * Main Fiscaat Class
