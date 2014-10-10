@@ -509,7 +509,7 @@ class FCT_Posts_List_Table extends WP_List_Table {
 				/**
 				 * Fiscaat specific hook for each custom column of a specific type in the Posts list table.
 				 *
-				 * The dynamic portion of the hook name, $this->_args['plural'], refers to the type.
+				 * The dynamic portion of the hook name, $this->_args['plural'], refers to the object type.
 				 *
 				 * @since 0.0.9
 				 *
