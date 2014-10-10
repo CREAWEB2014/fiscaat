@@ -56,7 +56,7 @@ class Fiscaat_Admin {
 	/**
 	 * @var string Current admin page object type
 	 */
-	private $_page_type = null;
+	private $_page_object_type = null;
 
 	/** Functions *************************************************************/
 
@@ -94,7 +94,7 @@ class Fiscaat_Admin {
 
 		/** Pages *************************************************************/
 
-		$this->get_page_type();
+		$this->get_page_object_type();
 	}
 
 	/**
@@ -201,10 +201,10 @@ class Fiscaat_Admin {
 	 * 
 	 * @return string|bool Page type. Either false, 'record', 'account' or 'period'
 	 */
-	public function get_page_type() {
+	public function get_page_object_type() {
 
 		// Set page type if unknown
-		if ( null === $this->_page_type ) {
+		if ( null === $this->_page_object_type ) {
 			$type = false;
 
 			// Only for Fiscaat admin post pages
@@ -222,10 +222,10 @@ class Fiscaat_Admin {
 				}
 			}
 
-			$this->_page_type = $type;
+			$this->_page_object_type = $type;
 		}
 
-		return $this->_page_type;
+		return $this->_page_object_type;
 	}
 
 	/**
@@ -382,7 +382,7 @@ class Fiscaat_Admin {
 	 * @global WP_List_Table $wp_list_table
 	 * @global int $pagenum
 	 * 
-	 * @uses fct_admin_get_page_type()
+	 * @uses fct_admin_get_page_object_type()
 	 * @uses fct_admin_get_page_post_type()
 	 * @uses get_post_type_object()
 	 * @uses fct_get_list_table()
@@ -392,7 +392,7 @@ class Fiscaat_Admin {
 		global $post_type, $post_type_object, $post_new_file, $wp_list_table, $pagenum;
 
 		// Get the current page type. Bail if empty
-		$type = fct_admin_get_page_type();
+		$type = fct_admin_get_page_object_type();
 		if ( empty( $type ) )
 			return;
 

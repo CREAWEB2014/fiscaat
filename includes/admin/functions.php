@@ -217,8 +217,8 @@ function fct_tools_admin_tabs( $active_tab = '' ) {
  *
  * @return string The admin page type
  */
-function fct_admin_get_page_type() {
-	return fiscaat()->admin->get_page_type();
+function fct_admin_get_page_object_type() {
+	return fiscaat()->admin->get_page_object_type();
 }
 
 /**
@@ -226,14 +226,14 @@ function fct_admin_get_page_type() {
  *
  * @since 0.0.7
  *
- * @uses fct_admin_get_page_type()
+ * @uses fct_admin_get_page_object_type()
  * @uses fct_get_record_post_type()
  * @uses fct_get_account_post_type()
  * @uses fct_get_period_post_type()
  * @return string The admin page post type
  */
 function fct_admin_get_page_post_type() {
-	$type = fct_admin_get_page_type();
+	$type = fct_admin_get_page_object_type();
 
 	// Return Fiscaat post type
 	if ( function_exists( "fct_get_{$type}_post_type" ) ) {
@@ -323,7 +323,7 @@ function fct_get_list_table( $class, $args = array() ) {
  *
  * @since 0.0.7
  *
- * @uses fct_admin_get_page_type()
+ * @uses fct_admin_get_page_object_type()
  * @uses fct_admin_page_title()
  * @uses do_action() Calls 'fct_admin_pre_posts_form'
  * @uses do_action() Calls 'fct_admin_post_posts_form'
@@ -370,14 +370,14 @@ function fct_admin_page_title() {
 	 *
 	 * @since 0.0.7
 	 *
-	 * @uses fct_admin_get_page_type()
+	 * @uses fct_admin_get_page_object_type()
 	 * @uses apply_filters() Calls 'fct_admin_{$type}s_page_title' with
 	 *                        the page title
 	 * @return string Admin page title
 	 */
 	function fct_admin_get_page_title() {
 		global $post_type_object;
-		$type = fct_admin_get_page_type();
+		$type = fct_admin_get_page_object_type();
 
 		// Filter object page specific
 		return apply_filters( "fct_admin_{$type}s_page_title", esc_html( $post_type_object->labels->name ) );
