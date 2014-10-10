@@ -211,11 +211,11 @@ function fct_tools_admin_tabs( $active_tab = '' ) {
 /** Posts Pages ***********************************************************/
 
 /**
- * Return the admin page type
+ * Return the admin page object type
  *
  * @since 0.0.7
  *
- * @return string The admin page type
+ * @return string The admin page object type
  */
 function fct_admin_get_page_object_type() {
 	return fiscaat()->admin->get_page_object_type();

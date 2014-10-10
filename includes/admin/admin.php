@@ -193,7 +193,7 @@ class Fiscaat_Admin {
 	}
 
 	/**
-	 * Return the Fiscaat admin page type
+	 * Return the Fiscaat admin page object type
 	 *
 	 * Based on 'page' query parameter, to identify required post type.
 	 *
@@ -203,7 +203,7 @@ class Fiscaat_Admin {
 	 */
 	public function get_page_object_type() {
 
-		// Set page type if unknown
+		// Set page object type if unknown
 		if ( null === $this->_page_object_type ) {
 			$type = false;
 
@@ -391,7 +391,7 @@ class Fiscaat_Admin {
 	public function setup_edit_posts() {
 		global $post_type, $post_type_object, $post_new_file, $wp_list_table, $pagenum;
 
-		// Get the current page type. Bail if empty
+		// Get the current page object type. Bail if empty
 		$type = fct_admin_get_page_object_type();
 		if ( empty( $type ) )
 			return;
@@ -420,7 +420,7 @@ class Fiscaat_Admin {
 		set_current_screen( "edit-{$post_type}" );
 
 		/**
-		 * Run page type specific load hook.
+		 * Run page object type specific load hook.
 		 *
 		 * Based on the load-* hook. Fires before the particular 
 		 * post type edit screen is loaded. Runs before instantiating 
@@ -434,7 +434,7 @@ class Fiscaat_Admin {
 		 */
 		do_action( "fct_admin_load_{$type}s" );
 
-		// Setup page type list table.
+		// Setup page object type list table.
 		$class         = sprintf( 'FCT_%s_List_Table', ucfirst( $type . 's' ) );
 		$wp_list_table = fct_get_list_table( $class, array( 'screen' => get_current_screen() ) );
 		$pagenum       = $wp_list_table->get_pagenum();
