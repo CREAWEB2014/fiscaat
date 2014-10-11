@@ -434,20 +434,16 @@ function fct_admin_page_title_search_terms( $title ) {
  * @since 0.0.8
  *
  * @uses get_current_screen()
- * @uses fct_admin_get_new_records_mode()
- * @uses fct_admin_get_edit_records_mode()
- * @uses fct_admin_get_view_records_mode()
  * @return string Records mode. Either new, edit, view or empty
  */
 function fct_admin_get_records_mode() {
 
 	// Page has record's post type and is in mode
-	if ( isset( get_current_screen()->post_type ) && ( fct_get_record_post_type() == get_current_screen()->post_type )
-		&& isset( $_GET['mode'] ) && in_array( $_GET['mode'], array(
-			fct_admin_get_new_records_mode(),
-			fct_admin_get_edit_records_mode(),
-			fct_admin_get_view_records_mode()
-	) ) ) {
+	if (   isset( get_current_screen()->post_type ) 
+		&& ( fct_get_record_post_type() == get_current_screen()->post_type )
+		&& isset( $_GET['mode'] ) 
+		&& in_array( $_GET['mode'], fct_admin_get_records_modes() ) 
+	) {
 		$mode = $_GET['mode'];
 
 	// Default empty (view)
@@ -456,6 +452,24 @@ function fct_admin_get_records_mode() {
 	}
 
 	return $mode;
+}
+
+/**
+ * Return the records modes
+ *
+ * @since 0.0.9
+ * 
+ * @uses fct_admin_get_new_records_mode()
+ * @uses fct_admin_get_edit_records_mode()
+ * @uses fct_admin_get_view_records_mode()
+ * @return array Records modes
+ */
+function fct_admin_get_records_modes() {
+	return apply_filters( 'fct_admin_get_records_modes', array(
+		fct_admin_get_new_records_mode(),
+		fct_admin_get_edit_records_mode(),
+		fct_admin_get_view_records_mode(),
+	) );
 }
 
 /**
