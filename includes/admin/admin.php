@@ -112,6 +112,7 @@ class Fiscaat_Admin {
 		require( $this->admin_dir . 'records.php'   );
 		require( $this->admin_dir . 'settings.php'  );
 		require( $this->admin_dir . 'tools.php'     );
+		require( $this->admin_dir . 'upload.php'    );
 		require( $this->admin_dir . 'users.php'     );
 	}
 
