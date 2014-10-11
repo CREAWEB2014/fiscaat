@@ -1420,7 +1420,8 @@ function fct_breadcrumb( $args = array() ) {
 
 			// Current
 			'include_current' => $pre_include_current,
-			'current_text'    =pre_current_text			'current_before'  => '<span class="fiscaat-breadcrumb-current">',
+			'current_text'    => $pre_current_text,
+			'current_before'  => '<span class="fiscaat-breadcrumb-current">',
 			'current_after'   => '</span>',
 		), 'get_breadcrumb' );
 
