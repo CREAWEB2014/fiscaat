@@ -489,7 +489,42 @@ function fct_admin_setup_list_table( $object_type = '' ) {
 	$wp_list_table->prepare_items();
 
 	// Hook to display list table views
-	add_action( 'fct_admin_before_posts_form', array( $wp_list_table, 'views' ), 20 );
+	add_action( "fct_admin_{$object_type}s_page", array( $wp_list_table, 'views' ), 8 );
+
+	// Hook to display the list table
+	add_action( "fct_admin_{$object_type}s_page", 'fct_admin_display_list_table' );
+}
+
+/**
+ * Display the list table within a GET form
+ *
+ * @since 0.0.9
+ *
+ * @global $wp_list_table
+ * @uses fct_admin_get_page_object_type()
+ * @uses do_action() Calls 'fct_admin_{post}s_form_top'
+ * @uses do_action() Calls 'fct_admin_{post}s_form_bottom'
+ */
+function fct_admin_display_list_table() { 
+	global $wp_list_table, $post_type_object; 
+
+	$page = fct_admin_get_page_object_type() . 's'; ?>
+
+	<form id="posts-filter" action="" method="get">
+
+		<?php do_action( "fct_admin_{$page}_form_top" ); ?>
+
+		<input type="hidden" name="page" class="post_page" value="<?php echo ! empty($_REQUEST['page']) ? esc_attr($_REQUEST['page']) : 'fiscaat'; ?>" />
+		<input type="hidden" name="post_status" class="post_status_page" value="<?php echo ! empty($_REQUEST['post_status']) ? esc_attr($_REQUEST['post_status']) : ''; ?>" />
+		<?php $wp_list_table->search_box( $post_type_object->labels->search_items, 'post' ); ?>
+
+		<?php $wp_list_table->display(); ?>
+
+		<?php do_action( "fct_admin_{$page}_form_bottom" ); ?>
+
+	</form>
+
+	<?php
 }
 
 /**
@@ -497,30 +532,16 @@ function fct_admin_setup_list_table( $object_type = '' ) {
  *
  * @since 0.0.7
  *
- * @uses fct_admin_get_page_object_type()
  * @uses fct_admin_page_title()
- * @uses do_action() Calls 'fct_admin_pre_posts_form'
- * @uses do_action() Calls 'fct_admin_post_posts_form'
+ * @uses fct_admin_get_page_object_type()
+ * @uses do_action() Calls 'fct_admin_{post}s_page'
  */
-function fct_admin_posts_page() {
-	global $wp_list_table, $post_type_object; ?>
+function fct_admin_posts_page() { ?>
 
 	<div class="wrap">
 		<h2><?php fct_admin_page_title(); ?></h2>
 
-		<?php do_action( "fct_admin_before_posts_form" ); ?>
-
-		<form id="posts-filter" action="" method="get">
-
-			<input type="hidden" name="page" class="post_page" value="<?php echo ! empty($_REQUEST['page']) ? esc_attr($_REQUEST['page']) : 'fiscaat'; ?>" />
-			<input type="hidden" name="post_status" class="post_status_page" value="<?php echo ! empty($_REQUEST['post_status']) ? esc_attr($_REQUEST['post_status']) : ''; ?>" />
-			<?php $wp_list_table->search_box( $post_type_object->labels->search_items, 'post' ); ?>
-
-			<?php $wp_list_table->display(); ?>
-
-		</form>
-
-		<?php do_action( "fct_admin_after_posts_form" ); ?>
+		<?php do_action( sprintf( 'fct_admin_%s_page', fct_admin_get_page_object_type() . 's' ) ); ?>
 
 		<div id="ajax-response"></div>
 		<br class="clear" />
