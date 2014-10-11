@@ -592,12 +592,12 @@ class Fiscaat_Admin {
 	 * @uses fct_get_period_post_type() To get the period post type
 	 * @uses fct_get_account_post_type() To get the account post type
 	 * @uses fct_get_record_post_type() To get the record post type
-	 * @uses fct_get_post_type_type()
+	 * @uses fct_get_object_type_by_post_type()
 	 */
 	public function setup_post_post() {
 
 		// Bail if not a Fiscaat post type
-		if ( isset( get_current_screen()->post_type ) && ! $type = fct_get_post_type_type( get_current_screen()->post_type ) )
+		if ( isset( get_current_screen()->post_type ) && ! $type = fct_get_object_type_by_post_type( get_current_screen()->post_type ) )
 			return;
 
 		// Setup type specific load hook
@@ -821,7 +821,7 @@ class Fiscaat_Admin {
 			// item, associating any post type page (post-new.php) with the relevant menu.
 			if ( isset( $post_type ) && $post_type == $_post_type ) {
 				$parent_file  = 'fiscaat'; // @todo Fix not showing toplevel menu
-				$submenu_file = 'fct-' . fct_get_post_type_type( $post_type ) . 's';
+				$submenu_file = 'fct-' . fct_get_object_type_by_post_type( $post_type ) . 's';
 			}
 		}
 
@@ -1060,7 +1060,7 @@ class Fiscaat_Admin {
 	 * @uses fct_get_period_post_type() To get the period post type
 	 * @uses fct_get_account_post_type() To get the account post type
 	 * @uses fct_get_record_post_type() To get the record post type
-	 * @uses fct_get_post_type_type()
+	 * @uses fct_get_object_type_by_post_type()
 	 * @uses wp_redirect()
 	 */
 	public function redirect_edit_pages() {
@@ -1073,7 +1073,7 @@ class Fiscaat_Admin {
 			) ) )
 			return;
 
-		$type = fct_get_post_type_type( $_GET['post_type'] );
+		$type = fct_get_object_type_by_post_type( $_GET['post_type'] );
 		wp_redirect( add_query_arg( 'page', "fct-{$type}s", admin_url( 'admin.php' ) ) );
 		exit;
 	}

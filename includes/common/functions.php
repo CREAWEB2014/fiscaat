@@ -28,7 +28,7 @@ defined( 'ABSPATH' ) || exit;
  * @return mixed Callback response, False if callback is not valid
  */
 function fct_post_callback( $callback, $post_type = '' ) {
-	$type = fct_get_post_type_type( $post_type );
+	$type = fct_get_object_type_by_post_type( $post_type );
 	$callback = sprintf( $callback, $type );
 	if ( ! empty( $type ) && function_exists( $callback ) ) {
 		return call_user_func( $callback );

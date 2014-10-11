@@ -123,7 +123,7 @@ function fct_update_period_id( $post_id, $period_id ) {
  * @param string $post_type Post type
  * @return string|bool Fiscaat object type or False if not Fiscaat's
  */
-function fct_get_post_type_type( $post_type = '' ) {
+function fct_get_object_type_by_post_type( $post_type = '' ) {
 
 	// Setup local var
 	$type = false;

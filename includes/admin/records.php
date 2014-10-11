@@ -1031,7 +1031,7 @@ class Fiscaat_Records_Admin {
 	 * @since 0.0.8
 	 *
 	 * @uses fct_admin_get_new_records_mode()
-	 * @uses fct_get_post_type_type()
+	 * @uses fct_get_object_type_by_post_type()
 	 * @uses wp_redirect()
 	 */
 	public function redirect_post_new_page() {
