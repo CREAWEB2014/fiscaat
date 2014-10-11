@@ -467,6 +467,7 @@ function fct_admin_get_records_mode() {
 function fct_admin_get_records_modes() {
 	return apply_filters( 'fct_admin_get_records_modes', array(
 		fct_admin_get_new_records_mode(),
+		fct_admin_get_upload_records_mode(),
 		fct_admin_get_edit_records_mode(),
 		fct_admin_get_view_records_mode(),
 	) );
@@ -482,6 +483,18 @@ function fct_admin_get_records_modes() {
  */
 function fct_admin_get_new_records_mode() {
 	return apply_filters( 'fct_admin_get_new_records_mode', 'new' );
+}
+
+/**
+ * Return the upload records mode
+ *
+ * @since 0.0.8
+ *
+ * @uses apply_filters() Calls 'fct_admin_get_upload_records_mode' with the upload mode
+ * @return string Records upload mode
+ */
+function fct_admin_get_upload_records_mode() {
+	return apply_filters( 'fct_admin_get_upload_records_mode', 'upload' );
 }
 
 /**
@@ -520,6 +533,20 @@ function fct_admin_get_view_records_mode() {
  */
 function fct_admin_is_new_records() {
 	return fct_admin_get_new_records_mode() == fct_admin_get_records_mode() && current_user_can( 'create_records' );
+}
+
+/**
+ * Return whether the current page is the records upload mode
+ *
+ * @since 0.0.8
+ *
+ * @uses fct_admin_get_upload_records_mode()
+ * @uses fct_admin_get_records_mode()
+ * @uses current_user_can() To check if the current user can create records
+ * @return bool Page is records upload mode
+ */
+function fct_admin_is_upload_records() {
+	return fct_admin_get_upload_records_mode() == fct_admin_get_records_mode() && current_user_can( 'upload_records' );
 }
 
 /**
