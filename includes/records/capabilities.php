@@ -68,6 +68,7 @@ function fct_map_record_meta_caps( $caps = array(), $cap = '', $user_id = 0, $ar
 		 * and no open period to assign the record to.
 		 */
 		case 'create_records' :
+		case 'upload_records' :
 
 			// Bail when there's no open period or account
 			if ( ! fct_has_open_period() && ! fct_has_open_account() ) {

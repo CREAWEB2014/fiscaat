@@ -44,6 +44,7 @@ function fct_get_caps_for_role( $role = '' ) {
 
 				// Record caps
 				'create_records'         => true,
+				'upload_records'         => true,
 				'publish_records'        => true,
 				'edit_records'           => true,
 				'edit_others_records'    => true,
