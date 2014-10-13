@@ -258,11 +258,11 @@ class Fiscaat_Admin_Records {
 		if ( $this->bail() ) return;
 
 		// Enqueue jQuery livequery plugin
-		wp_register_script( 'livequery', fiscaat()->admin->admin_url . 'scripts/jquery.livequery.min.js', array( 'jquery' ), '1.1.1' );
+		wp_register_script( 'livequery', fiscaat()->admin->admin_url . 'js/jquery.livequery.min.js', array( 'jquery' ), '1.1.1' );
 		wp_enqueue_script ( 'livequery' );	
 
 		// Enqueue jQuery formatCurrency plugin
-		wp_register_script( 'format-currency', fiscaat()->admin->admin_url . 'scripts/jquery.formatcurrency.min.js', array( 'jquery' ), '1.4.0' );
+		wp_register_script( 'format-currency', fiscaat()->admin->admin_url . 'js/jquery.formatcurrency.min.js', array( 'jquery' ), '1.4.0' );
 		wp_enqueue_script ( 'format-currency' );
 	}
 

@@ -149,7 +149,7 @@ class Fiscaat_Records_Importer {
 		wp_enqueue_script( 'jquery-form' );
 
 		// Import script
-		wp_register_script( 'fct-import', fiscaat()->admin->admin_url . 'scripts/fct-import.js', array( 'jquery', 'jquery-form' ) );
+		wp_register_script( 'fct-import', fiscaat()->admin->admin_url . 'js/fct-import.js', array( 'jquery', 'jquery-form' ) );
 		wp_enqueue_script( 'fct-import' );
 		wp_localize_script( 'fct-import', 'fct_importL10n', array( 
 			'uploading' => __( 'Uploading file',                   'fiscaat' ),

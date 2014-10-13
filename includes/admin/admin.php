@@ -39,11 +39,6 @@ class Fiscaat_Admin {
 	 */
 	public $images_url = '';
 
-	/**
-	 * @var string URL to the Fiscaat admin styles directory
-	 */
-	public $styles_url = '';
-
 	/** Capability ************************************************************/
 
 	/**
@@ -90,7 +85,6 @@ class Fiscaat_Admin {
 		$this->includes_url = trailingslashit( $this->admin_url   . 'includes' ); // Admin includes url
 
 		$this->images_url   = trailingslashit( $this->admin_url   . 'images'   ); // Admin images URL
-		$this->styles_url   = trailingslashit( $this->admin_url   . 'styles'   ); // Admin styles URL
 
 		/** Pages *************************************************************/
 

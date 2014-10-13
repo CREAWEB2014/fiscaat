@@ -230,7 +230,7 @@ class Fiscaat_Admin_Records_New extends Fiscaat_Admin_Records {
 			return;
 
 		// Enqueue & localize New Records script
-		wp_register_script( 'fiscaat-records-new', fiscaat()->admin->admin_url . 'scripts/fiscaat-records-new.js', array( 'jquery', 'livequery', 'format-currency' ) );
+		wp_register_script( 'fiscaat-records-new', fiscaat()->admin->admin_url . 'js/fiscaat-records-new.js', array( 'jquery', 'livequery', 'format-currency' ) );
 		wp_enqueue_script ( 'fiscaat-records-new' );
 		wp_localize_script( 'fiscaat-records-new', 'fct_records_newL10n', array(
 			'currency_format' => fct_the_currency_format( fct_get_currency() ),
