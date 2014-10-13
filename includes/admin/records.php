@@ -1092,7 +1092,7 @@ class Fiscaat_Records_Admin {
 
 		// New records
 		if ( fct_admin_is_new_records() ) {
-			$title = __( 'New Records', 'fiscaat' ) . ' &mdash; ' . fct_get_period_title( fct_get_current_period_id() );
+			$title = __( 'New Records', 'fiscaat' );
 		}
 
 		return $title;
