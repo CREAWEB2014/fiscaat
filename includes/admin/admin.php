@@ -910,7 +910,7 @@ class Fiscaat_Admin {
 				fct_get_record_post_type(),
 				fct_get_account_post_type(),
 				fct_get_period_post_type()
-			) ) )
+		) ) )
 			return;
 
 		$type = fct_get_object_type_by_post_type( $_GET['post_type'] );
