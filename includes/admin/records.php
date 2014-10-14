@@ -489,6 +489,11 @@ class Fiscaat_Records_Admin {
 				max-width: 173px;
 			}
 
+				.widefat.<?php echo $new; ?>-records .iedit select.fct_record_ledger_id {
+					width: 70px;
+					margin-right: 9px;
+				}
+
 			.widefat .iedit textarea,
 			.widefat .iedit input {
 				width: 100%;

@@ -214,6 +214,11 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 				$columns['author'],
 				$columns['fct_record_period']
 			);
+
+			// Display single account column for new mode
+			if ( fct_admin_is_new_records() ) {
+				unset( $columns['fct_record_account_ledger_id'] );
+			}
 		}
 
 		return $columns;
@@ -472,6 +477,17 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 			// Record account
 			case 'fct_record_account' :
+
+				// Prepend ledger dropdown in new mode
+				if ( fct_admin_is_new_records() && ! in_array( 'fct_record_account_ledger_id', array_keys( $this->_get_columns() ) ) ) {
+					fct_account_ledger_dropdown( array(
+						'select_name'    => 'records[ledger_account_id][]',
+						'class'          => 'fct_record_ledger_id',
+						'show_none'      => '&mdash;',
+						'disable_closed' => true,
+					) );
+				}
+
 				fct_account_dropdown( array(
 					'select_name'    => 'records[account_id][]',
 					'class'          => 'fct_record_account_id',
