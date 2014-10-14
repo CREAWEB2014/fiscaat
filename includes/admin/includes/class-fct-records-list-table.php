@@ -210,7 +210,6 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		// Remove rows in edit/new mode
 		if ( ! fct_admin_is_view_records() ) {
 			unset(
-				$columns['cb'],
 				$columns['fct_record_post_date'],
 				$columns['author'],
 				$columns['fct_record_period']
@@ -412,7 +411,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	public function single_new_row() {
 		$alternate =& $this->alternate;
 		$alternate = 'alternate' == $alternate ? '' : 'alternate';
-		$classes = $alternate . ' iedit new-records-row';
+		$classes = $alternate . ' iedit record';
 
 		list( $columns, $hidden ) = $this->get_column_info(); ?>
 		<tr class="<?php echo $classes; ?>" valign="top">
@@ -673,10 +672,10 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 		$alternate =& $this->alternate;
 		$alternate = 'alternate' == $alternate ? '' : 'alternate';
-		$classes   = "{$alternate} iedit records-{$which}-row";
+		$classes   = "{$alternate} iedit {$which}-records";
 
 		list( $columns, $hidden ) = $this->get_column_info(); ?>
-		<tr id="fct-records-<?php echo $which; ?>-row" class="<?php echo $classes; ?>" valign="top">
+		<tr id="fct-<?php echo $which; ?>-records" class="<?php echo $classes; ?>" valign="top">
 
 			<?php foreach ( $columns as $column_name => $column_display_name ) :
 				$class = " class=\"$column_name column-$column_name\"";

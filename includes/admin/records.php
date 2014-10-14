@@ -384,8 +384,10 @@ class Fiscaat_Records_Admin {
 		if ( $this->bail() ) 
 			return; 
 
-		// Determine records mode
-		$mode = fct_admin_get_records_mode(); ?>
+		// Get record modes
+		$view = fct_admin_get_view_records_mode();
+		$new  = fct_admin_get_new_records_mode();
+		$edit = fct_admin_get_edit_records_mode(); ?>
 
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
@@ -447,11 +449,20 @@ class Fiscaat_Records_Admin {
 				width: 65px;
 			}
 
-			.widefat .records-start-row .column-fct_record_description,
-			.widefat .records-end-row   .column-fct_record_description,
-			.widefat .records-total-row .column-fct_record_description {
-				vertical-align: middle;
+			.widefat .start-records .column-fct_record_description,
+			.widefat .end-records   .column-fct_record_description,
+			.widefat .total-records .column-fct_record_description {
+				padding: 0 10px;
+				line-height: 46px;
 			}
+
+				.widefat .total-records > * {
+					border-top: 1px solid #e1e1e1;
+				}
+
+					.widefat .total-records .column-fct_record_description:after {
+						content: " (" counter(row_count) ")";
+					}
 
 			.fct_record_dates {
 				float: left;
@@ -485,10 +496,39 @@ class Fiscaat_Records_Admin {
 				height: 28px;
 			}
 
-			.widefat .new-records-row  td.column-fct_record_description,
-			.widefat .edit-records-row td.column-fct_record_description {
+			.widefat.<?php echo $new;  ?>-records .record td.column-fct_record_description,
+			.widefat.<?php echo $edit; ?>-records .record td.column-fct_record_description {
 				padding: 9px 10px 4px;
 			}
+
+			.widefat {
+				counter-reset: row_count;
+			}
+
+				.widefat.<?php echo $new;  ?>-records .record,
+				.widefat.<?php echo $edit; ?>-records .record {
+					counter-increment: row_count;
+				}
+
+					.widefat.<?php echo $new;  ?>-records .check-column,
+					.widefat.<?php echo $edit; ?>-records .check-column {
+						width: 26px;
+						padding: 0 10px;
+						line-height: 46px;
+						text-align: right;
+					}
+
+						.widefat.<?php echo $new;  ?>-records thead .check-column input,
+						.widefat.<?php echo $new;  ?>-records tfoot .check-column input,
+						.widefat.<?php echo $edit; ?>-records thead .check-column input,
+						.widefat.<?php echo $edit; ?>-records tfoot .check-column input {
+							display: none;
+						}
+
+						.widefat.<?php echo $new;  ?>-records .record .check-column:before,
+						.widefat.<?php echo $edit; ?>-records .record .check-column:before {
+							content: counter(row_count) ".";
+						}
 
 		/*]]>*/
 		</style>
