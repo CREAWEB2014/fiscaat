@@ -50,7 +50,7 @@ add_action( 'menu_order',              'fct_admin_menu_order'              );
 add_action( 'fct_admin_init',          'fct_admin_periods'                 );
 add_action( 'fct_admin_init',          'fct_admin_accounts'                );
 add_action( 'fct_admin_init',          'fct_admin_records'                 );
-add_action( 'fct_admin_init',          'fct_admin_records_upload'          );
+add_action( 'fct_admin_init',          'fct_admin_uploader'                );
 add_action( 'fct_admin_init',          'fct_setup_updater',            999 );
 add_action( 'fct_admin_init',          'fct_register_importers'            );
 add_action( 'fct_admin_init',          'fct_register_admin_settings'       );

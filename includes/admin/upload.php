@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Fiscaat Records Upload Class
+ * Fiscaat Admin Uploader Class
  * 
  * @package Fiscaat
  * @subpackage Administration
@@ -10,19 +10,19 @@
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
-if ( ! class_exists( 'Fiscaat_Records_Upload' ) ) :
+if ( ! class_exists( 'Fiscaat_Admin_Uploader' ) ) :
 /**
  * Loads Fiscaat records admin upload area
  *
  * @package Fiscaat
  * @subpackage Administration
  */
-class Fiscaat_Records_Upload {
+class Fiscaat_Admin_Uploader {
 
 	/**
 	 * The main Fiscaat records upload loader
 	 *
-	 * @uses Fiscaat_Records_Upload::setup_actions() Setup the hooks and actions
+	 * @uses Fiscaat_Admin_Uploader::setup_actions() Setup the hooks and actions
 	 */
 	public function __construct() {
 		$this->setup_actions();
@@ -266,12 +266,12 @@ class Fiscaat_Records_Upload {
 endif; // class_exists
 
 /**
- * Setup Fiscaat Records Upload
+ * Setup Fiscaat Admin Uploader
  * 
  * @since 0.0.9
  *
- * @uses Fiscaat_Records_Upload
+ * @uses Fiscaat_Admin_Uploader
  */
-function fct_admin_records_upload() {
-	fiscaat()->admin->records->upload = new Fiscaat_Records_Upload();
+function fct_admin_uploader() {
+	fiscaat()->admin->upload = new Fiscaat_Admin_Uploader();
 }
