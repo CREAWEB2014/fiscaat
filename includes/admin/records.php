@@ -461,7 +461,7 @@ class Fiscaat_Records_Admin {
 				}
 
 					.widefat .total-records .column-fct_record_description:after {
-						content: " (" counter(row_count) ")";
+						content: " (" counter(row_count) ")"; /* append total row count to Total */
 					}
 
 			.fct_record_dates {
@@ -518,10 +518,8 @@ class Fiscaat_Records_Admin {
 						text-align: right;
 					}
 
-						.widefat.<?php echo $new;  ?>-records thead .check-column input,
-						.widefat.<?php echo $new;  ?>-records tfoot .check-column input,
-						.widefat.<?php echo $edit; ?>-records thead .check-column input,
-						.widefat.<?php echo $edit; ?>-records tfoot .check-column input {
+						.widefat.<?php echo $new;  ?>-records .check-column input,
+						.widefat.<?php echo $edit; ?>-records .check-column input {
 							display: none;
 						}
 

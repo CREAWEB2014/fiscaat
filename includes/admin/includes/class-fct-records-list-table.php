@@ -207,8 +207,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			'fct_record_amount'            => _x( 'Amount', 'column name',   'fiscaat' ),
 		);
 
-		// Remove rows in edit/new mode
-		if ( ! fct_admin_is_view_records() ) {
+		// Remove rows in new/edit mode
+		if ( fct_admin_is_new_records() || fct_admin_is_edit_records() ) {
 			unset(
 				$columns['fct_record_post_date'],
 				$columns['author'],
@@ -227,18 +227,27 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @return array Sortable columns as array( column => sort key )
 	 */
 	public function _get_sortable_columns() {
-		return array(
-			'fct_record_post_date'         => array( 'date',        true ),
-			'fct_record_date'              => array( 'record_date', true ),
 
-			// @todo Fix sorting by account ledger id.
-			// @see Fiscaat_Records_Admin::filter_post_rows()
-			// 'fct_record_account_ledger_id' => 'record_account_ledger_id',
+		// Do not sort in new mode
+		if ( fct_admin_is_new_records() ) {
+			$columns = array();
 
-			'fct_record_account'           => 'parent',
-			'fct_record_offset_account'    => 'record_offset_account',
-			'fct_record_amount'            => 'record_amount',
-		);
+		} else {
+			$columns = array(
+				'fct_record_post_date'         => array( 'date',        true ),
+				'fct_record_date'              => array( 'record_date', true ),
+
+				// @todo Fix sorting by account ledger id.
+				// @see Fiscaat_Records_Admin::filter_post_rows()
+				// 'fct_record_account_ledger_id' => 'record_account_ledger_id',
+
+				'fct_record_account'           => 'parent',
+				'fct_record_offset_account'    => 'record_offset_account',
+				'fct_record_amount'            => 'record_amount',
+			);
+		}
+
+		return $columns;
 	}
 
 	/**
