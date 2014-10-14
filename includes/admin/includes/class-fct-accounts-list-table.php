@@ -106,7 +106,7 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 			$status_links[$status_name] = "<a href='admin.php?page=fct-accounts&amp;post_status=$status_name{$parent}'$class>" . sprintf( translate_nooped_plural( $status->label_count, $num_posts->$status_name ), number_format_i18n( $num_posts->$status_name ) ) . '</a>';
 		}
 
-		return apply_filters( "fct_admin_get_{$this->_args['plural']}_views", $status_links );
+		return apply_filters( "fct_admin_get_accounts_views", $status_links );
 	}
 
 	/**

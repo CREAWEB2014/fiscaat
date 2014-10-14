@@ -155,7 +155,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			$status_links[$status_name] = "<a href=\"admin.php?page=fct-records&amp;post_status=$status_name{$parent}\"$class>" . sprintf( translate_nooped_plural( $status->label_count, $num_posts->$status_name ), number_format_i18n( $num_posts->$status_name ) ) . '</a>';
 		}
 
-		return apply_filters( "fct_admin_get_{$this->_args['plural']}_views", $status_links );
+		return apply_filters( "fct_admin_get_records_views", $status_links );
 	}
 
 	/**
@@ -177,10 +177,10 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @return array Classes
 	 */
 	public function get_table_classes() {
-		$classes = array( 'widefat', 'fixed', 'posts', $this->_args['plural'] );
+		$classes = array( 'widefat', 'fixed', 'posts', 'records' );
 
 		if ( ! fct_admin_is_view_records() ) {
-			$classes[] = fct_admin_get_records_mode();
+			$classes[] = fct_admin_get_records_mode() . '-records';
 		}
 
 		return $classes;
@@ -276,7 +276,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 */
 	public function display_tablenav( $which ) {
 		if ( 'top' == $which ) {
-			wp_nonce_field( 'bulk-' . $this->_args['plural'] );
+			wp_nonce_field( 'bulk-records' );
 		}
 
 		// Close posts-insert form before bottom tablenav
@@ -289,7 +289,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 	<input type="hidden" name="page" class="post_page" value="<?php echo ! empty($_REQUEST['page']) ? esc_attr($_REQUEST['page']) : 'fct-records'; ?>" />
 	<input type="hidden" name="post_status" class="post_status_page" value="<?php echo ! empty($_REQUEST['post_status']) ? esc_attr($_REQUEST['post_status']) : ''; ?>" />
-	<?php wp_nonce_field( 'bulk-' . $this->_args['plural'] ); ?>
+	<?php wp_nonce_field( 'bulk-records' ); ?>
 <?php
 		}
 
