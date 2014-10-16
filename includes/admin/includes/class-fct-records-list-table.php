@@ -505,9 +505,10 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 				break;
 
 			// Record date
-			case 'fct_record_date': ?>
+			case 'fct_record_date': 
+				$today = mysql2date( __( 'Y/m/d' ), fct_current_time() ); ?>
 
-				<input name="records[date][]" type="text" class="fct_record_date medium-text" value="" <?php fct_tab_index_attr(); ?>/>
+				<input name="records[date][]" type="text" class="fct_record_date medium-text" value="" placeholder="<?php echo $today; ?>" <?php fct_tab_index_attr(); ?>/>
 
 				<?php
 				break;
@@ -600,7 +601,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			// Record post date
 			case 'fct_record_post_date':
 				$date = get_post_time( 'U', $period_id );
-				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date ) . '">' . apply_filters( 'post_date_column_time', mysql2date( 'Y/m/d', $date ), $record_id, $column_name, 'list' ) . '</abbr>';
+				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date ) . '">' . apply_filters( 'post_date_column_time', mysql2date( __( 'Y/m/d' ), $date ), $record_id, $column_name, 'list' ) . '</abbr>';
 				break;
 
 			// Record account ledger id
@@ -632,7 +633,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			// Record date
 			case 'fct_record_date':
 				$date = fct_get_record_date( $record_id );
-				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date ) . '">' . apply_filters( 'post_date_column_time', mysql2date( 'Y/m/d', $date ), $record_id, $column_name, 'list' ) . '</abbr>';
+				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date ) . '">' . apply_filters( 'post_date_column_time', mysql2date( __( 'Y/m/d' ), $date ), $record_id, $column_name, 'list' ) . '</abbr>';
 				break;
 
 			// Record offset account

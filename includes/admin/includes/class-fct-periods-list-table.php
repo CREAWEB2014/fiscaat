@@ -125,13 +125,13 @@ class FCT_Periods_List_Table extends FCT_Posts_List_Table {
 			// Period start date
 			case 'fct_period_post_date':
 				$date = fct_get_period_post_date( $period_id );
-				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date ) . '">' . apply_filters( 'post_date_column_time', mysql2date( 'Y/m/d', $date ), $period_id, $column_name, 'list' ) . '</abbr>';
+				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date ) . '">' . apply_filters( 'post_date_column_time', mysql2date( __( 'Y/m/d' ), $date ), $period_id, $column_name, 'list' ) . '</abbr>';
 				break;
 
 			// Period close date
 			case 'fct_period_close_date':
 				$date = fct_get_period_close_date( $period_id );
-				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date )  . '">' . apply_filters( 'post_date_column_time', mysql2date( 'Y/m/d', $date ), $period_id, $column_name, 'list' ) . '</abbr>';
+				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date )  . '">' . apply_filters( 'post_date_column_time', mysql2date( __( 'Y/m/d' ), $date ), $period_id, $column_name, 'list' ) . '</abbr>';
 				break;
 
 			// Period account count
