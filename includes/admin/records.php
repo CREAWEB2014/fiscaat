@@ -690,15 +690,20 @@ class Fiscaat_Records_Admin {
 			'post_parent' => $period_id,
 		) );
 
-		// Get the queried dates
-		$date_from = ! empty( $_REQUEST['fct_date_from'] ) ? $_REQUEST['fct_date_from'] : '';
-		$date_to   = ! empty( $_REQUEST['fct_date_to']   ) ? $_REQUEST['fct_date_to']   : '';
+		// Show the queried record dates
+		$record_date_from = sprintf( '<input id="fct_record_date_from" type="date" name="fct_date_from" class="fct_record_date" value="%1$s" placeholder="%2$s" %3$s/>',
+			! empty( $_REQUEST['fct_date_from'] ) ? $_REQUEST['fct_date_from'] : '', // Date value
+			_x( 'yyyy-mm-dd', 'date input field format', 'fiscaat' ),                // Date placeholder
+			fct_get_tab_index_attr()                                                 // Tabindex
+		);
+		$record_date_to   = sprintf( '<input id="fct_record_date_to" type="date" name="fct_date_to" class="fct_record_date" value="%1$s" placeholder="%2$s" %3$s/>',
+			! empty( $_REQUEST['fct_date_to']   ) ? $_REQUEST['fct_date_to']   : '', // Date value
+			_x( 'yyyy-mm-dd', 'date input field format', 'fiscaat' ),                // Date placeholder
+			fct_get_tab_index_attr()                                                 // Tabindex
+		);
 
 		/* translators: 1: Select records start date field, 2: Select records end date field */
-		printf( '<span class="fct_record_dates">' . __( 'From %1$s to %2$s', 'fiscaat' ) . '</span>',
-			"<input id=\"fct_record_date_from\" type=\"date\" name=\"fct_date_from\" class=\"fct_record_date\" value=\"{$date_from}\" placeholder=\"" . _x( 'yyyy-mm-dd', 'input date format', 'fiscaat' ) . "\" />",
-			"<input id=\"fct_record_date_to\"   type=\"date\" name=\"fct_date_to\"   class=\"fct_record_date\" value=\"{$date_to}\"   placeholder=\"" . _x( 'yyyy-mm-dd', 'input date format', 'fiscaat' ) . "\" />" 
-		);
+		printf( '<span class="fct_record_dates">' . __( 'From %1$s to %2$s', 'fiscaat' ) . '</span>', $record_date_from, $record_date_to );
 	}
 
 	/**
