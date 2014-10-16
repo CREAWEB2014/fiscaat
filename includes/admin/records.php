@@ -397,56 +397,66 @@ class Fiscaat_Records_Admin {
 				width: 60px;
 			}
 
-			.column-author,
-			.column-fct_record_author,
-			.column-fct_account_author {
+			.widefat .column-author,
+			.widefat .column-fct_record_author,
+			.widefat .column-fct_account_author {
 				width: 10%;
 			}
 
-			.column-fct_record_post_date,
-			.column-fct_record_date {
+			.widefat .column-fct_record_post_date,
+			.widefat .column-fct_record_date {
 				width: 106px;
 			}
 
-			.column-fct_record_description {
+				.fct_record_dates {
+					float: left;
+					margin-right: 6px;
+				}
+
+			.widefat .column-fct_record_description {
 				min-width: 15%;
 			}
 
-			.column-fct_record_offset_account {
+			.widefat .column-fct_record_offset_account {
 				width: 15%;
 			}
 
-			.column-fct_record_account {
+			.widefat .column-fct_record_account {
 				width: 20%;
 				max-width: 193px;
 			}
 
-			.column-fct_record_account_ledger_id,
-			.column-fct_record_period {
+			.widefat .column-fct_record_account_ledger_id,
+			.widefat .column-fct_record_period {
 				width: 10%;
 			}
 
-			.column-fct_record_amount {
-				width: 158px;
+			.widefat .column-fct_record_amount {
+				width: 138px;
 			}
 
-			.column-fct_record_status {
+				.widefat .column-fct_record_amount.sortable,
+				.widefat .column-fct_record_amount.sorted {
+					width: 158px;
+				}
+
+				.widefat .column-fct_record_amount input.small-text {
+					text-align: right;
+					width: 65px;
+				}
+
+			.widefat .column-fct_record_status {
 				width: 45px;
 				text-align: center;
 			}
 
-			.column-fct_record_status.sortable,
-			.column-fct_record_status.sorted {
-				width: 67px;
-			}
+				.widefat .column-fct_record_status.sortable,
+				.widefat .column-fct_record_status.sorted {
+					width: 67px;
+				}
 
 			.status-closed {
 				background-color: #eaeaea;
-			}
-
-			.widefat .column-fct_record_amount input.small-text {
-				text-align: right;
-				width: 65px;
 			}
 
 			.widefat .start-records .column-fct_record_description,
@@ -456,18 +466,13 @@ class Fiscaat_Records_Admin {
 				line-height: 46px;
 			}
 
-				.widefat .total-records > * {
-					border-top: 1px solid #e1e1e1;
-				}
-
-					.widefat .total-records .column-fct_record_description:after {
-						content: " (" counter(row_count) ")"; /* append total row count to Total */
-					}
-
-			.fct_record_dates {
-				float: left;
-				margin-right: 6px;
+			.widefat .total-records > * {
+				border-top: 1px solid #e1e1e1;
 			}
+
+				.widefat .total-records .column-fct_record_description:after {
+					content: " (" counter(row_count) ")"; /* append total row count to Total */
+				}
 
 			/* WP core style */
 			input[type="date"] {
@@ -492,6 +497,10 @@ class Fiscaat_Records_Admin {
 				.widefat.<?php echo $new; ?>-records .iedit select.fct_record_ledger_id {
 					width: 70px;
 					margin-right: 9px;
+				}
+
+				.widefat.<?php echo $new; ?>-records .iedit select.fct_record_account_id {
+					width: calc( 100% - 79px);
 				}
 
 			.widefat .iedit textarea,
