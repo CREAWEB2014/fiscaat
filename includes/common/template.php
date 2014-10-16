@@ -749,20 +749,6 @@ function fct_sanitize_val( $request = '', $input_type = 'text' ) {
 	}
 
 /**
- * Output the current tab index of a given form in html
- *
- * Use this function to handle the tab indexing of user facing forms within a
- * template file. Calling this function will automatically increment the global
- * tab index by default.
- *
- * @param int $auto_increment Optional. Default true. Set to false to prevent
- *                             increment
- */
-function fct_tab_index_attr( $auto_increment = true ) {
-	echo 'tabindex="' . fct_get_tab_index( $auto_increment ) . '"';
-}
-
-/**
  * Output the current tab index of a given form
  *
  * Use this function to handle the tab indexing of user facing forms within a
@@ -791,10 +777,39 @@ function fct_tab_index( $auto_increment = true ) {
 	function fct_get_tab_index( $auto_increment = true ) {
 		$fct = fiscaat();
 
-		if ( true === $auto_increment )
+		if ( true === $auto_increment ) {
 			++$fct->tab_index;
+		}
 
 		return apply_filters( 'fct_get_tab_index', (int) $fct->tab_index );
+	}
+
+/**
+ * Output the current tab index attribute of a given element in html
+ *
+ * Use this function to handle the tab indexing of user facing forms within a
+ * template file. Calling this function will automatically increment the global
+ * tab index by default.
+ *
+ * @param int $auto_increment Optional. Default true. Set to false to prevent
+ *                             increment
+ */
+function fct_tab_index_attr( $auto_increment = true ) {
+	echo fct_get_tab_index_attr( $auto_increment );
+}
+
+	/**
+	 * Return the current tab index attribute of a given element in html
+	 *
+	 * Use this function to handle the tab indexing of user facing forms within a
+	 * template file. Calling this function will automatically increment the global
+	 * tab index by default.
+	 *
+	 * @param int $auto_increment Optional. Default true. Set to false to prevent
+	 *                             increment
+	 */
+	function fct_get_tab_index_attr( $auto_increment = true ) {
+		return 'tabindex="' . fct_get_tab_index( $auto_increment ) . '"';
 	}
 
 /**
