@@ -506,7 +506,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 			// Record date
 			case 'fct_record_date': 
-				$today = mysql2date( __( 'Y/m/d' ), fct_current_time() ); ?>
+				$today = mysql2date( _x( 'Y-m-d', 'date input field format', 'fiscaat' ), fct_current_time() ); ?>
 
 				<input name="records[date][]" type="text" class="fct_record_date medium-text" value="" placeholder="<?php echo $today; ?>" <?php fct_tab_index_attr(); ?>/>
 
