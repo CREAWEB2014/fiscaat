@@ -148,6 +148,7 @@ class Fiscaat_Admin {
 
 		/** Filters ***********************************************************/
 
+		add_filter( 'admin_body_class',    array( $this, 'admin_body_class'           )        ); // Add classes to the admin body class
 		add_filter( 'plugin_action_links', array( $this, 'modify_plugin_action_links' ), 10, 2 ); // Modify Fiscaat's admin links
 		add_filter( 'fct_map_meta_caps',   array( $this, 'map_settings_meta_caps'     ), 10, 4 ); // Map settings capabilities
 
@@ -437,7 +438,7 @@ class Fiscaat_Admin {
 	public function setup_post_post() {
 
 		// Bail if not a Fiscaat post type
-		if ( isset( get_current_screen()->post_type ) && ! $type = fct_get_object_type_by_post_type( get_current_screen()->post_type ) )
+		if ( ! isset( get_current_screen()->post_type ) || ! ( $type = fct_get_object_type_by_post_type( get_current_screen()->post_type ) ) )
 			return;
 
 		// Setup type specific load hook
@@ -888,6 +889,34 @@ class Fiscaat_Admin {
 		</style>
 
 		<?php
+	}
+
+	/**
+	 * Append custom classes to the admin body class
+	 *
+	 * @since 0.0.9
+	 *
+	 * @uses apply_filters() Calls 'fct_admin_body_class'
+	 * @param string $class Admin body class
+	 * @return string Admin body class
+	 */
+	public function admin_body_class( $class ) {
+		global $parent_file;
+
+		// Bail if not a Fiscaat admin page (not tools)
+		// get_current_screen()->parent_file returns NULL at this point
+		if ( ! isset( $parent_file ) || 'fiscaat' != $parent_file )
+			return $class;
+
+		$classes = apply_filters( 'fct_admin_body_class', array( 'fiscaat' ) ); 
+
+		// Append classes
+		if ( ! empty( $classes ) ) {
+			$class = empty( $class ) ? '' : trim( $class ) . ' ';
+			$class .= implode( ' ', array_unique( $classes ) );
+		}
+
+		return $class;
 	}
 
 	/** Redirect **************************************************************/
