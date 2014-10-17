@@ -518,7 +518,9 @@ function fct_admin_display_list_table() {
 		<input type="hidden" name="post_status" class="post_status_page" value="<?php echo ! empty($_REQUEST['post_status']) ? esc_attr($_REQUEST['post_status']) : ''; ?>" />
 		<?php $wp_list_table->search_box( $post_type_object->labels->search_items, 'post' ); ?>
 
-		<?php $wp_list_table->display(); ?>
+		<div id="wp-list-table-wrap">
+			<?php $wp_list_table->display(); ?>
+		</div>
 
 		<?php do_action( "fct_admin_{$page}_form_bottom" ); ?>
 
