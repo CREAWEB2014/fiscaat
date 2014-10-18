@@ -92,6 +92,9 @@ class Fiscaat_Records_Admin {
 
 		/** Filters ***********************************************************/
 
+		// Admin body class
+		add_filter( 'fct_admin_body_class',  array( $this, 'admin_body_class' ) );
+
 		// Messages
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
@@ -382,7 +385,14 @@ class Fiscaat_Records_Admin {
 	 */
 	public function admin_head() {
 		if ( $this->bail() ) 
-			return; 
+			return;
+
+		$fct = fiscaat();
+
+		// Enqueue scripts
+		if ( ! wp_is_mobile() ) {
+			wp_enqueue_script( 'fct-table-expand', $fct->admin->admin_url . 'js/table-expand.js', array( 'jquery' ), $fct->version, 1 );
+		}
 
 		// Get record modes
 		$view = fct_admin_get_view_records_mode();
@@ -494,12 +504,12 @@ class Fiscaat_Records_Admin {
 				max-width: 173px;
 			}
 
-				.widefat.<?php echo $new; ?>-records .iedit select.fct_record_ledger_id {
+				.<?php echo $new; ?>-records .widefat .iedit select.fct_record_ledger_id {
 					width: 70px;
 					margin-right: 9px;
 				}
 
-				.widefat.<?php echo $new; ?>-records .iedit select.fct_record_account_id {
+				.<?php echo $new; ?>-records .widefat .iedit select.fct_record_account_id {
 					width: calc( 100% - 79px);
 				}
 
@@ -510,37 +520,62 @@ class Fiscaat_Records_Admin {
 				height: 28px;
 			}
 
-			.widefat.<?php echo $new;  ?>-records .record td.column-fct_record_description,
-			.widefat.<?php echo $edit; ?>-records .record td.column-fct_record_description {
+			.<?php echo $new;  ?>-records .widefat .record td.column-fct_record_description,
+			.<?php echo $edit; ?>-records .widefat .record td.column-fct_record_description {
 				padding: 9px 10px 4px;
 			}
 
-			.widefat {
+			.widefat.records {
 				counter-reset: row_count;
 			}
 
-				.widefat.<?php echo $new;  ?>-records .record,
-				.widefat.<?php echo $edit; ?>-records .record {
+				.widefat.records .record {
 					counter-increment: row_count;
 				}
 
-					.widefat.<?php echo $new;  ?>-records .check-column,
-					.widefat.<?php echo $edit; ?>-records .check-column {
+					.<?php echo $new;  ?>-records .widefat .check-column,
+					.<?php echo $edit; ?>-records .widefat .check-column {
 						width: 26px;
 						padding: 0 10px;
 						line-height: 46px;
 						text-align: right;
 					}
 
-						.widefat.<?php echo $new;  ?>-records .check-column input,
-						.widefat.<?php echo $edit; ?>-records .check-column input {
+						.<?php echo $new;  ?>-records .widefat .check-column input,
+						.<?php echo $edit; ?>-records .widefat .check-column input {
 							display: none;
 						}
 
-						.widefat.<?php echo $new;  ?>-records .record .check-column:before,
-						.widefat.<?php echo $edit; ?>-records .record .check-column:before {
+						.<?php echo $new;  ?>-records .widefat .record .check-column:before,
+						.<?php echo $edit; ?>-records .widefat .record .check-column:before {
 							content: counter(row_count) ".";
 						}
+
+			/** Table scrolling ***********************************************/
+
+			.fct-table-expand #table-top-copy, 
+			.fct-table-expand #table-bottom-copy {
+				display: none;
+				box-shadow: none;
+			}
+
+			.fct-table-expand #table-top-copy {
+				z-index: 999;
+				border-top: none;
+				border-bottom: none;
+			}
+
+			.fct-table-expand #table-bottom-copy {
+				z-index: 1;
+				border-top: none;
+				border-bottom: none;
+			}
+
+			.fct-table-expand thead,
+			.fct-table-expand tbody tr:last-child,
+			.fct-table-expand tfoot {
+				background: #fff;
+			}
 
 		/*]]>*/
 		</style>
@@ -570,6 +605,24 @@ class Fiscaat_Records_Admin {
 		</script>
 
 		<?php
+	}
+
+	/**
+	 * Add custom classes to the Fiscaat admin body class
+	 *
+	 * @since 0.0.9
+	 * 
+	 * @param array $classes Fiscaat admin body classes
+	 * @return array Fiscaat admin body classes
+	 */
+	public function admin_body_class( $classes ) {
+		if ( $this->bail() )
+			return $classes;
+
+		// The records mode
+		$classes[] = fct_admin_get_records_mode() . '-records';
+
+		return $classes;
 	}
 
 	/** List Table ************************************************************/
