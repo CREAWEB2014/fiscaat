@@ -406,8 +406,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 */
 	public function display_new_rows() {
 
-		// Start with 10 empty rows
-		for ( $i = 0; $i < 10; $i++ ) {
+		// Start with 25 empty rows
+		for ( $i = 0; $i < 25; $i++ ) {
 			$this->single_new_row();
 		}
 
@@ -805,10 +805,20 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 				// Alert capable users of debit credit mismatch
 				if ( array_sum( $this->amounts[ fct_get_debit_record_type_id() ] ) != array_sum( $this->amounts[ fct_get_credit_record_type_id() ] ) ) {
-					$total_title .= '<div class="attention">' . __( '(Mismatch)', 'fiscaat' ) . '</div>';
+					$total_title .= ' <span class="attention">' . __( '(Mismatch)', 'fiscaat' ) . '</span>';
 				}
 
 				echo $total_title;
+				break;
+
+			// Submit button
+			case 'fct_record_offset_account' :
+
+				// THE records submit button
+				if ( fct_admin_is_new_records() ) {
+					submit_button( __( 'Submit', 'fiscaat' ), 'primary', 'submit-records', false, array( 'tabindex' => fct_get_tab_index() ) );
+				}
+
 				break;
 
 			// Total amount
