@@ -389,7 +389,6 @@ class Fiscaat_Records_Admin {
 
 		$fct = fiscaat();
 
-		// Enqueue scripts
 		if ( ! wp_is_mobile() ) {
 			wp_enqueue_script( 'fct-table-expand', $fct->admin->admin_url . 'js/table-expand.js', array( 'jquery' ), $fct->version, 1 );
 		}
@@ -448,11 +447,6 @@ class Fiscaat_Records_Admin {
 				.widefat .column-fct_record_amount.sortable,
 				.widefat .column-fct_record_amount.sorted {
 					width: 158px;
-				}
-
-				.widefat .column-fct_record_amount input.small-text {
-					text-align: right;
-					width: 65px;
 				}
 
 			.widefat .column-fct_record_status {
@@ -514,11 +508,22 @@ class Fiscaat_Records_Admin {
 				}
 
 			.widefat .iedit textarea,
-			.widefat .iedit input {
+			.widefat .iedit input[type="text"],
+			.widefat .iedit input[type="number"],
+			.widefat .iedit input[type="date"] {
 				width: 100%;
 				padding: 3px 5px;
 				height: 28px;
 			}
+
+				.widefat .column-fct_record_amount input.small-text {
+					text-align: right;
+					width: 65px;
+				}
+
+				.widefat input[name="submit-records"] {
+					float: right;
+				}
 
 			.<?php echo $new;  ?>-records .widefat .record td.column-fct_record_description,
 			.<?php echo $edit; ?>-records .widefat .record td.column-fct_record_description {
@@ -553,22 +558,20 @@ class Fiscaat_Records_Admin {
 
 			/** Table scrolling ***********************************************/
 
-			.fct-table-expand #table-top-copy, 
-			.fct-table-expand #table-bottom-copy {
-				display: none;
+			.fct-table-expand #table-top-container, 
+			.fct-table-expand #table-bottom-container {
 				box-shadow: none;
+				border-top: none;
+				border-bottom: none;
 			}
 
-			.fct-table-expand #table-top-copy {
+			.fct-table-expand #table-top-container {
+				display: none;
 				z-index: 999;
-				border-top: none;
-				border-bottom: none;
 			}
 
-			.fct-table-expand #table-bottom-copy {
+			.fct-table-expand #table-bottom-container {
 				z-index: 1;
-				border-top: none;
-				border-bottom: none;
 			}
 
 			.fct-table-expand thead,

@@ -10,36 +10,41 @@
 
 	jQuery( document ).ready( function($) {
 		var $window = $( window ),
-			$document = $( document ),
-			$adminBar = $( '#wpadminbar' ),
-			$footer = $( '#wpfooter' ),
-			$wrap = $( '#wp-list-table-wrap' ),
-			$table = $wrap.find( '.widefat' ),
-			$tableTopCopy = $( '<table id="table-top-copy" class="widefat fixed"></table>' ),
-			$tableBottomCopy = $( '<table id="table-bottom-copy" class="widefat fixed"></table>' ),
-			$tableTop = $table.find( 'thead' ),
-			$tableRows = $table.find( 'tbody' ),
-			$lastRow = $table.find( 'tbody tr:last-child' ),
-			fixedTop = false,
-			fixedBottom = false,
-			scrollTimer,
-			pageYOffsetAtTop = 130,
-			autoresizeMinHeight = 300,
-			// These are corrected when adjust() runs, except on scrolling if already set.
-			heights = {
-				windowHeight: 0,
-				windowWidth: 0,
-				adminBarHeight: 0,
-				tableTopHeight: 0,
-				lastRowHeight: 0,
-			};
+		    $document = $( document ),
+		    $adminBar = $( '#wpadminbar' ),
+		    $footer = $( '#wpfooter' ),
+		    $wrap = $( '#wp-list-table-wrap' ),
+		    $table = $wrap.find( '.widefat' ),
+		    $tableTop = $table.find( 'thead' ),
+		    $tableBody = $table.find( 'tbody' ),
+		    $tableBottom = $table.find( 'tbody tr:last-child' ),
+		    $tableTopContainer = $( '<table id="table-top-container" class="widefat fixed"></table>' ),
+		    $tableBottomContainer = $( '<table id="table-bottom-container" class="widefat fixed"></table>' ),
+		    fixedTop = false,
+		    fixedBottom = false,
+		    scrollTimer,
+		    pageYOffsetAtTop = 130,
+		    autoresizeMinHeight = 300,
+		    // These are corrected when adjust() runs, except on scrolling if already set.
+		    heights = {
+		    	windowHeight: 0,
+		    	windowWidth: 0,
+		    	adminBarHeight: 0,
+		    	tableTopHeight: 0,
+		    	tableBottomHeight: 0,
+		    };
 
-		// Insert dummy tables before and after the main table
-		$table.before( $tableTopCopy ).after( $tableBottomCopy );
+		/**
+		 * Insert dummy tables before and after the main table
+		 *
+		 * Since rows outside of the <table> element behave incontrollably strange
+		 * when it comes to styling, they are placed inside generated container tables.
+		 * Then those container tables are the ones that are placed across the viewport.
+		 */
+		$table.before( $tableTopContainer ).after( $tableBottomContainer );
 
-		// Clone pinning elements into table copies, so the original table stays intact
-		$tableTop.clone().appendTo( $tableTopCopy );
-		$lastRow.clone().appendTo( $tableBottomCopy );
+		// Clone pinning top element into container table
+		$tableTop.clone().appendTo( $tableTopContainer );
 
 		function getHeights() {
 			var windowWidth = $window.width();
@@ -49,7 +54,7 @@
 				windowWidth: windowWidth,
 				adminBarHeight: ( windowWidth > 600 ? $adminBar.outerHeight() : 0 ),
 				tableTopHeight: $tableTop.outerHeight() || 0,
-				lastRowHeight: $lastRow.outerHeight() || 0,
+				tableBottomHeight: $tableBottom.outerHeight() || 0
 			};
 		}
 
@@ -60,7 +65,7 @@
 				buffer = autoresizeMinHeight,
 				borderWidth = 1,
 				tableWidth = $table.width() + ( borderWidth * 2 ),
-				$top, $content, canPin, topPos, 
+				$top, $content, canPin, topPos,
 				topHeight, tablePos, tableHeight;
 
 			// Refresh the heights
@@ -68,8 +73,16 @@
 				getHeights();
 			}
 
-			$top = $tableTopCopy;
-			$content = $tableRows;
+			// Set a placeholder for the last row to keep the table height
+			if ( ! $tableBody.find( '#table-bottom-placeholder' ).length ) {
+				$( '<tr id="table-bottom-placeholder"></tr>' ).css( {
+					height: heights.tableBottomHeight
+				} ).appendTo( $tableBody );
+			}
+
+			$top = $tableTopContainer;
+			$content = $tableBody;
+			$bottom = $tableBottom;
 			topHeight = heights.tableTopHeight;
 
 			topPos = $top.parent().offset().top;
@@ -82,9 +95,14 @@
 
 			if ( ! canPin ) {
 				if ( resize ) {
-					$.each( [ $top, $tableBottomCopy ], function( i, el ) {
-						el.hide().attr( 'style', '' );
-					});
+					$top.hide().attr( 'style', '' );
+
+					$tableBottomContainer.css( {
+						position: 'absolute',
+						top: tablePos + tableHeight - topHeight - heights.tableBottomHeight + ( borderWidth * 4 ),
+						bottom: 'auto',
+						width: tableWidth
+					} );
 				}
 			} else {
 				// Maybe pin the top.
@@ -128,17 +146,22 @@
 					( windowPos + heights.windowHeight ) <= ( tablePos + tableHeight + borderWidth ) ) {
 					fixedBottom = true;
 
-					$tableBottomCopy.css( {
+					$tableBottomContainer.css( {
 						position: 'fixed',
+						top: 'auto',
 						bottom: 0,
-						width: tableWidth,
-						display: 'table' // Show
+						width: tableWidth
 					} );
 				} else if ( ( fixedBottom || resize ) &&
 					( windowPos + heights.windowHeight ) > ( tablePos + tableHeight - borderWidth ) ) {
 					fixedBottom = false;
 
-					$tableBottomCopy.hide().attr( 'style', '' );
+					$tableBottomContainer.css( {
+						position: 'absolute',
+						top: tablePos + tableHeight - topHeight - heights.tableBottomHeight + ( borderWidth * 4 ),
+						bottom: 'auto',
+						width: tableWidth
+					} );
 				}
 			}
 		}
@@ -163,6 +186,9 @@
 
 			$wrap.addClass( 'fct-table-expand' );
 
+			// Move last row into container
+			$tableBottomContainer.append( $tableBottom );
+
 			// Adjust when the window is scrolled or resized.
 			$window.on( 'scroll.table-expand resize.table-expand', function( event ) {
 				adjust( event.type );
@@ -182,13 +208,16 @@
 				window.scrollTo( window.pageXOffset, 0 );
 			}
 
+			// Move last row back into position and remove placeholder
+			$tableBody.append( $tableBottom ).find( '#table-bottom-placeholder' ).remove();
+
 			$wrap.removeClass( 'fct-table-expand' );
 
 			$window.off( '.table-expand' );
 			$document.off( '.table-expand' );
 
 			// Reset all css
-			$.each( [ $tableTop, $lastRow, $wrap, $table, $tableRows, $tableTopCopy, $tableBottomCopy ], function( i, element ) {
+			$.each( [ $wrap, $table, $tableTop, $tableBody, $tableBottom, $tableTopContainer, $tableBottomContainer ], function( i, element ) {
 				element && element.attr( 'style', '' );
 			});
 
@@ -206,4 +235,4 @@
 		};
 	});
 		
-})( jQuery );
+})(jQuery);
