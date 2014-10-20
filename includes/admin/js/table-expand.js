@@ -184,19 +184,19 @@
 				window.scrollTo( window.pageXOffset, 0 );
 			}
 
-			$wrap.addClass( 'fct-table-expand' );
+			$wrap.addClass( 'fct-table-scroll' );
 
 			// Move last row into container
 			$tableBottomContainer.append( $tableBottom );
 
 			// Adjust when the window is scrolled or resized.
-			$window.on( 'scroll.table-expand resize.table-expand', function( event ) {
+			$window.on( 'scroll.table-scroll resize.table-scroll', function( event ) {
 				adjust( event.type );
 				afterScroll();
 			} );
 
 			// Adjust when collapsing the menu
-			$document.on( 'wp-collapse-menu.table-expand', adjust );
+			$document.on( 'wp-collapse-menu.table-scroll', adjust );
 
 			adjust();
 		}
@@ -211,10 +211,10 @@
 			// Move last row back into position and remove placeholder
 			$tableBody.append( $tableBottom ).find( '#table-bottom-placeholder' ).remove();
 
-			$wrap.removeClass( 'fct-table-expand' );
+			$wrap.removeClass( 'fct-table-scroll' );
 
-			$window.off( '.table-expand' );
-			$document.off( '.table-expand' );
+			$window.off( '.table-scroll' );
+			$document.off( '.table-scroll' );
 
 			// Reset all css
 			$.each( [ $wrap, $table, $tableTop, $tableBody, $tableBottom, $tableTopContainer, $tableBottomContainer ], function( i, element ) {

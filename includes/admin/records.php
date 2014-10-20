@@ -390,7 +390,7 @@ class Fiscaat_Records_Admin {
 		$fct = fiscaat();
 
 		if ( ! wp_is_mobile() ) {
-			wp_enqueue_script( 'fct-table-expand', $fct->admin->admin_url . 'js/table-expand.js', array( 'jquery' ), $fct->version, 1 );
+			wp_enqueue_script( 'fct-table-scroll', $fct->admin->admin_url . 'js/table-scroll.js', array( 'jquery' ), $fct->version, 1 );
 		}
 
 		// Get record modes
@@ -558,25 +558,25 @@ class Fiscaat_Records_Admin {
 
 			/** Table scrolling ***********************************************/
 
-			.fct-table-expand #table-top-container, 
-			.fct-table-expand #table-bottom-container {
+			.fct-table-scroll #table-top-container, 
+			.fct-table-scroll #table-bottom-container {
 				box-shadow: none;
 				border-top: none;
 				border-bottom: none;
 			}
 
-			.fct-table-expand #table-top-container {
+			.fct-table-scroll #table-top-container {
 				display: none;
 				z-index: 999;
 			}
 
-			.fct-table-expand #table-bottom-container {
+			.fct-table-scroll #table-bottom-container {
 				z-index: 1;
 			}
 
-			.fct-table-expand thead,
-			.fct-table-expand tbody tr:last-child,
-			.fct-table-expand tfoot {
+			.fct-table-scroll thead,
+			.fct-table-scroll tbody tr:last-child,
+			.fct-table-scroll tfoot {
 				background: #fff;
 			}
 
