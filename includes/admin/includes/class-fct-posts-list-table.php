@@ -174,20 +174,16 @@ class FCT_Posts_List_Table extends WP_List_Table {
 	public function display() {
 		$singular = $this->_args['singular'];
 
-		$this->display_tablenav( 'top' );
-		?>
+		$this->display_tablenav( 'top' ); ?>
+
 		<div id="wp-list-table-wrap">
 			<table class="wp-list-table <?php echo implode( ' ', $this->get_table_classes() ); ?>">
 				<thead>
-				<tr>
-					<?php $this->print_column_headers(); ?>
-				</tr>
+					<tr><?php $this->print_column_headers(); ?></tr>
 				</thead>
 
 				<tfoot>
-				<tr>
-					<?php $this->print_column_headers( false ); ?>
-				</tr>
+					<tr><?php $this->print_column_headers( false ); ?></tr>
 				</tfoot>
 
 				<tbody id="the-list"<?php
@@ -198,8 +194,8 @@ class FCT_Posts_List_Table extends WP_List_Table {
 				</tbody>
 			</table>
 		</div>
-		<?php
-		$this->display_tablenav( 'bottom' );
+
+		<?php $this->display_tablenav( 'bottom' );
 	}
 
 	public function get_table_classes() {

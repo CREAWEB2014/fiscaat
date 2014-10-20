@@ -284,54 +284,54 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @since 0.0.8
 	 *
 	 * @uses fct_admin_is_view_records()
-	 * @uses do_action() Calls 'fct_admin_bottom_posts_insert_form's
-	 * @uses do_action() Calls 'fct_admin_top_posts_insert_form'
+	 * @uses do_action() Calls 'fct_admin_posts_insert_form_bottom'
+	 * @uses do_action() Calls 'fct_admin_posts_insert_form_top'
 	 */
 	public function display_tablenav( $which ) {
 		if ( 'top' == $which ) {
 			wp_nonce_field( 'bulk-records' );
 		}
 
-		// Close posts-insert form before bottom tablenav
-		if ( 'bottom' == $which && ! fct_admin_is_view_records() ) {
-?>
-	<?php do_action( 'fct_admin_bottom_posts_insert_form' ); ?>
+		// Close #posts-insert form and start bottom tablenav
+		if ( 'bottom' == $which && ( fct_admin_is_new_records() || fct_admin_is_edit_records() ) ) : ?>
 
-</form><!-- #posts-insert -->
-<form id="posts-filter2" action="" method="get">
+				<?php do_action( 'fct_admin_posts_insert_form_bottom' ); ?>
 
-	<input type="hidden" name="page" class="post_page" value="<?php echo ! empty($_REQUEST['page']) ? esc_attr($_REQUEST['page']) : 'fct-records'; ?>" />
-	<input type="hidden" name="post_status" class="post_status_page" value="<?php echo ! empty($_REQUEST['post_status']) ? esc_attr($_REQUEST['post_status']) : ''; ?>" />
-	<?php wp_nonce_field( 'bulk-records' ); ?>
-<?php
-		}
+			</form><!-- #posts-insert -->
+			<form id="posts-filter2" action="" method="get">
 
-		// Display tablenav
-?>
-	<div class="tablenav <?php echo esc_attr( $which ); ?>">
+				<input type="hidden" name="page" class="post_page" value="<?php echo ! empty($_REQUEST['page']) ? esc_attr($_REQUEST['page']) : 'fct-records'; ?>" />
+				<input type="hidden" name="post_status" class="post_status_page" value="<?php echo ! empty($_REQUEST['post_status']) ? esc_attr($_REQUEST['post_status']) : ''; ?>" />
+				<?php wp_nonce_field( 'bulk-records' ); ?>
 
-<?php if ( $this->has_bulk_actions() ) : ?>
-		<div class="alignleft actions bulkactions">
-			<?php $this->bulk_actions(); ?>
-		</div>
-<?php endif;
+		<?php endif; ?>
 
-		$this->extra_tablenav( $which );
-		$this->pagination( $which );
-?>
+			<div class="tablenav <?php echo esc_attr( $which ); ?>">
 
-		<br class="clear" />
-	</div>
-<?php
+				<?php if ( $this->has_bulk_actions() ) : ?>
+				<div class="alignleft actions bulkactions">
+					<?php $this->bulk_actions(); ?>
+				</div>
+				<?php endif;
 
-		// Open posts-insert form after top tablenav
-		if ( 'top' == $which && ! fct_admin_is_view_records() ) {
-?>
-</form><!-- #posts-filter -->
-<form id="posts-insert" action="" method="post">
+				$this->extra_tablenav( $which );
+				$this->pagination( $which );
 
-    <?php do_action( 'fct_admin_top_posts_insert_form' ); ?> <?php         }
-}
+				?>
+
+				<br class="clear" />
+			</div>
+		
+		<?php // Close top tablenav and start #posts-insert form
+		if ( 'top' == $which && ( fct_admin_is_new_records() || fct_admin_is_edit_records() ) ) : ?>
+
+			</form><!-- #posts-filter -->
+			<form id="posts-insert" action="" method="post">
+
+				<?php do_action( 'fct_admin_posts_insert_form_top' ); ?> 
+
+		<?php endif;
+	}
 
 	/**
 	 * Generate the <tbody> part of the table
@@ -524,8 +524,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			// Record amount
 			case 'fct_record_amount' : ?>
 
-				<input name="records[amount][debit][]"  class="fct_record_debit_amount small-text"  type="text" value="" <?php fct_tab_index_attr(); ?>/>
-				<input name="records[amount][credit][]" class="fct_record_credit_amount small-text" type="text" value="" <?php fct_tab_index_attr(); ?>/>
+				<input name="records[amount][debit][]"  class="debit_amount small-text"  type="number" step="0.01" min="0" value="" <?php fct_tab_index_attr(); ?>/>
+				<input name="records[amount][credit][]" class="credit_amount small-text" type="number" step="0.01" min="0" value="" <?php fct_tab_index_attr(); ?>/>
 
 				<?php
 				break;
@@ -647,8 +647,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 				$rtype = fct_get_record_type(   $record_id );
 				$this->amounts[ $rtype ][] = $value; ?>
 
-				<input id="fct_record_<?php echo $record_id; ?>_debit_amount"  class="fct_record_debit_amount small-text"  type="text" value="<?php if ( fct_get_debit_record_type_id()  == $rtype ){ fct_currency_format( $value ); } ?>" disabled="disabled" />
-				<input id="fct_record_<?php echo $record_id; ?>_credit_amount" class="fct_record_credit_amount small-text" type="text" value="<?php if ( fct_get_credit_record_type_id() == $rtype ){ fct_currency_format( $value ); } ?>" disabled="disabled" />
+				<input id="fct_record_<?php echo $record_id; ?>_debit_amount"  class="debit_amount small-text"  type="number" step="0.01" min="0" value="<?php if ( fct_get_debit_record_type_id()  == $rtype ){ fct_currency_format( $value ); } ?>" readonly />
+				<input id="fct_record_<?php echo $record_id; ?>_credit_amount" class="credit_amount small-text" type="number" step="0.01" min="0" value="<?php if ( fct_get_credit_record_type_id() == $rtype ){ fct_currency_format( $value ); } ?>" readonly />
 
 				<?php
 				break;
@@ -776,8 +776,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 				$value = call_user_func_array( "fct_get_account_{$_row}_value", array( 'account_id' => $account_id ) );
 				$this->amounts[ $value > 0 ? fct_get_debit_record_type_id() : fct_get_credit_record_type_id() ][] = abs( $value ); ?>
 
-				<input id="fct_account_<?php echo $_row; ?>_value_debit"  class="fct_record_debit_amount small-text"  type="text" value="<?php if ( $value > 0 ) { fct_currency_format( abs( $value ) ); } ?>" disabled="disabled" <?php fct_tab_index_attr(); ?>/>
-				<input id="fct_account_<?php echo $_row; ?>_value_credit" class="fct_record_credit_amount small-text" type="text" value="<?php if ( $value < 0 ) { fct_currency_format( abs( $value ) ); } ?>" disabled="disabled" <?php fct_tab_index_attr(); ?>/>
+				<input id="fct_account_debit_<?php echo $_row; ?>"  class="debit_amount small-text"  type="number" step="0.01" min="0" value="<?php if ( $value > 0 ) { fct_currency_format( abs( $value ) ); } ?>" <?php fct_tab_index_attr(); ?> readonly />
+				<input id="fct_account_credit_<?php echo $_row; ?>" class="credit_amount small-text" type="number" step="0.01" min="0" value="<?php if ( $value < 0 ) { fct_currency_format( abs( $value ) ); } ?>" <?php fct_tab_index_attr(); ?> readonly />
 
 				<?php
 				break;
@@ -822,10 +822,12 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 				break;
 
 			// Total amount
-			case 'fct_record_amount' : ?>
+			case 'fct_record_amount' : 
+				$format = fct_the_currency_format();
+				$placeholder = sprintf( '0%s%s', $format['decimal_point'], str_repeat( '0', $format['decimals'] ) ); ?>
 
-				<input id="fct_records_debit_total"  class="fct_record_debit_amount fct_record_total small-text"  type="text" value="<?php fct_currency_format( array_sum( $this->amounts[ fct_get_debit_record_type_id()  ] ) ); ?>" disabled="disabled" <?php fct_tab_index_attr(); ?>/>
-				<input id="fct_records_credit_total" class="fct_record_credit_amount fct_record_total small-text" type="text" value="<?php fct_currency_format( array_sum( $this->amounts[ fct_get_credit_record_type_id() ] ) ); ?>" disabled="disabled" <?php fct_tab_index_attr(); ?>/>
+				<input id="fct_records_debit_total"  class="debit_amount fct_record_total small-text"  type="number" step="0.01" min="0" value="<?php fct_currency_format( array_sum( $this->amounts[ fct_get_debit_record_type_id()  ] ) ); ?>" <?php fct_tab_index_attr(); ?> placeholder="<?php echo $placeholder; ?>" readonly />
+				<input id="fct_records_credit_total" class="credit_amount fct_record_total small-text" type="number" step="0.01" min="0" value="<?php fct_currency_format( array_sum( $this->amounts[ fct_get_credit_record_type_id() ] ) ); ?>" <?php fct_tab_index_attr(); ?> placeholder="<?php echo $placeholder; ?>" readonly />
 
 				<?php
 				break;

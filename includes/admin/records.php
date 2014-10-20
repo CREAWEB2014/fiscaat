@@ -393,6 +393,10 @@ class Fiscaat_Records_Admin {
 			wp_enqueue_script( 'fct-table-scroll', $fct->admin->admin_url . 'js/table-scroll.js', array( 'jquery' ), $fct->version, 1 );
 		}
 
+		if ( fct_admin_is_new_records() ) {
+			wp_enqueue_script( 'fct-records', $fct->admin->admin_url .'js/records.js', array( 'jquery' ), $fct->version, 1 );
+		}
+
 		// Get record modes
 		$view = fct_admin_get_view_records_mode();
 		$new  = fct_admin_get_new_records_mode();
@@ -555,6 +559,11 @@ class Fiscaat_Records_Admin {
 						.<?php echo $edit; ?>-records .widefat .record .check-column:before {
 							content: counter(row_count) ".";
 						}
+
+			.widefat #fct-total-records.mismatch {
+				background: #FF5959;
+				color: #FFFFFF;
+			}
 
 			/** Table scrolling ***********************************************/
 
