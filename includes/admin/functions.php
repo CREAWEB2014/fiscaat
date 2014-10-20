@@ -501,28 +501,17 @@ function fct_admin_setup_list_table( $object_type = '' ) {
  * @since 0.0.9
  *
  * @global $wp_list_table
- * @uses fct_admin_get_page_object_type()
- * @uses do_action() Calls 'fct_admin_{post}s_form_top'
- * @uses do_action() Calls 'fct_admin_{post}s_form_bottom'
  */
 function fct_admin_display_list_table() { 
-	global $wp_list_table, $post_type_object; 
-
-	$page = fct_admin_get_page_object_type() . 's'; ?>
+	global $wp_list_table, $post_type_object; ?>
 
 	<form id="posts-filter" action="" method="get">
-
-		<?php do_action( "fct_admin_{$page}_form_top" ); ?>
 
 		<input type="hidden" name="page" class="post_page" value="<?php echo ! empty($_REQUEST['page']) ? esc_attr($_REQUEST['page']) : 'fiscaat'; ?>" />
 		<input type="hidden" name="post_status" class="post_status_page" value="<?php echo ! empty($_REQUEST['post_status']) ? esc_attr($_REQUEST['post_status']) : ''; ?>" />
 		<?php $wp_list_table->search_box( $post_type_object->labels->search_items, 'post' ); ?>
 
-		<div id="wp-list-table-wrap">
-			<?php $wp_list_table->display(); ?>
-		</div>
-
-		<?php do_action( "fct_admin_{$page}_form_bottom" ); ?>
+		<?php $wp_list_table->display(); ?>
 
 	</form>
 
