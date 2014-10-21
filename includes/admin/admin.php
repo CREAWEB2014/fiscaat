@@ -389,7 +389,7 @@ class Fiscaat_Admin {
 		// Set page globals
 		$post_type        = fct_admin_get_page_post_type();
 		$post_type_object = get_post_type_object( $post_type );
-		$post_new_file    = fct_admin_get_post_new_file_global();
+		fct_admin_set_post_new_file_global();
 
 		/**
 		 * Notify user when things are wrong. Though do not check
