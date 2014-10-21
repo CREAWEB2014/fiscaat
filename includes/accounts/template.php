@@ -255,7 +255,6 @@ function fct_account_id( $account_id = 0) {
 	/**
 	 * Return the account id
 	 *
-	 * @param $account_id Optional. Used to check emptiness
 	 * @uses Fiscaat::account_query::post::ID To get the account id
 	 * @uses fct_is_single_account() To check if it's an account page
 	 * @uses fct_is_account_edit() To check if it's an account edit page
@@ -267,16 +266,27 @@ function fct_account_id( $account_id = 0) {
 	 * @uses fct_get_account_post_type() To get the account post type
 	 * @uses apply_filters() Calls 'fct_get_account_id' with the account id and
 	 *                        supplied account id
+	 * @param int $account_id Optional. Used to check emptiness
+	 * @param int $period_id Optional. Used to get matching account within the period
 	 * @return int The account id
 	 */
-	function fct_get_account_id( $account_id = 0 ) {
+	function fct_get_account_id( $account_id = 0, $period_id = 0 ) {
 		global $wp_query;
 
 		$fct = fiscaat();
 
 		// Easy empty checking
 		if ( ! empty( $account_id ) && is_numeric( $account_id ) ) {
-			$fct_account_id = $account_id;
+
+			// Account is of a different period. Get period's account by account ledger id
+			if ( ! empty( $period_id ) && fct_get_account_period_id( $account_id ) != $period_id ) {
+				$ledger_id      = fct_get_account_ledger_id( $account_id );
+				$fct_account_id = fct_get_account_id_by_ledger_id( $ledger_id, $period_id );
+
+			// Period matches account's period
+			} else {
+				$fct_account_id = $account_id;
+			}
 
 		// Currently inside an account loop
 		} elseif ( ! empty( $fct->account_query->in_the_loop ) && isset( $fct->account_query->post->ID ) ) {
@@ -299,7 +309,7 @@ function fct_account_id( $account_id = 0) {
 			$fct_account_id = 0;
 		}
 
-		return (int) apply_filters( 'fct_get_account_id', (int) $fct_account_id, $account_id );
+		return (int) apply_filters( 'fct_get_account_id', (int) $fct_account_id, $account_id, $period_id );
 	}
 
 /**

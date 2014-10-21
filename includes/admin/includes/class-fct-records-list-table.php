@@ -12,13 +12,22 @@
 class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 	/**
-	 * Holds the parent account id when displaying account records
+	 * Holds the period ID of the queried records
 	 *
 	 * @since 0.0.8
 	 * @var int|bool
 	 * @access protected
 	 */
-	protected $account_display = false;
+	protected $period_id = false;
+
+	/**
+	 * Holds the account ID when querying the account's records
+	 *
+	 * @since 0.0.8
+	 * @var int|bool
+	 * @access protected
+	 */
+	protected $account_id = false;
 
 	/**
 	 * Holds the displayed debit and credit record amounts
@@ -41,9 +50,26 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			'screen'   => isset( $args['screen'] ) ? $args['screen'] : null,
 		) );
 
-		// Displaying account records
+		// Set the period id
+		if ( isset( $_REQUEST['fct_period_id'] ) && ! empty( $_REQUEST['fct_period_id'] ) ) {
+			$this->period_id = (int) $_REQUEST['fct_period_id'];
+		}
+
+		// Set the account id when querying an account's records
 		if ( isset( $_REQUEST['fct_account_id'] ) && ! empty( $_REQUEST['fct_account_id'] ) ) {
-			$this->account_display = $_REQUEST['fct_account_id'];
+			if ( ! $this->period_id ) {
+				$this->account_id = (int) $_REQUEST['fct_account_id'];
+				// Derive the period id from the queried account
+				$this->period_id = fct_get_account_period_id( $this->account_id );
+			} else {
+				// Restrict the account id within the period's realm
+				$this->account_id = fct_get_account_id( $_REQUEST['fct_account_id'], $this->period_id );
+			}
+		}
+
+		// If no period is still set, default to the current period
+		if ( ! $this->period_id ) {
+			$this->period_id = fct_get_current_period_id();
 		}
 
 		// Setup amounts counter
@@ -98,23 +124,23 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			return array();
 
 		// Account's record count
-		if ( $this->account_display ) {
+		if ( $this->account_id ) {
 			$num_posts = fct_count_posts( array(
 				'type'        => $post_type,
 				'perm'        => 'readable',
-				'post_parent' => $this->account_display,
+				'post_parent' => $this->account_id,
 			) );
-			$parent = '&fct_account_id=' . $this->account_display;
+			$parent = '&fct_account_id=' . $this->account_id;
 
 		// Period's record count. Not querying all records
-		} elseif ( ! isset( $_REQUEST['fct_period_id'] ) || ! empty( $_REQUEST['fct_period_id'] ) ) {
+		} elseif ( $this->period_id ) {
 			$num_posts = fct_count_posts( array(
 				'type'      => $post_type,
 				'perm'      => 'readable',
-				'period_id' => isset( $_REQUEST['fct_period_id'] ) ? (int) $_REQUEST['fct_period_id'] : fct_get_current_period_id(),
+				'period_id' => $this->period_id,
 			) );
 
-		// Total records count
+		// Total records count. Never getting here since period is always set
 		} else {
 			$num_posts = wp_count_posts( $post_type, 'readable' );
 		}
@@ -125,9 +151,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		$total_posts   = array_sum( (array) $num_posts );
 
 		// Prepend a link for the period's records when viewing a single account
-		if ( $this->account_display ) {
-			$period_id = ( isset( $_REQUEST['fct_period_id'] ) && ! empty( $_REQUEST['fct_period_id'] ) ) ? $_REQUEST['fct_period_id'] : fct_get_account_period_id( $this->account_display );
-			$status_links['period'] = "<a href=\"admin.php?page=fct-records&amp;fct_period_id=$period_id\"$class>" . sprintf( _x( 'Period <span class="count">(%s)</span>', 'records', 'fiscaat' ), fct_get_period_record_count( $this->account_display ) ) . '</a>';
+		if ( $this->account_id ) {
+			$status_links['period'] = "<a href=\"admin.php?page=fct-records&amp;fct_period_id={$this->period_id}\"$class>" . sprintf( _x( 'Period <span class="count">(%s)</span>', 'records', 'fiscaat' ), fct_get_period_record_count( $this->period_id ) ) . '</a>';
 		}
 
 		// Subtract post stati that are not included in the admin all list.
@@ -348,7 +373,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	public function display_rows_or_placeholder() {
 
 		// Display edit mode, not when displaying account
-		if ( fct_admin_is_edit_records() && $this->has_items() && ! $this->account_display ) {
+		if ( fct_admin_is_edit_records() && $this->has_items() && ! $this->account_id ) {
 			$this->display_edit_rows();
 
 		// Display post-new mode
@@ -356,7 +381,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			$this->display_new_rows();
 
 		// Display rows when present or displaying account
-		} elseif ( fct_admin_is_view_records() && ( $this->has_items() || $this->account_display ) ) {
+		} elseif ( fct_admin_is_view_records() && ( $this->has_items() || $this->account_id ) ) {
 			$this->display_rows();
 
 		// Placeholder
@@ -555,14 +580,14 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		add_filter( 'the_title', 'esc_html' );
 
 		// Start account row. Revenue accounts have no starting value
-		if ( $this->account_display && fct_get_revenue_account_type_id() != fct_get_account_type( $this->account_display ) ) {
+		if ( $this->account_id && fct_get_revenue_account_type_id() != fct_get_account_type( $this->account_id ) ) {
 			$this->display_helper_row( 'start' );
 		}
 
 		$this->_display_rows( $posts, $level );
 
 		// End account row
-		if ( $this->account_display ) {
+		if ( $this->account_id ) {
 			$this->display_helper_row( 'end' );
 		}
 
@@ -742,7 +767,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	public function _start_or_end_row( $column ) {
 
 		// Bail if no valid parent account id
-		if ( ! $account_id = fct_get_account_id( $this->account_display ) )
+		if ( ! $account_id = fct_get_account_id( $this->account_id ) )
 			return;
 
 		// Is this the start row?
