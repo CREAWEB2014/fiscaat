@@ -36,24 +36,24 @@
 						// Display properly formatted input
 						$this.val( sanitized_value );
 
-						// When input is valid
-						if ( ! isNaN( sanitized_value ) || 
-							// When input is emptied
-							!! $this.data( 'originalValue' ) ) {
+						// Empty the adjacent input when entry is valid
+						if ( isValidNumber( sanitized_value ) ) {
+							var $adjacent = $this[ ( debit === which ) ? 'next' : 'prev' ](),
+							    other_value = $adjacent.val();
 
-							// Empty the adjacent input when entry is valid
-							if ( ! isNaN( sanitized_value ) ) {
-								var $adjacent = $this[ ( debit === which ) ? 'next' : 'prev' ](),
-								    other_value = $adjacent.val();
+							// Empty adjacent input
+							$adjacent.removeAttr( 'value' );
 
-								// Empty adjacent input
-								$adjacent.val( '' );
-
-								// Recalculate the other type
-								if ( !! other_value ) {
-									updateSum( otherType( which ) );
-								}
+							// Recalculate the other type if the value was valid
+							if ( isValidNumber( other_value ) ) {
+								updateSum( otherType( which ) );
 							}
+						}
+
+						// When input is valid
+						if ( isValidNumber( sanitized_value ) || 
+							// When original input was valid but now it is not (i.e. input was emptied)
+							isValidNumber( $this.data( 'originalValue' ) ) ) {
 
 							// Recalculate this type
 							updateSum( which );
@@ -73,13 +73,24 @@
 		}
 
 		/**
-		 * Parse the argument as a formatted number
+		 * Parse the argument as a formatted number for display
 		 * 
 		 * @param  {mixed} number Value to format
-		 * @return {string} Formatted number with 2 digits
+		 * @return {string} Formatted number with 2 digits or empty
 		 */
 		function formatNumber( number ) {
-			return parseFloat( number ).toFixed(2).toString();
+			var n = parseFloat( number );
+			return ( ! isNaN( n ) ) ? n.toFixed(2).toString() : '';
+		}
+
+		/**
+		 * Return whether the given value is a valid number
+		 * 
+		 * @param  {mixed} number Value to check
+		 * @return {Boolean} Value is a valid number
+		 */
+		function isValidNumber( number ) {
+			return ! isNaN( parseFloat( number ) );
 		}
 
 		/**
@@ -121,7 +132,7 @@
 
 			// Handle sum inequality 
 			if ( debitSum !== creditSum ) {
-				// Add mismatch class for visual notification 
+				// Add mismatch class for visual hint 
 				$sumRow.addClass( 'mismatch' )
 					// And toggle submit button disabler
 					.find( 'input[name="submit-records"]' ).prop( 'disabled', true );
@@ -132,6 +143,9 @@
 					.find( 'input[name="submit-records"]' ).prop( 'disabled', false );
 			}
 		}
+
+		// Calculate on page load for browsers that keep input values on page refresh
+		updateSum();
 	});
 
 })(jQuery);
