@@ -126,7 +126,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 		// Prepend a link for the period's records when viewing a single account
 		if ( $this->account_display ) {
-			$period_id = fct_get_account_period_id( $this->account_display );
+			$period_id = ( isset( $_REQUEST['fct_period_id'] ) && ! empty( $_REQUEST['fct_period_id'] ) ) ? $_REQUEST['fct_period_id'] : fct_get_account_period_id( $this->account_display );
 			$status_links['period'] = "<a href=\"admin.php?page=fct-records&amp;fct_period_id=$period_id\"$class>" . sprintf( _x( 'Period <span class="count">(%s)</span>', 'records', 'fiscaat' ), fct_get_period_record_count( $this->account_display ) ) . '</a>';
 		}
 
