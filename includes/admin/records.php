@@ -792,19 +792,18 @@ class Fiscaat_Records_Admin {
 		) );
 
 		// Show the queried record dates
-		$record_date_from = sprintf( '<input id="fct_record_date_from" type="date" name="fct_date_from" class="fct_record_date" value="%1$s" placeholder="%2$s" %3$s/>',
-			! empty( $_REQUEST['fct_date_from'] ) ? $_REQUEST['fct_date_from'] : '', // Date value
-			_x( 'yyyy-mm-dd', 'date input field format', 'fiscaat' ),                // Date placeholder
-			fct_get_tab_index_attr()                                                 // Tabindex
-		);
-		$record_date_to   = sprintf( '<input id="fct_record_date_to" type="date" name="fct_date_to" class="fct_record_date" value="%1$s" placeholder="%2$s" %3$s/>',
-			! empty( $_REQUEST['fct_date_to']   ) ? $_REQUEST['fct_date_to']   : '', // Date value
-			_x( 'yyyy-mm-dd', 'date input field format', 'fiscaat' ),                // Date placeholder
-			fct_get_tab_index_attr()                                                 // Tabindex
-		);
-
 		/* translators: 1: Select records start date field, 2: Select records end date field */
-		printf( '<span class="fct_record_dates">' . __( 'From %1$s to %2$s', 'fiscaat' ) . '</span>', $record_date_from, $record_date_to );
+		printf( '<span class="fct_record_dates">' . __( 'From %1$s to %2$s', 'fiscaat' ) . '</span>', 
+			sprintf( '<input id="fct_record_date_from" type="date" name="date_from" class="fct_record_date" value="%1$s" placeholder="%2$s" %3$s/>',
+				! empty( $_REQUEST['date_from'] ) ? $_REQUEST['date_from'] : '', // Date value
+				_x( 'yyyy-mm-dd', 'date input field format', 'fiscaat' ),        // Date placeholder
+				fct_get_tab_index_attr()                                         // Tabindex
+			), 
+			sprintf( '<input id="fct_record_date_to" type="date" name="date_to" class="fct_record_date" value="%1$s" placeholder="%2$s" %3$s/>',
+				! empty( $_REQUEST['date_to'] ) ? $_REQUEST['date_to'] : '', // Date value
+				_x( 'yyyy-mm-dd', 'date input field format', 'fiscaat' ),    // Date placeholder
+				fct_get_tab_index_attr()                                     // Tabindex
+		) );
 	}
 
 	/**
@@ -845,10 +844,10 @@ class Fiscaat_Records_Admin {
 
 		// @todo Needs testing
 		// Handle dates
-		if ( ! empty( $_REQUEST['fct_date_from'] ) || ! empty( $_REQUEST['fct_date_to'] ) ) {
+		if ( ! empty( $_REQUEST['date_from'] ) || ! empty( $_REQUEST['date_to'] ) ) {
 
 			// Handle valid start date
-			if ( ! empty( $_REQUEST['fct_date_from'] ) && false !== ( $strdate = strtotime( str_replace( '/', '-', $_REQUEST['fct_date_from'] ) ) ) ) {
+			if ( ! empty( $_REQUEST['date_from'] ) && false !== ( $strdate = strtotime( str_replace( '/', '-', $_REQUEST['date_from'] ) ) ) ) {
 
 				// Subtract one day to include selected date
 				$strdate -= DAY_IN_SECONDS;
@@ -862,7 +861,7 @@ class Fiscaat_Records_Admin {
 			}
 
 			// Handle valid end date
-			if ( ! empty( $_REQUEST['fct_date_to'] ) && false !== ( $strdate = strtotime( str_replace( '/', '-', $_REQUEST['fct_date_to'] ) ) ) ) {
+			if ( ! empty( $_REQUEST['date_to'] ) && false !== ( $strdate = strtotime( str_replace( '/', '-', $_REQUEST['date_to'] ) ) ) ) {
 
 				// Push one day to include selected date
 				$strdate += DAY_IN_SECONDS;
