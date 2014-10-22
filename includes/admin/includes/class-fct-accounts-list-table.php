@@ -18,7 +18,7 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 	 * @var int
 	 * @access protected
 	 */
-	protected $period_display = false;
+	protected $period_id = false;
 
 	/**
 	 * Constructs the posts list table
@@ -33,12 +33,12 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 		) );
 
 		// Displaying period accounts
-		if ( isset( $_REQUEST['fct_period_id'] ) && ! empty( $_REQUEST['fct_period_id'] ) ) {
-			$this->period_display = $_REQUEST['fct_period_id'];
+		if ( isset( $_REQUEST['period_id'] ) && ! empty( $_REQUEST['period_id'] ) ) {
+			$this->period_id = $_REQUEST['period_id'];
 
 		// Default to current period
-		} elseif ( ! isset( $_REQUEST['fct_period_id'] ) ) {
-			$this->period_display = fct_get_current_period_id();
+		} elseif ( ! isset( $_REQUEST['period_id'] ) ) {
+			$this->period_id = fct_get_current_period_id();
 		}
 	}
 
@@ -63,13 +63,13 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 			return array();
 
 		// Period's accounts count
-		if ( $this->period_display ) {
+		if ( $this->period_id ) {
 			$num_posts = fct_count_posts( array( 
 				'type'        => $post_type, 
 				'perm'        => 'readable', 
-				'post_parent' => $this->period_display,
+				'post_parent' => $this->period_id,
 			) );
-			$parent    = '&fct_period_id=' . $this->period_display;
+			$parent    = '&period_id=' . $this->period_id;
 
 		// All accounts count
 		} else {

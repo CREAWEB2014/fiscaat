@@ -671,7 +671,7 @@ class Fiscaat_Records_Admin {
 		}
 
 		// Only unspecified period queries require period column
-		if ( ! isset( $_REQUEST['fct_period_id'] ) || ! empty( $_REQUEST['fct_period_id'] ) ) {
+		if ( ! isset( $_REQUEST['period_id'] ) || ! empty( $_REQUEST['period_id'] ) ) {
 			unset( $columns['fct_record_period'] );
 		}
 
@@ -698,7 +698,7 @@ class Fiscaat_Records_Admin {
 			return;
 
 		// Get filter vars
-		$period_id  = ! empty( $_REQUEST['fct_period_id']  ) ? (int) $_REQUEST['fct_period_id']  : isset( $_REQUEST['fct_period_id'] );
+		$period_id  = ! empty( $_REQUEST['period_id']  ) ? (int) $_REQUEST['period_id']  : isset( $_REQUEST['period_id'] );
 		$account_id = ! empty( $_REQUEST['fct_account_id'] ) ? (int) $_REQUEST['fct_account_id'] : 0;
 		$ledger_id  = ! empty( $_REQUEST['fct_ledger_id']  ) ? (int) $_REQUEST['fct_ledger_id']  : 0;
 
@@ -714,7 +714,7 @@ class Fiscaat_Records_Admin {
 				$period_id = fct_get_current_period_id();
 			}
 
-			$_REQUEST['fct_period_id'] = $_GET['fct_period_id'] = $period_id;
+			$_REQUEST['period_id'] = $_GET['period_id'] = $period_id;
 		}
 
 		// Setup account
@@ -756,7 +756,7 @@ class Fiscaat_Records_Admin {
 		$wp_list_table->months_dropdown( fct_get_record_post_type() );
 
 		// Get queried period id
-		$period_id = ! empty( $_REQUEST['fct_period_id'] ) ? (int) $_REQUEST['fct_period_id'] : fct_get_current_period_id();
+		$period_id = ! empty( $_REQUEST['period_id'] ) ? (int) $_REQUEST['period_id'] : fct_get_current_period_id();
 
 		// Show the periods dropdown
 		fct_period_dropdown( array(
@@ -822,7 +822,7 @@ class Fiscaat_Records_Admin {
 
 		// Setup meta query
 		$meta_query = isset( $query_vars['meta_query'] ) ? $query_vars['meta_query'] : array();
-		$period_id  = ! empty( $_REQUEST['fct_period_id'] ) ? (int) $_REQUEST['fct_period_id'] : fct_get_current_period_id();
+		$period_id  = ! empty( $_REQUEST['period_id'] ) ? (int) $_REQUEST['period_id'] : fct_get_current_period_id();
 
 		/** Period & Account ****************************************************/
 
@@ -1238,10 +1238,10 @@ class Fiscaat_Records_Admin {
 		}
 
 		// Period records
-		if ( isset( $_REQUEST['fct_period_id'] ) && ! empty( $_REQUEST['fct_period_id'] ) ) {
+		if ( isset( $_REQUEST['period_id'] ) && ! empty( $_REQUEST['period_id'] ) ) {
 
 			// Fetch period id
-			$period_id = fct_get_period_id( $_REQUEST['fct_period_id'] );
+			$period_id = fct_get_period_id( $_REQUEST['period_id'] );
 
 			if ( ! empty( $period_id ) ) {
 				// Format: {title} -- {period title}

@@ -51,8 +51,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		) );
 
 		// Set the period id
-		if ( ! empty( $_REQUEST['fct_period_id'] ) ) {
-			$this->period_id = (int) $_REQUEST['fct_period_id'];
+		if ( ! empty( $_REQUEST['period_id'] ) ) {
+			$this->period_id = (int) $_REQUEST['period_id'];
 		// Default to the current period
 		} else {
 			$this->period_id = fct_get_current_period_id();
@@ -143,7 +143,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 		// Prepend a link for the period's records when viewing a single account
 		if ( $this->account_id ) {
-			$status_links['period'] = "<a href=\"admin.php?page=fct-records&amp;fct_period_id={$this->period_id}\"$class>" . sprintf( _x( 'Period <span class="count">(%s)</span>', 'records', 'fiscaat' ), fct_get_period_record_count( $this->period_id ) ) . '</a>';
+			$status_links['period'] = "<a href=\"admin.php?page=fct-records&amp;period_id={$this->period_id}\"$class>" . sprintf( _x( 'Period <span class="count">(%s)</span>', 'records', 'fiscaat' ), fct_get_period_record_count( $this->period_id ) ) . '</a>';
 		}
 
 		// Subtract post stati that are not included in the admin all list.

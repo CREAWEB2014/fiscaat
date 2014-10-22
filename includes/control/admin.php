@@ -136,7 +136,7 @@ function fct_ctrl_admin_periods_column_data( $column, $period_id ) {
 		// Unapproved record count
 		case 'fct_period_record_count_unapproved' :
 			if ( ( $count = fct_get_period_record_count_unapproved( $period_id ) ) && ! empty( $count ) ) {
-				printf( '<a href="%s">%s</a>', add_query_arg( array( 'page' => 'fct-records', 'fct_period_id' => $period_id, 'post_status' => 'unapproved' ) ), $count );
+				printf( '<a href="%s">%s</a>', add_query_arg( array( 'page' => 'fct-records', 'period_id' => $period_id, 'post_status' => 'unapproved' ) ), $count );
 			} else {
 				echo $count;
 			}
@@ -145,7 +145,7 @@ function fct_ctrl_admin_periods_column_data( $column, $period_id ) {
 		// Declined record count
 		case 'fct_period_record_count_declined' :
 			if ( ( $count = fct_get_period_record_count_declined( $period_id ) ) && ! empty( $count ) ) {
-				printf( '<a href="%s">%s</a>', add_query_arg( array( 'page' => 'fct-records', 'fct_period_id' => $period_id, 'post_status' => fct_get_declined_status_id() ) ), $count );
+				printf( '<a href="%s">%s</a>', add_query_arg( array( 'page' => 'fct-records', 'period_id' => $period_id, 'post_status' => fct_get_declined_status_id() ) ), $count );
 			} else {
 				echo $count;
 			}

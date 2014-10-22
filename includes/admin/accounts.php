@@ -505,7 +505,7 @@ class Fiscaat_Accounts_Admin {
 
 		// Hide period column if showing period accounts. When there
 		// is no period selection, current period accounts are showed.
-		if ( ! isset( $_REQUEST['fct_period_id'] ) || ! empty( $_REQUEST['fct_period_id'] ) ) {
+		if ( ! isset( $_REQUEST['period_id'] ) || ! empty( $_REQUEST['period_id'] ) ) {
 
 			// But not when querying drafts or trash
 			if ( ! isset( $_REQUEST['post_status'] ) || ! in_array( $_REQUEST['post_status'], array( 'draft', fct_get_trash_status_id() ) ) ) {
@@ -535,7 +535,7 @@ class Fiscaat_Accounts_Admin {
 
 		// Show the periods dropdown. Default to current period
 		fct_period_dropdown( array(
-			'selected' => ! empty( $_REQUEST['fct_period_id'] ) ? $_REQUEST['fct_period_id'] : fct_get_current_period_id(),
+			'selected' => ! empty( $_REQUEST['period_id'] ) ? $_REQUEST['period_id'] : fct_get_current_period_id(),
 		) );
 	}
 
@@ -555,11 +555,11 @@ class Fiscaat_Accounts_Admin {
 		/** Period **************************************************************/
 
 		// Set the parent from period id
-		if ( isset( $_REQUEST['fct_period_id'] ) ) {
+		if ( isset( $_REQUEST['period_id'] ) ) {
 
 			// Use only when not empty
-			if ( ! empty( $_REQUEST['fct_period_id'] ) ) {
-				$query_vars['post_parent'] = (int) $_REQUEST['fct_period_id'];
+			if ( ! empty( $_REQUEST['period_id'] ) ) {
+				$query_vars['post_parent'] = (int) $_REQUEST['period_id'];
 			}
 
 		// Default to current period...
@@ -1149,10 +1149,10 @@ class Fiscaat_Accounts_Admin {
 	public function accounts_page_title( $title ) {
 
 		// Period accounts
-		if ( ! isset( $_REQUEST['fct_period_id'] ) || ! empty( $_REQUEST['fct_period_id'] ) ) {
+		if ( ! isset( $_REQUEST['period_id'] ) || ! empty( $_REQUEST['period_id'] ) ) {
 
 			// Check period id
-			$selected  = isset( $_REQUEST['fct_period_id'] ) ? $_REQUEST['fct_period_id'] : fct_get_current_period_id();
+			$selected  = isset( $_REQUEST['period_id'] ) ? $_REQUEST['period_id'] : fct_get_current_period_id();
 			$period_id = fct_get_period_id( $selected );
 
 			if ( ! empty( $period_id ) ) {

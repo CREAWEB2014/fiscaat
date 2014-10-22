@@ -1034,8 +1034,8 @@ function fct_period_form_fields() {
 
 	if ( fct_is_period_edit() ) : ?>
 
-		<input type="hidden" name="action"          id="fct_post_action" value="fiscaat-edit-period" />
-		<input type="hidden" name="fct_period_id" id="fct_period_id"     value="<?php fct_period_id(); ?>" />
+		<input type="hidden" name="action"    id="fct_post_action" value="fiscaat-edit-period" />
+		<input type="hidden" name="period_id" id="fct_period_id"   value="<?php fct_period_id(); ?>" />
 
 		<?php
 
@@ -1083,8 +1083,8 @@ function fct_account_form_fields() {
 
 	if ( fct_is_account_edit() ) : ?>
 
-		<input type="hidden" name="action"       id="fct_post_action" value="fiscaat-edit-account" />
-		<input type="hidden" name="fct_account_id" id="fct_account_id"    value="<?php fct_account_id(); ?>" />
+		<input type="hidden" name="action"         id="fct_post_action" value="fiscaat-edit-account" />
+		<input type="hidden" name="fct_account_id" id="fct_account_id"  value="<?php fct_account_id(); ?>" />
 
 		<?php
 
@@ -1099,7 +1099,7 @@ function fct_account_form_fields() {
 
 		if ( fct_is_single_period() ) : ?>
 
-			<input type="hidden" name="fct_period_id" id="fct_period_id" value="<?php fct_period_id(); ?>" />
+			<input type="hidden" name="period_id" id="fct_period_id" value="<?php fct_period_id(); ?>" />
 
 		<?php endif; ?>
 

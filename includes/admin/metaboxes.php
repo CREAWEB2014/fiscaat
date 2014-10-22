@@ -117,7 +117,7 @@ function fct_dashboard_widget_right_now() {
 					$num  = fct_get_currency_format( $current_end_value, true );
 					$text = __( 'To Balance', 'fiscaat' );
 					if ( current_user_can( 'fct_spectate' ) ) {
-						$link = add_query_arg( array( 'page' => 'fct-reports', 'fct_period_id' => fct_get_current_period_id() ), admin_url( 'admin.php' ) );
+						$link = add_query_arg( array( 'page' => 'fct-reports', 'period_id' => fct_get_current_period_id() ), admin_url( 'admin.php' ) );
 						$class = $current_end_value < 0 ? ' class="spam"' : ''; // Coloring
 						$num  = '<a'. $class .' href="' . $link . '">' . $num  . '</a>';
 						$text = '<a href="' . $link . '">' . $text . '</a>';
@@ -133,7 +133,7 @@ function fct_dashboard_widget_right_now() {
 					$num  = $current_record_count;
 					$text = _n( 'Record', 'Records', $current_record_count, 'fiscaat' );
 					if ( current_user_can( 'fct_spectate' ) ) {
-						$link = add_query_arg( array( 'page' => 'fct-records', 'fct_period_id' => fct_get_current_period_id() ), admin_url( 'admin.php' ) );
+						$link = add_query_arg( array( 'page' => 'fct-records', 'period_id' => fct_get_current_period_id() ), admin_url( 'admin.php' ) );
 						$num  = '<a href="' . $link . '">' . $num  . '</a>';
 						$text = '<a href="' . $link . '">' . $text . '</a>';
 					}
@@ -343,7 +343,7 @@ function fct_record_metabox() {
 	<p>
 		<strong class="label"><?php _e( 'Period:', 'fiscaat' ); ?></strong>
 		<label class="screen-reader-text" for="fct_record_period_id"><?php _e( 'Period', 'fiscaat' ); ?></label>
-		<?php fct_dropdown( array(
+		<?php fct_period_dropdown( array(
 			'selected'           => $period_id,
 
 			// Output-related
