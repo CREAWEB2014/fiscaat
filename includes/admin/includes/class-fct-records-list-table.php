@@ -483,7 +483,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 			// Record account ledger id
 			case 'fct_record_account_ledger_id' :
-				fct_account_ledger_dropdown( array(
+				fct_ledger_dropdown( array(
 					'select_name'    => 'records[ledger_account_id][]',
 					'class'          => 'fct_record_ledger_id',
 					'show_none'      => '&mdash;',
@@ -496,7 +496,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 				// Prepend ledger dropdown in new mode
 				if ( fct_admin_is_new_records() && ! in_array( 'fct_record_account_ledger_id', array_keys( $this->get_columns() ) ) ) {
-					fct_account_ledger_dropdown( array(
+					fct_ledger_dropdown( array(
 						'select_name'    => 'records[ledger_account_id][]',
 						'class'          => 'fct_record_ledger_id',
 						'show_none'      => '&mdash;',

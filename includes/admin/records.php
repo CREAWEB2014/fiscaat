@@ -597,10 +597,10 @@ class Fiscaat_Records_Admin {
 			/* Connect primary account id and ledger id dropdowns */
 			jQuery(document).ready(function($) {
 
-				// Get the high level dropdowns: the list table filters and the Edit Record page
+				// Get the dropdowns: list table filters, new records accounts, and the Edit Record page
 				var dropdowns = [ 
-					$( 'select#fct_ledger_id, select#fct_record_account_ledger_id' ), // Ledger dropdowns
-					$( 'select#fct_account_id, select#parent_id' ) // Account dropdowns
+					$( 'select#fct_ledger_id, select.fct_record_ledger_id, select#fct_record_account_ledger_id' ), // Ledger dropdowns
+					$( 'select#fct_account_id, select.fct_record_account_id, select#parent_id' ) // Account dropdowns
 				];
 
 				// Make dropdowns listen to their co-dropdown
