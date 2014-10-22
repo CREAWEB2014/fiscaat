@@ -599,8 +599,8 @@ class Fiscaat_Records_Admin {
 
 				// Get the dropdowns: list table filters, new records accounts, and the Edit Record page
 				var dropdowns = [ 
-					$( 'select#fct_ledger_id, select.fct_record_ledger_id, select#fct_record_account_ledger_id' ), // Ledger dropdowns
-					$( 'select#fct_account_id, select.fct_record_account_id, select#parent_id' ) // Account dropdowns
+					$( 'select#fct_ledger_id_filter, select.fct_record_ledger_id, select#fct_record_account_ledger_id' ), // Ledger dropdowns
+					$( 'select#fct_account_id_filter, select.fct_record_account_id, select#parent_id' ) // Account dropdowns
 				];
 
 				// Make dropdowns listen to their co-dropdown
@@ -777,12 +777,14 @@ class Fiscaat_Records_Admin {
 
 		// Show the ledger dropdown
 		fct_ledger_dropdown( array(
+			'select_id'   => 'fct_ledger_id_filter',
 			'selected'    => $ledger_id,
 			'post_parent' => $period_id,
 		) );
 
 		// Show the accounts dropdown
 		fct_account_dropdown( array(
+			'select_id'   => 'fct_account_id_filter',
 			'selected'    => $account_id,
 			'post_parent' => $period_id,
 		) );
