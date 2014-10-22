@@ -620,9 +620,9 @@ class Fiscaat_Periods_Admin {
 			return;
 
 		// Only proceed if GET is an period toggle action
-		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'fct_toggle_period_close' ) ) && ! empty( $_GET['period_id'] ) ) {
-			$action    = $_GET['action'];             // What action is taking place?
-			$period_id = (int) $_GET['period_id'];    // What's the period id?
+		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_REQUEST['action'] ) && in_array( $_REQUEST['action'], array( 'fct_toggle_period_close' ) ) && ! empty( $_REQUEST['period_id'] ) ) {
+			$action    = $_REQUEST['action'];             // What action is taking place?
+			$period_id = (int) $_REQUEST['period_id'];    // What's the period id?
 			$success   = false;                       // Flag
 			$post_data = array( 'ID' => $period_id ); // Prelim array
 			$period    = fct_get_period( $period_id );
@@ -681,10 +681,10 @@ class Fiscaat_Periods_Admin {
 			return;
 
 		// Only proceed if GET is a period toggle action
-		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_GET['fct_period_toggle_notice'] ) && in_array( $_GET['fct_period_toggle_notice'], array( 'opened', 'closed' ) ) && !empty( $_GET['period_id'] ) ) {
-			$notice     = $_GET['fct_period_toggle_notice'];        // Which notice?
-			$period_id  = (int) $_GET['period_id'];                 // What's the period id?
-			$is_failure = !empty( $_GET['failed'] ) ? true : false; // Was that a failure?
+		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_REQUEST['fct_period_toggle_notice'] ) && in_array( $_REQUEST['fct_period_toggle_notice'], array( 'opened', 'closed' ) ) && !empty( $_REQUEST['period_id'] ) ) {
+			$notice     = $_REQUEST['fct_period_toggle_notice'];        // Which notice?
+			$period_id  = (int) $_REQUEST['period_id'];                 // What's the period id?
+			$is_failure = !empty( $_REQUEST['failed'] ) ? true : false; // Was that a failure?
 
 			// Bais if no period_id or notice
 			if ( empty( $notice ) || empty( $period_id ) )
@@ -765,8 +765,8 @@ class Fiscaat_Periods_Admin {
 
 			// Restored from revision
 			// translators: %s: date and time of the revision
-			5 => isset( $_GET['revision'] )
-					? sprintf( __( 'Period restored to revision from %s', 'fiscaat' ), wp_post_revision_title( (int) $_GET['revision'], false ) )
+			5 => isset( $_REQUEST['revision'] )
+					? sprintf( __( 'Period restored to revision from %s', 'fiscaat' ), wp_post_revision_title( (int) $_REQUEST['revision'], false ) )
 					: false,
 
 			// Period created

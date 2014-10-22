@@ -135,7 +135,7 @@ class Fiscaat_Admin_Records {
 		if ( ! isset( get_current_screen()->post_type ) || ( $this->post_type != get_current_screen()->post_type ) )
 			return true;
 
-		if ( $check_page && isset( $_GET['page'] ) && $this->args->page != $_GET['page'] ) 
+		if ( $check_page && isset( $_REQUEST['page'] ) && $this->args->page != $_REQUEST['page'] ) 
 			return true;
 
 		return false;

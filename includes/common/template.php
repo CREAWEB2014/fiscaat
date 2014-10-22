@@ -234,7 +234,7 @@ function fct_is_period_edit() {
 		$retval = true;
 
 	// Editing in admin
-	} elseif ( is_admin() && ( 'post.php' == $pagenow ) && ( get_post_type() == fct_get_period_post_type() ) && ( ! empty( $_GET['action'] ) && ( 'edit' == $_GET['action'] ) ) ) {
+	} elseif ( is_admin() && ( 'post.php' == $pagenow ) && ( get_post_type() == fct_get_period_post_type() ) && ( ! empty( $_REQUEST['action'] ) && ( 'edit' == $_REQUEST['action'] ) ) ) {
 		$retval = true;
 	}
 
@@ -336,7 +336,7 @@ function fct_is_account_edit() {
 		$retval = true;
 
 	// Editing in admin
-	} elseif ( is_admin() && ( 'post.php' == $pagenow ) && ( get_post_type() == fct_get_account_post_type() ) && ( ! empty( $_GET['action'] ) && ( 'edit' == $_GET['action'] ) ) ) {
+	} elseif ( is_admin() && ( 'post.php' == $pagenow ) && ( get_post_type() == fct_get_account_post_type() ) && ( ! empty( $_REQUEST['action'] ) && ( 'edit' == $_REQUEST['action'] ) ) ) {
 		$retval = true;
 	}
 
@@ -415,7 +415,7 @@ function fct_is_record_edit() {
 		$retval = true;
 
 	// Editing in admin
-	} elseif ( is_admin() && ( 'post.php' == $pagenow ) && ( get_post_type() == fct_get_record_post_type() ) && ( ! empty( $_GET['action'] ) && ( 'edit' == $_GET['action'] ) ) ) {
+	} elseif ( is_admin() && ( 'post.php' == $pagenow ) && ( get_post_type() == fct_get_record_post_type() ) && ( ! empty( $_REQUEST['action'] ) && ( 'edit' == $_REQUEST['action'] ) ) ) {
 		$retval = true;
 	}
 
@@ -890,7 +890,8 @@ function fct_dropdown( $args = '' ) {
 			'none_found'         => false,
 			'disable_categories' => false,
 			'disable_closed'     => false,
-			'disabled'           => ''
+			'disabled'           => '',
+			'data'               => array()
 		), 'get_dropdown' );
 
 		if ( empty( $r['walker'] ) ) {

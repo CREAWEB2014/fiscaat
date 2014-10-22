@@ -628,10 +628,10 @@ function fct_admin_get_records_mode() {
 	// Page has record's post type and is in mode
 	if (   isset( get_current_screen()->post_type ) 
 		&& ( fct_get_record_post_type() == get_current_screen()->post_type )
-		&& isset( $_GET['mode'] ) 
-		&& in_array( $_GET['mode'], fct_admin_get_records_modes() ) 
+		&& isset( $_REQUEST['mode'] ) 
+		&& in_array( $_REQUEST['mode'], fct_admin_get_records_modes() ) 
 	) {
-		$mode = $_GET['mode'];
+		$mode = $_REQUEST['mode'];
 
 	// Default empty (view)
 	} else {

@@ -621,7 +621,7 @@ function fct_admin_setting_callback_records_per_page() {
 function fct_admin_setting_callback_root_slugs_section() {
 
 	// Flush rewrite rules when this section is saved
-	if ( isset( $_GET['settings-updated'] ) && isset( $_GET['page'] ) )
+	if ( isset( $_REQUEST['settings-updated'] ) && isset( $_REQUEST['page'] ) )
 		flush_rewrite_rules(); ?>
 
 	<p><?php _e( 'Custom root slugs to prefix your periods and accounts with. These can be partnered with WordPress pages to allow more flexibility.', 'fiscaat' ); ?></p>

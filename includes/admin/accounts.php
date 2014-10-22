@@ -530,12 +530,12 @@ class Fiscaat_Accounts_Admin {
 
 		// Show the number dropdown
 		fct_ledger_dropdown( array(
-			'selected' => isset( $_GET['fct_ledger_id'] ) ? $_GET['fct_ledger_id'] : '',
+			'selected' => ! empty( $_REQUEST['fct_ledger_id'] ) ? $_REQUEST['fct_ledger_id'] : '',
 		) );
 
 		// Show the periods dropdown. Default to current period
 		fct_period_dropdown( array(
-			'selected' => isset( $_GET['fct_period_id'] ) ? $_GET['fct_period_id'] : fct_get_current_period_id(),
+			'selected' => ! empty( $_REQUEST['fct_period_id'] ) ? $_REQUEST['fct_period_id'] : fct_get_current_period_id(),
 		) );
 	}
 
@@ -621,7 +621,7 @@ class Fiscaat_Accounts_Admin {
 
 		// Default sorting order
 		if ( ! isset( $query_vars['order'] ) ) {
-			$query_vars['order'] = isset( $_REQUEST['order'] ) ? strtoupper( $_REQUEST['order'] ) : 'ASC';
+			$query_vars['order'] = ! empty( $_REQUEST['order'] ) ? strtoupper( $_REQUEST['order'] ) : 'ASC';
 		}
 
 		// Set meta query
@@ -906,9 +906,9 @@ class Fiscaat_Accounts_Admin {
 			return;
 
 		// Only proceed if GET is an account toggle action
-		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_GET['action'] ) && in_array( $_GET['action'], array( 'fct_toggle_account_close' ) ) && ! empty( $_GET['account_id'] ) ) {
-			$action     = $_GET['action'];                // What action is taking place?
-			$account_id = (int) $_GET['account_id'];      // What's the account id?
+		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_REQUEST['action'] ) && in_array( $_REQUEST['action'], array( 'fct_toggle_account_close' ) ) && ! empty( $_REQUEST['account_id'] ) ) {
+			$action     = $_REQUEST['action'];                // What action is taking place?
+			$account_id = (int) $_REQUEST['account_id'];      // What's the account id?
 			$success    = false;                          // Flag
 			$post_data  = array( 'ID' => $account_id );   // Prelim array
 			$account    = fct_get_account( $account_id );
@@ -967,10 +967,10 @@ class Fiscaat_Accounts_Admin {
 			return;
 
 		// Only proceed if GET is a account toggle action
-		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_GET['fct_account_toggle_notice'] ) && in_array( $_GET['fct_account_toggle_notice'], array( 'opened', 'closed' ) ) && !empty( $_GET['account_id'] ) ) {
-			$notice     = $_GET['fct_account_toggle_notice'];       // Which notice?
-			$account_id = (int) $_GET['account_id'];                // What's the account id?
-			$is_failure = !empty( $_GET['failed'] ) ? true : false; // Was that a failure?
+		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_REQUEST['fct_account_toggle_notice'] ) && in_array( $_REQUEST['fct_account_toggle_notice'], array( 'opened', 'closed' ) ) && !empty( $_REQUEST['account_id'] ) ) {
+			$notice     = $_REQUEST['fct_account_toggle_notice'];       // Which notice?
+			$account_id = (int) $_REQUEST['account_id'];                // What's the account id?
+			$is_failure = !empty( $_REQUEST['failed'] ) ? true : false; // Was that a failure?
 
 			// Bais if no account_id or notice
 			if ( empty( $notice ) || empty( $account_id ) )
@@ -1100,8 +1100,8 @@ class Fiscaat_Accounts_Admin {
 
 			// Restored from revision
 			// translators: %s: date and time of the revision
-			5 => isset( $_GET['revision'] )
-					? sprintf( __( 'Account restored to revision from %s', 'fiscaat' ), wp_post_revision_title( (int) $_GET['revision'], false ) )
+			5 => isset( $_REQUEST['revision'] )
+					? sprintf( __( 'Account restored to revision from %s', 'fiscaat' ), wp_post_revision_title( (int) $_REQUEST['revision'], false ) )
 					: false,
 
 			// Account created
@@ -1127,8 +1127,8 @@ class Fiscaat_Accounts_Admin {
 			11 => sprintf( __( 'Using Fiscaat requires an open period to register accounts in. <a href="%s">Create a period first</a>.', 'fiscaat' ), esc_url( add_query_arg( 'post_type', fct_get_period_post_type(), admin_url( 'post-new.php' ) ) ) ),
 
 			// Account number already taken
-			12 => isset( $_GET['fct_ledger_id'] )
-					? sprintf( __( 'The account number <strong>%d</strong> is already taken by <a href="%s">%s</a>. Use another number!', 'fiscaat' ), (int) $_GET['fct_ledger_id'], esc_url( add_query_arg( array( 'post' => fct_get_account_id_by_ledger_id( (int) $_GET['fct_ledger_id'] ), 'action' => 'edit' ), admin_url( 'post.php' ) ) ), fct_get_account_title( fct_get_account_id_by_ledger_id( (int) $_GET['fct_ledger_id'] ) ) )
+			12 => isset( $_REQUEST['fct_ledger_id'] )
+					? sprintf( __( 'The account number <strong>%d</strong> is already taken by <a href="%s">%s</a>. Use another number!', 'fiscaat' ), (int) $_REQUEST['fct_ledger_id'], esc_url( add_query_arg( array( 'post' => fct_get_account_id_by_ledger_id( (int) $_REQUEST['fct_ledger_id'] ), 'action' => 'edit' ), admin_url( 'post.php' ) ) ), fct_get_account_title( fct_get_account_id_by_ledger_id( (int) $_REQUEST['fct_ledger_id'] ) ) )
 					: false,
 
 			// Account number required
@@ -1149,10 +1149,10 @@ class Fiscaat_Accounts_Admin {
 	public function accounts_page_title( $title ) {
 
 		// Period accounts
-		if ( ! isset( $_GET['fct_period_id'] ) || ! empty( $_GET['fct_period_id'] ) ) {
+		if ( ! isset( $_REQUEST['fct_period_id'] ) || ! empty( $_REQUEST['fct_period_id'] ) ) {
 
 			// Check period id
-			$selected  = isset( $_GET['fct_period_id'] ) ? $_GET['fct_period_id'] : fct_get_current_period_id();
+			$selected  = isset( $_REQUEST['fct_period_id'] ) ? $_REQUEST['fct_period_id'] : fct_get_current_period_id();
 			$period_id = fct_get_period_id( $selected );
 
 			if ( ! empty( $period_id ) ) {

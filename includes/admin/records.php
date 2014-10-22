@@ -58,15 +58,15 @@ class Fiscaat_Records_Admin {
 
 		/** Actions ***********************************************************/
 
+		// Set records's parents earlier
+		add_action( 'fct_admin_load_records',  array( $this, 'setup_request_args' ), 0 );
+
 		// Add some general styling to the admin area
 		add_action( 'fct_admin_head', array( $this, 'admin_head' ) );
 
 		// Record metabox actions
 		add_action( 'add_meta_boxes', array( $this, 'record_attributes_metabox'      ) );
 		add_action( 'save_post',      array( $this, 'record_attributes_metabox_save' ) );
-
-		// Set records's parents earlier
-		add_action( 'fct_admin_load_view_records',  array( $this, 'records_parents' ), 5 );
 
 		// Check if there are any fct_toggle_record_* requests on admin_init, also have a message displayed
 		add_action( 'fct_admin_load_edit_records',  array( $this, 'toggle_record'        ) );
@@ -596,20 +596,36 @@ class Fiscaat_Records_Admin {
 
 			/* Connect primary account id and ledger id dropdowns */
 			jQuery(document).ready(function($) {
+
+				// Get the high level dropdowns: the list table filters and the Edit Record page
 				var dropdowns = [ 
-					$('select#fct_account_ledger_id, select#fct_record_account_ledger_id'), // Account ledger dropdowns
-					$('select#fct_account_id, select#parent_id') // Account dropdowns
+					$( 'select#fct_ledger_id, select#fct_record_account_ledger_id' ), // Ledger dropdowns
+					$( 'select#fct_account_id, select#parent_id' ) // Account dropdowns
 				];
 
 				// Make dropdowns listen to their co-dropdown
 				$.each( dropdowns, function( i ){
-					var other_dd = ( i == 1 ) ? 0 : 1;
-
 					// For each change in a dropdown of the one kind, change the 
 					// matching dropdown of the other kind.
 					$.each( this, function( j ) {
-						$(this).change( function(){
-							$( dropdowns[other_dd][j] ).find('option[value="'+ this.value +'"]').attr('selected', true );
+						var $this = $(this),
+						    other = false;
+
+						$this.change( function(){
+							// Find corresponding dropdown option
+							if ( 0 === i ) {
+								other = $( 'option', dropdowns[1][j] ).filter( function(){ return $this.val() == $(this).data('ledger_id'); } );
+							} else {
+								other = $( 'option', dropdowns[0][j] ).filter( function(){ return $this.find('option:selected').data('ledger_id') == this.value; } );
+							}
+
+							// Mark the match as selected
+							if ( !! other.length ) {
+								other.prop( 'selected', true );
+							// Reset dropdown: select the first element
+							} else {
+								$( 'option', dropdowns[ 0 === i ? 1 : 0 ][j] ).first().prop( 'selected', true );
+							}
 						});
 					});
 				});
@@ -650,12 +666,12 @@ class Fiscaat_Records_Admin {
 			return $columns;
 
 		// Account records pages do not need account details
-		if ( isset( $_GET['fct_account_id'] ) && ! empty( $_GET['fct_account_id'] ) ) {
+		if ( isset( $_REQUEST['fct_account_id'] ) && ! empty( $_REQUEST['fct_account_id'] ) ) {
 			unset( $columns['fct_record_account_ledger_id'], $columns['fct_record_account'] );
 		}
 
 		// Only unspecified period queries require period column
-		if ( ! isset( $_GET['fct_period_id'] ) || ! empty( $_GET['fct_period_id'] ) ) {
+		if ( ! isset( $_REQUEST['fct_period_id'] ) || ! empty( $_REQUEST['fct_period_id'] ) ) {
 			unset( $columns['fct_record_period'] );
 		}
 
@@ -663,10 +679,10 @@ class Fiscaat_Records_Admin {
 	}
 
 	/**
-	 * Determine the correct queried records's parents
+	 * Determine the correct queried records' parents
 	 *
 	 * When querying records by the filter dropdowns, make the
-	 * year leading in determining which account's records to
+	 * period leading in determining which account's records to
 	 * select and update $_REQUEST global accordingly.
 	 * 
 	 * @since 0.0.9
@@ -675,36 +691,49 @@ class Fiscaat_Records_Admin {
 	 * @uses fct_get_account_ledger_id() To get the account's ledger id
 	 * @uses fct_get_account_id_by_ledger_id() To get the period's account id
 	 */
-	public function records_parents() {
+	public function setup_request_args() {
+
+		// Bail if not viewing records
+		if ( ! fct_admin_is_view_records() )
+			return;
 
 		// Get filter vars
-		$period_id  = ! empty( $_REQUEST['fct_period_id']  )        ? (int) $_REQUEST['fct_period_id']         : isset( $_REQUEST['fct_period_id'] );
-		$account_id = ! empty( $_REQUEST['fct_account_id'] )        ? (int) $_REQUEST['fct_account_id']        : 0;
-		$ledger_id  = ! empty( $_REQUEST['fct_account_ledger_id'] ) ? (int) $_REQUEST['fct_account_ledger_id'] : 0;
+		$period_id  = ! empty( $_REQUEST['fct_period_id']  ) ? (int) $_REQUEST['fct_period_id']  : isset( $_REQUEST['fct_period_id'] );
+		$account_id = ! empty( $_REQUEST['fct_account_id'] ) ? (int) $_REQUEST['fct_account_id'] : 0;
+		$ledger_id  = ! empty( $_REQUEST['fct_ledger_id']  ) ? (int) $_REQUEST['fct_ledger_id']  : 0;
 
-		// Ledger id was set, account id not, so find out
-		if ( empty( $account_id ) && ! empty( $ledger_id ) && is_numeric( $period_id ) ) {
-			$account_id = $_REQUEST['fct_account_id'] = fct_get_account_id_by_ledger_id( $ledger_id, $period_id );
+		// Setup period
+		if ( ! $period_id ) {
+
+			// By account id
+			if ( ! empty( $account_id ) ) {
+				$period_id = fct_get_account_period_id( $account_id );
+
+			// Default to current period
+			} else {
+				$period_id = fct_get_current_period_id();
+			}
+
+			$_REQUEST['fct_period_id'] = $_GET['fct_period_id'] = $period_id;
 		}
 
-		// The account's period does not match the queried period
-		if ( is_numeric( $period_id ) && fct_get_account_period_id( $account_id ) != $period_id ) {
+		// Setup account
+		if ( empty( $account_id ) && ! empty( $ledger_id ) ) {
+			$account_id = fct_get_account_id_by_ledger_id( $ledger_id, $period_id );
+		}
+
+		// Correct account for requested year
+		if ( fct_get_account_period_id( $account_id ) != $period_id ) {
 
 			// Get the account's ledger id
 			$ledger_id  = fct_get_account_ledger_id( $account_id );
 
 			// Find the period's queried account id
 			$account_id = fct_get_account_id_by_ledger_id( $ledger_id, $period_id );
-
-			// And set it as the correct account id
-			$_REQUEST['fct_account_id'] = ! empty( $account_id ) ? $account_id : null;
-
-		// No period explicated
-		} elseif ( ! $period_id && ! empty( $account_id ) ) {
-
-			// Set period from queried account
-			$_REQUEST['fct_period_id'] = fct_get_account_period_id( $_REQUEST['fct_account_id'] );
 		}
+
+		// Set the correct account id
+		$_REQUEST['fct_account_id'] = $_GET['fct_account_id'] = ! empty( $account_id ) ? $account_id : null;
 	}
 
 	/**
@@ -735,17 +764,20 @@ class Fiscaat_Records_Admin {
 		) );
 		
 		// Get which account is selected. With account id or ledger id
-		$account_id = ! empty( $_REQUEST['fct_account_id'] )        ? (int) $_REQUEST['fct_account_id']        : 0;
-		$ledger_id  = ! empty( $_REQUEST['fct_account_ledger_id'] ) ? (int) $_REQUEST['fct_account_ledger_id'] : 0;
+		$account_id = ! empty( $_REQUEST['fct_account_id'] ) ? (int) $_REQUEST['fct_account_id'] : 0;
+		$ledger_id  = ! empty( $_REQUEST['fct_ledger_id']  ) ? (int) $_REQUEST['fct_ledger_id']  : 0;
 
-		// Ledger id was set, account id not
-		if ( ! empty( $ledger_id ) && empty( $account_id ) ) {
+		// Account id is not set, but ledger id is
+		if ( empty( $account_id ) && ! empty( $ledger_id ) ) {
 			$account_id = fct_get_account_id_by_ledger_id( $ledger_id, $period_id );
+		// Ledger id is not set, but account id is
+		} else if ( empty( $ledger_id ) && ! empty( $account_id ) ) {
+			$ledger_id = fct_get_account_ledger_id( $account_id );
 		}
 
 		// Show the ledger dropdown
-		fct_account_ledger_dropdown( array(
-			'selected'    => $account_id,
+		fct_ledger_dropdown( array(
+			'selected'    => $ledger_id,
 			'post_parent' => $period_id,
 		) );
 
@@ -786,34 +818,35 @@ class Fiscaat_Records_Admin {
 
 		// Setup meta query
 		$meta_query = isset( $query_vars['meta_query'] ) ? $query_vars['meta_query'] : array();
+		$period_id  = ! empty( $_REQUEST['fct_period_id'] ) ? (int) $_REQUEST['fct_period_id'] : fct_get_current_period_id();
 
 		/** Period & Account ****************************************************/
 
 		// Set the period id. Default to the current period
 		$meta_query[] = array(
 			'key'   => '_fct_period_id',
-			'value' => ! empty( $_REQUEST['fct_period_id'] ) ? (int) $_REQUEST['fct_period_id'] : fct_get_current_period_id()
+			'value' => $period_id
 		);
 		
 		// Set the parent if given
-		if ( isset( $_REQUEST['fct_account_id'] ) ) {
+		if ( ! empty( $_REQUEST['fct_account_id'] ) ) {
 			$query_vars['post_parent'] = $_REQUEST['fct_account_id'];
 
 		// Set the parent from ledger_id if given
-		} elseif ( isset( $_REQUEST['fct_account_ledger_id'] ) ) {
-			$query_vars['post_parent'] = $_REQUEST['fct_account_ledger_id'];
+		} elseif ( ! empty( $_REQUEST['fct_ledger_id'] ) ) {
+			$query_vars['post_parent'] = fct_get_account_id_by_ledger_id( $_REQUEST['fct_ledger_id'], $period_id );
 		}
 
 		/** Dates *************************************************************/
 
 		// @todo Needs testing
 		// Handle dates
-		if ( isset( $_REQUEST['fct_date_from'] ) || isset( $_REQUEST['fct_date_to'] ) ) {
+		if ( ! empty( $_REQUEST['fct_date_from'] ) || ! empty( $_REQUEST['fct_date_to'] ) ) {
 
-			// Handle start date
-			if ( isset( $_REQUEST['fct_date_from'] ) && false !== ( $strdate = strtotime( str_replace( '/', '-', $_REQUEST['fct_date_from'] ) ) ) ) {
+			// Handle valid start date
+			if ( ! empty( $_REQUEST['fct_date_from'] ) && false !== ( $strdate = strtotime( str_replace( '/', '-', $_REQUEST['fct_date_from'] ) ) ) ) {
 
-				// Push one day to include selected date
+				// Subtract one day to include selected date
 				$strdate -= DAY_IN_SECONDS;
 
 				// Collect after this date
@@ -824,8 +857,8 @@ class Fiscaat_Records_Admin {
 				);
 			}
 
-			// Handle end date
-			if ( isset( $_REQUEST['fct_date_to'] ) && false !== ( $strdate = strtotime( str_replace( '/', '-', $_REQUEST['fct_date_to'] ) ) ) ) {
+			// Handle valid end date
+			if ( ! empty( $_REQUEST['fct_date_to'] ) && false !== ( $strdate = strtotime( str_replace( '/', '-', $_REQUEST['fct_date_to'] ) ) ) ) {
 
 				// Push one day to include selected date
 				$strdate += DAY_IN_SECONDS;
@@ -842,7 +875,7 @@ class Fiscaat_Records_Admin {
 		/** Sorting ***********************************************************/
 
 		// Handle sorting
-		if ( isset( $_REQUEST['orderby'] ) ) {
+		if ( ! empty( $_REQUEST['orderby'] ) ) {
 
 			// Check order type
 			switch ( $_REQUEST['orderby'] ) {
@@ -851,7 +884,7 @@ class Fiscaat_Records_Admin {
 				case 'record_date' :
 					$query_vars['meta_key'] = '_fct_record_date';
 					$query_vars['orderby']  = 'meta_value';
-					$query_vars['order']    = isset( $_REQUEST['order'] ) && 'DESC' == strtoupper( $_REQUEST['order'] ) ? 'ASC' : 'DESC';
+					$query_vars['order']    = ! empty( $_REQUEST['order'] ) && 'DESC' == strtoupper( $_REQUEST['order'] ) ? 'ASC' : 'DESC';
 					break;
 
 				// @todo Fix ordering by account/ledger id. Goes
@@ -914,9 +947,9 @@ class Fiscaat_Records_Admin {
 	public function toggle_record() {
 
 		// Only proceed if GET is a record toggle action
-		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_GET['action'] ) && false !== strpos( $_GET['action'], 'fct_toggle_record_' ) && ! empty( $_GET['record_id'] ) ) {
-			$action    = $_GET['action'];             // What action is taking place?
-			$record_id = (int) $_GET['record_id'];    // What's the record id?
+		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_REQUEST['action'] ) && false !== strpos( $_REQUEST['action'], 'fct_toggle_record_' ) && ! empty( $_REQUEST['record_id'] ) ) {
+			$action    = $_REQUEST['action'];             // What action is taking place?
+			$record_id = (int) $_REQUEST['record_id'];    // What's the record id?
 			$success   = false;                       // Flag
 			$post_data = array( 'ID' => $record_id ); // Prelim array
 			$result    = array( false, '' );          // Default result
@@ -975,10 +1008,10 @@ class Fiscaat_Records_Admin {
 			return;
 
 		// Only proceed if GET is a record toggle action
-		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_GET['fct_record_toggle_notice'] ) && in_array( $_GET['fct_record_toggle_notice'], array( 'spammed', 'unspammed' ) ) && ! empty( $_GET['record_id'] ) ) {
-			$notice     = $_GET['fct_record_toggle_notice'];         // Which notice?
-			$record_id  = (int) $_GET['record_id'];                  // What's the record id?
-			$is_failure = ! empty( $_GET['failed'] ) ? true : false; // Was that a failure?
+		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_REQUEST['fct_record_toggle_notice'] ) && in_array( $_REQUEST['fct_record_toggle_notice'], array( 'spammed', 'unspammed' ) ) && ! empty( $_REQUEST['record_id'] ) ) {
+			$notice     = $_REQUEST['fct_record_toggle_notice'];         // Which notice?
+			$record_id  = (int) $_REQUEST['record_id'];                  // What's the record id?
+			$is_failure = ! empty( $_REQUEST['failed'] ) ? true : false; // Was that a failure?
 
 			// Empty? No record?
 			if ( empty( $notice ) || empty( $record_id ) )
@@ -1109,8 +1142,8 @@ class Fiscaat_Records_Admin {
 
 			// Restored from revision
 			// translators: %s: date and time of the revision
-			5 => isset( $_GET['revision'] )
-					? sprintf( __( 'Record restored to revision from %s', 'fiscaat' ), wp_post_revision_title( (int) $_GET['revision'], false ) )
+			5 => isset( $_REQUEST['revision'] )
+					? sprintf( __( 'Record restored to revision from %s', 'fiscaat' ), wp_post_revision_title( (int) $_REQUEST['revision'], false ) )
 					: false,
 
 			// Record created

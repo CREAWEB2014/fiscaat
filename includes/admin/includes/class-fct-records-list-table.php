@@ -14,7 +14,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	/**
 	 * Holds the period ID of the queried records
 	 *
-	 * @since 0.0.8
+	 * @since 0.0.9
 	 * @var int|bool
 	 * @access protected
 	 */
@@ -51,25 +51,16 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		) );
 
 		// Set the period id
-		if ( isset( $_REQUEST['fct_period_id'] ) && ! empty( $_REQUEST['fct_period_id'] ) ) {
+		if ( ! empty( $_REQUEST['fct_period_id'] ) ) {
 			$this->period_id = (int) $_REQUEST['fct_period_id'];
+		// Default to the current period
+		} else {
+			$this->period_id = fct_get_current_period_id();
 		}
 
 		// Set the account id when querying an account's records
-		if ( isset( $_REQUEST['fct_account_id'] ) && ! empty( $_REQUEST['fct_account_id'] ) ) {
-			if ( ! $this->period_id ) {
-				$this->account_id = (int) $_REQUEST['fct_account_id'];
-				// Derive the period id from the queried account
-				$this->period_id = fct_get_account_period_id( $this->account_id );
-			} else {
-				// Restrict the account id within the period's realm
-				$this->account_id = fct_get_account_id( $_REQUEST['fct_account_id'], $this->period_id );
-			}
-		}
-
-		// If no period is still set, default to the current period
-		if ( ! $this->period_id ) {
-			$this->period_id = fct_get_current_period_id();
+		if ( ! empty( $_REQUEST['fct_account_id'] ) ) {
+			$this->account_id = (int) $_REQUEST['fct_account_id'];
 		}
 
 		// Setup amounts counter
@@ -174,7 +165,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			if ( empty( $num_posts->$status_name ) )
 				continue;
 
-			if ( isset( $_REQUEST['post_status'] ) && $status_name == $_REQUEST['post_status'] )
+			if ( ! empty( $_REQUEST['post_status'] ) && $status_name == $_REQUEST['post_status'] )
 				$class = ' class="current"';
 
 			$status_links[$status_name] = "<a href=\"admin.php?page=fct-records&amp;post_status=$status_name{$parent}\"$class>" . sprintf( translate_nooped_plural( $status->label_count, $num_posts->$status_name ), number_format_i18n( $num_posts->$status_name ) ) . '</a>';

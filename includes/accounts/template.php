@@ -1659,6 +1659,7 @@ function fct_account_dropdown( $args = '' ) {
 			// Output-related
 			'select_id'          => 'fct_account_id',
 			'show_none'          => __( 'In all accounts', 'fiscaat' ),
+			'data'               => array( 'ledger_id' => 'fct_get_account_ledger_id' ),
 		), 'get_account_dropdown' );
 
 		/** Drop Down *********************************************************/
@@ -1697,6 +1698,7 @@ function fct_account_ledger_dropdown( $args = '' ) {
 			// Output-related
 			'select_id'          => 'fct_account_ledger_id',
 			'show_none'          => '&mdash;',
+			'data'               => array( 'ledger_id' => 'fct_get_account_ledger_id' ),
 		), 'get_account_ledger_dropdown' );
 
 		/** Drop Down *********************************************************/
@@ -1765,6 +1767,7 @@ function fct_account_full_dropdown( $args = '' ) {
 			// Output-related
 			'select_id'          => 'fct_account_id',
 			'show_none'          => __( 'In all accounts', 'fiscaat' ),
+			'data'               => array( 'ledger_id' => 'fct_get_account_ledger_id' ),
 		), 'get_account_full_dropdown' );
 
 		/** Drop Down *********************************************************/

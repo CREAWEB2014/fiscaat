@@ -262,6 +262,23 @@ class Fiscaat_Walker_Dropdown extends Walker {
 			$output .= ' value="' . $_post->ID .'"' . selected( $args['selected'], $_post->ID, false );
 		}
 
+		// Process data-attributes
+		if ( ! empty( $args['data'] ) ) {
+
+			// Loop the attributes. Should contain the data name and a callback for the data value
+			foreach ( $args['data'] as $name => $callback ) {
+				if ( is_callable( $callback ) ) {
+
+					// Callback can only receive the post ID as first argument
+					$data_value = call_user_func_array( $callback, array( $_post->ID ) );
+
+					if ( $data_value ) {
+						$output .= ' data-' . esc_attr( $name ) . '="' . esc_attr( $data_value ) . '"';
+					}
+				}
+			}
+		}
+
 		$output .= '>';
 		$title   = apply_filters( 'fct_walker_dropdown_post_title', $_post->post_title, $output, $_post, $depth, $args );
 		$output .= $pad . esc_html( $title );

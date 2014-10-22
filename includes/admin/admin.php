@@ -164,17 +164,17 @@ class Fiscaat_Admin {
 	public function dev_content() {
 
 		// Bail if no add_content query arg
-		if ( isset( $_GET['period_account_count'] ) && $_GET['period_account_count'] ) {
+		if ( isset( $_REQUEST['period_account_count'] ) && $_REQUEST['period_account_count'] ) {
 			fct_update_period_account_count( fct_get_current_period_id() );
 		}
 
 		// Bail if no add_content query arg
-		if ( isset( $_GET['add_content'] ) && $_GET['add_content'] ) {
+		if ( isset( $_REQUEST['add_content'] ) && $_REQUEST['add_content'] ) {
 			fct_create_initial_content();
 		}
 
 		// Bail if no del_content query arg
-		if ( isset( $_GET['del_content'] ) && $_GET['del_content'] ) {
+		if ( isset( $_REQUEST['del_content'] ) && $_REQUEST['del_content'] ) {
 
 			// Delete all accounts
 			foreach ( get_posts( array( 'post_type' => fct_get_account_post_type(), 'fields' => 'ids', 'numberposts' => -1 ) ) as $post_id ) {
@@ -935,14 +935,14 @@ class Fiscaat_Admin {
 	public function redirect_edit_pages() {
 
 		// Bail if not a Fiscaat post type
-		if ( ! isset( $_GET['post_type'] ) || ! in_array( $_GET['post_type'], array(
+		if ( ! isset( $_REQUEST['post_type'] ) || ! in_array( $_REQUEST['post_type'], array(
 				fct_get_record_post_type(),
 				fct_get_account_post_type(),
 				fct_get_period_post_type()
 		) ) )
 			return;
 
-		$type = fct_get_object_type_by_post_type( $_GET['post_type'] );
+		$type = fct_get_object_type_by_post_type( $_REQUEST['post_type'] );
 		wp_redirect( add_query_arg( 'page', "fct-{$type}s", admin_url( 'admin.php' ) ) );
 		exit;
 	}
