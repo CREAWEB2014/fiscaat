@@ -778,6 +778,7 @@ class Fiscaat_Records_Admin {
 		// Show the ledger dropdown
 		fct_ledger_dropdown( array(
 			'select_id'   => 'fct_ledger_id_filter',
+			'select_name' => 'fct_ledger_id',
 			'selected'    => $ledger_id,
 			'post_parent' => $period_id,
 		) );
@@ -785,6 +786,7 @@ class Fiscaat_Records_Admin {
 		// Show the accounts dropdown
 		fct_account_dropdown( array(
 			'select_id'   => 'fct_account_id_filter',
+			'select_name' => 'fct_account_id',
 			'selected'    => $account_id,
 			'post_parent' => $period_id,
 		) );
