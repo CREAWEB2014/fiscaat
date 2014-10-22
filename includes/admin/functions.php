@@ -246,19 +246,19 @@ function fct_admin_get_page_post_type() {
 }
 
 /**
- * Set the $post_new_file global value for the current post type
+ * Return the url part for the new post admin url
  *
- * Defaults to WP's standard post-new.php location.
+ * Used for setting the $post_new_file global. Defaults to WP's 
+ * standard post-new.php location.
  * 
  * @since 0.0.8
  *
  * @uses fct_get_record_post_type()
  * @uses fct_admin_get_new_records_mode()
- * @param string $post_type Optional. Post type name
- * @return string Post new file
+ * @param string $post_type Optional. Defaults to current post type
+ * @return string Post new file link part
  */
-function fct_admin_set_post_new_file_global( $post_type = '' ) {
-	global $post_new_file;
+function fct_admin_get_new_post_url_part( $post_type = '' ) {
 
 	// Fallback to global post type
 	if ( empty( $post_type ) && isset( $GLOBALS['post_type'] ) ) {
@@ -267,10 +267,12 @@ function fct_admin_set_post_new_file_global( $post_type = '' ) {
 
 	// Records are treated differently
 	if ( fct_get_record_post_type() == $post_type ) {
-		$post_new_file = 'admin.php?page=fct-records&mode=' . fct_admin_get_new_records_mode();
+		$url_part = 'admin.php?page=fct-records&mode=' . fct_admin_get_new_records_mode();
 	} elseif ( ! empty( $post_type ) ) {
-		$post_new_file = "post-new.php?post_type=$post_type";
+		$url_part = "post-new.php?post_type=$post_type";
 	}
+
+	return apply_filters( 'fct_admin_get_new_post_url_part', $url_part, $post_type );
 }
 
 /**
