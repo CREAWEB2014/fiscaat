@@ -700,7 +700,7 @@ class Fiscaat_Records_Admin {
 		// Get filter vars
 		$period_id  = ! empty( $_REQUEST['period_id']  ) ? (int) $_REQUEST['period_id']  : isset( $_REQUEST['period_id'] );
 		$account_id = ! empty( $_REQUEST['account_id'] ) ? (int) $_REQUEST['account_id'] : 0;
-		$ledger_id  = ! empty( $_REQUEST['fct_ledger_id']  ) ? (int) $_REQUEST['fct_ledger_id']  : 0;
+		$ledger_id  = ! empty( $_REQUEST['ledger_id']  ) ? (int) $_REQUEST['ledger_id']  : 0;
 
 		// Setup period
 		if ( ! $period_id ) {
@@ -765,7 +765,7 @@ class Fiscaat_Records_Admin {
 		
 		// Get which account is selected. With account id or ledger id
 		$account_id = ! empty( $_REQUEST['account_id'] ) ? (int) $_REQUEST['account_id'] : 0;
-		$ledger_id  = ! empty( $_REQUEST['fct_ledger_id']  ) ? (int) $_REQUEST['fct_ledger_id']  : 0;
+		$ledger_id  = ! empty( $_REQUEST['ledger_id']  ) ? (int) $_REQUEST['ledger_id']  : 0;
 
 		// Account id is not set, but ledger id is
 		if ( empty( $account_id ) && ! empty( $ledger_id ) ) {
@@ -778,7 +778,7 @@ class Fiscaat_Records_Admin {
 		// Show the ledger dropdown
 		fct_ledger_dropdown( array(
 			'select_id'   => 'fct_ledger_id_filter',
-			'select_name' => 'fct_ledger_id',
+			'select_name' => 'ledger_id',
 			'selected'    => $ledger_id,
 			'post_parent' => $period_id,
 		) );
@@ -837,8 +837,8 @@ class Fiscaat_Records_Admin {
 			$query_vars['post_parent'] = $_REQUEST['account_id'];
 
 		// Set the parent from ledger_id if given
-		} elseif ( ! empty( $_REQUEST['fct_ledger_id'] ) ) {
-			$query_vars['post_parent'] = fct_get_account_id_by_ledger_id( $_REQUEST['fct_ledger_id'], $period_id );
+		} elseif ( ! empty( $_REQUEST['ledger_id'] ) ) {
+			$query_vars['post_parent'] = fct_get_account_id_by_ledger_id( $_REQUEST['ledger_id'], $period_id );
 		}
 
 		/** Dates *************************************************************/

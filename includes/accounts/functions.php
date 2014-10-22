@@ -275,7 +275,7 @@ function fct_check_ledger_id( $account_id, $ledger_id ) {
 	$message = ! empty( $ledger_id ) ? 12 : 13;
 
 	// Redirect to edit page with message
-	wp_safe_redirect( add_query_arg( array( 'post' => $account_id, 'action' => 'edit', 'fct_ledger_id' => (int) $ledger_id, 'message' => $message ), admin_url( 'post.php' ) ) );
+	wp_safe_redirect( add_query_arg( array( 'post' => $account_id, 'action' => 'edit', 'ledger_id' => (int) $ledger_id, 'message' => $message ), admin_url( 'post.php' ) ) );
 
 	// For good measure
 	exit;

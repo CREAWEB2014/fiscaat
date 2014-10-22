@@ -530,7 +530,7 @@ class Fiscaat_Accounts_Admin {
 
 		// Show the number dropdown
 		fct_ledger_dropdown( array(
-			'selected' => ! empty( $_REQUEST['fct_ledger_id'] ) ? $_REQUEST['fct_ledger_id'] : '',
+			'selected' => ! empty( $_REQUEST['ledger_id'] ) ? $_REQUEST['ledger_id'] : '',
 		) );
 
 		// Show the periods dropdown. Default to current period
@@ -578,10 +578,10 @@ class Fiscaat_Accounts_Admin {
 		/** Ledger ************************************************************/
 
 		// Query by ledger id
-		if ( ! empty( $_REQUEST['fct_ledger_id'] ) ) {
+		if ( ! empty( $_REQUEST['ledger_id'] ) ) {
 			$meta_query[] = array(
 				'key'   => '_fct_ledger_id',
-				'value' => (int) $_REQUEST['fct_ledger_id'],
+				'value' => (int) $_REQUEST['ledger_id'],
 			);
 		}
 
@@ -1127,8 +1127,8 @@ class Fiscaat_Accounts_Admin {
 			11 => sprintf( __( 'Using Fiscaat requires an open period to register accounts in. <a href="%s">Create a period first</a>.', 'fiscaat' ), esc_url( add_query_arg( 'post_type', fct_get_period_post_type(), admin_url( 'post-new.php' ) ) ) ),
 
 			// Account number already taken
-			12 => isset( $_REQUEST['fct_ledger_id'] )
-					? sprintf( __( 'The account number <strong>%d</strong> is already taken by <a href="%s">%s</a>. Use another number!', 'fiscaat' ), (int) $_REQUEST['fct_ledger_id'], esc_url( add_query_arg( array( 'post' => fct_get_account_id_by_ledger_id( (int) $_REQUEST['fct_ledger_id'] ), 'action' => 'edit' ), admin_url( 'post.php' ) ) ), fct_get_account_title( fct_get_account_id_by_ledger_id( (int) $_REQUEST['fct_ledger_id'] ) ) )
+			12 => isset( $_REQUEST['ledger_id'] )
+					? sprintf( __( 'The account number <strong>%d</strong> is already taken by <a href="%s">%s</a>. Use another number!', 'fiscaat' ), (int) $_REQUEST['ledger_id'], esc_url( add_query_arg( array( 'post' => fct_get_account_id_by_ledger_id( (int) $_REQUEST['ledger_id'] ), 'action' => 'edit' ), admin_url( 'post.php' ) ) ), fct_get_account_title( fct_get_account_id_by_ledger_id( (int) $_REQUEST['ledger_id'] ) ) )
 					: false,
 
 			// Account number required
