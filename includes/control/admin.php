@@ -237,7 +237,7 @@ function fct_ctrl_admin_accounts_column_data( $column, $account_id ) {
 		// Unapproved record count
 		case 'fct_account_record_count_unapproved' :
 			if ( ( $count = fct_get_account_record_count_unapproved( $account_id ) ) && ! empty( $count ) ) {
-				printf( '<a href="%s">%s</a>', add_query_arg( array( 'page' => 'fct-records', 'fct_account_id' => $account_id, 'post_status' => 'unapproved' ) ), $count );
+				printf( '<a href="%s">%s</a>', add_query_arg( array( 'page' => 'fct-records', 'account_id' => $account_id, 'post_status' => 'unapproved' ) ), $count );
 			} else {
 				echo $count;
 			}
@@ -246,7 +246,7 @@ function fct_ctrl_admin_accounts_column_data( $column, $account_id ) {
 		// Declined record count
 		case 'fct_account_record_count_declined' :
 			if ( ( $count = fct_get_account_record_count_declined( $account_id ) ) && ! empty( $count ) ) {
-				printf( '<a href="%s">%s</a>', add_query_arg( array( 'page' => 'fct-records', 'fct_account_id' => $account_id, 'post_status' => fct_get_declined_status_id() ) ), $count );
+				printf( '<a href="%s">%s</a>', add_query_arg( array( 'page' => 'fct-records', 'account_id' => $account_id, 'post_status' => fct_get_declined_status_id() ) ), $count );
 			} else {
 				echo $count;
 			}

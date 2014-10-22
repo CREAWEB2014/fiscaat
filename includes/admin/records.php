@@ -666,7 +666,7 @@ class Fiscaat_Records_Admin {
 			return $columns;
 
 		// Account records pages do not need account details
-		if ( isset( $_REQUEST['fct_account_id'] ) && ! empty( $_REQUEST['fct_account_id'] ) ) {
+		if ( isset( $_REQUEST['account_id'] ) && ! empty( $_REQUEST['account_id'] ) ) {
 			unset( $columns['fct_record_account_ledger_id'], $columns['fct_record_account'] );
 		}
 
@@ -699,7 +699,7 @@ class Fiscaat_Records_Admin {
 
 		// Get filter vars
 		$period_id  = ! empty( $_REQUEST['period_id']  ) ? (int) $_REQUEST['period_id']  : isset( $_REQUEST['period_id'] );
-		$account_id = ! empty( $_REQUEST['fct_account_id'] ) ? (int) $_REQUEST['fct_account_id'] : 0;
+		$account_id = ! empty( $_REQUEST['account_id'] ) ? (int) $_REQUEST['account_id'] : 0;
 		$ledger_id  = ! empty( $_REQUEST['fct_ledger_id']  ) ? (int) $_REQUEST['fct_ledger_id']  : 0;
 
 		// Setup period
@@ -733,7 +733,7 @@ class Fiscaat_Records_Admin {
 		}
 
 		// Set the correct account id
-		$_REQUEST['fct_account_id'] = $_GET['fct_account_id'] = ! empty( $account_id ) ? $account_id : null;
+		$_REQUEST['account_id'] = $_GET['account_id'] = ! empty( $account_id ) ? $account_id : null;
 	}
 
 	/**
@@ -764,7 +764,7 @@ class Fiscaat_Records_Admin {
 		) );
 		
 		// Get which account is selected. With account id or ledger id
-		$account_id = ! empty( $_REQUEST['fct_account_id'] ) ? (int) $_REQUEST['fct_account_id'] : 0;
+		$account_id = ! empty( $_REQUEST['account_id'] ) ? (int) $_REQUEST['account_id'] : 0;
 		$ledger_id  = ! empty( $_REQUEST['fct_ledger_id']  ) ? (int) $_REQUEST['fct_ledger_id']  : 0;
 
 		// Account id is not set, but ledger id is
@@ -786,7 +786,7 @@ class Fiscaat_Records_Admin {
 		// Show the accounts dropdown
 		fct_account_dropdown( array(
 			'select_id'   => 'fct_account_id_filter',
-			'select_name' => 'fct_account_id',
+			'select_name' => 'account_id',
 			'selected'    => $account_id,
 			'post_parent' => $period_id,
 		) );
@@ -833,8 +833,8 @@ class Fiscaat_Records_Admin {
 		);
 		
 		// Set the parent if given
-		if ( ! empty( $_REQUEST['fct_account_id'] ) ) {
-			$query_vars['post_parent'] = $_REQUEST['fct_account_id'];
+		if ( ! empty( $_REQUEST['account_id'] ) ) {
+			$query_vars['post_parent'] = $_REQUEST['account_id'];
 
 		// Set the parent from ledger_id if given
 		} elseif ( ! empty( $_REQUEST['fct_ledger_id'] ) ) {
@@ -1226,10 +1226,10 @@ class Fiscaat_Records_Admin {
 	public function records_page_title( $title ) {
 
 		// Account records
-		if ( isset( $_REQUEST['fct_account_id'] ) && ! empty( $_REQUEST['fct_account_id'] ) ) {
+		if ( isset( $_REQUEST['account_id'] ) && ! empty( $_REQUEST['account_id'] ) ) {
 
 			// Fetch account id
-			$account_id = fct_get_account_id( $_REQUEST['fct_account_id'] );
+			$account_id = fct_get_account_id( $_REQUEST['account_id'] );
 
 			if ( ! empty( $account_id ) ) {
 				// Format: {account number}. {account title}

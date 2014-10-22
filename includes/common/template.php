@@ -1083,8 +1083,8 @@ function fct_account_form_fields() {
 
 	if ( fct_is_account_edit() ) : ?>
 
-		<input type="hidden" name="action"         id="fct_post_action" value="fiscaat-edit-account" />
-		<input type="hidden" name="fct_account_id" id="fct_account_id"  value="<?php fct_account_id(); ?>" />
+		<input type="hidden" name="action"     id="fct_post_action" value="fiscaat-edit-account" />
+		<input type="hidden" name="account_id" id="fct_account_id"  value="<?php fct_account_id(); ?>" />
 
 		<?php
 
@@ -1140,7 +1140,7 @@ function fct_record_form_fields() {
 	else : ?>
 
 		<input type="hidden" name="fct_record_title" id="fct_record_title" value="<?php printf( __( 'Record To: %s', 'fiscaat' ), fct_get_account_title() ); ?>" />
-		<input type="hidden" name="fct_account_id"   id="fct_account_id"   value="<?php fct_account_id(); ?>" />
+		<input type="hidden" name="account_id"       id="fct_account_id"   value="<?php fct_account_id(); ?>" />
 		<input type="hidden" name="action"           id="fct_post_action"  value="fiscaat-new-record" />
 
 		<?php if ( current_user_can( 'unfiltered_html' ) )

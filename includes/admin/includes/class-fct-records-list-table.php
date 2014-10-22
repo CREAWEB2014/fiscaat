@@ -59,8 +59,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		}
 
 		// Set the account id when querying an account's records
-		if ( ! empty( $_REQUEST['fct_account_id'] ) ) {
-			$this->account_id = (int) $_REQUEST['fct_account_id'];
+		if ( ! empty( $_REQUEST['account_id'] ) ) {
+			$this->account_id = (int) $_REQUEST['account_id'];
 		}
 
 		// Setup amounts counter
@@ -121,7 +121,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 				'perm'        => 'readable',
 				'post_parent' => $this->account_id,
 			) );
-			$parent = '&fct_account_id=' . $this->account_id;
+			$parent = '&account_id=' . $this->account_id;
 
 		// Period's record count. Not querying all records
 		} elseif ( $this->period_id ) {

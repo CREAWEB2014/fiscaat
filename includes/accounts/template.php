@@ -1001,7 +1001,7 @@ function fct_account_records_admin_link( $account_id = 0, $number = false ) {
 
 		// First link never has view=all
 		// if ( fct_get_view_all( 'edit_others_records' ) )
-			$retval .= "<a href='" . esc_url( fct_remove_view_all( add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'fct_account_id' => $account_id ), admin_url( 'edit.php' ) ) ) ) . "'>$title</a>";
+			$retval .= "<a href='" . esc_url( fct_remove_view_all( add_query_arg( array( 'post_type' => fct_get_record_post_type(), 'account_id' => $account_id ), admin_url( 'edit.php' ) ) ) ) . "'>$title</a>";
 		// else
 			// $retval .= $title;
 
@@ -1658,6 +1658,7 @@ function fct_account_dropdown( $args = '' ) {
 
 			// Output-related
 			'select_id'          => 'fct_account_id',
+			'select_id'          => 'account_id',
 			'show_none'          => __( 'In all accounts', 'fiscaat' ),
 			'data'               => array( 'ledger_id' => 'fct_get_account_ledger_id' ),
 		), 'get_account_dropdown' );
@@ -1766,6 +1767,7 @@ function fct_account_full_dropdown( $args = '' ) {
 
 			// Output-related
 			'select_id'          => 'fct_account_id',
+			'select_id'          => 'account_id',
 			'show_none'          => __( 'In all accounts', 'fiscaat' ),
 			'data'               => array( 'ledger_id' => 'fct_get_account_ledger_id' ),
 		), 'get_account_full_dropdown' );

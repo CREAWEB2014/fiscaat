@@ -844,7 +844,7 @@ class Fiscaat_Accounts_Admin {
 
 			// Show records link
 			if ( current_user_can( 'read_account', $account->ID ) ) {
-				$actions['records'] = '<a href="' . add_query_arg( array( 'page' => 'fct-records', 'fct_account_id' => $account->ID ), admin_url( 'admin.php' ) ) .'" title="' . esc_attr( sprintf( __( 'Show all records of "%s"',  'fiscaat' ), fct_get_account_title( $account->ID ) ) ) . '">' . __( 'Records', 'fiscaat' ) . '</a>';
+				$actions['records'] = '<a href="' . add_query_arg( array( 'page' => 'fct-records', 'account_id' => $account->ID ), admin_url( 'admin.php' ) ) .'" title="' . esc_attr( sprintf( __( 'Show all records of "%s"',  'fiscaat' ), fct_get_account_title( $account->ID ) ) ) . '">' . __( 'Records', 'fiscaat' ) . '</a>';
 			}
 
 			// Show the close and open link
