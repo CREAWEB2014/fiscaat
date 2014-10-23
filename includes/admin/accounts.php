@@ -539,7 +539,7 @@ class Fiscaat_Accounts_Admin {
 		fct_period_dropdown( array(
 			'select_id'   => 'fct_period_id_filter',
 			'select_name' => 'period_id',
-			'selected'    => ! empty( $_REQUEST['period_id'] ) ? $_REQUEST['period_id'] : fct_get_current_period_id(),
+			'selected'    => ! empty( $_REQUEST['period_id'] ) ? $_REQUEST['period_id'] : ( isset( $_REQUEST['period_id'] ) ? false : fct_get_current_period_id() ),
 		) );
 	}
 
