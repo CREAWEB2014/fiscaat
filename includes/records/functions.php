@@ -143,7 +143,7 @@ function fct_insert_record( $record_data = array(), $record_meta = array() ) {
 	), 'insert_record' );
 
 	// Bail when inserting in closed account
-	if ( fct_is_account_closed( $account_data['post_parent'] ) )
+	if ( fct_is_account_closed( $record_data['post_parent'] ) )
 		return false;
 
 	// Insert record
@@ -679,4 +679,3 @@ function fct_get_record_types() {
 		fct_get_credit_record_type_id() => __( 'Credit', 'fiscaat' ),
 	) );
 }
-
