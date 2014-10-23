@@ -993,6 +993,30 @@ function fct_record_type( $record_id = 0 ) {
 	}
 
 /**
+ * Return whether a record is of debit type
+ * 
+ * @since 0.0.9
+ * 
+ * @param int $record_id Optional. Record id
+ * @return bool Record is of debit type
+ */
+function fct_is_debit_record( $record_id = 0 ) {
+	return fct_get_debit_record_type_id() == fct_get_record_type( $record_id );
+}
+
+/**
+ * Return whether a record is of credit type
+ * 
+ * @since 0.0.9
+ * 
+ * @param int $record_id Optional. Record id
+ * @return bool Record is of credit type
+ */
+function fct_is_credit_record( $record_id = 0 ) {
+	return fct_get_credit_record_type_id() == fct_get_record_type( $record_id );
+}
+
+/**
  * Output the amount of a record
  *
  * @param int $record_id Optional. Record id

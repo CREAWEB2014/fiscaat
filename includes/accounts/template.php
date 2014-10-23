@@ -858,6 +858,30 @@ function fct_account_type( $account_id = 0 ) {
 	}
 
 /**
+ * Return whether a account is of revenue type
+ * 
+ * @since 0.0.9
+ * 
+ * @param int $account_id Optional. Account id
+ * @return bool Account is of revenue type
+ */
+function fct_is_revenue_account( $account_id = 0 ) {
+	return fct_get_revenue_account_type_id() == fct_get_account_type( $account_id );
+}
+
+/**
+ * Return whether a account is of capital type
+ * 
+ * @since 0.0.9
+ * 
+ * @param int $account_id Optional. Account id
+ * @return bool Account is of capital type
+ */
+function fct_is_capital_account( $account_id = 0 ) {
+	return fct_get_capital_account_type_id() == fct_get_account_type( $account_id );
+}
+
+/**
  * Output the start value of an account
  *
  * @param int $account_id Optional. Account id
