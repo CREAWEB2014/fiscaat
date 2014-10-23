@@ -763,6 +763,7 @@ class Fiscaat_Records_Admin {
 			'select_id'   => 'fct_period_id_filter',
 			'select_name' => 'period_id',
 			'selected'    => $period_id,
+			'show_none'   => false
 		) );
 		
 		// Get which account is selected. With account id or ledger id
