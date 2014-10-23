@@ -198,8 +198,6 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 	 * @uses fct_get_period_title()
 	 * @uses fct_account_ledger_id()
 	 * @uses fct_get_account_type()
-	 * @uses fct_get_revenue_account_type_id()
-	 * @uses fct_get_capital_account_type_id()
 	 * @uses fct_account_record_count()
 	 * @uses fct_currency_format()
 	 * @uses fct_get_account_end_value()
@@ -240,14 +238,13 @@ class FCT_Accounts_List_Table extends FCT_Posts_List_Table {
 
 			// Account type
 			case 'fct_account_type' :
-				$account_type = fct_get_account_type( $account_id );
 
 				// Capital
-				if ( fct_get_capital_account_type_id() == $account_type ) {
+				if ( fct_is_capital_account( $account_id ) ) {
 					_ex( 'C', 'Capital account type', 'fiscaat' );
 
 				// Revenue
-				} elseif ( fct_get_revenue_account_type_id() == $account_type ) {
+				} elseif ( fct_is_revenue_account( $account_id ) ) {
 					_ex( 'R', 'Revenue account type', 'fiscaat' );
 				}
 				break;

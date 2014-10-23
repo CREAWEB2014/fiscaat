@@ -477,6 +477,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @param string $column_name Column name
 	 */
 	public function _new_row( $column_name ) {
+		global $post;
 
 		// Check column name
 		switch ( $column_name ) {
@@ -571,7 +572,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		add_filter( 'the_title', 'esc_html' );
 
 		// Start account row. Revenue accounts have no starting value
-		if ( $this->account_id && fct_get_revenue_account_type_id() != fct_get_account_type( $this->account_id ) ) {
+		if ( $this->account_id && fct_is_revenue_account( $this->account_id ) ) {
 			$this->display_helper_row( 'start' );
 		}
 
@@ -746,7 +747,6 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @since 0.0.8
 	 *
 	 * @uses fct_get_account_id()
-	 * @uses fct_get_capital_account_type_id()
 	 * @uses fct_get_account_type()
 	 * @uses fct_get_account_start_value()
 	 * @uses fct_get_account_end_value()
@@ -769,20 +769,17 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 			// Row title
 			case 'fct_record_description' :
-				switch ( fct_get_account_type( $account_id ) ) {
-					case fct_get_capital_account_type_id() :
-						if ( $start ) {
-							_e( 'Beginning Balance', 'fiscaat' );
-						} else {
-							_e( 'Ending Balance',    'fiscaat' );
-						}
-						break;
-
-					case fct_get_revenue_account_type_id() :
-						// Revenue accounts have no starting value
-						if ( ! $start )
-							_e( 'To Income Statement', 'fiscaat' );
-						break;
+				if ( fct_is_capital_account( $account_id ) ) {
+					if ( $start ) {
+						_e( 'Beginning Balance', 'fiscaat' );
+					} else {
+						_e( 'Ending Balance',    'fiscaat' );
+					}
+				} elseif ( fct_is_revenue_account( $account_id ) ) {
+					// Revenue accounts have no starting value
+					if ( ! $start ) {
+						_e( 'To Income Statement', 'fiscaat' );
+					}
 				}
 				break;
 
