@@ -572,7 +572,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		add_filter( 'the_title', 'esc_html' );
 
 		// Start account row. Revenue accounts have no starting value
-		if ( $this->account_id && fct_is_revenue_account( $this->account_id ) ) {
+		if ( $this->account_id && ! fct_is_revenue_account( $this->account_id ) ) {
 			$this->display_helper_row( 'start' );
 		}
 
