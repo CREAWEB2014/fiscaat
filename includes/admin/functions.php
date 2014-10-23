@@ -276,6 +276,101 @@ function fct_admin_get_new_post_url_part( $post_type = '' ) {
 }
 
 /**
+ * Display admin list table for posts page
+ *
+ * @since 0.0.7
+ *
+ * @uses fct_admin_page_title()
+ * @uses fct_admin_get_page_object_type()
+ * @uses do_action() Calls 'fct_admin_{post}s_page'
+ */
+function fct_admin_posts_page() { ?>
+
+	<div class="wrap">
+		<h2><?php fct_admin_page_title(); ?></h2>
+
+		<?php do_action( sprintf( 'fct_admin_%s_page', fct_admin_get_page_object_type() . 's' ) ); ?>
+
+		<div id="ajax-response"></div>
+		<br class="clear" />
+	</div>
+
+	<?php
+}
+
+/**
+ * Output the admin page title
+ *
+ * @since 0.0.7
+ *
+ * @uses fct_admin_get_page_title()
+ */
+function fct_admin_page_title() {
+	echo fct_admin_get_page_title();
+}
+
+	/**
+	 * Return the admin page title
+	 *
+	 * @since 0.0.7
+	 *
+	 * @uses fct_admin_get_page_object_type()
+	 * @uses apply_filters() Calls 'fct_admin_{$type}s_page_title' with
+	 *                        the page title
+	 * @return string Admin page title
+	 */
+	function fct_admin_get_page_title() {
+		global $post_type_object;
+
+		// Get the page object type
+		$type = fct_admin_get_page_object_type();
+
+		// Filter object page specific
+		return apply_filters( "fct_admin_{$type}s_page_title", esc_html( $post_type_object->labels->name ) );
+	}
+
+/**
+ * Return add-new post link to append to the admin page title
+ *
+ * @since 0.0.8
+ *
+ * @return string Page title add new link
+ */
+function fct_admin_page_title_get_add_new_link() {
+	global $post_type_object, $post_new_file;
+
+	// Setup retval
+	$link = '';
+
+	// Only if user can create posts
+	if ( current_user_can( $post_type_object->cap->create_posts ) ) {
+		$link = ' <a href="'. esc_url( admin_url( $post_new_file ) ) . '" class="add-new-h2">' . esc_html( $post_type_object->labels->add_new ) . '</a>';
+	}
+
+	return $link;
+}
+
+/**
+ * Append search terms to the posts page title when a search query is performed
+ *
+ * @since 0.0.9
+ *
+ * @param string $title Page title
+ * @return string Page title
+ */
+function fct_admin_page_title_search_terms( $title ) {
+
+	// Append search terms if available
+	if ( ! empty( $_REQUEST['s'] ) ) {
+		$title .= sprintf( ' <span class="subtitle">' . __( 'Search results for &#8220;%s&#8221;' ) . '</span>', get_search_query() );
+	}
+
+	return $title;
+}
+
+/** List Table ************************************************************/
+
+/**
  * Setup and return a posts list table
  *
  * @since 0.0.7
@@ -332,6 +427,8 @@ function fct_get_list_table( $class, $args = array() ) {
  *  - hook list table views
  *
  * @since 0.0.9
+ *
+ * @see wp-admin/edit.php
  *
  * @uses fct_admin_get_page_object_type()
  * @uses fct_get_list_table()
@@ -520,100 +617,7 @@ function fct_admin_display_list_table() {
 	<?php
 }
 
-/**
- * Display admin list table for posts page
- *
- * @since 0.0.7
- *
- * @uses fct_admin_page_title()
- * @uses fct_admin_get_page_object_type()
- * @uses do_action() Calls 'fct_admin_{post}s_page'
- */
-function fct_admin_posts_page() { ?>
-
-	<div class="wrap">
-		<h2><?php fct_admin_page_title(); ?></h2>
-
-		<?php do_action( sprintf( 'fct_admin_%s_page', fct_admin_get_page_object_type() . 's' ) ); ?>
-
-		<div id="ajax-response"></div>
-		<br class="clear" />
-	</div>
-
-	<?php
-}
-
-/**
- * Output the admin page title
- *
- * @since 0.0.7
- *
- * @uses fct_admin_get_page_title()
- */
-function fct_admin_page_title() {
-	echo fct_admin_get_page_title();
-}
-
-	/**
-	 * Return the admin page title
-	 *
-	 * @since 0.0.7
-	 *
-	 * @uses fct_admin_get_page_object_type()
-	 * @uses apply_filters() Calls 'fct_admin_{$type}s_page_title' with
-	 *                        the page title
-	 * @return string Admin page title
-	 */
-	function fct_admin_get_page_title() {
-		global $post_type_object;
-
-		// Get the page object type
-		$type = fct_admin_get_page_object_type();
-
-		// Filter object page specific
-		return apply_filters( "fct_admin_{$type}s_page_title", esc_html( $post_type_object->labels->name ) );
-	}
-
-/**
- * Return add-new post link to append to the admin page title
- *
- * @since 0.0.8
- *
- * @return string Page title add new link
- */
-function fct_admin_page_title_get_add_new_link() {
-	global $post_type_object, $post_new_file;
-
-	// Setup retval
-	$link = '';
-
-	// Only if user can create posts
-	if ( current_user_can( $post_type_object->cap->create_posts ) ) {
-		$link = ' <a href="'. esc_url( admin_url( $post_new_file ) ) . '" class="add-new-h2">' . esc_html( $post_type_object->labels->add_new ) . '</a>';
-	}
-
-	return $link;
-}
-
-/**
- * Append search terms to the posts page title when a search query is performed
- *
- * @since 0.0.9
- *
- * @param string $title Page title
- * @return string Page title
- */
-function fct_admin_page_title_search_terms( $title ) {
-
-	// Append search terms if available
-	if ( ! empty( $_REQUEST['s'] ) ) {
-		$title .= sprintf( ' <span class="subtitle">' . __( 'Search results for &#8220;%s&#8221;' ) . '</span>', get_search_query() );
-	}
-
-	return $title;
-}
-
-/** Records Mode **********************************************************/
+/** Records Modes *********************************************************/
 
 /**
  * Return the current records mode
@@ -626,7 +630,7 @@ function fct_admin_page_title_search_terms( $title ) {
 function fct_admin_get_records_mode() {
 
 	// Page has record's post type and is in mode
-	if (   isset( get_current_screen()->post_type ) 
+	if ( isset( get_current_screen()->post_type ) 
 		&& ( fct_get_record_post_type() == get_current_screen()->post_type )
 		&& isset( $_REQUEST['mode'] ) 
 		&& in_array( $_REQUEST['mode'], fct_admin_get_records_modes() ) 
@@ -729,7 +733,7 @@ function fct_admin_is_new_records() {
  *
  * @uses fct_admin_get_upload_records_mode()
  * @uses fct_admin_get_records_mode()
- * @uses current_user_can() To check if the current user can create records
+ * @uses current_user_can() To check if the current user can upload records
  * @return bool Page is records upload mode
  */
 function fct_admin_is_upload_records() {
@@ -751,14 +755,15 @@ function fct_admin_is_edit_records() {
 }
 
 /**
- * Return whether the current page is the records edit mode
+ * Return whether the current page is the records view mode
  *
  * @since 0.0.8
  *
- * @uses fct_admin_is_new_records()
- * @uses fct_admin_is_edit_records()
- * @return bool Page is records edit mode
+ * @uses fct_admin_get_records_mode()
+ * @uses fct_admin_get_view_records_mode()
+ * @return bool Page is records view mode
  */
 function fct_admin_is_view_records() {
-	return ! fct_admin_is_new_records() && ! fct_admin_is_edit_records();
+	$mode = fct_admin_get_records_mode();
+	return empty( $mode ) || fct_admin_get_view_records_mode() == $mode;
 }
