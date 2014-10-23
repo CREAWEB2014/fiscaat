@@ -679,3 +679,87 @@ function fct_get_record_types() {
 		fct_get_credit_record_type_id() => __( 'Credit', 'fiscaat' ),
 	) );
 }
+
+/** Insert Records ********************************************************/
+
+/**
+ * Transform the records input (new or edit) to return usable records data
+ *
+ * @since 0.0.9
+ * 
+ * @uses fct_get_debit_record_type_id()
+ * @uses fct_get_credit_record_type_id()
+ * @param array|string $input Optional. Array or $_REQUEST key of input data. Defaults to 'records'
+ * @param array $data_map Optional. Mapping of record data keys to input field names
+ * @return array|bool Transformed records or False when the process failed
+ */
+function fct_transform_records_input( $input = array(), $data_map = array() ) {
+
+	// Get records to process
+	if ( ! array( $input ) || empty( $input ) ) {
+		// Get request input key. Defaults to 'records'
+		$key   = is_string( $input ) && ! empty( $input ) ? $input : 'records';
+		$input = ! empty( $_REQUEST[ $key ] ) ? (array) $_REQUEST[ $key ] : array();
+	} 
+
+	// Nothing to process
+	if ( empty( $input ) ) {
+		return false;
+	}
+
+	// Get data mapping
+	$data_map = fct_parse_args( $data_map, array(
+	//  v-- Record data key      v-- Input field name
+		'ID'                  => 'ID',
+		'period_id'           => 'period_id',
+		'account_id'          => 'account_id',
+		'description'         => 'description',
+		'record_date'         => 'record_date',
+		'amount'              => array( 'amount' => array( fct_get_debit_record_type_id(), fct_get_credit_record_type_id() ) ),
+		'offset_account'      => 'offset_account',
+	), 'transform_records_structure' );
+
+	// Bail if input is already properly structured
+	if ( 0 === count( array_intersect( array_values( $data_map ), array_keys( $input ) ) ) ) {
+		return $input;
+	}
+
+	$records = array();
+
+	// Walk data fields
+	foreach ( $data_map as $data_key => $field_name ) {
+		$subfields = array();
+
+		// Field has subfields
+		if ( is_array( $field_name ) ) {
+			$field = $field_name;
+			$field_name = key( $field_name );
+			$subfields = $field[ $field_name ];
+		}
+
+		// Bail when field is not present
+		if ( ! isset( $input[ $field_name ] ) )
+			continue;
+
+		// Loop all entries of this field
+		foreach ( $input[ $field_name ] as $i => $value ) {
+
+			// Handle subfields
+			if ( is_array( $value ) && in_array( $i, $subfields ) ) {
+				foreach ( $value as $j => $subvalue ) {
+
+					// Only process valid inputs
+					if ( ! empty( $subvalue ) ) {
+						$records[ $j ][ $data_key ][ $i ] = $subvalue;
+					}
+				}
+
+			// Only process valid inputs
+			} elseif ( ! empty( $value ) ) {
+				$records[ $i ][ $data_key ] = $value;
+			}
+		}
+	}
+
+	return apply_filters( 'fct_transform_records_input', $records, $input, $data_map );
+}

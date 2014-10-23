@@ -524,7 +524,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			case 'fct_record_date': 
 				$today = mysql2date( _x( 'Y-m-d', 'date input field format', 'fiscaat' ), fct_current_time() ); ?>
 
-				<input name="records[date][]" type="text" class="fct_record_date medium-text" value="" placeholder="<?php echo $today; ?>" <?php fct_tab_index_attr(); ?>/>
+				<input name="records[record_date][]" type="text" class="fct_record_date medium-text" value="" placeholder="<?php echo $today; ?>" <?php fct_tab_index_attr(); ?>/>
 
 				<?php
 				break;
@@ -540,8 +540,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			// Record amount
 			case 'fct_record_amount' : ?>
 
-				<input name="records[amount][debit][]"  class="debit_amount small-text"  type="number" step="0.01" min="0" value="" <?php fct_tab_index_attr(); ?>/>
-				<input name="records[amount][credit][]" class="credit_amount small-text" type="number" step="0.01" min="0" value="" <?php fct_tab_index_attr(); ?>/>
+				<input name="records[amount][<?php echo fct_get_debit_record_type_id(); ?>][]"  class="debit_amount small-text"  type="number" step="0.01" min="0" value="" <?php fct_tab_index_attr(); ?>/>
+				<input name="records[amount][<?php echo fct_get_credit_record_type_id(); ?>][]" class="credit_amount small-text" type="number" step="0.01" min="0" value="" <?php fct_tab_index_attr(); ?>/>
 
 				<?php
 				break;
