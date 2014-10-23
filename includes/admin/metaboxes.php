@@ -300,7 +300,7 @@ function fct_account_metabox() {
 	<p>
 		<strong class="label"><?php _e( 'Period:', 'fiscaat' ); ?></strong>
 		<label class="screen-reader-text" for="parent_id"><?php _e( 'Period', 'fiscaat' ); ?></label>
-		<?php fct_dropdown( array(
+		<?php fct_period_dropdown( array(
 			'selected'           => $period_id,
 
 			// Output-related
@@ -348,6 +348,7 @@ function fct_record_metabox() {
 
 			// Output-related
 			'select_id'          => 'fct_period_id',
+			'select_name'        => 'period_id',
 			'show_none'          => false,
 			'none_found'         => false,
 			'disabled'           => true,

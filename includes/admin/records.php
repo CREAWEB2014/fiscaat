@@ -350,7 +350,7 @@ class Fiscaat_Records_Admin {
 
 		// Get the record meta post values
 		$account_id = ! empty( $_POST['parent_id'] ) ? (int) $_POST['parent_id'] : 0;
-		$period_id  = ! empty( $_POST['fct_record_period_id'] ) ? (int) $_POST['fct_record_period_id'] : fct_get_account_period_id( $account_id );
+		$period_id  = ! empty( $_POST['period_id'] ) ? (int) $_POST['period_id'] : fct_get_account_period_id( $account_id );
 
 		// Formally update the record
 		fct_update_record( array( 
@@ -760,7 +760,9 @@ class Fiscaat_Records_Admin {
 
 		// Show the periods dropdown
 		fct_period_dropdown( array(
-			'selected'  => $period_id,
+			'select_id'   => 'fct_period_id_filter',
+			'select_name' => 'period_id',
+			'selected'    => $period_id,
 		) );
 		
 		// Get which account is selected. With account id or ledger id

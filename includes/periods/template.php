@@ -849,7 +849,6 @@ function fct_period_dropdown( $args = '' ) {
 
 			// Output-related
 			'select_id'          => 'fct_period_id',
-			'select_name'        => 'period_id',
 			'show_none'          => __( 'In all periods', 'fiscaat' ),
 		), 'get_period_dropdown' );
 

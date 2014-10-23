@@ -530,12 +530,16 @@ class Fiscaat_Accounts_Admin {
 
 		// Show the number dropdown
 		fct_ledger_dropdown( array(
-			'selected' => ! empty( $_REQUEST['ledger_id'] ) ? $_REQUEST['ledger_id'] : '',
+			'select_id'   => 'fct_ledger_id_filter',
+			'select_name' => 'ledger_id',
+			'selected'    => ! empty( $_REQUEST['ledger_id'] ) ? $_REQUEST['ledger_id'] : '',
 		) );
 
 		// Show the periods dropdown. Default to current period
 		fct_period_dropdown( array(
-			'selected' => ! empty( $_REQUEST['period_id'] ) ? $_REQUEST['period_id'] : fct_get_current_period_id(),
+			'select_id'   => 'fct_period_id_filter',
+			'select_name' => 'period_id',
+			'selected'    => ! empty( $_REQUEST['period_id'] ) ? $_REQUEST['period_id'] : fct_get_current_period_id(),
 		) );
 	}
 
