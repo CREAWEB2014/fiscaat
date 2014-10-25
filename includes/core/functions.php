@@ -171,8 +171,7 @@ function fct_add_error( $code = '', $message = '', $data = '' ) {
  *
  * @see WP_Error()
  *
- * @uses is_wp_error()
- * @usese WP_Error::get_error_codes()
+ * @uses WP_Error::get_error_codes()
  */
 function fct_has_errors() {
 	$has_errors = fiscaat()->errors->get_error_codes() ? true : false;

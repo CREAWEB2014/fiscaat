@@ -163,17 +163,17 @@ class Fiscaat_Admin {
 	 */
 	public function dev_content() {
 
-		// Bail if no add_content query arg
+		// Update period account count
 		if ( isset( $_REQUEST['period_account_count'] ) && $_REQUEST['period_account_count'] ) {
 			fct_update_period_account_count( fct_get_current_period_id() );
 		}
 
-		// Bail if no add_content query arg
+		// Create initial content
 		if ( isset( $_REQUEST['add_content'] ) && $_REQUEST['add_content'] ) {
 			fct_create_initial_content();
 		}
 
-		// Bail if no del_content query arg
+		// Delete accounts and periods
 		if ( isset( $_REQUEST['del_content'] ) && $_REQUEST['del_content'] ) {
 
 			// Delete all accounts
@@ -183,6 +183,15 @@ class Fiscaat_Admin {
 
 			// Delete all periods
 			foreach ( get_posts( array( 'post_type' => fct_get_period_post_type(), 'fields' => 'ids', 'numberposts' => -1 ) ) as $post_id ) {
+				wp_delete_post( $post_id, true ); // force delete
+			}
+		}
+
+		// Delete records
+		if ( isset( $_REQUEST['del_records'] ) && $_REQUEST['del_records'] ) {
+
+			// Delete all accounts
+			foreach ( get_posts( array( 'post_type' => fct_get_record_post_type(), 'fields' => 'ids', 'numberposts' => -1 ) ) as $post_id ) {
 				wp_delete_post( $post_id, true ); // force delete
 			}
 		}

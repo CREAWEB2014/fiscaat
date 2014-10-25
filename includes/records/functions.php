@@ -22,7 +22,7 @@ function fct_get_record_default_meta(){
 	return apply_filters( 'fct_get_record_default_meta', array(
 		'period_id'      => fct_get_current_period_id(), // Period
 		'account_id'     => 0,                           // Account
-		'record_date'    => '',                          // Physical record date
+		'record_date'    => fct_current_time(),          // Physical record date
 		'record_type'    => '',                          // 'debit' or 'credit'
 		'amount'         => 0,                           // Amount
 		'offset_account' => '',                          // Bank account received from or sent to
@@ -683,12 +683,110 @@ function fct_get_record_types() {
 /** Insert Records ********************************************************/
 
 /**
+ * Handle bulk inserting of new or edited records
+ * 
+ * @since 0.0.9
+ *
+ * @uses wp_verify_nonce()
+ * @uses current_user_can()
+ * @uses fct_transform_records_input()
+ * @uses fct_sanitize_record_data()
+ * 
+ * @param string|array $input The argument to pass to {@link fct_transform_records_input()}
+ * @param bool $redirect Whether to redirect after inserting the records
+ * @return array|WP_Error Inserted record ids or an error object
+ */
+function fct_bulk_insert_records( $input = 'records', $redirect = true ) {
+
+	// Bail when nonce does not check
+	if ( ! isset( $_REQUEST['_wpnonce'] ) || ! wp_verify_nonce( $_REQUEST['_wpnonce'], 'bulk-insert-records' ) )
+		return;
+
+	// Bail when user is not capable
+	if ( ! current_user_can( 'create_records' ) )
+		return;
+
+	// Get the records input data
+	$records_data = fct_transform_records_input( $input );
+
+	// Bail when there's nothing to insert or errors already exist
+	if ( empty( $records_data ) || fct_has_errors() )
+		return;
+
+	// Sanitize record data
+	$records = array_walk( $records_data, 'fct_sanitize_record_data' );
+
+	// Register error when the amount sums are not equal
+	if ( array_sum( array_map( 'floatval', wp_list_pluck( wp_list_filter( $records, array( 'record_type' => fct_get_debit_record_type_id()  ) ), 'amount' ) ) )
+		!== array_sum( array_map( 'floatval', wp_list_pluck( wp_list_filter( $records, array( 'record_type' => fct_get_credit_record_type_id() ) ), 'amount' ) ) ) 
+	) {
+		fct_add_error( 'unequal', __( 'The credit sum does not equal the debit sum.', 'fiscaat' ) );
+	}
+
+	// Bail when errors are present
+	if ( fct_has_errors() ) {
+		/**
+		 * Do not redirect the page after this point to ensure the $_REQUEST
+		 * data and errors are properly reported on the rendered page.
+		 */
+		add_filter( 'wp_redirect', '__return_false' );
+		return;
+	}
+
+	/**
+	 * Runs before bulk inserting records
+	 *
+	 * @since 0.0.9
+	 *
+	 * @param array $records The record data used for inserting
+	 */
+	do_action( 'fct_bulk_insert_records', $records );
+
+	// Walk all records
+	$record_ids = array();
+	foreach ( $records as $i => $record_data ) {
+
+		// Create new record
+		$record_ids[] = fct_insert_record( 
+			// Select available fields for the post object by key
+			array_intersect_key(
+				$record_data,
+				// Default post object fields
+				array_flip( array( 'ID', 'post_parent', 'post_status', 'post_author', 'post_content' ) )
+			// Select available meta fields for the record by key
+			), array_intersect_key(
+				$record_data,
+				// Default record meta fields
+				fct_get_record_default_meta()
+			)
+		);
+	}
+
+	/**
+	 * Runs after bulk inserting records
+	 *
+	 * @since 0.0.9
+	 *
+	 * @param array $record_ids The ids of the inserted records
+	 * @param array $records The record data used for inserting
+	 */
+	do_action( 'fct_bulk_inserted_records', $record_ids, $records );
+
+	// Redirect
+	if ( $redirect ) {
+		wp_redirect( add_query_arg( array( 'records' => count( $record_ids ) ), wp_get_referer() ) );
+		exit;
+	}
+
+	return $record_ids;
+}
+
+/**
  * Transform the records input (new or edit) to return usable records data
  *
  * @since 0.0.9
  * 
- * @uses fct_get_debit_record_type_id()
- * @uses fct_get_credit_record_type_id()
+ * @uses fct_get_record_types()
  * @param array|string $input Optional. Array or $_REQUEST key of input data. Defaults to 'records'
  * @param array $data_map Optional. Mapping of record data keys to input field names
  * @return array|bool Transformed records or False when the process failed
@@ -707,15 +805,16 @@ function fct_transform_records_input( $input = array(), $data_map = array() ) {
 		return false;
 	}
 
-	// Get data mapping
+	// Define data mapping variable as: Record data key => Input field name
 	$data_map = fct_parse_args( $data_map, array(
-	//  v-- Record data key      v-- Input field name
 		'ID'                  => 'ID',
+		'post_parent'         => 'account_id',
+		'post_content'        => 'description',
 		'period_id'           => 'period_id',
 		'account_id'          => 'account_id',
-		'description'         => 'description',
 		'record_date'         => 'record_date',
-		'amount'              => array( 'amount' => array( fct_get_debit_record_type_id(), fct_get_credit_record_type_id() ) ),
+		'record_type'         => 'amount',
+		'amount'              => array( 'amount' => fct_get_record_types() ),
 		'offset_account'      => 'offset_account',
 	), 'transform_records_structure' );
 
@@ -748,13 +847,24 @@ function fct_transform_records_input( $input = array(), $data_map = array() ) {
 			if ( is_array( $value ) && in_array( $i, $subfields ) ) {
 				foreach ( $value as $j => $subvalue ) {
 
-					// Only process valid inputs
+					// Only process non-empty inputs
 					if ( ! empty( $subvalue ) ) {
-						$records[ $j ][ $data_key ][ $i ] = $subvalue;
+						$records[ $j ][ $data_key ] = $subvalue;
 					}
 				}
 
-			// Only process valid inputs
+			// Handle arrays
+			} elseif ( is_array( $value ) ) {
+				foreach ( $value as $j => $_value ) {
+
+					// Only process non-empty inputs
+					if ( ! empty( $_value ) ) {
+						// Set field key, for the value exists for this entry
+						$records[ $j ][ $data_key ] = $i;
+					}
+				}
+
+			// Only process non-empty inputs
 			} elseif ( ! empty( $value ) ) {
 				$records[ $i ][ $data_key ] = $value;
 			}
@@ -762,4 +872,215 @@ function fct_transform_records_input( $input = array(), $data_map = array() ) {
 	}
 
 	return apply_filters( 'fct_transform_records_input', $records, $input, $data_map );
+}
+
+/**
+ * Sanitize a single record's data. Used before inserting records
+ *
+ * @since 0.0.9
+ *
+ * @uses fct_get_required_record_fields()
+ * @uses fct_add_error()
+ * @uses fct_is_record()
+ * @uses fct_is_account()
+ * @uses fct_is_period()
+ * @uses fct_get_record_types()
+ * @uses is_wp_error()
+ * @uses apply_filters() Calls 'fct_record_date_input_format'
+ * @uses apply_filters() Calls 'fct_sanitize_record_data'
+ * 
+ * @param array $data Record data
+ * @param int $record_id The sanitized record's ID
+ * @return array Record data
+ */
+function fct_sanitize_record_data( $data, $record_id = 0 ) {
+
+	// Define WP_Error error codes
+	$error_code_missing = 'missing';
+	$error_code_invalid = 'invalid';
+	if ( ! empty( $record_id ) ) {
+		$error_code_missing .= '-' . (int) $record_id;
+		$error_code_invalid .= '-' . (int) $record_id;
+	}
+
+	// Loop the required fields
+	foreach ( fct_get_required_record_fields() as $required_field ) {
+		// Field is not provided
+		if ( ! in_array( $required_field, array_keys( $data ) ) || empty( $data[ $required_field ] ) ) {
+			// Register the field as missing
+			fct_add_error( $error_code_missing, $required_field );
+		}
+	}
+
+	// Loop fields to sanitize
+	foreach ( $data as $field => $input ) {
+
+		// Define local var
+		$valid = true;
+
+		// Check field name
+		switch ( $field ) {
+			case 'ID' :
+				// Record does not exist
+				if ( ! fct_is_record( (int) $input ) ) {
+					$valid = false;
+				} else {
+					$input = (int) $input;
+				}
+				break;
+			case 'post_parent' :
+			case 'account_id'  :
+				// Account does not exist
+				if ( ! fct_is_account( (int) $input ) ) {
+					$valid = false;
+				} else {
+					$input = (int) $input;
+				}
+				break;
+			case 'post_content' :
+				$input = strip_tags( $input ); // Too strict?
+				break;
+			case 'period_id' :
+				// Period does not exist
+				if ( ! fct_is_period( (int) $input ) ) {
+					$valid = false;
+				} else {
+					$input = (int) $input;
+				}
+				break;
+			case 'record_date' :
+				// Check date validity as Y-m-d
+				$format = apply_filters( 'fct_record_date_input_format', _x( 'Y-m-d', 'date input field format', 'fiscaat' ) );
+				$date = DateTime::createFromFormat( $format, $input );
+				if ( ! $date || $date->format( $format ) != $input ) {
+					$valid = false;
+				} else {
+					$input = $date->format( 'Y-m-d H:i:s' );
+				}
+				break;
+			case 'record_type' :
+				// Record type does not exist
+				if ( ! in_array( $input, fct_get_record_types() ) ) {
+					$valid = false;
+				}
+				break;
+			case 'amount' :
+				// Positive float
+				if ( ! is_numeric( $input ) || abs( $input ) != $input ) {
+					$valid = false;
+				} else {
+					$input = (float) $input;
+				}
+				break;
+			default :
+				/**
+				 * Sanitize the record input data
+				 *
+				 * @since 0.0.9
+				 * 
+				 * @param mixed $input The provided input value
+				 * @param string $field The field name
+				 * @return mixed|WP_Error $input The sanitized data or an instance of WP_Error
+				 *                                when the provided input is invalid
+				 */
+				$input = apply_filters( 'fct_sanitize_record_data', $input, $field );
+				break;
+		}
+
+		// Input is marked invalid
+		if ( ! $valid || is_wp_error( $input ) ) {
+			// Register the field as invalid
+			fct_add_error( $error_code_invalid, $field );
+
+		// Use sanitized input data
+		} else {
+			$data[ $field ] = $input;
+		}
+	}
+
+	return $data;	
+}
+
+/**
+ * Return the required record fields
+ *
+ * @since 0.0.9
+ *
+ * @uses apply_filters() Calls 'fct_get_required_record_fields'
+ * @param bool $edit Whether the fields are required in 'edit' mode
+ * @return array Required record fields
+ */
+function fct_get_required_record_fields( $edit = false ) {
+
+	// Enable custom required fields
+	$fields = apply_filters( 'fct_get_required_record_fields', array() );
+
+	// Define default required fields
+	$fields = array_merge( $fields, array(
+		'post_parent',
+		'post_content',
+		'account_id',
+		'record_type',
+		'amount'
+	) );
+
+	// Define required edit fields
+	if ( $edit ) {
+		$fields = array_merge( $fields, array(
+			'ID',
+			'period_id',
+			'record_date'
+		) );
+	}
+
+	return $fields;
+}
+
+/**
+ * Modify the notices for bulk inserting records
+ *
+ * @uses WP_Error Fiscaat::errors::get_error_codes() To get the error codes
+ * @uses WP_Error Fiscaat::errors::get_error_messages() To get the error
+ *                                                       messages
+ * @uses is_wp_error() To check if it's a {@link WP_Error}
+ */
+function fct_bulk_insert_records_notices() {
+
+	// Bail if no notices or errors
+	if ( ! fct_has_errors() )
+		return;
+
+	// Get Fiscaat
+	$fct = fiscaat();
+
+	// Loop through notices
+	foreach ( $fct->errors->get_error_codes() as $code ) {
+
+		// Define local variable(s)
+		$messages = array();
+
+		// Handle missing or invalid fields
+		if ( false !== strpos( $code, 'missing' ) || false !== strpos( $code, 'invalid' ) ) {
+
+			// Split the message code
+			$new_code = substr( $code, 0, 7 );
+			$id       = (int) substr( $code, 7 );
+			
+			// Skip when there was nothing found
+			if ( false === $id )
+				continue;
+
+			// Collect the messages
+			foreach ( $fct->errors->get_error_messages( $code ) as $message ) {
+
+
+				$messages['missing'][] = sprintf( __( '<a href="%1$s">This record</a> is missing a value for ', 'fiscaat' ), $field );
+			}
+		}
+
+		// Re-register the messages with the new code
+		foreach ( $messages as $new_code => $message ) {
+			fct_add_error( $new_code, $message );
+		}
+	}
 }

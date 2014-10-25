@@ -58,10 +58,17 @@ add_action( 'fct_admin_init',          'fct_register_admin_settings'       );
 // Initialize the admin area
 add_action( 'fct_init', 'fct_admin' );
 
+// Notices
+add_action( 'fct_admin_notices', 'fct_admin_display_notices' );
+
 // List table
 add_action( 'fct_admin_load_records',  'fct_admin_setup_list_table' );
 add_action( 'fct_admin_load_accounts', 'fct_admin_setup_list_table' );
 add_action( 'fct_admin_load_periods',  'fct_admin_setup_list_table' );
+
+// Insert Records
+add_action( 'fct_admin_load_records',  'fct_bulk_insert_records',         9 ); // Before fct_admin_setup_list_table
+add_action( 'fct_admin_notices',       'fct_bulk_insert_records_notices', 9 );
 
 // Post stati
 add_action( 'fct_admin_load_accounts', 'fct_arrange_post_statuses' );

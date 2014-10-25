@@ -130,6 +130,68 @@ function fct_filter_sample_permalink( $post_link, $_post, $leavename = false, $s
 	return $post_link;
 }
 
+/** Errors ****************************************************************/
+
+/**
+ * Display possible errors & messages inside the admin area
+ *
+ * @uses WP_Error Fiscaat::errors::get_error_codes() To get the error codes
+ * @uses WP_Error Fiscaat::errors::get_error_data() To get the error data
+ * @uses WP_Error Fiscaat::errors::get_error_messages() To get the error
+ *                                                       messages
+ * @uses is_wp_error() To check if it's a {@link WP_Error}
+ */
+function fct_admin_display_notices() {
+
+	// Bail if no notices or errors
+	if ( ! fct_has_errors() )
+		return;
+
+	// Define local variable(s)
+	$errors = $messages = array();
+
+	// Get Fiscaat
+	$fct = fiscaat();
+
+	// Loop through notices
+	foreach ( $fct->errors->get_error_codes() as $code ) {
+
+		// Get notice severity
+		$severity = $fct->errors->get_error_data( $code );
+
+		// Loop through notices and separate errors from messages
+		foreach ( $fct->errors->get_error_messages( $code ) as $error ) {
+			if ( 'message' == $severity ) {
+				$messages[] = $error;
+			} else {
+				$errors[]   = $error;
+			}
+		}
+	}
+
+	// Display errors first...
+	if ( ! empty( $errors ) ) : ?>
+
+		<div class="message error">
+			<p>
+				<?php echo implode( "</p>\n<p>", $errors ); ?>
+			</p>
+		</div>
+
+	<?php endif;
+
+	// ...and messages last
+	if ( ! empty( $messages ) ) : ?>
+
+		<div class="message">
+			<p>
+				<?php echo implode( "</p>\n<p>", $messages ); ?>
+			</p>
+		</div>
+
+	<?php endif;
+}
+
 /** Uninstall *************************************************************/
 
 /**

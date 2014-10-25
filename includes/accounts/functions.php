@@ -383,7 +383,7 @@ function fct_update_account_end_value( $account_id = 0, $end_value = false ) {
 
 			// Loop records and add record value to value type
 			foreach ( $record_ids as $record_id ) {
-				$values[ fct_get_record_type( $record_id ) ] += fct_get_record_value( $record_id );
+				$values[ fct_get_record_type( $record_id ) ] += fct_get_record_amount( $record_id );
 			}
 
 			// Less credit with debit

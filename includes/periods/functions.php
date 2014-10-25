@@ -461,8 +461,8 @@ function fct_update_period_end_value( $period_id = 0, $end_value = 0 ) {
 		// Loop all records and add the result value
 		foreach ( $records as $record_id ){
 			$end_value += fct_get_debit_record_type_id() == fct_get_record_type( $record_id )
-				? fct_get_record_value( $record_id ) * -1
-				: fct_get_record_value( $record_id );
+				? fct_get_record_amount( $record_id ) * -1
+				: fct_get_record_amount( $record_id );
 		}
 	}
 

@@ -617,7 +617,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 			// Record post date
 			case 'fct_record_post_date':
-				$date = get_post_time( 'U', $period_id );
+				$date = get_post_time( 'U', $record_id );
 				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date ) . '">' . apply_filters( 'post_date_column_time', mysql2date( __( 'Y/m/d' ), $date ), $record_id, $column_name, 'list' ) . '</abbr>';
 				break;
 
@@ -661,11 +661,11 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			// Record amount
 			case 'fct_record_amount' :
 				$value = fct_get_record_amount( $record_id ); // Always float
-				$rtype = fct_get_record_type(   $record_id );
-				$this->amounts[ $rtype ][] = $value; ?>
+				$value = fct_get_currency_format( $value );
+				$this->amounts[ fct_get_record_type( $record_id ) ][] = $value; ?>
 
-				<input id="fct_record_<?php echo $record_id; ?>_debit_amount"  class="debit_amount small-text"  type="number" step="0.01" min="0" value="<?php if ( fct_get_debit_record_type_id()  == $rtype ){ fct_currency_format( $value ); } ?>" readonly />
-				<input id="fct_record_<?php echo $record_id; ?>_credit_amount" class="credit_amount small-text" type="number" step="0.01" min="0" value="<?php if ( fct_get_credit_record_type_id() == $rtype ){ fct_currency_format( $value ); } ?>" readonly />
+				<input id="fct_record_<?php echo $record_id; ?>_debit_amount"  class="debit_amount small-text"  type="number" step="0.01" min="0" value="<?php if ( fct_is_debit_record( $record_id )  ){ echo $value; } ?>" readonly />
+				<input id="fct_record_<?php echo $record_id; ?>_credit_amount" class="credit_amount small-text" type="number" step="0.01" min="0" value="<?php if ( fct_is_credit_record( $record_id ) ){ echo $value; } ?>" readonly />
 
 				<?php
 				break;
@@ -787,10 +787,11 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			case 'fct_record_amount' :
 				$_row  = $start ? 'start' : 'end';
 				$value = call_user_func_array( "fct_get_account_{$_row}_value", array( 'account_id' => $account_id ) );
+				$value = fct_get_currency_format( $value );
 				$this->amounts[ $value > 0 ? fct_get_debit_record_type_id() : fct_get_credit_record_type_id() ][] = abs( $value ); ?>
 
-				<input id="fct_account_debit_<?php echo $_row; ?>"  class="debit_amount small-text"  type="number" step="0.01" min="0" value="<?php if ( $value > 0 ) { fct_currency_format( abs( $value ) ); } ?>" <?php fct_tab_index_attr(); ?> readonly />
-				<input id="fct_account_credit_<?php echo $_row; ?>" class="credit_amount small-text" type="number" step="0.01" min="0" value="<?php if ( $value < 0 ) { fct_currency_format( abs( $value ) ); } ?>" <?php fct_tab_index_attr(); ?> readonly />
+				<input id="fct_account_debit_<?php echo $_row; ?>"  class="debit_amount small-text"  type="number" step="0.01" min="0" value="<?php if ( $value > 0 ) { echo abs( $value ); } ?>" <?php fct_tab_index_attr(); ?> readonly />
+				<input id="fct_account_credit_<?php echo $_row; ?>" class="credit_amount small-text" type="number" step="0.01" min="0" value="<?php if ( $value < 0 ) { echo abs( $value ); } ?>" <?php fct_tab_index_attr(); ?> readonly />
 
 				<?php
 				break;
@@ -829,6 +830,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 				// THE records submit button
 				if ( fct_admin_is_new_records() ) {
+					wp_nonce_field( 'bulk-insert-records' );
 					submit_button( __( 'Submit', 'fiscaat' ), 'primary', 'submit-records', false, array( 'tabindex' => fct_get_tab_index() ) );
 				}
 
