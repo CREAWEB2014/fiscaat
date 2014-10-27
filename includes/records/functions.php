@@ -687,34 +687,29 @@ function fct_get_record_types() {
  * 
  * @since 0.0.9
  *
- * @uses wp_verify_nonce()
  * @uses current_user_can()
  * @uses fct_transform_records_input()
  * @uses fct_sanitize_record_data()
  * 
  * @param string|array $input The argument to pass to {@link fct_transform_records_input()}
- * @param bool $redirect Whether to redirect after inserting the records
+ * @param bool $is_edit Optional. Whether the records are being edited. Defaults to false
  * @return array|WP_Error Inserted record ids or an error object
  */
-function fct_bulk_insert_records( $input = 'records', $redirect = true ) {
-
-	// Bail when nonce does not check
-	if ( ! isset( $_REQUEST['_wpnonce'] ) || ! wp_verify_nonce( $_REQUEST['_wpnonce'], 'bulk-insert-records' ) )
-		return;
+function fct_bulk_insert_records( $input = 'records', $is_edit = false ) {
 
 	// Bail when user is not capable
-	if ( ! current_user_can( 'create_records' ) )
+	if ( ! current_user_can( 'create_records' ) || ! current_user_can( 'edit_records' ) )
 		return;
 
 	// Get the records input data
 	$records_data = fct_transform_records_input( $input );
 
-	// Bail when there's nothing to insert or errors already exist
+	// Bail when there's nothing to insert or errors already exist (from elsewhere?)
 	if ( empty( $records_data ) || fct_has_errors() )
 		return;
 
 	// Sanitize record data
-	$records = array_walk( $records_data, 'fct_sanitize_record_data' );
+	$records = array_walk( $records_data, 'fct_sanitize_record_data', $is_edit );
 
 	// Register error when the amount sums are not equal
 	if ( array_sum( array_map( 'floatval', wp_list_pluck( wp_list_filter( $records, array( 'record_type' => fct_get_debit_record_type_id()  ) ), 'amount' ) ) )
@@ -723,15 +718,9 @@ function fct_bulk_insert_records( $input = 'records', $redirect = true ) {
 		fct_add_error( 'unequal', __( 'The credit sum does not equal the debit sum.', 'fiscaat' ) );
 	}
 
-	// Bail when errors are present
-	if ( fct_has_errors() ) {
-		/**
-		 * Do not redirect the page after this point to ensure the $_REQUEST
-		 * data and errors are properly reported on the rendered page.
-		 */
-		add_filter( 'wp_redirect', '__return_false' );
+	// Bail when errors are registered
+	if ( fct_has_errors() )
 		return;
-	}
 
 	/**
 	 * Runs before bulk inserting records
@@ -739,8 +728,9 @@ function fct_bulk_insert_records( $input = 'records', $redirect = true ) {
 	 * @since 0.0.9
 	 *
 	 * @param array $records The record data used for inserting
+	 * @param bool $is_edit Whether the data is from edited records
 	 */
-	do_action( 'fct_bulk_insert_records', $records );
+	do_action( 'fct_bulk_insert_records', $records, $is_edit );
 
 	// Walk all records
 	$record_ids = array();
@@ -769,14 +759,9 @@ function fct_bulk_insert_records( $input = 'records', $redirect = true ) {
 	 *
 	 * @param array $record_ids The ids of the inserted records
 	 * @param array $records The record data used for inserting
+	 * @param bool $is_edit Whether the data is from edited records
 	 */
-	do_action( 'fct_bulk_inserted_records', $record_ids, $records );
-
-	// Redirect
-	if ( $redirect ) {
-		wp_redirect( add_query_arg( array( 'records' => count( $record_ids ) ), wp_get_referer() ) );
-		exit;
-	}
+	do_action( 'fct_bulk_inserted_records', $record_ids, $records, $is_edit );
 
 	return $record_ids;
 }
@@ -794,7 +779,7 @@ function fct_bulk_insert_records( $input = 'records', $redirect = true ) {
 function fct_transform_records_input( $input = array(), $data_map = array() ) {
 
 	// Get records to process
-	if ( ! array( $input ) || empty( $input ) ) {
+	if ( ! is_array( $input ) ) {
 		// Get request input key. Defaults to 'records'
 		$key   = is_string( $input ) && ! empty( $input ) ? $input : 'records';
 		$input = ! empty( $_REQUEST[ $key ] ) ? (array) $_REQUEST[ $key ] : array();
@@ -816,7 +801,7 @@ function fct_transform_records_input( $input = array(), $data_map = array() ) {
 		'record_type'         => 'amount',
 		'amount'              => array( 'amount' => fct_get_record_types() ),
 		'offset_account'      => 'offset_account',
-	), 'transform_records_structure' );
+	), 'transform_records_input' );
 
 	// Bail if input is already properly structured
 	if ( 0 === count( array_intersect( array_values( $data_map ), array_keys( $input ) ) ) ) {
@@ -890,21 +875,22 @@ function fct_transform_records_input( $input = array(), $data_map = array() ) {
  * @uses apply_filters() Calls 'fct_sanitize_record_data'
  * 
  * @param array $data Record data
- * @param int $record_id The sanitized record's ID
+ * @param bool|int $record_id Optional. The sanitized record's ID. Defaults to false
+ * @param bool $is_edit Optional. Whether the data is from editing records
  * @return array Record data
  */
-function fct_sanitize_record_data( $data, $record_id = 0 ) {
+function fct_sanitize_record_data( $data, $record_id = false, $is_edit = false ) {
 
 	// Define WP_Error error codes
 	$error_code_missing = 'missing';
 	$error_code_invalid = 'invalid';
-	if ( ! empty( $record_id ) ) {
+	if ( false !== $record_id ) {
 		$error_code_missing .= '-' . (int) $record_id;
 		$error_code_invalid .= '-' . (int) $record_id;
 	}
 
 	// Loop the required fields
-	foreach ( fct_get_required_record_fields() as $required_field ) {
+	foreach ( fct_get_required_record_fields( $is_edit ) as $required_field ) {
 		// Field is not provided
 		if ( ! in_array( $required_field, array_keys( $data ) ) || empty( $data[ $required_field ] ) ) {
 			// Register the field as missing
@@ -950,7 +936,7 @@ function fct_sanitize_record_data( $data, $record_id = 0 ) {
 				break;
 			case 'record_date' :
 				// Check date validity as Y-m-d
-				$format = apply_filters( 'fct_record_date_input_format', _x( 'Y-m-d', 'date input field format', 'fiscaat' ) );
+				$format = apply_filters( 'fct_record_date_input_format', _x( 'd-m-Y', 'date input field format', 'fiscaat' ) );
 				$date = DateTime::createFromFormat( $format, $input );
 				if ( ! $date || $date->format( $format ) != $input ) {
 					$valid = false;
@@ -976,14 +962,18 @@ function fct_sanitize_record_data( $data, $record_id = 0 ) {
 				/**
 				 * Sanitize the record input data
 				 *
+				 * Return a (empty) WP_Error instance to indicate that the provided
+				 * input should be marked as invalid.
+				 *
 				 * @since 0.0.9
 				 * 
 				 * @param mixed $input The provided input value
 				 * @param string $field The field name
+				 * @param bool $is_edit Whether this is edit data
 				 * @return mixed|WP_Error $input The sanitized data or an instance of WP_Error
 				 *                                when the provided input is invalid
 				 */
-				$input = apply_filters( 'fct_sanitize_record_data', $input, $field );
+				$input = apply_filters( 'fct_sanitize_record_data', $input, $field, $is_edit );
 				break;
 		}
 
@@ -1007,13 +997,13 @@ function fct_sanitize_record_data( $data, $record_id = 0 ) {
  * @since 0.0.9
  *
  * @uses apply_filters() Calls 'fct_get_required_record_fields'
- * @param bool $edit Whether the fields are required in 'edit' mode
+ * @param bool $is_edit Whether the fields are required for editing records
  * @return array Required record fields
  */
-function fct_get_required_record_fields( $edit = false ) {
+function fct_get_required_record_fields( $is_edit = false ) {
 
 	// Enable custom required fields
-	$fields = apply_filters( 'fct_get_required_record_fields', array() );
+	$fields = apply_filters( 'fct_get_required_record_fields', array(), $is_edit );
 
 	// Define default required fields
 	$fields = array_merge( $fields, array(
@@ -1025,7 +1015,7 @@ function fct_get_required_record_fields( $edit = false ) {
 	) );
 
 	// Define required edit fields
-	if ( $edit ) {
+	if ( $is_edit ) {
 		$fields = array_merge( $fields, array(
 			'ID',
 			'period_id',
@@ -1037,7 +1027,59 @@ function fct_get_required_record_fields( $edit = false ) {
 }
 
 /**
- * Modify the notices for bulk inserting records
+ * Return labels for the record's fields
+ *
+ * @since 0.0.9
+ *
+ * @uses apply_filters() Calls 'fct_get_record_field_labels'
+ * @return array Record field labels as field => label
+ */
+function fct_get_record_field_labels() {
+
+	// Define core post object labels
+	$core_labels = array(
+		'ID'                    => _x( 'ID',                     'Post object field label for `ID`',                    'fiscaat' ),
+		'post_author'           => _x( 'Author',                 'Post object field label for `post_author`',           'fiscaat' ),
+		'post_date'             => _x( 'Post date',              'Post object field label for `post_date`',             'fiscaat' ),
+		'post_date_gmt'         => _x( 'Post date GMT',          'Post object field label for `post_date_gmt`',         'fiscaat' ),
+		'post_content'          => _x( 'Description',            'Post object field label for `post_content`',          'fiscaat' ),
+		'post_title'            => _x( 'Title',                  'Post object field label for `post_title`',            'fiscaat' ),
+		'post_excerpt'          => _x( 'Short description',      'Post object field label for `post_excerpt`',          'fiscaat' ),
+		'post_status'           => _x( 'Status',                 'Post object field label for `post_status`',           'fiscaat' ),
+		'comment_status'        => _x( 'Comment status',         'Post object field label for `comment_status`',        'fiscaat' ),
+		'ping_status'           => _x( 'Ping status',            'Post object field label for `ping_status`',           'fiscaat' ),
+		'post_password'         => _x( 'Password',               'Post object field label for `post_password`',         'fiscaat' ),
+		'post_name'             => _x( 'Slug',                   'Post object field label for `post_name`',             'fiscaat' ),
+		'to_ping'               => _x( 'Ping count',             'Post object field label for `to_ping`',               'fiscaat' ),
+		'pinged'                => _x( 'Pinged count',           'Post object field label for `pinged`',                'fiscaat' ),
+		'post_modified'         => _x( 'Date last modified',     'Post object field label for `post_modified`',         'fiscaat' ),
+		'post_modified_gmt'     => _x( 'Date last modified GMT', 'Post object field label for `post_modified_gmt`',     'fiscaat' ),
+		'post_content_filtered' => _x( 'Description filtered',   'Post object field label for `post_content_filtered`', 'fiscaat' ),
+		'post_parent'           => _x( 'Parent',                 'Post object field label for `post_parent`',           'fiscaat' ),
+		'guid'                  => _x( 'GUID',                   'Post object field label for `guid`',                  'fiscaat' ),
+		'menu_order'            => _x( 'Menu order',             'Post object field label for `menu_order`',            'fiscaat' ),
+		'post_type'             => _x( 'Post type',              'Post object field label for `post_type`',             'fiscaat' ),
+		'post_mime_type'        => _x( 'Post mime type',         'Post object field label for `post_mime_type`',        'fiscaat' ),
+		'comment_count'         => _x( 'Comment count',          'Post object field label for `comment_count`',         'fiscaat' ),
+	);
+
+	// Define record meta labels
+	$meta_labels = array(
+		'period_id'      => _x( 'Period',         'Record meta field label for `period_id`',      'fiscaat' ),
+		'account_id'     => _x( 'Account',        'Record meta field label for `account_id`',     'fiscaat' ),
+		'record_date'    => _x( 'Date of origin', 'Record meta field label for `record_date`',    'fiscaat' ),
+		'record_type'    => _x( 'Record type',    'Record meta field label for `record_type`',    'fiscaat' ),
+		'amount'         => _x( 'Amount',         'Record meta field label for `amount`',         'fiscaat' ),
+		'offset_account' => _x( 'Offset account', 'Record meta field label for `offset_account`', 'fiscaat' ),
+	);
+
+	$labels = array_merge( $core_labels, $meta_labels );
+
+	return apply_filters( 'fct_get_record_field_labels', $labels );
+}
+
+/**
+ * Modify the notices from bulk inserting records
  *
  * @uses WP_Error Fiscaat::errors::get_error_codes() To get the error codes
  * @uses WP_Error Fiscaat::errors::get_error_messages() To get the error
@@ -1050,37 +1092,48 @@ function fct_bulk_insert_records_notices() {
 	if ( ! fct_has_errors() )
 		return;
 
+	// Define local variable(s)	
+	$labels   = fct_get_record_field_labels();
+	$messages = array(
+		'missing' => __( '<a href="%2$s">This record</a> is missing the following field(s): %1$s',  'fiscaat' ),
+		'invalid' => __( '<a href="%2$s">This record</a> has invalid values for the following field(s): %1$s', 'fiscaat' )
+	);
+
 	// Get Fiscaat
 	$fct = fiscaat();
 
 	// Loop through notices
 	foreach ( $fct->errors->get_error_codes() as $code ) {
 
-		// Define local variable(s)
-		$messages = array();
-
-		// Handle missing or invalid fields
-		if ( false !== strpos( $code, 'missing' ) || false !== strpos( $code, 'invalid' ) ) {
+		// Handle missing or invalid fields. Codes have a pattern of 'missing-{$record_id}'.
+		if ( 0 === strpos( $code, 'missing' ) || 0 === strpos( $code, 'invalid' ) ) {
 
 			// Split the message code
-			$new_code = substr( $code, 0, 7 );
-			$id       = (int) substr( $code, 7 );
+			$new_code  = substr( $code, 0, 7 );
+			$record_id = substr( $code, 8 );
 			
 			// Skip when there was nothing found
-			if ( false === $id )
+			if ( false === $record_id )
 				continue;
 
-			// Collect the messages
-			foreach ( $fct->errors->get_error_messages( $code ) as $message ) {
+			// Collect the fields
+			$fields  = $fct->errors->get_error_messages( $code );
+			$_fields = array_intersect_key( $labels, array_flip( $fields ) );
 
-
-				$messages['missing'][] = sprintf( __( '<a href="%1$s">This record</a> is missing a value for ', 'fiscaat' ), $field );
+			// Remove duplicates: Account
+			if ( 2 === count( array_intersect( array( 'post_parent', 'account_id' ), $fields ) ) ) {
+				unset( $_fields['post_parent'] );
 			}
-		}
+			// Remove duplicates: Amount
+			if ( 2 === count( array_intersect( array( 'record_type', 'amount' ), $fields ) ) ) {
+				unset( $_fields['record_type'] );
+			}
 
-		// Re-register the messages with the new code
-		foreach ( $messages as $new_code => $message ) {
-			fct_add_error( $new_code, $message );
+			// Re-register the message with the new code
+			fct_add_error( $new_code, sprintf( $messages[$new_code], '<code>' . implode( '</code> <code>', $_fields ) . '</code>', '#' ) );
+
+			// Remove the original error code with messages
+			$fct->errors->remove( $code );
 		}
 	}
 }

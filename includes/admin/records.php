@@ -61,6 +61,9 @@ class Fiscaat_Records_Admin {
 		// Set records's parents earlier
 		add_action( 'fct_admin_load_records',  array( $this, 'setup_request_args' ), 0 );
 
+		// Insert Records
+		add_action( 'fct_admin_load_records',  array( $this, 'bulk_insert_records' ), 9 ); // Before fct_admin_setup_list_table
+
 		// Add some general styling to the admin area
 		add_action( 'fct_admin_head', array( $this, 'admin_head' ) );
 
@@ -904,6 +907,50 @@ class Fiscaat_Records_Admin {
 
 		// Return manipulated query_vars
 		return apply_filters( 'fct_admin_records_request', $query_vars );
+	}
+
+	/** Insert Records ********************************************************/
+
+	/**
+	 * Process the records to be bulk inserted
+	 *
+	 * @since 0.0.9
+	 * 
+	 * @uses wp_verify_nonce()
+	 * @uses current_user_can()
+	 * @uses fct_bulk_insert_records()
+	 * @uses wp_redirect()
+	 */
+	public function bulk_insert_records() {
+
+		// Bail when nonce does not check
+		if ( ! isset( $_REQUEST['_wpnonce'] ) || ! wp_verify_nonce( $_REQUEST['_wpnonce'], 'bulk-insert-records' ) )
+			return;
+
+		// Bail when user is not capable
+		if ( ! current_user_can( 'create_records' ) || ! current_user_can( 'edit_records' ) )
+			return;
+
+		// Fetch records, transform them and insert/update 'em
+		$record_ids = fct_bulk_insert_records();
+
+		// Something went wrong
+		if ( fct_has_errors() ) {
+			/**
+			 * Do not redirect the page after this point to ensure the $_REQUEST
+			 * data and errors are properly reported on the rendered page. The
+			 * unset global var is used in {@link fct_admin_setup_list_table()}.
+			 */
+			unset( $_REQUEST['_wp_http_referer'] );
+
+		// Redirect when successful
+		} elseif ( ! empty( $record_ids ) ) {
+			$args = array( 'records' => count( $record_ids ) );
+			if ( fct_admin_is_edit_records() ) 
+				$args['edit'] = 1;
+			wp_redirect( add_query_arg( $args, wp_get_referer() ) );
+			exit;
+		}
 	}
 
 	/** Post Actions **********************************************************/
