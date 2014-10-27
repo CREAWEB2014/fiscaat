@@ -42,6 +42,13 @@ jQuery(document).ready( function($) {
 		});
 	});
 
+	/** Select Record Date ****************************************************/
+
+	// jQuery UI Datepicker fields
+	$( '.datepicker' ).datepicker({
+		dateFormat: 'dd-mm-yy' // To be replaced with a converted i10n global setting
+	});
+
 	/** Inserting Records *****************************************************/
 
 	var $table = $( '.widefat.records' );

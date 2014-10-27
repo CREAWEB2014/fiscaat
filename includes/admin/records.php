@@ -387,14 +387,21 @@ class Fiscaat_Records_Admin {
 		if ( $this->bail() ) 
 			return;
 
+		// Get Fiscaat
 		$fct = fiscaat();
 
+		// Desktop only
 		if ( ! wp_is_mobile() ) {
 			wp_enqueue_script( 'fct-table-scroll', $fct->admin->admin_url . 'js/table-scroll.js', array( 'jquery' ), $fct->version, 1 );
 		}
 
+		// Records
 		if ( fct_admin_is_new_records() ) {
-			wp_enqueue_script( 'fct-records', $fct->admin->admin_url .'js/records.js', array( 'jquery' ), $fct->version, 1 );
+			wp_enqueue_script( 'fct-records', $fct->admin->admin_url . 'js/records.js', array( 'jquery', 'jquery-ui-datepicker' ), $fct->version, 1 );
+
+			// Fetch jQuery UI styles from Google CDN
+			wp_enqueue_style( 'jquery-ui', '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css' );
+			wp_enqueue_style( 'jquery-ui-datepicker', $fct->admin->admin_url . 'css/jquery-ui-datepicker.css' );
 		}
 
 		// Get record modes
@@ -404,6 +411,16 @@ class Fiscaat_Records_Admin {
 
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
+
+			.fct_record_dates:before {
+				line-height: 1.4em;
+				margin-right: 3px;
+			}
+
+			#fct_record_date_from,
+			#fct_record_date_to {
+				width: 93px;
+			}
 
 			strong.label {
 				display: inline-block;
@@ -418,7 +435,7 @@ class Fiscaat_Records_Admin {
 
 			.widefat .column-fct_record_post_date,
 			.widefat .column-fct_record_date {
-				width: 106px;
+				width: 85px;
 			}
 
 				.fct_record_dates {
@@ -756,15 +773,15 @@ class Fiscaat_Records_Admin {
 
 		// Show the queried record dates
 		/* translators: 1: Select records start date field, 2: Select records end date field */
-		printf( '<span class="fct_record_dates">' . __( 'From %1$s to %2$s', 'fiscaat' ) . '</span>', 
-			sprintf( '<input id="fct_record_date_from" type="date" name="date_from" class="fct_record_date" value="%1$s" placeholder="%2$s" %3$s/>',
+		printf( '<span class="fct_record_dates dashicons-before dashicons-calendar-alt">' . _x( '%1$s - %2$s', 'Start date to end date', 'fiscaat' ) . '</span>', 
+			sprintf( '<input id="fct_record_date_from" type="text" name="date_from" class="fct_record_date datepicker" value="%1$s" placeholder="%2$s" %3$s/>',
 				! empty( $_REQUEST['date_from'] ) ? $_REQUEST['date_from'] : '', // Date value
-				_x( 'yyyy-mm-dd', 'date input field format', 'fiscaat' ),        // Date placeholder
+				_x( 'dd-mm-yyyy', 'date input field format', 'fiscaat' ),        // Date placeholder
 				fct_get_tab_index_attr()                                         // Tabindex
 			), 
-			sprintf( '<input id="fct_record_date_to" type="date" name="date_to" class="fct_record_date" value="%1$s" placeholder="%2$s" %3$s/>',
+			sprintf( '<input id="fct_record_date_to" type="text" name="date_to" class="fct_record_date datepicker" value="%1$s" placeholder="%2$s" %3$s/>',
 				! empty( $_REQUEST['date_to'] ) ? $_REQUEST['date_to'] : '', // Date value
-				_x( 'yyyy-mm-dd', 'date input field format', 'fiscaat' ),    // Date placeholder
+				_x( 'dd-mm-yyyy', 'date input field format', 'fiscaat' ),    // Date placeholder
 				fct_get_tab_index_attr()                                     // Tabindex
 		) );
 	}
