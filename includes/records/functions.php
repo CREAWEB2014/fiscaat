@@ -691,25 +691,22 @@ function fct_get_record_types() {
  * @uses fct_transform_records_input()
  * @uses fct_sanitize_record_data()
  * 
- * @param string|array $input The argument to pass to {@link fct_transform_records_input()}
+ * @param array $records The records data to insert
  * @param bool $is_edit Optional. Whether the records are being edited. Defaults to false
  * @return array|WP_Error Inserted record ids or an error object
  */
-function fct_bulk_insert_records( $input = 'records', $is_edit = false ) {
+function fct_bulk_insert_records( $records = array(), $is_edit = false ) {
 
 	// Bail when user is not capable
 	if ( ! current_user_can( 'create_records' ) || ! current_user_can( 'edit_records' ) )
 		return;
 
-	// Get the records input data
-	$records_data = fct_transform_records_input( $input );
-
 	// Bail when there's nothing to insert or errors already exist (from elsewhere?)
-	if ( empty( $records_data ) || fct_has_errors() )
+	if ( empty( $records ) || ! is_array( $records ) || fct_has_errors() )
 		return;
 
 	// Sanitize record data
-	$records = array_walk( $records_data, 'fct_sanitize_record_data', $is_edit );
+	array_walk( $records, 'fct_sanitize_record_data', $is_edit );
 
 	// Register error when the amount sums are not equal
 	if ( array_sum( array_map( 'floatval', wp_list_pluck( wp_list_filter( $records, array( 'record_type' => fct_get_debit_record_type_id()  ) ), 'amount' ) ) )
@@ -778,11 +775,14 @@ function fct_bulk_insert_records( $input = 'records', $is_edit = false ) {
  */
 function fct_transform_records_input( $input = array(), $data_map = array() ) {
 
+	// Define global variable(s)
+	$input_key = false;
+
 	// Get records to process
 	if ( ! is_array( $input ) ) {
 		// Get request input key. Defaults to 'records'
-		$key   = is_string( $input ) && ! empty( $input ) ? $input : 'records';
-		$input = ! empty( $_REQUEST[ $key ] ) ? (array) $_REQUEST[ $key ] : array();
+		$input_key = is_string( $input ) && ! empty( $input ) ? $input : 'records';
+		$input     = ! empty( $_REQUEST[ $input_key ] ) ? (array) $_REQUEST[ $input_key ] : array();
 	} 
 
 	// Nothing to process
@@ -799,7 +799,7 @@ function fct_transform_records_input( $input = array(), $data_map = array() ) {
 		'account_id'          => 'account_id',
 		'record_date'         => 'record_date',
 		'record_type'         => 'amount',
-		'amount'              => array( 'amount' => fct_get_record_types() ),
+		'amount'              => array( 'amount' => array_keys( fct_get_record_types() ) ),
 		'offset_account'      => 'offset_account',
 	), 'transform_records_input' );
 
@@ -946,7 +946,7 @@ function fct_sanitize_record_data( $data, $record_id = false, $is_edit = false )
 				break;
 			case 'record_type' :
 				// Record type does not exist
-				if ( ! in_array( $input, fct_get_record_types() ) ) {
+				if ( ! in_array( $input, array_keys( fct_get_record_types() ) ) ) {
 					$valid = false;
 				}
 				break;
@@ -1095,7 +1095,7 @@ function fct_bulk_insert_records_notices() {
 	// Define local variable(s)	
 	$labels   = fct_get_record_field_labels();
 	$messages = array(
-		'missing' => __( '<a href="%2$s">This record</a> is missing the following field(s): %1$s',  'fiscaat' ),
+		'missing' => __( '<a href="%2$s">This record</a> is missing the following field(s): %1$s',             'fiscaat' ),
 		'invalid' => __( '<a href="%2$s">This record</a> has invalid values for the following field(s): %1$s', 'fiscaat' )
 	);
 

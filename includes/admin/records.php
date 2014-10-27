@@ -918,6 +918,7 @@ class Fiscaat_Records_Admin {
 	 * 
 	 * @uses wp_verify_nonce()
 	 * @uses current_user_can()
+	 * @uses fct_transform_records_input()
 	 * @uses fct_bulk_insert_records()
 	 * @uses wp_redirect()
 	 */
@@ -931,15 +932,24 @@ class Fiscaat_Records_Admin {
 		if ( ! current_user_can( 'create_records' ) || ! current_user_can( 'edit_records' ) )
 			return;
 
+		// Get the records input data
+		$data = fct_transform_records_input( 'records' );
+
 		// Fetch records, transform them and insert/update 'em
-		$record_ids = fct_bulk_insert_records();
+		$record_ids = fct_bulk_insert_records( $data );
 
 		// Something went wrong
 		if ( fct_has_errors() ) {
+
+			// Overwrite the request global
+			if ( ! empty( $data ) ) {
+				$_REQUEST[ 'records' ] = $data;
+			}
+
 			/**
 			 * Do not redirect the page after this point to ensure the $_REQUEST
-			 * data and errors are properly reported on the rendered page. The
-			 * unset global var is used in {@link fct_admin_setup_list_table()}.
+			 * data and errors are properly reported on the rendered page. This
+			 * global var is used in {@link fct_admin_setup_list_table()} to redirect.
 			 */
 			unset( $_REQUEST['_wp_http_referer'] );
 
