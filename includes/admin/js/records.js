@@ -49,6 +49,11 @@ jQuery(document).ready( function($) {
 		dateFormat: 'dd-mm-yy' // To be replaced with a converted i10n global setting
 	});
 
+	// Open datepicker on calendar button
+	$( '.fct_record_dates i' ).on( 'click', function() {
+		$(this).siblings( '.datepicker' ).first().focus();
+	});
+
 	/** Inserting Records *****************************************************/
 
 	var $table = $( '.widefat.records' );
