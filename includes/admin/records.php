@@ -592,46 +592,6 @@ class Fiscaat_Records_Admin {
 		/*]]>*/
 		</style>
 
-		<script type="text/javascript">
-
-			/* Connect primary account id and ledger id dropdowns */
-			jQuery(document).ready(function($) {
-
-				// Get the dropdowns: list table filters, new records accounts, and the Edit Record page
-				var dropdowns = [ 
-					$( 'select#fct_ledger_id_filter, select.fct_record_ledger_id, select#fct_record_account_ledger_id' ), // Ledger dropdowns
-					$( 'select#fct_account_id_filter, select.fct_record_account_id, select#parent_id' ) // Account dropdowns
-				];
-
-				// Make dropdowns listen to their co-dropdown
-				$.each( dropdowns, function( i ){
-					// For each change in a dropdown of the one kind, change the 
-					// matching dropdown of the other kind.
-					$.each( this, function( j ) {
-						var $this = $(this),
-						    other = false;
-
-						$this.change( function(){
-							// Find corresponding dropdown option
-							if ( 0 === i ) {
-								other = $( 'option', dropdowns[1][j] ).filter( function(){ return $this.val() == $(this).data('ledger_id'); } );
-							} else {
-								other = $( 'option', dropdowns[0][j] ).filter( function(){ return $this.find('option:selected').data('ledger_id') == this.value; } );
-							}
-
-							// Mark the match as selected
-							if ( !! other.length ) {
-								other.prop( 'selected', true );
-							// Reset dropdown: select the first element
-							} else {
-								$( 'option', dropdowns[ 0 === i ? 1 : 0 ][j] ).first().prop( 'selected', true );
-							}
-						});
-					});
-				});
-			});
-		</script>
-
 		<?php
 	}
 
