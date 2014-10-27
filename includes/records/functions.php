@@ -775,9 +775,6 @@ function fct_bulk_insert_records( $records = array(), $is_edit = false ) {
  */
 function fct_transform_records_input( $input = array(), $data_map = array() ) {
 
-	// Define global variable(s)
-	$input_key = false;
-
 	// Get records to process
 	if ( ! is_array( $input ) ) {
 		// Get request input key. Defaults to 'records'

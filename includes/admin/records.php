@@ -398,14 +398,11 @@ class Fiscaat_Records_Admin {
 			wp_enqueue_script( 'fct-table-scroll', $fct->admin->admin_url . 'js/table-scroll.js', array( 'jquery' ), $fct->version, 1 );
 		}
 
-		// Records
-		if ( fct_admin_is_new_records() ) {
-			wp_enqueue_script( 'fct-records', $fct->admin->admin_url . 'js/records.js', array( 'jquery', 'jquery-ui-datepicker' ), $fct->version, 1 );
+		wp_enqueue_script( 'fct-records', $fct->admin->admin_url . 'js/records.js', array( 'jquery', 'jquery-ui-datepicker' ), $fct->version, 1 );
 
-			// Fetch jQuery UI styles from Google CDN
-			wp_enqueue_style( 'jquery-ui', '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css' );
-			wp_enqueue_style( 'jquery-ui-datepicker', $fct->admin->admin_url . 'css/jquery-ui-datepicker.css' );
-		}
+		// Fetch jQuery UI styles from Google CDN
+		wp_enqueue_style( 'jquery-ui', '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css' );
+		wp_enqueue_style( 'jquery-ui-datepicker', $fct->admin->admin_url . 'css/jquery-ui-datepicker.css' );
 
 		// Get record modes
 		$view = fct_admin_get_view_records_mode();

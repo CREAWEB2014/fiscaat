@@ -541,8 +541,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			// Record amount
 			case 'fct_record_amount' : ?>
 
-				<input name="records[amount][<?php echo fct_get_debit_record_type_id(); ?>][]"  class="debit_amount small-text"  type="number" step="0.01" min="0" value="" <?php fct_tab_index_attr(); ?>/>
-				<input name="records[amount][<?php echo fct_get_credit_record_type_id(); ?>][]" class="credit_amount small-text" type="number" step="0.01" min="0" value="" <?php fct_tab_index_attr(); ?>/>
+				<input name="records[amount][<?php echo fct_get_debit_record_type_id(); ?>][]"  class="debit_amount small-text"  type="text" value="" <?php fct_tab_index_attr(); ?>/>
+				<input name="records[amount][<?php echo fct_get_credit_record_type_id(); ?>][]" class="credit_amount small-text" type="text" value="" <?php fct_tab_index_attr(); ?>/>
 
 				<?php
 				break;
@@ -661,11 +661,10 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			// Record amount
 			case 'fct_record_amount' :
 				$value = fct_get_record_amount( $record_id ); // Always float
-				$value = fct_get_currency_format( $value );
 				$this->amounts[ fct_get_record_type( $record_id ) ][] = $value; ?>
 
-				<input id="fct_record_<?php echo $record_id; ?>_debit_amount"  class="debit_amount small-text"  type="number" step="0.01" min="0" value="<?php if ( fct_is_debit_record( $record_id )  ){ echo $value; } ?>" readonly />
-				<input id="fct_record_<?php echo $record_id; ?>_credit_amount" class="credit_amount small-text" type="number" step="0.01" min="0" value="<?php if ( fct_is_credit_record( $record_id ) ){ echo $value; } ?>" readonly />
+				<input id="fct_record_<?php echo $record_id; ?>_debit_amount"  class="debit_amount small-text"  type="text" value="<?php if ( fct_is_debit_record( $record_id )  ){ fct_currency_format( $value ); } ?>" readonly />
+				<input id="fct_record_<?php echo $record_id; ?>_credit_amount" class="credit_amount small-text" type="text" value="<?php if ( fct_is_credit_record( $record_id ) ){ fct_currency_format( $value ); } ?>" readonly />
 
 				<?php
 				break;
@@ -787,11 +786,10 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			case 'fct_record_amount' :
 				$_row  = $start ? 'start' : 'end';
 				$value = call_user_func_array( "fct_get_account_{$_row}_value", array( 'account_id' => $account_id ) );
-				$value = fct_get_currency_format( $value );
 				$this->amounts[ $value > 0 ? fct_get_debit_record_type_id() : fct_get_credit_record_type_id() ][] = abs( $value ); ?>
 
-				<input id="fct_account_debit_<?php echo $_row; ?>"  class="debit_amount small-text"  type="number" step="0.01" min="0" value="<?php if ( $value > 0 ) { echo abs( $value ); } ?>" <?php fct_tab_index_attr(); ?> readonly />
-				<input id="fct_account_credit_<?php echo $_row; ?>" class="credit_amount small-text" type="number" step="0.01" min="0" value="<?php if ( $value < 0 ) { echo abs( $value ); } ?>" <?php fct_tab_index_attr(); ?> readonly />
+				<input id="fct_account_debit_<?php echo $_row; ?>"  class="debit_amount small-text"  type="text" value="<?php if ( $value > 0 ) { fct_currency_format( abs( $value ) ); } ?>" <?php fct_tab_index_attr(); ?> readonly />
+				<input id="fct_account_credit_<?php echo $_row; ?>" class="credit_amount small-text" type="text" value="<?php if ( $value < 0 ) { fct_currency_format( abs( $value ) ); } ?>" <?php fct_tab_index_attr(); ?> readonly />
 
 				<?php
 				break;
@@ -841,8 +839,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 				$format = fct_the_currency_format();
 				$placeholder = sprintf( '0%s%s', $format['decimal_point'], str_repeat( '0', $format['decimals'] ) ); ?>
 
-				<input id="fct_records_debit_total"  class="debit_amount fct_record_total small-text"  type="number" step="0.01" min="0" value="<?php fct_currency_format( array_sum( $this->amounts[ fct_get_debit_record_type_id()  ] ) ); ?>" <?php fct_tab_index_attr(); ?> placeholder="<?php echo $placeholder; ?>" readonly />
-				<input id="fct_records_credit_total" class="credit_amount fct_record_total small-text" type="number" step="0.01" min="0" value="<?php fct_currency_format( array_sum( $this->amounts[ fct_get_credit_record_type_id() ] ) ); ?>" <?php fct_tab_index_attr(); ?> placeholder="<?php echo $placeholder; ?>" readonly />
+				<input id="fct_records_debit_total"  class="debit_amount fct_record_total small-text"  type="text" value="<?php fct_currency_format( array_sum( $this->amounts[ fct_get_debit_record_type_id()  ] ) ); ?>" <?php fct_tab_index_attr(); ?> placeholder="<?php echo $placeholder; ?>" readonly />
+				<input id="fct_records_credit_total" class="credit_amount fct_record_total small-text" type="text" value="<?php fct_currency_format( array_sum( $this->amounts[ fct_get_credit_record_type_id() ] ) ); ?>" <?php fct_tab_index_attr(); ?> placeholder="<?php echo $placeholder; ?>" readonly />
 
 				<?php
 				break;
