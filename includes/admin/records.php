@@ -578,9 +578,12 @@ class Fiscaat_Records_Admin {
 						}
 
 			.widefat #fct-total-records.mismatch {
-				background: #FF5959;
-				color: #FFFFFF;
+				background: #ff5959;
 			}
+
+				.widefat #fct-total-records.mismatch td {
+					color: #f9f9f9;
+				}
 
 			/** Table scrolling ***********************************************/
 
