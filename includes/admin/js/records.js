@@ -115,7 +115,8 @@ jQuery(document).ready( function($) {
 					// When input is valid
 					if ( isValidNumber( sanitized_value ) || 
 						// When original input was valid but now it is not (i.e. input was emptied)
-						isValidNumber( $this.data( 'originalValue' ) ) ) {
+						isValidNumber( formatNumberFromString( $this.data( 'originalValue' ) ) ) 
+					) {
 
 						// Recalculate this type
 						updateSum( which );
@@ -179,7 +180,7 @@ jQuery(document).ready( function($) {
 	 * @return {Boolean} Value is a valid number
 	 */
 	function isValidNumber( number ) {
-		return ! isNaN( formatNumberFromString( number ) );
+		return ! isNaN( parseFloat( number ) );
 	}
 
 	/**
