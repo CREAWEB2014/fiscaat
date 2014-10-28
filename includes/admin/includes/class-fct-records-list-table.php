@@ -611,6 +611,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 */
 	public function _column_content( $column_name, $record_id ) {
 		$account_id = fct_get_record_account_id( $record_id );
+		$period_id  = fct_get_record_period_id(  $record_id );
 
 		// Check column name
 		switch ( $column_name ) {
@@ -624,7 +625,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			// Record account ledger id
 			case 'fct_record_account_ledger_id' :
 				if ( ! empty( $account_id ) ) {
-					fct_account_ledger_id( $account_id, true );
+					$ledger_id = fct_get_account_ledger_id( $account_id );
+					printf( '<a href="%s">%s</a>', add_query_arg( array( 'page' => 'fct-records', 'ledger_id' => $ledger_id, 'period_id' => $period_id ), admin_url( 'admin.php' ) ), $ledger_id );
 				}
 				break;
 
@@ -634,6 +636,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 					$account_title = fct_get_account_title( $account_id );
 					if ( empty( $account_title ) ) {
 						$account_title = __( 'No Account', 'fiscaat' );
+					} else {
+						$account_title = sprintf( '<a href="%s">%s</a>', add_query_arg( array( 'page' => 'fct-records', 'account_id' => $account_id, 'period_id' => $period_id ), admin_url( 'admin.php' ) ), $account_title );
 					}
 					echo $account_title;
 
@@ -671,17 +675,16 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 			// Record period
 			case 'fct_record_period' :
-				$record_period_id  = fct_get_record_period_id(  $record_id  );
 				$account_period_id = fct_get_account_period_id( $account_id );
 
-				if ( ! empty( $record_period_id ) ) {
-					$period_title = fct_get_period_title( $record_period_id );
+				if ( ! empty( $period_id ) ) {
+					$period_title = fct_get_period_title( $period_id );
 					if ( empty( $period_title ) ) {
 						$period_title = __( 'No Period', 'fiscaat' );
 					}
 
 					// Alert capable users of record period mismatch
-					if ( $record_period_id != $account_period_id ) {
+					if ( $period_id != $account_period_id ) {
 						if ( current_user_can( 'edit_others_records' ) ) {
 							$period_title .= ' <div class="attention">' . __( '(Mismatch)', 'fiscaat' ) . '</div>';
 						}
