@@ -85,9 +85,8 @@ class Fiscaat_Records_Admin {
 		add_action( 'fct_admin_load_new_records',   array( $this, 'missing_redirect' ) );
 		add_action( 'fct_admin_notices',            array( $this, 'missing_notices'  ) );
 
-		// Modify page title
-		add_action( 'fct_admin_records_page_title', array( $this, 'records_page_title' ) );
-		add_action( 'fct_admin_records_page_title', array( $this, 'post_new_link'      ) );
+		// Modify page heading
+		add_action( 'fct_admin_records_page', array( $this, 'page_description' ), 9 );
 
 		/** Redirect **********************************************************/
 
@@ -107,6 +106,10 @@ class Fiscaat_Records_Admin {
 
 		// Record columns (in post row)
 		add_filter( 'fct_admin_records_get_columns', array( $this, 'records_column_headers' )        );
+
+		// Modify page title
+		add_filter( 'fct_admin_records_page_title', array( $this, 'records_page_title' ) );
+		add_filter( 'fct_admin_records_page_title', array( $this, 'post_new_link'      ) );
 	}
 
 	/**
@@ -1246,7 +1249,7 @@ class Fiscaat_Records_Admin {
 		exit;
 	}
 
-	/** Page Title ************************************************************/
+	/** Page Heading **********************************************************/
 
 	/**
 	 * Manipulate the records posts page title
@@ -1262,7 +1265,7 @@ class Fiscaat_Records_Admin {
 	public function records_page_title( $title ) {
 
 		// Account records
-		if ( isset( $_REQUEST['account_id'] ) && ! empty( $_REQUEST['account_id'] ) ) {
+		if ( ! empty( $_REQUEST['account_id'] ) ) {
 
 			// Fetch account id
 			$account_id = fct_get_account_id( $_REQUEST['account_id'] );
@@ -1274,7 +1277,7 @@ class Fiscaat_Records_Admin {
 		}
 
 		// Period records
-		if ( isset( $_REQUEST['period_id'] ) && ! empty( $_REQUEST['period_id'] ) ) {
+		if ( ! empty( $_REQUEST['period_id'] ) ) {
 
 			// Fetch period id
 			$period_id = fct_get_period_id( $_REQUEST['period_id'] );
@@ -1312,6 +1315,30 @@ class Fiscaat_Records_Admin {
 		}
 
 		return $title;
+	}
+
+	/**
+	 * Display the description of the current page's context
+	 *
+	 * @since 0.0.9
+	 *
+	 * @uses fct_get_account_id()
+	 * @uses fct_get_account_content()
+	 */
+	public function page_description() {
+
+		// Account records
+		if ( ! empty( $_REQUEST['account_id'] ) ) {
+
+			// Fetch account id
+			$account_id = fct_get_account_id( $_REQUEST['account_id'] );
+
+			if ( ! empty( $account_id ) ) {
+
+				// Display account description
+				fct_account_content( $account_id );
+			}
+		}
 	}
 }
 

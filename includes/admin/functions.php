@@ -650,10 +650,10 @@ function fct_admin_setup_list_table( $object_type = '' ) {
 	$wp_list_table->prepare_items();
 
 	// Hook to display list table views
-	add_action( "fct_admin_{$object_type}s_page", array( $wp_list_table, 'views' ), 8 );
+	add_action( "fct_admin_{$object_type}s_page", array( $wp_list_table, 'views' ) );
 
 	// Hook to display the list table
-	add_action( "fct_admin_{$object_type}s_page", 'fct_admin_display_list_table' );
+	add_action( "fct_admin_{$object_type}s_page", 'fct_admin_display_list_table', 20 );
 }
 
 /**
