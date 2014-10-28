@@ -415,19 +415,28 @@ class Fiscaat_Records_Admin {
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
 
-			.fct_record_dates > i {
-				line-height: 1.4em;
-				cursor: pointer;
+			.fct_record_dates {
+				float: left;
+				margin-right: 6px;
 			}
 
-			#fct_record_date_from,
-			#fct_record_date_to {
-				width: 93px;
-			}
+				.fct_record_dates > i {
+					line-height: 1.4em;
+					cursor: pointer;
+				}
+
+				.fct_record_dates input {
+					width: 93px;
+				}
 
 			strong.label {
 				display: inline-block;
 				width: 60px;
+			}
+
+			.widefat tr > td {
+				padding: 0 10px;
+				line-height: 46px;
 			}
 
 			.widefat .column-author,
@@ -436,15 +445,17 @@ class Fiscaat_Records_Admin {
 				width: 10%;
 			}
 
-			.widefat .column-fct_record_post_date,
-			.widefat .column-fct_record_date {
-				width: 85px;
+			.<?php echo $view;  ?>-records .widefat .column-fct_record_post_date,
+			.<?php echo $view;  ?>-records .widefat .column-fct_record_date {
+				width: 93px;
 			}
 
-				.fct_record_dates {
-					float: left;
-					margin-right: 6px;
-				}
+			.<?php echo $new;  ?>-records .widefat .column-fct_record_post_date,
+			.<?php echo $edit; ?>-records .widefat .column-fct_record_post_date,
+			.<?php echo $new;  ?>-records .widefat .column-fct_record_date,
+			.<?php echo $edit; ?>-records .widefat .column-fct_record_date {
+				width: 85px;
+			}
 
 			.widefat .column-fct_record_description {
 				min-width: 15%;
@@ -459,7 +470,10 @@ class Fiscaat_Records_Admin {
 				max-width: 193px;
 			}
 
-			.widefat .column-fct_record_account_ledger_id,
+			.widefat .column-fct_record_account_ledger_id {
+				width: 35px;
+			}
+
 			.widefat .column-fct_record_period {
 				width: 10%;
 			}
@@ -485,13 +499,6 @@ class Fiscaat_Records_Admin {
 
 			.status-closed {
 				background-color: #eaeaea;
-			}
-
-			.widefat .start-records .column-fct_record_description,
-			.widefat .end-records   .column-fct_record_description,
-			.widefat .total-records .column-fct_record_description {
-				padding: 0 10px;
-				line-height: 46px;
 			}
 
 			.widefat .total-records > * {
@@ -565,8 +572,6 @@ class Fiscaat_Records_Admin {
 					.<?php echo $new;  ?>-records .widefat .check-column,
 					.<?php echo $edit; ?>-records .widefat .check-column {
 						width: 26px;
-						padding: 0 10px;
-						line-height: 46px;
 						text-align: right;
 					}
 
@@ -828,7 +833,9 @@ class Fiscaat_Records_Admin {
 
 		/** Dates *************************************************************/
 
-		// @todo Needs testing
+		// @todo Needs testing and fixing. Probably better not used with WP_Meta_Query
+		//        http://stackoverflow.com/questions/1861489/converting-a-date-in-mysql-from-string-field
+		//        http://stackoverflow.com/questions/2758486/mysql-compare-date-string-with-string-from-datetime-field
 		// Handle dates
 		if ( ! empty( $_REQUEST['date_from'] ) || ! empty( $_REQUEST['date_to'] ) ) {
 

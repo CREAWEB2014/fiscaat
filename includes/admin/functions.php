@@ -701,7 +701,7 @@ function fct_admin_get_records_mode() {
 
 	// Default empty (view)
 	} else {
-		$mode = '';
+		$mode = fct_admin_get_view_records_mode();
 	}
 
 	return $mode;
