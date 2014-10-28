@@ -439,7 +439,8 @@ class Fiscaat_Records_Admin {
 				width: 60px;
 			}
 
-			.widefat tr > td {
+			.<?php echo $view; ?>-records .widefat tr > td,
+			.widefat .total-records > td {
 				padding: 0 10px;
 				line-height: 46px;
 			}
@@ -450,8 +451,8 @@ class Fiscaat_Records_Admin {
 				width: 10%;
 			}
 
-			.<?php echo $view;  ?>-records .widefat .column-fct_record_post_date,
-			.<?php echo $view;  ?>-records .widefat .column-fct_record_date {
+			.<?php echo $view; ?>-records .widefat .column-fct_record_post_date,
+			.<?php echo $view; ?>-records .widefat .column-fct_record_date {
 				width: 93px;
 			}
 
@@ -559,6 +560,7 @@ class Fiscaat_Records_Admin {
 
 				.widefat input[name="submit-records"] {
 					float: right;
+					margin: 10px 0;
 				}
 
 			.<?php echo $new;  ?>-records .widefat .record td.column-fct_record_description,
