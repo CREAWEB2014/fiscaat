@@ -3,8 +3,19 @@
  *
  * @package Fiscaat
  * @subpackage Administration
+ *
+ * global _fctRecordsL10n
  */
 jQuery(document).ready( function($) {
+	var l10n,
+	    fct = {};
+
+	// Link any localized strings
+	l10n = typeof _fctRecordsL10n === 'undefined' ? {} : _fctRecordsL10n;
+
+	// Link any settings
+	fct.settings = l10n.settings || {};
+	delete l10n.settings;
 
 	/** Select Account ********************************************************/
 
@@ -65,7 +76,8 @@ jQuery(document).ready( function($) {
 	    debit = 'debit',
 	    credit = 'credit',
 	    debitSum = 0,
-	    creditSum = 0;
+	    creditSum = 0,
+	    format = fct.settings.currencyFormat;
 
 	// Listen for changes on debit/credit amount input fields
 	$.each( [ $debits, $credits ], function( i, list ) {
@@ -81,10 +93,10 @@ jQuery(document).ready( function($) {
 				.on( 'blur', function( e ) {
 					var $this = $( this ),
 					    which = list[0].classList.contains( 'debit_amount' ) ? debit : credit,
-					    sanitized_value = formatNumber( this.value );
+					    sanitized_value = formatNumberFromString( this.value );
 
 					// Display properly formatted input
-					$this.val( sanitized_value );
+					$this.val( formatNumberToString( sanitized_value ) );
 
 					// Empty the adjacent input when entry is valid
 					if ( isValidNumber( sanitized_value ) ) {
@@ -123,14 +135,41 @@ jQuery(document).ready( function($) {
 	}
 
 	/**
-	 * Parse the argument as a formatted number for display
+	 * Parse the number as a formatted number for display
 	 * 
 	 * @param  {mixed} number Value to format
-	 * @return {string} Formatted number with 2 digits or empty
+	 * @return {string} Formatted number or empty
 	 */
-	function formatNumber( number ) {
+	function formatNumberToString( number ) {
 		var n = parseFloat( number );
-		return ( ! isNaN( n ) ) ? n.toFixed(2).toString() : '';
+		if ( isNaN( n ) ) {
+			return '';
+		} else {
+			/**
+			 * Based on: Regex by Elias Zamaria 
+			 * @link http://stackoverflow.com/a/2901298/3601434 
+			 */
+			var parts = n.toFixed( format.decimals ).toString().split( '.' );
+			parts[0] = parts[0].replace( /\B(?=(\d{3})+(?!\d))/g, format.thousands_sep );
+			return parts.join( format.decimal_point );
+		}
+	}
+
+	/**
+	 * Parse a float-like formatted string as a number
+	 * 
+	 * @param  {string} string Value to format
+	 * @return {float} Number or empty
+	 */
+	function formatNumberFromString( string ) {
+		var n = parseFloat( string );
+		if ( n.toString() === string ) { // Autodetected original float
+			return n;
+		} else {
+			var parts = string.split( format.decimal_point );
+			parts[0] = parts[0].replace( format.thousands_sep, '' );
+			return parseFloat( parts.join( '.' ) );
+		}
 	}
 
 	/**
@@ -140,7 +179,7 @@ jQuery(document).ready( function($) {
 	 * @return {Boolean} Value is a valid number
 	 */
 	function isValidNumber( number ) {
-		return ! isNaN( parseFloat( number ) );
+		return ! isNaN( formatNumberFromString( number ) );
 	}
 
 	/**
@@ -162,22 +201,22 @@ jQuery(document).ready( function($) {
 		if ( false === which || debit === which ) {
 			debitSum = 0;
 			$debits.filter( function(){ return !! this.value; }).each( function( i, el ){
-				v = parseFloat( el.value );
+				v = formatNumberFromString( el.value );
 				debitSum += ( ! isNaN( v ) ) ? v : 0;
 			});
 
-			$debitSum.val( formatNumber( debitSum ) );
+			$debitSum.val( formatNumberToString( debitSum ) );
 		}
 
 		// Sum credit values
 		if ( false === which || credit === which ) {
 			creditSum = 0;
 			$credits.filter( function(){ return !! this.value; }).each( function( i, el ){
-				v = parseFloat( el.value );
+				v = formatNumberFromString( el.value );
 				creditSum += ( ! isNaN( v ) ) ? v : 0;
 			});
 
-			$creditSum.val( formatNumber( creditSum ) );
+			$creditSum.val( formatNumberToString( creditSum ) );
 		}
 
 		// Handle sum inequality 
@@ -196,5 +235,4 @@ jQuery(document).ready( function($) {
 
 	// Calculate on page load for browsers that keep input values on page refresh
 	updateSum();
-
 });

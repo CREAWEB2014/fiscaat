@@ -402,6 +402,11 @@ class Fiscaat_Records_Admin {
 		}
 
 		wp_enqueue_script( 'fct-records', $fct->admin->admin_url . 'js/records.js', array( 'jquery', 'jquery-ui-datepicker' ), $fct->version, 1 );
+		wp_localize_script( 'fct-records', '_fctRecordsL10n', array(
+			'settings' => array(
+				'currencyFormat' => fct_the_currency_format()
+			)
+		) );
 
 		// Fetch jQuery UI styles from Google CDN
 		wp_enqueue_style( 'jquery-ui', '//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css' );
