@@ -16,27 +16,27 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 *
 	 * @since 0.0.9
 	 * @var int|bool
-	 * @access protected
+	 * @access private
 	 */
-	protected $period_id = false;
+	private $period_id = false;
 
 	/**
 	 * Holds the account ID when querying the account's records
 	 *
 	 * @since 0.0.8
 	 * @var int|bool
-	 * @access protected
+	 * @access private
 	 */
-	protected $account_id = false;
+	private $account_id = false;
 
 	/**
 	 * Holds the displayed debit and credit record amounts
 	 *
 	 * @since 0.0.8
 	 * @var array
-	 * @access protected
+	 * @access private
 	 */
-	protected $amounts = array();
+	private $amounts = array();
 
 	/**
 	 * Constructs the posts list table
@@ -706,7 +706,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @since 0.0.8
 	 *
 	 * @uses do_action() Calls 'fct_admin_records_{$which}_row'
-	 * @param string $which The row name
+	 * @param string $which The row name. Can be either 'start', 'end' or 'total'
 	 */
 	public function display_helper_row( $which = '' ) {
 
@@ -718,6 +718,11 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		$alternate =& $this->alternate;
 		$alternate = 'alternate' == $alternate ? '' : 'alternate';
 		$classes   = "{$alternate} iedit {$which}-records";
+
+		// Append sum mismatch class for total row
+		if ( 'total' == $which && $this->sum_mismatch() ) {
+			$classes .= ' mismatch';
+		}
 
 		list( $columns, $hidden ) = $this->get_column_info(); ?>
 		<tr id="fct-<?php echo $which; ?>-records" class="<?php echo $classes; ?>" valign="top">
@@ -818,8 +823,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			case 'fct_record_description' :
 				$total_title = _x( 'Total', 'Sum of all records', 'fiscaat' );
 
-				// Alert capable users of debit credit mismatch
-				if ( array_sum( $this->amounts[ fct_get_debit_record_type_id() ] ) != array_sum( $this->amounts[ fct_get_credit_record_type_id() ] ) ) {
+				// Alert for sum mismatch
+				if ( $this->sum_mismatch() ) {
 					$total_title .= ' <span class="attention">' . __( '(Mismatch)', 'fiscaat' ) . '</span>';
 				}
 
@@ -839,14 +844,50 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 			// Total amount
 			case 'fct_record_amount' : 
-				$format = fct_the_currency_format();
-				$placeholder = sprintf( '0%s%s', $format['decimal_point'], str_repeat( '0', $format['decimals'] ) ); ?>
+				$placeholder = fct_get_currency_format( 0.00 ); ?>
 
-				<input id="fct_records_debit_total"  class="debit_amount fct_record_total small-text"  type="text" value="<?php fct_currency_format( array_sum( $this->amounts[ fct_get_debit_record_type_id()  ] ) ); ?>" <?php fct_tab_index_attr(); ?> placeholder="<?php echo $placeholder; ?>" readonly />
-				<input id="fct_records_credit_total" class="credit_amount fct_record_total small-text" type="text" value="<?php fct_currency_format( array_sum( $this->amounts[ fct_get_credit_record_type_id() ] ) ); ?>" <?php fct_tab_index_attr(); ?> placeholder="<?php echo $placeholder; ?>" readonly />
+				<input id="fct_records_debit_total"  class="debit_amount fct_record_total small-text"  type="text" value="<?php fct_currency_format( $this->get_debit_sum()  ); ?>" <?php fct_tab_index_attr(); ?> placeholder="<?php echo $placeholder; ?>" readonly />
+				<input id="fct_records_credit_total" class="credit_amount fct_record_total small-text" type="text" value="<?php fct_currency_format( $this->get_credit_sum() ); ?>" <?php fct_tab_index_attr(); ?> placeholder="<?php echo $placeholder; ?>" readonly />
 
 				<?php
 				break;
 		}
+	}
+
+	/**
+	 * Return the current debit amount sum
+	 * 
+	 * @since 0.0.9
+	 * 
+	 * @uses fct_get_debit_record_type_id()
+	 * @return float Debit amount sum
+	 */
+	public function get_debit_sum() {
+		return (float) array_sum( $this->amounts[ fct_get_debit_record_type_id() ] );
+	}
+
+	/**
+	 * Return the current credit amount sum
+	 * 
+	 * @since 0.0.9
+	 * 
+	 * @uses fct_get_credit_record_type_id()
+	 * @return float Credit amount sum
+	 */
+	public function get_credit_sum() {
+		return (float) array_sum( $this->amounts[ fct_get_credit_record_type_id() ] );
+	}
+
+	/**
+	 * Return whether the amount sums do not match
+	 *
+	 * @since 0.0.9
+	 *
+	 * @uses FCT_Records_List_Table::get_debit_sum()
+	 * @uses FCT_Records_List_Table::get_credit_sum()
+	 * @return bool Sums do not match
+	 */
+	public function sum_mismatch() {
+		return $this->get_debit_sum() != $this->get_credit_sum();
 	}
 }
