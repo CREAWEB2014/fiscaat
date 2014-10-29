@@ -792,12 +792,19 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 			// Row account amount
 			case 'fct_record_amount' :
-				$_row  = $start ? 'start' : 'end';
-				$value = call_user_func_array( "fct_get_account_{$_row}_value", array( 'account_id' => $account_id ) );
+				$row   = $start ? 'start' : 'end';
+				$value = call_user_func_array( "fct_get_account_{$row}_value", array( 'account_id' => $account_id ) );
+
+				// Update skewed end value on the fly
+				if ( 'end' == $row && $this->get_sum_diff() != $value ) {
+					$value = $this->get_sum_diff();
+					fct_update_account_end_value( $account_id, $value );
+				}
+
 				$this->amounts[ $value > 0 ? fct_get_debit_record_type_id() : fct_get_credit_record_type_id() ][] = abs( $value ); ?>
 
-				<input id="fct_account_debit_<?php echo $_row; ?>"  class="debit_amount small-text"  type="text" value="<?php if ( $value > 0 ) { fct_currency_format( abs( $value ) ); } ?>" <?php fct_tab_index_attr(); ?> readonly />
-				<input id="fct_account_credit_<?php echo $_row; ?>" class="credit_amount small-text" type="text" value="<?php if ( $value < 0 ) { fct_currency_format( abs( $value ) ); } ?>" <?php fct_tab_index_attr(); ?> readonly />
+				<input id="fct_account_debit_<?php echo $row; ?>"  class="debit_amount small-text"  type="text" value="<?php if ( $value > 0 ) { fct_currency_format( abs( $value ) ); } ?>" <?php fct_tab_index_attr(); ?> readonly />
+				<input id="fct_account_credit_<?php echo $row; ?>" class="credit_amount small-text" type="text" value="<?php if ( $value < 0 ) { fct_currency_format( abs( $value ) ); } ?>" <?php fct_tab_index_attr(); ?> readonly />
 
 				<?php
 				break;
@@ -876,6 +883,19 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 */
 	public function get_credit_sum() {
 		return (float) array_sum( $this->amounts[ fct_get_credit_record_type_id() ] );
+	}
+
+	/**
+	 * Return the amount sum difference: credit minus debit
+	 *
+	 * @since 0.0.9
+	 *
+	 * @uses FCT_Records_List_Table::get_debit_sum()
+	 * @uses FCT_Records_List_Table::get_credit_sum()
+	 * @return float Sum difference
+	 */
+	public function get_sum_diff() {
+		return (float) ( $this->get_credit_sum() - $this->get_debit_sum() );
 	}
 
 	/**
