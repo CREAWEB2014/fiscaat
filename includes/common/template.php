@@ -1782,7 +1782,7 @@ function fct_currency_format( $number = 0, $curr_pos = false ) {
 	function fct_get_currency_format( $number = 0, $curr_pos = false ) {
 
 		// Parse float
-		$number = fct_float_format( $number );
+		$number = fct_float_format_from_string( $number );
 
 		// Parse currency format		
 		$format = fct_the_currency_format();

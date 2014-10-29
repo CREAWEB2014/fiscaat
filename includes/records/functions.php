@@ -949,11 +949,12 @@ function fct_sanitize_record_data( $data, $record_id = false, $is_edit = false )
 				}
 				break;
 			case 'amount' :
-				// Positive float
-				if ( ! is_numeric( $input ) || abs( $input ) != $input ) {
+				// Format value to float
+				$formatted = fct_float_format_from_string( $input );
+				if ( ! is_numeric( $formatted ) || empty( $formatted ) ) {
 					$valid = false;
 				} else {
-					$input = (float) $input;
+					$input = $formatted;
 				}
 				break;
 			default :

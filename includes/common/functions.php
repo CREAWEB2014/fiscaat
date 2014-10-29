@@ -81,11 +81,11 @@ function fct_number_format_i18n( $number = 0, $decimals = false ) {
  * @param string $value Value to format
  * @uses fct_the_currency_format() To get the currency format
  * @uses fct_get_currency() To get the currency detail
- * @uses apply_filters() Calls 'fct_float_format' with the
+ * @uses apply_filters() Calls 'fct_float_format_from_string' with the
  *                        floated value and currency format
  * @return float Floated value
  */
-function fct_float_format( $value = '' ) {
+function fct_float_format_from_string( $value = '' ) {
 
 	// Get currency format details
 	$format = fct_the_currency_format();
@@ -93,21 +93,24 @@ function fct_float_format( $value = '' ) {
 	// Remove currency symbol if present
 	$value = str_replace( fct_get_currency_symbol(), '', $value );
 
-	// Value may already be a float. If not ...
-	if ( (string) (float) $value !== $value ) {
-
-		// ... Remove thousands separators
-		$value = str_replace( $format['thousands_sep'], '', $value );
-
-		// ... Change decimal separator to dot
-		$value = str_replace( $format['decimal_point'], '.', $value );
-	}
-
 	// Remove whitespace
 	$value = trim( $value );
 
+	// Value may already be a float. If not ...
+	if ( (string) (float) $value !== $value ) {
+
+		// ... Separate by decimal point
+		$parts = explode( $format['decimal_point'], $value );
+
+		// ... Remove thousands separators
+		$parts[0] = str_replace( $format['thousands_sep'], '', $parts[0] );
+
+		// ... Combine again with a dot
+		$value = implode( '.', $parts );
+	}
+
 	// Return value as float
-	return (float) apply_filters( 'fct_float_format', $value );
+	return (float) apply_filters( 'fct_float_format_from_string', (float) $value );
 }
 
 /**
