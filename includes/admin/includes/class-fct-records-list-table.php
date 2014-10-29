@@ -618,7 +618,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 			// Record post date
 			case 'fct_record_post_date':
-				$date = get_post_time( 'Y-m-d H:i:s', true, $record_id );
+				$date = get_post_time( 'Y-m-d H:i:s', false, $record_id );
 				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date ) . '">' . mysql2date( _x( 'd/m/Y', 'Record date display format', 'fiscaat' ), $date ) . '</abbr>';
 				break;
 
