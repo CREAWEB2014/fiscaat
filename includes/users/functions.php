@@ -299,6 +299,16 @@ function fct_get_total_spectators() {
  */
 function fct_admin_bar_menu( $wp_admin_bar ) {
 
+	// Overwrite New Records href
+	if ( $wp_admin_bar->get_node( 'new-' . fct_get_record_post_type() ) ) {
+		$wp_admin_bar->add_node( array( 
+			'id'     => 'new-' . fct_get_record_post_type(), 
+			'parent' => 'new-content',
+			'title'  => get_post_type_object( fct_get_record_post_type() )->labels->name_admin_bar,
+			'href'   => admin_url( 'admin.php?page=fct-records&mode=' . fct_admin_get_new_records_mode() )
+		) );
+	}
+
 	// Bail if not on the front-end or user is not capable
 	if ( is_admin() || ! current_user_can( 'fct_spectate' ) )
 		return;
