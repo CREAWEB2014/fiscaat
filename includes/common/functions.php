@@ -76,7 +76,7 @@ function fct_number_format_i18n( $number = 0, $decimals = false ) {
 }
 
 /**
- * A Fiscaat specific method of formatting currency values to float
+ * A Fiscaat specific method of formatting currency strings to float
  * 
  * @param string $value Value to format
  * @uses fct_the_currency_format() To get the currency format
@@ -118,16 +118,12 @@ function fct_float_format( $value = '' ) {
  *                        and translate bool
  *
  * @param int|object $time The database time to be converted
- * @param string $d Optional. Default is 'U'. Either 'G', 'U', or php date
- *                   format
- * @param bool $translate Optional. Default is false. Whether to translate the
- *                         result
+ * @param string $d Optional. Default is 'U'. Either 'G', 'U', or php date format
+ * @param bool $translate Optional. Default is false. Whether to translate the result
  * @return string Returns timestamp
  */
 function fct_convert_date( $time, $d = 'U', $translate = false ) {
-	$time = mysql2date( $d, $time, $translate );
-
-	return apply_filters( 'fct_convert_date', $time, $d, $translate );
+	return apply_filters( 'fct_convert_date', mysql2date( $d, $time, $translate ), $d, $translate );
 }
 
 /**

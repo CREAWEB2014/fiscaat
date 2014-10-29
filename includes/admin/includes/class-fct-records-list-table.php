@@ -618,8 +618,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 			// Record post date
 			case 'fct_record_post_date':
-				$date = get_post_time( 'U', $record_id );
-				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date ) . '">' . apply_filters( 'post_date_column_time', mysql2date( __( 'd/m/Y', 'fiscaat' ), $date ), $record_id, $column_name, 'list' ) . '</abbr>';
+				$date = get_post_time( 'Y-m-d H:i:s', true, $record_id );
+				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date ) . '">' . mysql2date( _x( 'd/m/Y', 'Record date display format', 'fiscaat' ), $date ) . '</abbr>';
 				break;
 
 			// Record account ledger id
@@ -654,7 +654,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			// Record date
 			case 'fct_record_date':
 				$date = fct_get_record_date( $record_id );
-				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date ) . '">' . apply_filters( 'post_date_column_time', mysql2date( __( 'd/m/Y', 'fiscaat' ), $date ), $record_id, $column_name, 'list' ) . '</abbr>';
+				echo '<abbr title="' . mysql2date( __( 'Y/m/d g:i:s A' ), $date ) . '">' . mysql2date( _x( 'd/m/Y', 'Record date display format', 'fiscaat' ), $date ) . '</abbr>';
 				break;
 
 			// Record offset account

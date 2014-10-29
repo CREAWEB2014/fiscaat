@@ -20,12 +20,12 @@ defined( 'ABSPATH' ) || exit;
  */
 function fct_get_record_default_meta(){
 	return apply_filters( 'fct_get_record_default_meta', array(
-		'period_id'      => fct_get_current_period_id(), // Period
-		'account_id'     => 0,                           // Account
-		'record_date'    => fct_current_time(),          // Physical record date
-		'record_type'    => '',                          // 'debit' or 'credit'
-		'amount'         => 0,                           // Amount
-		'offset_account' => '',                          // Bank account received from or sent to
+		'period_id'      => fct_get_current_period_id(),       // Period
+		'account_id'     => 0,                                 // Account
+		'record_date'    => fct_current_time( 'mysql', true ), // Physical record date GMT
+		'record_type'    => '',                                // 'debit' or 'credit'
+		'amount'         => 0,                                 // Amount
+		'offset_account' => '',                                // Bank account received from or sent to
 
 		/**
 		 * Suggested single-entry record meta schema
@@ -277,9 +277,10 @@ function fct_update_record_account_id( $record_id = 0, $account_id = 0 ) {
  *
  * @param int $record_id Optional. Record id
  * @param int $record_date Optional. Record date
+ * @param bool $gmt Optional. Whether the provided value uses GMT
  * @return boolean False
  */
-function fct_update_record_date( $record_id = 0, $record_date = '' ) {
+function fct_update_record_date( $record_id = 0, $record_date = '', $gmt = false ) {
 
 	// Bail if record already exists: cannot update value
 	if ( fct_is_record( $record_id ) ) {
@@ -296,7 +297,7 @@ function fct_update_record_date( $record_id = 0, $record_date = '' ) {
 	} else {
 
 		// Parse mysql date
-		$record_date = gmdate( 'Y-m-d H:i:s', $record_date );
+		$record_date = call_user_func_array( ! $gmt ? 'gmdate' : 'date', array( 'Y-m-d H:i:s', $record_date ) );
 
 		// Update meta
 		fct_update_record_meta( $record_id, 'record_date', $record_date );
