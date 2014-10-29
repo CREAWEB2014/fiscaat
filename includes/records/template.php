@@ -547,8 +547,8 @@ function fct_record_post_date( $record_id = 0, $humanize = false, $gmt = false )
 
 		// 4 days, 4 hours ago
 		if ( ! empty( $humanize ) ) {
-			$gmt    = ! empty( $gmt ) ? 'G' : 'U';
-			$date   = get_post_time( $gmt, $record_id );
+			$format = ! empty( $gmt ) ? 'G' : 'U';
+			$date   = get_post_time( $format, $gmt, $record_id );
 			$time   = false; // For filter below
 			$result = fct_time_since( $date );
 
@@ -907,9 +907,10 @@ function fct_is_record_period_closed( $record_id = 0 ) {
  * @uses fct_get_record_date() To get the record date
  * 
  * @param int $record_id Optional. Record id
+ * @param bool $gmt Optional. Use GMT
  */
-function fct_record_date( $record_id = 0 ) {
-	echo fct_get_record_date( $record_id );
+function fct_record_date( $record_id = 0, $gmt = false ) {
+	echo fct_get_record_date( $record_id, $gmt );
 }
 
 	/**
@@ -923,17 +924,48 @@ function fct_record_date( $record_id = 0 ) {
 	 *                        id and record id
 	 *
 	 * @param int $record_id Optional. Record id
+	 * @param bool $gmt Optional. Use GMT
 	 * @return string Record's date
 	 */
-	function fct_get_record_date( $record_id = 0 ) {
+	function fct_get_record_date( $record_id = 0, $gmt = false ) {
 		$record_id = fct_get_record_id( $record_id );
 		$date      = fct_get_record_meta( $record_id, 'record_date' );
 
-		if ( empty( $date ) ) {
+		// Define date
+		if ( ! empty( $date ) ) {
+
+			// Default value is in GMT
+			$date = new DateTime( $date, new DateTimeZone( 'GMT' ) );
+
+			// Undo GMT
+			if ( ! $gmt ) {
+				/**
+				 * @see wp-admin/options-general.php#L147
+				 */
+				$current_offset = get_option('gmt_offset');
+				$tzstring = get_option('timezone_string');
+
+				// Create a UTC+- zone if no timezone string exists
+				if ( empty($tzstring) ) { 
+					if ( 0 == $current_offset ) {
+						$tzstring = 'UTC+0';
+					} elseif ( $current_offset < 0 ) {
+						$tzstring = 'UTC' . $current_offset;
+					} else {
+						$tzstring = 'UTC+' . $current_offset;
+					}
+				}
+
+				$date->setTimezone( new DateTimeZone( $tzstring ) );
+			}
+
+			// Get the proper date format
+			$date = $date->format( 'Y-m-d H:i:s' );
+		} else {
 			$date = '';
 		}
 
-		return apply_filters( 'fct_get_record_date', $date, $record_id );
+		return apply_filters( 'fct_get_record_date', $date, $record_id, $gmt );
 	}
 
 /**
