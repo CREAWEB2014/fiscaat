@@ -63,6 +63,7 @@ class Fiscaat_Records_Admin {
 
 		// Insert Records
 		add_action( 'fct_admin_load_records',  array( $this, 'bulk_insert_records' ), 9 ); // Before fct_admin_setup_list_table
+		add_action( 'fct_admin_notices',       array( $this, 'bulk_insert_notices' ) );
 
 		// Add some general styling to the admin area
 		add_action( 'fct_admin_head', array( $this, 'admin_head' ) );
@@ -974,9 +975,42 @@ class Fiscaat_Records_Admin {
 		} elseif ( ! empty( $record_ids ) ) {
 			$args = array( 'records' => count( $record_ids ) );
 			if ( fct_admin_is_edit_records() ) 
-				$args['edit'] = 1;
+				$args['edited'] = 1;
 			wp_redirect( add_query_arg( $args, wp_get_referer() ) );
 			exit;
+		}
+	}
+
+	/**
+	 * Display notices from the bulk insert records response
+	 *
+	 * @since 0.0.9
+	 */
+	public function bulk_insert_notices() {
+		if ( $this->bail() ) 
+			return;
+
+		// Only proceed if GET is a record toggle action
+		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_REQUEST['records'] ) ) {
+			$records = (int) $_REQUEST['records'];     // How many records?
+			$is_edit = ! empty( $_REQUEST['edited'] ); // Were they edited?
+
+			// Empty?
+			if ( empty( $records ) )
+				return;
+
+			// Edited?
+			if ( ! $is_edit ) {
+				$message = sprintf( __( '%d new records were created.', 'fiscaat' ), $records );
+			} else {
+				$message = sprintf( __( '%d records were edited.', 'fiscaat' ), $records );
+			} ?>
+
+			<div id="message" class="updated fade">
+				<p style="line-height: 150%"><?php echo $message; ?></p>
+			</div>
+
+			<?php
 		}
 	}
 
@@ -1067,8 +1101,8 @@ class Fiscaat_Records_Admin {
 		// Only proceed if GET is a record toggle action
 		if ( 'GET' == $_SERVER['REQUEST_METHOD'] && ! empty( $_REQUEST['fct_record_toggle_notice'] ) && in_array( $_REQUEST['fct_record_toggle_notice'], array( 'spammed', 'unspammed' ) ) && ! empty( $_REQUEST['record_id'] ) ) {
 			$notice     = $_REQUEST['fct_record_toggle_notice'];         // Which notice?
-			$record_id  = (int) $_REQUEST['record_id'];                  // What's the record id?
-			$is_failure = ! empty( $_REQUEST['failed'] ) ? true : false; // Was that a failure?
+			$record_id  = (int) $_REQUEST['record_id'];   // What's the record id?
+			$is_failure = ! empty( $_REQUEST['failed'] ); // Was that a failure?
 
 			// Empty? No record?
 			if ( empty( $notice ) || empty( $record_id ) )
