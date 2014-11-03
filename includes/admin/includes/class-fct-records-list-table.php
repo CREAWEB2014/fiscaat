@@ -260,11 +260,11 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 				// @todo Fix sorting by account ledger id.
 				// @see Fiscaat_Records_Admin::filter_post_rows()
-				// 'fct_record_account_ledger_id' => 'record_account_ledger_id',
+				// 'fct_record_account_ledger_id' => 'ledger_id',
 
 				'fct_record_account'           => 'parent',
-				'fct_record_offset_account'    => 'record_offset_account',
-				'fct_record_amount'            => 'record_amount',
+				'fct_record_offset_account'    => 'offset_account',
+				'fct_record_amount'            => 'amount',
 			);
 		}
 

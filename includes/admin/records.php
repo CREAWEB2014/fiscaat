@@ -896,19 +896,19 @@ class Fiscaat_Records_Admin {
 
 				// Record account ledger id.
 				// Order by parent's _fct_ledger_id meta key
-				// case 'record_account_ledger_id' :
+				// case 'ledger_id' :
 				// 	$query_vars['meta_key'] = '_fct_account_id';
 				// 	$query_vars['orderby']  = 'meta_value_num';
 				// 	break;
 
 				// Record offset account
-				case 'record_offset_acount' :
+				case 'offset_acount' :
 					$query_vars['meta_key'] = '_fct_offset_account';
 					$query_vars['orderby']  = 'meta_value';
 					break;
 
 				// Record value
-				case 'record_amount' :
+				case 'amount' :
 					$query_vars['meta_key'] = '_fct_amount';
 					$query_vars['orderby']  = 'meta_value_num';
 					break;
