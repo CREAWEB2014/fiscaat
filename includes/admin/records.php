@@ -428,6 +428,7 @@ class Fiscaat_Records_Admin {
 				float: left;
 			}
 
+			.tablenav .alignleft input[type="search"],
 			.fct_record_dates {
 				margin-right: 6px;
 			}
