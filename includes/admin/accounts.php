@@ -468,6 +468,8 @@ class Fiscaat_Accounts_Admin {
 	 * @uses wp_send_json_success() To return that no account was found
 	 */
 	public function check_ledger_id() {
+		global $wpdb;
+
 		$period_id = fct_get_account_period_id( (int) $_REQUEST['account_id'] );
 		$period_id = fct_get_period_id( $period_id );
 
@@ -476,7 +478,7 @@ class Fiscaat_Accounts_Admin {
 			'post_type'    => fct_get_account_post_type(),
 			'post_parent'  => $period_id,
 			'meta_key'     => '_fct_ledger_id',
-			'meta_value'   => (int) like_escape( $_REQUEST['ledger_id'] ),
+			'meta_value'   => (int) $wpdb->esc_like( $_REQUEST['ledger_id'] ),
 			'post__not_in' => array( (int) $_REQUEST['account_id'] ),
 			'numberposts'  => 1
 		) );

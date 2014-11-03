@@ -967,10 +967,11 @@ class Fiscaat_Admin {
 	 * @uses fct_get_account_title()
 	 */
 	public function suggest_account() {
+		global $wpdb;
 
 		// Try to get some accounts
 		$accounts = get_posts( array(
-			's'         => like_escape( $_REQUEST['q'] ),
+			's'         => $wpdb->esc_like( $_REQUEST['q'] ),
 			'post_type' => fct_get_account_post_type()
 		) );
 
