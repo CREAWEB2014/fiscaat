@@ -735,6 +735,10 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 */
 	public function display_helper_row( $which = '' ) {
 
+		// No helper rows for search pages
+		if ( is_search() )
+			return;
+
 		// Bail if no row name given
 		$which = esc_attr( esc_html( $which ) );
 		if ( empty( $which ) )
