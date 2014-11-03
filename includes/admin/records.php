@@ -86,6 +86,10 @@ class Fiscaat_Records_Admin {
 		add_action( 'fct_admin_load_new_records',   array( $this, 'missing_redirect' ) );
 		add_action( 'fct_admin_notices',            array( $this, 'missing_notices'  ) );
 
+		// Add ability to filter accounts and records per period
+		add_action( 'fct_admin_load_records', array( $this, 'search_records'  ) );
+		add_action( 'restrict_manage_posts',  array( $this, 'filter_dropdown' ) );
+
 		// Modify page heading
 		add_action( 'fct_admin_records_page', array( $this, 'page_description' ), 9 );
 
@@ -102,7 +106,6 @@ class Fiscaat_Records_Admin {
 		add_filter( 'post_updated_messages', array( $this, 'updated_messages' ) );
 
 		// Add ability to filter accounts and records per period
-		add_filter( 'restrict_manage_posts', array( $this, 'filter_dropdown'  ) );
 		add_filter( 'fct_request',           array( $this, 'filter_post_rows' ) );
 
 		// Record columns (in post row)
@@ -421,8 +424,11 @@ class Fiscaat_Records_Admin {
 		<style type="text/css" media="screen">
 		/*<![CDATA[*/
 
-			.fct_record_dates {
+			.tablenav .alignleft > * {
 				float: left;
+			}
+
+			.fct_record_dates {
 				margin-right: 6px;
 			}
 
@@ -730,6 +736,23 @@ class Fiscaat_Records_Admin {
 
 		// Set the correct account id
 		$_REQUEST['account_id'] = $_GET['account_id'] = ! empty( $account_id ) ? $account_id : null;
+	}
+
+	/**
+	 * Replace search filter for record list tables
+	 *
+	 * @since 0.0.9
+	 *
+	 * @uses remove_action()
+	 * @uses add_action()
+	 */
+	public function search_records() {
+		if ( $this->bail() )
+			return;
+
+		// Views. Remove default views
+		remove_action( 'fct_admin_records_page', 'fct_admin_list_table_search_box', 8 );
+		add_action( 'restrict_manage_posts', 'fct_admin_list_table_search_box', 8 );
 	}
 
 	/**

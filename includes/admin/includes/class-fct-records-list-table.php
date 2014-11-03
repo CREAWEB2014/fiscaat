@@ -95,6 +95,36 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	}
 
 	/**
+	 * Display the search box.
+	 *
+	 * @since 0.0.9
+	 * @access public
+	 *
+	 * @param string $text The search button text
+	 * @param string $input_id The search input id
+	 */
+	public function search_box( $text, $input_id ) {
+		if ( empty( $_REQUEST['s'] ) && ! $this->has_items() )
+			return;
+
+		$input_id = $input_id . '-search-input';
+
+		if ( ! empty( $_REQUEST['orderby'] ) )
+			echo '<input type="hidden" name="orderby" value="' . esc_attr( $_REQUEST['orderby'] ) . '" />';
+		if ( ! empty( $_REQUEST['order'] ) )
+			echo '<input type="hidden" name="order" value="' . esc_attr( $_REQUEST['order'] ) . '" />';
+		if ( ! empty( $_REQUEST['post_mime_type'] ) )
+			echo '<input type="hidden" name="post_mime_type" value="' . esc_attr( $_REQUEST['post_mime_type'] ) . '" />';
+		if ( ! empty( $_REQUEST['detached'] ) )
+			echo '<input type="hidden" name="detached" value="' . esc_attr( $_REQUEST['detached'] ) . '" />'; ?>
+
+		<label class="screen-reader-text" for="<?php echo $input_id ?>"><?php echo $text; ?>:</label>
+		<input type="search" id="<?php echo $input_id ?>" name="s" value="<?php _admin_search_query(); ?>" placeholder="<?php echo $text; ?>" <?php fct_tab_index_attr(); ?> />
+
+		<?php
+	}
+
+	/**
 	 * Return post status views
 	 *
 	 * Use {@link fct_count_posts()} when displaying account's records
@@ -194,11 +224,6 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 */
 	public function get_table_classes() {
 		$classes = array( 'widefat', 'fixed', 'posts', 'records' );
-
-		if ( ! fct_admin_is_view_records() ) {
-			$classes[] = fct_admin_get_records_mode() . '-records';
-		}
-
 		return $classes;
 	}
 

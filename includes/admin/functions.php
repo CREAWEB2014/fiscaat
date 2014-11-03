@@ -652,6 +652,9 @@ function fct_admin_setup_list_table( $object_type = '' ) {
 	// Hook to display list table views
 	add_action( "fct_admin_{$object_type}s_page", array( $wp_list_table, 'views' ) );
 
+	// Hook to display list table search box
+	add_action( "fct_admin_{$object_type}s_page", 'fct_admin_list_table_search_box', 8 );
+
 	// Hook to display the list table
 	add_action( "fct_admin_{$object_type}s_page", 'fct_admin_display_list_table', 20 );
 }
@@ -664,19 +667,34 @@ function fct_admin_setup_list_table( $object_type = '' ) {
  * @global $wp_list_table
  */
 function fct_admin_display_list_table() { 
-	global $wp_list_table, $post_type_object; ?>
+	global $wp_list_table; ?>
 
 	<form id="posts-filter" action="" method="get">
 
 		<input type="hidden" name="page" class="post_page" value="<?php echo ! empty($_REQUEST['page']) ? esc_attr($_REQUEST['page']) : 'fiscaat'; ?>" />
 		<input type="hidden" name="post_status" class="post_status_page" value="<?php echo ! empty($_REQUEST['post_status']) ? esc_attr($_REQUEST['post_status']) : ''; ?>" />
-		<?php $wp_list_table->search_box( $post_type_object->labels->search_items, 'post' ); ?>
 
 		<?php $wp_list_table->display(); ?>
 
 	</form>
 
 	<?php
+}
+
+/**
+ * Display the list table search box
+ *
+ * @since 0.0.9
+ *
+ * @global $wp_list_table WP_List_Table
+ * @global $post_type_object
+ * 
+ * @uses WP_List_Table::search_box()
+ */
+function fct_admin_list_table_search_box() {
+	global $wp_list_table, $post_type_object;
+	
+	$wp_list_table->search_box( $post_type_object->labels->search_items, 'post' );
 }
 
 /** Records Modes *********************************************************/
