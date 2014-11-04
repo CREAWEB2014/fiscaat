@@ -348,7 +348,7 @@ function fct_update_account_record_count( $account_id = 0, $record_count = 0 ) {
  * Fiscaat handles an account's to value as credit less debit.
  * 
  * @param int $account_id Optional. Accoun id to update
- * @param boolean|int $value Optional. Set the record to value manually
+ * @param boolean|float $value Optional. Set the record to value manually
  * @uses fct_is_record() To find if given id is a record
  * @uses fct_get_record_account_id() To get the record's account id
  * @uses fct_get_account_id() To get the account id
@@ -386,7 +386,7 @@ function fct_update_account_end_value( $account_id = 0, $end_value = false ) {
 				$values[ fct_get_record_type( $record_id ) ] += fct_get_record_amount( $record_id );
 			}
 
-			// Less credit with debit
+			// Do credit minus debit. Positive values balance for debit, negative ones for credit.
 			$end_value = $values[ fct_get_credit_record_type_id() ] - $values[ fct_get_debit_record_type_id() ];
 
 		// No records
@@ -448,7 +448,6 @@ function fct_update_account_spectators( $account_id = 0, $spectators = false ) {
  *  - ledger_id: Account ledger id
  *  - account_type: Account type
  *  - end_value: Account end value
- *  - is_edit: Optional. Is the post being edited? Defaults to false.
  */
 function fct_update_account( $args = '' ) {
 
@@ -459,7 +458,6 @@ function fct_update_account( $args = '' ) {
 		'account_type' => '',
 		'ledger_id'    => 0,
 		'end_value'    => false,
-		'is_edit'      => false
 	), 'update_account' );
 
 	// Validate the ID's passed from 'fct_new_account' action
@@ -475,7 +473,6 @@ function fct_update_account( $args = '' ) {
 		$period_id = fct_get_account_period_id( $account_id );
 
 	// Period account meta
-	fct_update_account_id( $account_id, $account_id );
 	fct_update_account_period_id( $account_id, $period_id );
 
 	// Update account type
@@ -484,19 +481,15 @@ function fct_update_account( $args = '' ) {
 	// Update ledger id
 	fct_update_account_ledger_id( $account_id, $r['ledger_id'] );
 
-	// Update associated account values if this is not a new account
-	if ( empty( $r['is_edit'] ) ) {
+	// Record account meta
+	fct_update_account_record_count( $account_id, 0               );
+	fct_update_account_end_value   ( $account_id, $r['end_value'] );
+	// @todo Move to Control
+	// fct_update_account_record_count_declined  ( $account_id, 0    );
+	// fct_update_account_record_count_unapproved( $account_id, 0    );
 
-		// Record account meta
-		fct_update_account_record_count( $account_id, 0               );
-		fct_update_account_end_value   ( $account_id, $r['end_value'] );
-		// @todo Move to Control
-		// fct_update_account_record_count_declined  ( $account_id, 0         );
-		// fct_update_account_record_count_unapproved( $account_id, 0         );
-
-		// Update account period
-		fct_update_period( array( 'period_id' => $period_id ) );
-	}
+	// Update account period
+	fct_update_period( array( 'period_id' => $period_id ) );
 }
 
 /** Queries *********************************************************************/

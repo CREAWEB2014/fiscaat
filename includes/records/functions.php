@@ -466,12 +466,8 @@ function fct_update_record( $args = '' ) {
 	// Update offset account
 	fct_update_record_offset_account( $record_id, $r['offset_account'] );
 
-	// Update associated account values if this is a new record
-	if ( empty( $r['is_edit'] ) ) {
-
-		// Update parent account
-		fct_update_account( array( 'account_id' => $account_id, 'period_id' => $period_id ) );
-	}
+	// Update parent account
+	fct_update_account( array( 'account_id' => $account_id, 'period_id' => $period_id ) );
 }
 
 /** Before Delete/Trash/Untrash ***********************************************/
