@@ -397,15 +397,12 @@ function fct_update_period_account_count( $period_id = 0 ) {
  * @uses fct_get_period_id() To get the period id
  * @uses fct_update_period_record_count() To update the period record count
  * @uses fct_period_query_record_ids() To get the period record ids
- * @uses wpdb::prepare() To prepare the sql statement
- * @uses wpdb::get_var() To execute the query and get the var back
  * @uses fct_update_period_meta() To update the period's record count meta
  * @uses apply_filters() Calls 'fct_update_period_account_count' with the record
  *                        count and period id
  * @return int Period record count
  */
 function fct_update_period_record_count( $period_id = 0 ) {
-	global $wpdb;
 
 	// If record_id was passed as $period_id, then get its period
 	if ( fct_is_record( $period_id ) ) {
@@ -420,7 +417,7 @@ function fct_update_period_record_count( $period_id = 0 ) {
 	// Don't count records if the period is empty
 	$record_ids = fct_period_query_record_ids( $period_id );
 	if ( ! empty( $record_ids ) ) {
-		$record_count = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_parent IN ( " . join( ',', $record_ids ) . " ) AND post_type = '%s';", fct_get_record_post_type() ) );
+		$record_count = count( $record_ids );
 	} else {
 		$record_count = 0;
 	}
@@ -612,11 +609,21 @@ function fct_period_query_capital_account_ids( $period_id ) {
  * @param int $period_id Period id
  * @uses fct_get_record_post_type() To get the period post type
  * @uses fct_get_public_child_ids() To get the period ids
+ * @uses wpdb::prepare() To prepare the sql statement
+ * @uses wpdb::get_var() To execute the query and get the var back
  * @uses apply_filters() Calls 'fct_period_query_record_ids' with the record
  *                        ids and period id
  */
 function fct_period_query_record_ids( $period_id ) {
-	$record_ids = fct_get_public_child_ids( $period_id, fct_get_record_post_type() );
+	global $wpdb;
+
+	// Don't query records if the period is empty
+	$account_ids = fct_get_public_child_ids( $period_id, fct_get_account_post_type() );
+	if ( ! empty( $account_ids ) ) {
+		$record_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_parent IN ( " . join( ',', $account_ids ) . " ) AND post_type = '%s';", fct_get_record_post_type() ) );
+	} else {
+		$record_ids = array();
+	}
 
 	return apply_filters( 'fct_period_query_record_ids', $record_ids, $period_id );
 }
