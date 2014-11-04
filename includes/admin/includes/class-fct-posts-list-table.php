@@ -308,7 +308,8 @@ class FCT_Posts_List_Table extends WP_List_Table {
 		$alternate = 'alternate' == $alternate ? '' : 'alternate';
 
 		// Setup row class
-		$classes = $alternate . ' iedit author-' . ( get_current_user_id() == $post->post_author ? 'self' : 'other' );
+		$classes  = $alternate . ' iedit author-' . ( get_current_user_id() == $post->post_author ? 'self' : 'other' );
+		$classes .= ' ' . fct_get_object_type_by_post_type( $post->post_type );
 
 		$lock_holder = wp_check_post_lock( $post->ID );
 		if ( $lock_holder ) {
