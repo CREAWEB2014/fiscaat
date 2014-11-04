@@ -414,18 +414,13 @@ function fct_update_period_record_count( $period_id = 0 ) {
 		$period_id = fct_get_period_id( $period_id );
 	}
 
-	// Don't count records if the period is empty
-	$record_ids = fct_period_query_record_ids( $period_id );
-	if ( ! empty( $record_ids ) ) {
-		$record_count = count( $record_ids );
-	} else {
-		$record_count = 0;
-	}
+	//Get total records for this period
+	$records = (int) count( fct_period_query_record_ids( $period_id ) );
 
 	// Update the count
-	fct_update_period_meta( $period_id, 'record_count', (int) $record_count );
+	fct_update_period_meta( $period_id, 'record_count', (int) $records );
 
-	return (int) apply_filters( 'fct_update_period_record_count', (int) $record_count, $period_id );
+	return (int) apply_filters( 'fct_update_period_record_count', (int) $records, $period_id );
 }
 
 /**
