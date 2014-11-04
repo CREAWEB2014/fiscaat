@@ -290,21 +290,30 @@ function fct_get_total_spectators() {
  * 
  * @uses WP_Admin_Bar::remove_node() To remove default nodes
  * @uses current_user_can() To check if user can see menu
+ * @uses fct_get_record_post_type()
  * @uses fct_get_period_post_type()
  * @uses fct_get_account_post_type()
- * @uses fct_get_record_post_type()
  * @uses apply_filters() Calls 'fct_admin_bar_menu' with the nodes
  * @uses WP_Admin_Bar::add_node() To add new admin bar menu items
  * @param WP_Admin_Bar $wp_admin_bar
  */
 function fct_admin_bar_menu( $wp_admin_bar ) {
 
+	// Get post type objects
+	$rpto = get_post_type_object( fct_get_record_post_type()  );
+	$apto = get_post_type_object( fct_get_account_post_type() );
+	$ppto = get_post_type_object( fct_get_period_post_type()  );
+
 	// Overwrite New Records href
-	if ( $wp_admin_bar->get_node( 'new-' . fct_get_record_post_type() ) ) {
+	if ( $wp_admin_bar->get_node( 'new-' . $rpto->name ) ) {
+
+		// Require admin functions for now
+		require_once( fiscaat()->includes_dir . 'admin/functions.php' );
+
 		$wp_admin_bar->add_node( array( 
-			'id'     => 'new-' . fct_get_record_post_type(), 
+			'id'     => 'new-' . $rpto->name, 
 			'parent' => 'new-content',
-			'title'  => get_post_type_object( fct_get_record_post_type() )->labels->name_admin_bar,
+			'title'  => $rpto->labels->name_admin_bar,
 			'href'   => admin_url( 'admin.php?page=fct-records&mode=' . fct_admin_get_new_records_mode() )
 		) );
 	}
@@ -313,14 +322,9 @@ function fct_admin_bar_menu( $wp_admin_bar ) {
 	if ( is_admin() || ! current_user_can( 'fct_spectate' ) )
 		return;
 
-	// Get post type objects
-	$rpto = get_post_type_object( fct_get_record_post_type()  );
-	$apto = get_post_type_object( fct_get_account_post_type() );
-	$ppto = get_post_type_object( fct_get_period_post_type()  );
-
 	// Setup nodes as id => other attrs
 	$nodes = array( 
-		
+
 		// Top level menu
 		'fiscaat' => array(
 			'title'  => __( 'Fiscaat', 'fiscaat' ),
