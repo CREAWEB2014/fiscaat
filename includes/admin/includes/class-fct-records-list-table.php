@@ -87,11 +87,20 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 */
 	public function prepare_items() {
 
-		/**
-		 * Various actions: view, edit, post
-		 */
+		// New records mode
+		if ( fct_admin_is_new_records() ) {
+			
+			// Set list table globals
+			global $avail_post_stati, $wp_query, $per_page;
+			$avail_post_stati = get_available_post_statuses( $this->screen->post_type );
+			$per_page = 0; // The amount of empty record rows
+			$this->is_trash = false;
+			$this->_pagination_args = array(); // No pagination
 
-		parent::prepare_items();
+		// Default to parent behavior
+		} else {
+			parent::prepare_items();
+		}
 	}
 
 	/**
@@ -446,9 +455,36 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 * @uses FCT_Records_List_Table::display_helper_row()
 	 */
 	public function display_new_rows() {
+		global $post;
 
-		// Start with 25 empty rows
-		for ( $i = 0; $i < 25; $i++ ) {
+		// Setup $post global to have all record meta keys
+		$post = new WP_Post( (object) array_map( '__return_empty_string', fct_get_record_default_meta() ) );
+
+		// Define local variable(s)
+		$new_rows = 25; // get_option() ?
+
+		// Manage unprocessed data
+		if ( ! empty( $_REQUEST['records'] ) ) {
+
+			// Keep copy of $post global
+			$_post = $post;
+
+			// Get unprocessed data
+			$posts    = (array) $_REQUEST['records'];
+			$new_rows = max( 0, $new_rows - count( $posts ) );
+
+			// Display unprocessed data
+			foreach ( $posts as $data ) {
+				$post = new WP_Post( (object) $data );
+				$this->single_new_row();
+			}
+
+			// Reset $post global
+			$post = $_post;
+		}
+
+		// Display remaining empty rows
+		for ( $i = 0; $i < $new_rows; $i++ ) {
 			$this->single_new_row();
 		}
 
@@ -514,6 +550,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 					'class'          => 'fct_record_ledger_id',
 					'show_none'      => '&mdash;',
 					'disable_closed' => true,
+					'selected'       => fct_get_account_ledger_id( $post->account_id ),
 				) );
 				break;
 
@@ -527,6 +564,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 						'class'          => 'fct_record_ledger_id',
 						'show_none'      => '&mdash;',
 						'disable_closed' => true,
+						'selected'       => fct_get_account_ledger_id( $post->account_id ),
 					) );
 				}
 
@@ -535,13 +573,14 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 					'class'          => 'fct_record_account_id',
 					'show_none'      => __( '&mdash; No Account &mdash;', 'fiscaat' ),
 					'disable_closed' => true,
+					'selected'       => $post->account_id,
 				) );
 				break;
 
 			// Record content
 			case 'fct_record_description' : ?>
 
-				<textarea name="records[description][]" class="fct_record_description" rows="1" <?php fct_tab_index_attr(); ?>></textarea>
+				<textarea name="records[description][]" class="fct_record_description" rows="1" <?php fct_tab_index_attr(); ?>><?php echo esc_textarea( $post->post_content ); ?></textarea>
 
 				<?php
 				break;
@@ -550,7 +589,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			case 'fct_record_date': 
 				$today = mysql2date( _x( 'd-m-Y', 'date input field format', 'fiscaat' ), fct_current_time() ); ?>
 
-				<input name="records[record_date][]" type="text" class="fct_record_date medium-text datepicker" value="" placeholder="<?php echo $today; ?>" <?php fct_tab_index_attr(); ?>/>
+				<input name="records[record_date][]" type="text" class="fct_record_date medium-text datepicker" value="<?php echo esc_attr( $post->record_date ); ?>" placeholder="<?php echo $today; ?>" <?php fct_tab_index_attr(); ?>/>
 
 				<?php
 				break;
@@ -558,7 +597,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			// Record offset account
 			case 'fct_record_offset_account' : ?>
 
-				<input name="records[offset_account][]" type="text" class="fct_record_offset_account" value="" <?php fct_tab_index_attr(); ?>/>
+				<input name="records[offset_account][]" type="text" class="fct_record_offset_account" value="<?php echo esc_attr( $post->offset_account ); ?>" <?php fct_tab_index_attr(); ?>/>
 
 				<?php
 				break;
@@ -566,8 +605,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			// Record amount
 			case 'fct_record_amount' : ?>
 
-				<input name="records[amount][<?php echo fct_get_debit_record_type_id(); ?>][]"  class="debit_amount small-text"  type="text" value="" <?php fct_tab_index_attr(); ?>/>
-				<input name="records[amount][<?php echo fct_get_credit_record_type_id(); ?>][]" class="credit_amount small-text" type="text" value="" <?php fct_tab_index_attr(); ?>/>
+				<input name="records[amount][<?php echo fct_get_debit_record_type_id(); ?>][]"  class="debit_amount small-text"  type="text" value="<?php if ( fct_get_debit_record_type_id()  == $post->record_type ) { echo esc_attr( $post->amount ); } ?>" <?php fct_tab_index_attr(); ?>/>
+				<input name="records[amount][<?php echo fct_get_credit_record_type_id(); ?>][]" class="credit_amount small-text" type="text" value="<?php if ( fct_get_credit_record_type_id() == $post->record_type ) { echo esc_attr( $post->amount ); } ?>" <?php fct_tab_index_attr(); ?>/>
 
 				<?php
 				break;
@@ -753,6 +792,11 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			$classes .= ' mismatch';
 		}
 
+		// Define table-scroll bottom row
+		if ( 'end' == $which || ( 'total' == $which && fct_admin_is_new_records() ) ) {
+			$classes .= ' scroll-bottom-row';
+		}
+
 		list( $columns, $hidden ) = $this->get_column_info(); ?>
 		<tr id="fct-<?php echo $which; ?>-records" class="<?php echo $classes; ?>" valign="top">
 
@@ -826,8 +870,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 				// Update skewed end value on the fly
 				if ( 'end' == $row && $this->get_sum_diff() != $value ) {
-					$value = $this->get_sum_diff();
-					fct_update_account_end_value( $account_id, $value );
+					// $value = $this->get_sum_diff();
+					// fct_update_account_end_value( $account_id, $value );
 				}
 
 				$this->amounts[ $value > 0 ? fct_get_debit_record_type_id() : fct_get_credit_record_type_id() ][] = abs( $value ); ?>
