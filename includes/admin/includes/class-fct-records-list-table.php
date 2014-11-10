@@ -917,7 +917,12 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 				// THE records submit button
 				if ( fct_admin_is_new_records() ) {
 					wp_nonce_field( 'bulk-insert-records' );
+
+					// Submit button
 					submit_button( __( 'Submit', 'fiscaat' ), 'primary', 'submit-records', false, array( 'tabindex' => fct_get_tab_index() ) );
+
+					// Clear button
+					echo '<input type="button" class="button button-secondary hide-if-no-js" onclick="clearInputs(this.form)" value="' . _x( 'Clear', 'Clear form button label', 'fiscaat' ) . '" ' . fct_get_tab_index_attr() . '/>';
 				}
 
 				break;

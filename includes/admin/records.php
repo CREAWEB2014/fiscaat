@@ -566,11 +566,6 @@ class Fiscaat_Records_Admin {
 					width: 65px;
 				}
 
-				.widefat input[name="submit-records"] {
-					float: right;
-					margin: 10px 0;
-				}
-
 			.<?php echo $new;  ?>-records .widefat .record td.column-fct_record_description,
 			.<?php echo $edit; ?>-records .widefat .record td.column-fct_record_description {
 				padding: 9px 10px 4px;
@@ -606,6 +601,11 @@ class Fiscaat_Records_Admin {
 
 				.widefat #fct-total-records.mismatch td {
 					color: #f9f9f9;
+				}
+
+				.widefat #fct-total-records .column-fct_record_offset_account input {
+					float: right;
+					margin: 10px 0 10px 10px;
 				}
 
 			/** Table scrolling ***********************************************/

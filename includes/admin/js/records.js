@@ -108,7 +108,7 @@ jQuery(document).ready( function($) {
 
 						// Recalculate the other type if the value was valid
 						if ( isValidNumber( other_value ) ) {
-							updateSum( otherType( which ) );
+							updateSum( otherRecordType( which ) );
 						}
 					}
 
@@ -126,12 +126,12 @@ jQuery(document).ready( function($) {
 	});
 
 	/**
-	 * Return the other column type
+	 * Return the other record type
 	 * 
-	 * @param {string} which The other's other column type
-	 * @return {string} The other column type
+	 * @param {string} which The other's other record type
+	 * @return {string} The other record type
 	 */
-	function otherType( which ) {
+	function otherRecordType( which ) {
 		return ( debit === which ) ? credit : debit;
 	}
 
@@ -194,7 +194,7 @@ jQuery(document).ready( function($) {
 		var v = 0;
 
 		// Update both when no arg was passed
-		if ( 'undefined' === typeof which ) {
+		if ( typeof which === 'undefined' ) {
 			which = false;
 		}
 
@@ -236,4 +236,29 @@ jQuery(document).ready( function($) {
 
 	// Calculate on page load for browsers that keep input values on page refresh
 	updateSum();
+
 });
+
+/** Form Utility **********************************************************/
+
+/**
+ * Clear the inputs within a given element
+ *
+ * @param {string} el Element selector
+ */
+function clearInputs( el ) {
+	jQuery( el ).find(':input').each( function() {
+		switch (this.type) {
+			case 'password':
+			case 'select-multiple':
+			case 'select-one':
+			case 'text':
+			case 'textarea':
+				jQuery(this).val('');
+			break;
+			case 'checkbox':
+			case 'radio':
+				this.checked = false;
+		}
+	});
+}
