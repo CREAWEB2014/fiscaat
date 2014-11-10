@@ -67,10 +67,10 @@ jQuery(document).ready( function($) {
 
 	/** Inserting Records *****************************************************/
 
-	var $table = $( '.widefat.records' );
-	    $debits = $table.find( '.debit_amount' ),
-	    $credits = $table.find( '.credit_amount' ),
-	    $sumRow = $( '#fct-total-records' ), // May not be in $table
+	var $table = $( '.widefat' ); // Get all present records
+	    $debits = $table.find( 'tr:not(#fct-total-records) .debit_amount' ),
+	    $credits = $table.find( 'tr:not(#fct-total-records) .credit_amount' ),
+	    $sumRow = $table.find( '#fct-total-records' ), // Should be in a .widefat table
 	    $debitSum = $sumRow.find( '#fct_records_debit_total' ),
 	    $creditSum = $sumRow.find( '#fct_records_credit_total' ),
 	    debit = 'debit',
