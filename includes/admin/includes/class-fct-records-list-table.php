@@ -83,7 +83,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 	 *
 	 * @since 0.0.8
 	 *
-	 * @todo Create own version
+	 * @uses fct_admin_is_new_records()
+	 * @uses get_available_post_statuses()
 	 */
 	public function prepare_items() {
 
@@ -91,7 +92,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		if ( fct_admin_is_new_records() ) {
 			
 			// Set list table globals
-			global $avail_post_stati, $wp_query, $per_page;
+			global $avail_post_stati, $per_page;
 			$avail_post_stati = get_available_post_statuses( $this->screen->post_type );
 			$per_page = 0; // The amount of empty record rows
 			$this->is_trash = false;
@@ -100,6 +101,29 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 		// Default to parent behavior
 		} else {
 			parent::prepare_items();
+		}
+	}
+
+	/**
+	 * Return whether the current table has records
+	 *
+	 * @since 0.0.9
+	 * 
+	 * @uses fct_admin_is_new_records()
+	 * @uses fct_period_has_records()
+	 * @return boolean Table has records
+	 */
+	public function has_items() {
+
+		// New records mode
+		if ( fct_admin_is_new_records() ) {
+
+			// Whether there are queryable records
+			return fct_period_has_records();
+
+		// Default to parent behavior
+		} else {
+			return parent::has_items();
 		}
 	}
 

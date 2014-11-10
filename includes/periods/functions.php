@@ -532,7 +532,8 @@ function fct_has_open_period() {
  * @return bool Period has records
  */
 function fct_period_has_records( $period_id = 0 ) {
-	$record_count = fct_get_public_child_count( fct_get_period_id( $period_id ), fct_get_record_post_type() );
+	$period_id    = fct_get_period_id( $period_id );
+	$record_count = fct_get_period_record_count( $period_id );
 
 	return (bool) apply_filters( 'fct_period_has_records', $record_count > 0, $period_id );
 }
