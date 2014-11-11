@@ -95,7 +95,7 @@ class Fiscaat_Records_Importer {
 
 		// Output import button at bulk actions position and hook thickbox to HTML button element
 		// For some reason <a> element responds as expected to thickbox. <input> or <button> does not.
-		echo '<a id="fct_records_import_button" class="thickbox button button-primary" name="'. __('Import Records', 'fiscaat') .'" href="#TB_inline?height=150&amp;width=300&amp;inlineId=fct_import_modal" tabindex="'. fct_get_tab_index() .'" >'. __('Import', 'fiscaat') .'</a>';
+		echo '<a id="fct_records_import_button" class="thickbox button button-primary" name="'. __('Import Records', 'fiscaat') .'" href="#TB_inline?height=150&amp;width=300&amp;inlineId=fct_import_modal">'. __('Import', 'fiscaat') .'</a>';
 	}
 
 	/**

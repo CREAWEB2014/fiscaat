@@ -1866,7 +1866,6 @@ function fct_ledger_dropdown( $args = '' ) {
 			'select_id'          => 'fct_ledger_id',
 			'select_name'        => false,
 			'class'              => false,
-			'tab'                => fct_get_tab_index(),
 			'options_only'       => false,
 			'show_none'          => '&mdash;',
 			'none_found'         => false,
@@ -1940,11 +1939,8 @@ function fct_ledger_dropdown( $args = '' ) {
 			// Should this select appear disabled?
 			$disabled = disabled( $r['disabled'], true, false );
 
-			// Setup the tab index attribute
-			$tab      = ! empty( $r['tab'] ) ? ' tabindex="' . intval( $r['tab'] ) . '"' : '';
-
 			// Open the select tag
-			$retval  .= '<select name="' . esc_attr( $name ) . '" id="' . esc_attr( $r['select_id'] ) . '"' . $class . $disabled . $tab . '>' . "\n";
+			$retval  .= '<select name="' . esc_attr( $name ) . '" id="' . esc_attr( $r['select_id'] ) . '"' . $class . $disabled . '>' . "\n";
 		}
 
 		// Display a leading 'no-value' option, with or without custom text

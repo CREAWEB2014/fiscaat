@@ -817,15 +817,13 @@ class Fiscaat_Records_Admin {
 		// Show the queried record dates
 		/* translators: 1: Select records start date field, 2: Select records end date field */
 		printf( '<span class="fct_record_dates"><i class="dashicons dashicons-calendar-alt"></i> ' . _x( '%1$s - %2$s', 'Start date to end date', 'fiscaat' ) . '</span>', 
-			sprintf( '<input id="fct_record_date_from" type="text" name="date_from" class="fct_record_date datepicker" value="%1$s" placeholder="%2$s" %3$s/>',
+			sprintf( '<input id="fct_record_date_from" type="text" name="date_from" class="fct_record_date datepicker" value="%1$s" placeholder="%2$s" />',
 				! empty( $_REQUEST['date_from'] ) ? $_REQUEST['date_from'] : '', // Date value
-				_x( 'dd-mm-yyyy', 'date input field format', 'fiscaat' ),        // Date placeholder
-				fct_get_tab_index_attr()                                         // Tabindex
+				_x( 'dd-mm-yyyy', 'date input field format', 'fiscaat' )         // Date placeholder
 			), 
-			sprintf( '<input id="fct_record_date_to" type="text" name="date_to" class="fct_record_date datepicker" value="%1$s" placeholder="%2$s" %3$s/>',
+			sprintf( '<input id="fct_record_date_to" type="text" name="date_to" class="fct_record_date datepicker" value="%1$s" placeholder="%2$s" />',
 				! empty( $_REQUEST['date_to'] ) ? $_REQUEST['date_to'] : '', // Date value
-				_x( 'dd-mm-yyyy', 'date input field format', 'fiscaat' ),    // Date placeholder
-				fct_get_tab_index_attr()                                     // Tabindex
+				_x( 'dd-mm-yyyy', 'date input field format', 'fiscaat' )     // Date placeholder
 		) );
 	}
 

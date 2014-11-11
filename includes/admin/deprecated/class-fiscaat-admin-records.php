@@ -385,7 +385,7 @@ class Fiscaat_Admin_Records {
 
 		?>
 		<div class="tablenav-pages">
-			<?php submit_button( __( 'Save Records', 'fiscaat' ), 'primary', $name, false, array( 'tab_index' => 9999 ) ); ?>
+			<?php submit_button( __( 'Save Records', 'fiscaat' ), 'primary', $name, false ); ?>
 		</div>
 	<?php
 	}

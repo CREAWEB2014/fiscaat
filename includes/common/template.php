@@ -749,70 +749,6 @@ function fct_sanitize_val( $request = '', $input_type = 'text' ) {
 	}
 
 /**
- * Output the current tab index of a given form
- *
- * Use this function to handle the tab indexing of user facing forms within a
- * template file. Calling this function will automatically increment the global
- * tab index by default.
- *
- * @param int $auto_increment Optional. Default true. Set to false to prevent
- *                             increment
- */
-function fct_tab_index( $auto_increment = true ) {
-	echo fct_get_tab_index( $auto_increment );
-}
-
-	/**
-	 * Output the current tab index of a given form
-	 *
-	 * Use this function to handle the tab indexing of user facing forms
-	 * within a template file. Calling this function will automatically
-	 * increment the global tab index by default.
-	 *
-	 * @uses apply_filters Allows return value to be filtered
-	 * @param int $auto_increment Optional. Default true. Set to false to
-	 *                             prevent the increment
-	 * @return int $fct->tab_index The global tab index
-	 */
-	function fct_get_tab_index( $auto_increment = true ) {
-		$fct = fiscaat();
-
-		if ( true === $auto_increment ) {
-			++$fct->tab_index;
-		}
-
-		return apply_filters( 'fct_get_tab_index', (int) $fct->tab_index );
-	}
-
-/**
- * Output the current tab index attribute of a given element in html
- *
- * Use this function to handle the tab indexing of user facing forms within a
- * template file. Calling this function will automatically increment the global
- * tab index by default.
- *
- * @param int $auto_increment Optional. Default true. Set to false to prevent
- *                             increment
- */
-function fct_tab_index_attr( $auto_increment = true ) {
-	echo fct_get_tab_index_attr( $auto_increment );
-}
-
-	/**
-	 * Return the current tab index attribute of a given element in html
-	 *
-	 * Use this function to handle the tab indexing of user facing forms within a
-	 * template file. Calling this function will automatically increment the global
-	 * tab index by default.
-	 *
-	 * @param int $auto_increment Optional. Default true. Set to false to prevent
-	 *                             increment
-	 */
-	function fct_get_tab_index_attr( $auto_increment = true ) {
-		return 'tabindex="' . fct_get_tab_index( $auto_increment ) . '"';
-	}
-
-/**
  * Output a select box allowing to pick which period/account a new account/record
  * belongs in.
  *
@@ -844,7 +780,6 @@ function fct_dropdown( $args = '' ) {
 	 *                     all posts
 	 *  - walker: Which walker to use? Defaults to {@link Fiscaat_Walker_Dropdown}
 	 *  - select_id: ID of the select box. Defaults to 'fct_period_id'
-	 *  - tab: Tabindex value. False or integer
 	 *  - options_only: Show only <options>? No <select>?
 	 *  - show_none: False or something like __( '(No Period)', 'fiscaat' ),
 	 *                will have value=""
@@ -884,7 +819,6 @@ function fct_dropdown( $args = '' ) {
 			'select_id'          => 'fct_period_id',
 			'select_name'        => false,
 			'class'              => false,
-			'tab'                => fct_get_tab_index(),
 			'options_only'       => false,
 			'show_none'          => false,
 			'none_found'         => false,
@@ -957,11 +891,8 @@ function fct_dropdown( $args = '' ) {
 			// Should this select appear disabled?
 			$disabled = disabled( $r['disabled'], true, false );
 
-			// Setup the tab index attribute
-			$tab      = ! empty( $r['tab'] ) ? ' tabindex="' . intval( $r['tab'] ) . '"' : '';
-
 			// Open the select tag
-			$retval  .= '<select name="' . esc_attr( $name ) . '" id="' . esc_attr( $r['select_id'] ) . '"' . $class . $disabled . $tab . '>' . "\n";
+			$retval  .= '<select name="' . esc_attr( $name ) . '" id="' . esc_attr( $r['select_id'] ) . '"' . $class . $disabled . '>' . "\n";
 		}
 
 		// Display a leading 'no-value' option, with or without custom text
@@ -1189,7 +1120,6 @@ function fct_the_content( $args = array() ) {
 			'wpautop'       => true,
 			'media_buttons' => false,
 			'textarea_rows' => '12',
-			'tabindex'      => fct_get_tab_index(),
 			'editor_class'  => 'fiscaat-the-content',
 			'tinymce'       => true,
 			'teeny'         => true,
@@ -1216,7 +1146,6 @@ function fct_the_content( $args = array() ) {
 				'wpautop'       => $r['wpautop'],
 				'media_buttons' => $r['media_buttons'],
 				'textarea_rows' => $r['textarea_rows'],
-				'tabindex'      => $r['tabindex'],
 				'editor_class'  => $r['editor_class'],
 				'tinymce'       => $r['tinymce'],
 				'teeny'         => $r['teeny'],
@@ -1231,7 +1160,7 @@ function fct_the_content( $args = array() ) {
 		 */
 		else : ?>
 
-			<textarea id="fct_<?php echo esc_attr( $r['context'] ); ?>_content" class="<?php echo esc_attr( $r['editor_class'] ); ?>" name="fct_<?php echo esc_attr( $r['context'] ); ?>_content" cols="60" rows="<?php echo esc_attr( $r['textarea_rows'] ); ?>" tabindex="<?php echo esc_attr( $r['tabindex'] ); ?>"><?php echo $post_content; ?></textarea>
+			<textarea id="fct_<?php echo esc_attr( $r['context'] ); ?>_content" class="<?php echo esc_attr( $r['editor_class'] ); ?>" name="fct_<?php echo esc_attr( $r['context'] ); ?>_content" cols="60" rows="<?php echo esc_attr( $r['textarea_rows'] ); ?>" ><?php echo $post_content; ?></textarea>
 
 		<?php endif;
 
@@ -1824,7 +1753,6 @@ function fct_currency_dropdown( $args = '' ) {
 
 			// Output-related
 			'select_id'          => '_fct_currency',
-			'tab'                => fct_get_tab_index(),
 			'options_only'       => false,
 			'none_found'         => false,
 			'disabled'           => ''
@@ -1837,8 +1765,8 @@ function fct_currency_dropdown( $args = '' ) {
 
 		/** Setup variables ***************************************************/
 
-		$retval    = '';
-		$items     = fct_get_currencies();
+		$retval = '';
+		$items  = fct_get_currencies();
 
 		/** Drop Down *********************************************************/
 
@@ -1854,11 +1782,8 @@ function fct_currency_dropdown( $args = '' ) {
 			// Should this select appear disabled?
 			$disabled = disabled( $r['disabled'], true, false );
 
-			// Setup the tab index attribute
-			$tab      = ! empty( $r['tab'] ) ? ' tabindex="' . intval( $r['tab'] ) . '"' : '';
-
 			// Open the select tag
-			$retval  .= '<select name="' . esc_attr( $name ) . '" id="' . esc_attr( $r['select_id'] ) . '"' . $class . $disabled . $tab . '>' . "\n";
+			$retval  .= '<select name="' . esc_attr( $name ) . '" id="' . esc_attr( $r['select_id'] ) . '"' . $class . $disabled . '>' . "\n";
 		}
 
 		// Display a leading 'no-value' option, with or without custom text

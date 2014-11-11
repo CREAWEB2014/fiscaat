@@ -248,8 +248,8 @@ class Fiscaat_Records_List_Table extends WP_List_Table {
 				?>
 
 					<td <?php echo $attributes; ?>>
-						<input name="fct_new_record[debit][]"  class="fct_record_debit_value small-text"  type="text" value="<?php if ( fct_get_debit_record_type_id()  == $post->fct_value_type ){ fct_currency_format( $post->fct_value ); } ?>" disabled="disabled" tabindex="<?php fct_tab_index(); ?>" />
-						<input name="fct_new_record[credit][]" class="fct_record_credit_value small-text" type="text" value="<?php if ( fct_get_credit_record_type_id() == $post->fct_value_type ){ fct_currency_format( $post->fct_value ); } ?>" disabled="disabled" tabindex="<?php fct_tab_index(); ?>" />
+						<input name="fct_new_record[debit][]"  class="fct_record_debit_value small-text"  type="text" value="<?php if ( fct_get_debit_record_type_id()  == $post->fct_value_type ){ fct_currency_format( $post->fct_value ); } ?>" disabled="disabled" />
+						<input name="fct_new_record[credit][]" class="fct_record_credit_value small-text" type="text" value="<?php if ( fct_get_credit_record_type_id() == $post->fct_value_type ){ fct_currency_format( $post->fct_value ); } ?>" disabled="disabled" />
 					</td>
 
 				<?php
@@ -327,12 +327,11 @@ class Fiscaat_Records_List_Table extends WP_List_Table {
 		$checked = '';
 		$selected = '';
 		$disabled = $disabled ? 'disabled="disabled" ' : '';
-		$tabindex = sprintf( 'tabindex="%s" ', fct_get_tab_index() );
 
 		switch ( $type ) {
 			case 'textarea':
 				$value = esc_textarea( $value );
-				$output = "<textarea $name$class$disabled$tabindex$style>$value</textarea>";
+				$output = "<textarea $name$class$disabled$style>$value</textarea>";
 			break;
 
 			case 'checkbox':
@@ -344,7 +343,7 @@ class Fiscaat_Records_List_Table extends WP_List_Table {
 			default        :
 				$type   = sprintf( 'type="%s" ',  esc_attr( $type  ) );
 				$value  = sprintf( 'value="%s" ', esc_attr( $value ) );
-				$output = "<input $type$name$class$value$disabled$checked$selected$tabindex$style />";
+				$output = "<input $type$name$class$value$disabled$checked$selected$style />";
 			break;
 		}
 

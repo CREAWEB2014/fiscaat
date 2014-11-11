@@ -225,7 +225,6 @@ final class Fiscaat {
 		$this->currency              = '';               // Currency iso code
 		$this->extend                = new stdClass();   // Plugins add data here
 		$this->errors                = new WP_Error();   // Feedback
-		$this->tab_index             = apply_filters( 'fct_default_tab_index', 100 );
 
 		/** Cache *************************************************************/
 

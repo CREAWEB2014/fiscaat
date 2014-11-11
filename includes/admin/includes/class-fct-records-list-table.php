@@ -152,7 +152,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			echo '<input type="hidden" name="detached" value="' . esc_attr( $_REQUEST['detached'] ) . '" />'; ?>
 
 		<label class="screen-reader-text" for="<?php echo $input_id ?>"><?php echo $text; ?>:</label>
-		<input type="search" id="<?php echo $input_id ?>" name="s" value="<?php _admin_search_query(); ?>" placeholder="<?php echo $text; ?>" <?php fct_tab_index_attr(); ?> />
+		<input type="search" id="<?php echo $input_id ?>" name="s" value="<?php _admin_search_query(); ?>" placeholder="<?php echo $text; ?>" />
 
 		<?php
 	}
@@ -604,7 +604,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			// Record content
 			case 'fct_record_description' : ?>
 
-				<textarea name="records[description][]" class="fct_record_description" rows="1" <?php fct_tab_index_attr(); ?>><?php echo esc_textarea( $post->post_content ); ?></textarea>
+				<textarea name="records[description][]" class="fct_record_description" rows="1"><?php echo esc_textarea( $post->post_content ); ?></textarea>
 
 				<?php
 				break;
@@ -613,7 +613,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			case 'fct_record_date': 
 				$today = mysql2date( _x( 'd-m-Y', 'date input field format', 'fiscaat' ), fct_current_time() ); ?>
 
-				<input name="records[record_date][]" type="text" class="fct_record_date medium-text datepicker" value="<?php echo esc_attr( $post->record_date ); ?>" placeholder="<?php echo $today; ?>" <?php fct_tab_index_attr(); ?>/>
+				<input name="records[record_date][]" type="text" class="fct_record_date medium-text datepicker" value="<?php echo esc_attr( $post->record_date ); ?>" placeholder="<?php echo $today; ?>" />
 
 				<?php
 				break;
@@ -621,7 +621,7 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			// Record offset account
 			case 'fct_record_offset_account' : ?>
 
-				<input name="records[offset_account][]" type="text" class="fct_record_offset_account" value="<?php echo esc_attr( $post->offset_account ); ?>" <?php fct_tab_index_attr(); ?>/>
+				<input name="records[offset_account][]" type="text" class="fct_record_offset_account" value="<?php echo esc_attr( $post->offset_account ); ?>" />
 
 				<?php
 				break;
@@ -629,8 +629,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			// Record amount
 			case 'fct_record_amount' : ?>
 
-				<input name="records[amount][<?php echo fct_get_debit_record_type_id(); ?>][]"  class="debit_amount small-text"  type="text" value="<?php if ( fct_get_debit_record_type_id()  == $post->record_type ) { echo esc_attr( $post->amount ); } ?>" <?php fct_tab_index_attr(); ?>/>
-				<input name="records[amount][<?php echo fct_get_credit_record_type_id(); ?>][]" class="credit_amount small-text" type="text" value="<?php if ( fct_get_credit_record_type_id() == $post->record_type ) { echo esc_attr( $post->amount ); } ?>" <?php fct_tab_index_attr(); ?>/>
+				<input name="records[amount][<?php echo fct_get_debit_record_type_id(); ?>][]"  class="debit_amount small-text"  type="text" value="<?php if ( fct_get_debit_record_type_id()  == $post->record_type ) { echo esc_attr( $post->amount ); } ?>" />
+				<input name="records[amount][<?php echo fct_get_credit_record_type_id(); ?>][]" class="credit_amount small-text" type="text" value="<?php if ( fct_get_credit_record_type_id() == $post->record_type ) { echo esc_attr( $post->amount ); } ?>" />
 
 				<?php
 				break;
@@ -900,8 +900,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 
 				$this->amounts[ $value > 0 ? fct_get_debit_record_type_id() : fct_get_credit_record_type_id() ][] = abs( $value ); ?>
 
-				<input id="fct_account_debit_<?php echo $row; ?>"  class="debit_amount small-text"  type="text" value="<?php if ( $value > 0 ) { fct_currency_format( abs( $value ) ); } ?>" <?php fct_tab_index_attr(); ?> readonly />
-				<input id="fct_account_credit_<?php echo $row; ?>" class="credit_amount small-text" type="text" value="<?php if ( $value < 0 ) { fct_currency_format( abs( $value ) ); } ?>" <?php fct_tab_index_attr(); ?> readonly />
+				<input id="fct_account_debit_<?php echo $row; ?>"  class="debit_amount small-text"  type="text" value="<?php if ( $value > 0 ) { fct_currency_format( abs( $value ) ); } ?>" readonly />
+				<input id="fct_account_credit_<?php echo $row; ?>" class="credit_amount small-text" type="text" value="<?php if ( $value < 0 ) { fct_currency_format( abs( $value ) ); } ?>" readonly />
 
 				<?php
 				break;
@@ -943,10 +943,10 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 					wp_nonce_field( 'bulk-insert-records' );
 
 					// Submit button
-					submit_button( __( 'Submit', 'fiscaat' ), 'primary', 'submit-records', false, array( 'tabindex' => fct_get_tab_index() ) );
+					submit_button( __( 'Submit', 'fiscaat' ), 'primary', 'submit-records', false );
 
 					// Clear button
-					echo '<input type="button" class="button button-secondary hide-if-no-js" onclick="clearInputs(this.form)" value="' . _x( 'Clear', 'Clear form button label', 'fiscaat' ) . '" ' . fct_get_tab_index_attr() . '/>';
+					echo '<input type="button" class="button button-secondary hide-if-no-js" onclick="clearInputs(this.form)" value="' . _x( 'Clear', 'Clear form button label', 'fiscaat' ) . '" />';
 				}
 
 				break;
@@ -955,8 +955,8 @@ class FCT_Records_List_Table extends FCT_Posts_List_Table {
 			case 'fct_record_amount' : 
 				$placeholder = fct_get_currency_format( 0.00 ); ?>
 
-				<input id="fct_records_debit_total"  class="debit_amount fct_record_total small-text"  type="text" value="<?php fct_currency_format( $this->get_debit_sum()  ); ?>" <?php fct_tab_index_attr(); ?> placeholder="<?php echo $placeholder; ?>" readonly />
-				<input id="fct_records_credit_total" class="credit_amount fct_record_total small-text" type="text" value="<?php fct_currency_format( $this->get_credit_sum() ); ?>" <?php fct_tab_index_attr(); ?> placeholder="<?php echo $placeholder; ?>" readonly />
+				<input id="fct_records_debit_total"  class="debit_amount fct_record_total small-text"  type="text" value="<?php fct_currency_format( $this->get_debit_sum()  ); ?>" placeholder="<?php echo $placeholder; ?>" readonly />
+				<input id="fct_records_credit_total" class="credit_amount fct_record_total small-text" type="text" value="<?php fct_currency_format( $this->get_credit_sum() ); ?>" placeholder="<?php echo $placeholder; ?>" readonly />
 
 				<?php
 				break;
